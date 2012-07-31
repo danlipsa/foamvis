@@ -245,6 +245,14 @@ size_t BodyAttribute::GetNumberOfComponents (size_t attribute)
 	return GetNumberOfComponents (BodyAttribute::FromSizeT (attribute));
 }
 
+// Methods ViewNumber
+// ======================================================================
+ViewNumber::Enum ViewNumber::FromSizeT (size_t i)
+{
+    RuntimeAssert (i < ViewNumber::COUNT,
+		   "Value outside of ViewNumber::Enum", i);
+    return ViewNumber::Enum (i);
+}
 
 // Methods ViewType
 // ======================================================================

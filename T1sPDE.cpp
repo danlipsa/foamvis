@@ -109,8 +109,8 @@ void T1sPDE::InitShaders ()
 				       (RESOURCE ("GaussianStore.frag")));
 }
 
-T1sPDE::T1sPDE (const WidgetGl& widgetGl) :
-    ScalarAverageTemplate<SetterNop> (widgetGl, 
+T1sPDE::T1sPDE (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
+    ScalarAverageTemplate<SetterNop> (viewNumber, widgetGl, 
 				      "t1sPDE", QColor (0, 255, 0, 0)),
     m_kernelIntervalPerPixel (KERNEL_INTERVAL_PER_PIXEL.first),
     m_kernelSigma (KERNEL_SIGMA.first),
@@ -119,10 +119,10 @@ T1sPDE::T1sPDE (const WidgetGl& widgetGl) :
 {
 }
 
-void T1sPDE::AverageInit (ViewNumber::Enum viewNumber)
+void T1sPDE::AverageInit ()
 {
     WarnOnOpenGLError ("a - T1sPDE::AverageInit");
-    ScalarAverageTemplate<SetterNop>::AverageInit (viewNumber);
+    ScalarAverageTemplate<SetterNop>::AverageInit ();
     initKernel ();
     WarnOnOpenGLError ("b - T1sPDE::AverageInit");
 }

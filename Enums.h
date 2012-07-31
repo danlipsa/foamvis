@@ -395,6 +395,7 @@ struct ViewNumber
 	VIEW3,
 	COUNT
     };
+    static Enum FromSizeT (size_t count);
 };
 
 struct HighlightNumber

@@ -23,7 +23,8 @@ class ViewSettings;
 class ViewAverage : public AverageInterface
 {
 public:
-    ViewAverage (const WidgetGl& widgetGl, const ViewSettings& viewSettings);
+    ViewAverage (ViewNumber::Enum viewNumber, 
+		 const WidgetGl& widgetGl, const ViewSettings& viewSettings);
 
     ScalarAverage& GetScalarAverage () const
     {
@@ -49,7 +50,7 @@ public:
 	return *m_forceAverage;
     }
     void SetSimulation (const Simulation& simulation);
-    virtual void AverageInit (ViewNumber::Enum viewNumber);
+    virtual void AverageInit ();
     virtual void AverageSetTimeWindow (size_t timeSteps);
     virtual void AverageStep (int direction);
     virtual void AverageRotateAndDisplay (

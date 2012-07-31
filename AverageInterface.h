@@ -17,21 +17,18 @@
 class AverageInterface
 {
 public:
-    AverageInterface () :
-	m_viewNumber (ViewNumber::COUNT)
+    AverageInterface (ViewNumber::Enum viewNumber) :
+	m_viewNumber (viewNumber)
     {
     }
-    virtual void AverageInit (ViewNumber::Enum viewNumber)
-    {
-	m_viewNumber = viewNumber;
-    }
+    virtual void AverageInit () = 0;
     ViewNumber::Enum GetViewNumber () const
     {
 	return m_viewNumber;
     }
-    void AverageInitStep (ViewNumber::Enum viewNumber)
+    void AverageInitStep ()
     {
-	AverageInit (viewNumber);
+	AverageInit ();
 	AverageStep (1);
     }
     size_t GetBodyAttribute () const;

@@ -26,7 +26,8 @@ class SimulationGroup;
 class Average : public AverageInterface
 {
 public:
-    Average (const Settings& settings, const SimulationGroup& simulationGroup);
+    Average (ViewNumber::Enum viewNumber, 
+	     const Settings& settings, const SimulationGroup& simulationGroup);
     const SimulationGroup& GetSimulationGroup () const
     {
 	return m_simulationGroup;
@@ -48,7 +49,7 @@ public:
     {
 	return m_currentTimeWindow;
     }
-    virtual void AverageInit (ViewNumber::Enum viewNumber);
+    virtual void AverageInit ();
     const Simulation& GetSimulation () const;
     const Foam& GetFoam (size_t timeStep) const;
     const Foam& GetFoam () const;

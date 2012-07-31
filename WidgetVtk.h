@@ -35,7 +35,7 @@ public:
 	       const SimulationGroup& simulationGroup);
     void UpdateOpacity ();
     void UpdateAverage (const boost::array<int, ViewNumber::COUNT>& direction);
-    void SetupPipeline (size_t objects, size_t constraintSurfaces);
+    void InitPipeline (size_t objects, size_t constraintSurfaces);
 
 public:
     QSize sizeHint ()
@@ -55,15 +55,35 @@ Q_SIGNALS:
     void PaintEnd ();
 
 private:
+    struct ViewPipeline
+    {
+    public:
+	vtkSmartPointer<vtkRenderer> Init (
+	    size_t objects, size_t constraintSurfaces);
+	void UpdateThreshold (QwtDoubleInterval interval);
+	void UpdateColorTransferFunction (
+	    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction);
+	void PositionScalarBar (G3D::Rect2D position);
+	void UpdateOpacity (float contextAlpha);
+	void UpdateModelView (vtkSmartPointer<vtkMatrix4x4> modelView);
+	void UpdateAverage (
+	    boost::shared_ptr<RegularGridAverage> average, int direction);
+
+    public:
+	vtkSmartPointer<vtkScalarBarActor> m_scalarBar;
+	vtkSmartPointer<vtkActor> m_averageActor;
+	vtkSmartPointer<vtkThreshold> m_threshold;
+	vector<vtkSmartPointer<vtkActor> > m_constraintSurface;
+	vector<vtkSmartPointer<vtkActor> > m_object;
+	vtkSmartPointer<vtkRenderer> m_renderer;
+    };
+
+private:
     Q_OBJECT
     boost::shared_ptr<Settings> m_settings;
     boost::array<boost::shared_ptr<RegularGridAverage>,
 		 ViewNumber::COUNT> m_average;
-    vtkSmartPointer<vtkScalarBarActor> m_scalarBar;
-    vtkSmartPointer<vtkActor> m_averageActor;
-    vtkSmartPointer<vtkThreshold> m_threshold;
-    vector<vtkSmartPointer<vtkActor> > m_constraintSurface;
-    vector<vtkSmartPointer<vtkActor> > m_object;
+    boost::array<ViewPipeline, ViewNumber::COUNT> m_pipeline;
 };
 
 

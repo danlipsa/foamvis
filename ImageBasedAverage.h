@@ -60,6 +60,7 @@ class ImageBasedAverage : public Average
 {
 public:
     ImageBasedAverage (
+	ViewNumber::Enum viewNumber,
 	const WidgetGl& widgetGl, string id, QColor stepClearColor,
 	FramebufferObjects& scalarAverageFbos);
     void AverageRelease ();
@@ -71,7 +72,7 @@ public:
     {
 	return m_fbos;
     }
-    virtual void AverageInit (ViewNumber::Enum viewNumber);
+    virtual void AverageInit ();
     string GetId () const
     {
 	return m_id;

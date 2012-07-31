@@ -19,9 +19,10 @@
 
 
 Average::Average (
+    ViewNumber::Enum viewNumber, 
     const Settings& settings, const SimulationGroup& simulationGroup) :
-    AverageInterface (),
-
+    AverageInterface (viewNumber),
+    
     m_settings (settings),
     m_simulationGroup (simulationGroup),
     m_currentTimeWindow (0),
@@ -30,9 +31,8 @@ Average::Average (
 }
 
 
-void Average::AverageInit (ViewNumber::Enum viewNumber)
+void Average::AverageInit ()
 {
-    AverageInterface::AverageInit (viewNumber);
     m_currentTimeWindow = 0;
     m_timeWindow = GetSimulation ().GetFoams ().size ();
 }
@@ -51,7 +51,7 @@ void Average::AverageStep (int timeDifference)
 	return;
     if (abs (timeDifference) > 1)
     {
-	AverageInitStep (GetViewNumber ());
+	AverageInitStep ();
 	return;
     }
     Operation first, second;

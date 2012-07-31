@@ -480,9 +480,10 @@ void WidgetGl::Init (
     setSimulationGroup (simulationGroup);
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
     {
+	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	m_viewAverage[i].reset (
-	    new ViewAverage (
-		*this, m_settings->GetViewSettings (ViewNumber::Enum (i))));
+	    new ViewAverage (viewNumber,
+			     *this, m_settings->GetViewSettings (viewNumber)));
 	m_viewAverage[i]->SetSimulation (simulationGroup->GetSimulation (0));
     }
     update ();
@@ -1080,7 +1081,7 @@ void WidgetGl::resizeGL(int w, int h)
 	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	GetViewAverage (viewNumber).AverageInitStep (viewNumber);
+	GetViewAverage (viewNumber).AverageInitStep ();
     }
     WarnOnOpenGLError ("resizeGl");
 }
@@ -1777,7 +1778,7 @@ void WidgetGl::mouseMoveTranslate (QMouseEvent *event,
     {
     case InteractionObject::FOCUS:
 	translate (viewNumber, event->pos (), event->modifiers ());
-	GetViewAverage (viewNumber).AverageInitStep (viewNumber);
+	GetViewAverage (viewNumber).AverageInitStep ();
 	break;
     case InteractionObject::LIGHT:
     {
@@ -1798,7 +1799,7 @@ void WidgetGl::mouseMoveScale (QMouseEvent *event, ViewNumber::Enum viewNumber)
     {
     case InteractionObject::FOCUS:
 	scale (viewNumber, event->pos ());
-	GetViewAverage (viewNumber).AverageInitStep (viewNumber);
+	GetViewAverage (viewNumber).AverageInitStep ();
 	break;
     case InteractionObject::CONTEXT:
 	scaleContext (viewNumber, event->pos ());
@@ -3224,7 +3225,7 @@ void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
     T1sPDE& t1sPDE = GetViewAverage (viewNumber).GetT1sPDE ();
     t1sPDE.SetKernelSigma (
 	Index2Value (static_cast<QSlider*> (sender ()), T1sPDE::KERNEL_SIGMA));
-    t1sPDE.AverageInitStep (viewNumber);
+    t1sPDE.AverageInitStep ();
 }
 
 void WidgetGl::valueChangedT1sKernelTextureSize (
@@ -3234,7 +3235,7 @@ void WidgetGl::valueChangedT1sKernelTextureSize (
     t1sPDE.SetKernelTextureSize (
 	Index2Value (static_cast<QSlider*> (sender ()), 
 		     T1sPDE::KERNEL_TEXTURE_SIZE));
-    t1sPDE.AverageInitStep (viewNumber);    
+    t1sPDE.AverageInitStep ();    
 }
 
 void WidgetGl::toggledT1sKernelTextureSizeShown (ViewNumber::Enum viewNumber)
@@ -3251,7 +3252,7 @@ void WidgetGl::valueChangedT1sKernelIntervalPerPixel (
     t1sPDE.SetKernelIntervalPerPixel (
 	Index2Value (static_cast<QSlider*> (sender ()), 
 		     T1sPDE::KERNEL_INTERVAL_PER_PIXEL));
-    t1sPDE.AverageInitStep (viewNumber);
+    t1sPDE.AverageInitStep ();
 }
 
 template<typename T>
@@ -3407,7 +3408,7 @@ void WidgetGl::ResetTransformFocus ()
 	ProjectionTransform (viewNumber);
 	glMatrixMode (GL_MODELVIEW);
 	glLoadIdentity ();
-	GetViewAverage (viewNumber).AverageInitStep (viewNumber);
+	GetViewAverage (viewNumber).AverageInitStep ();
     }
     update ();
 }
@@ -3815,7 +3816,7 @@ void WidgetGl::ButtonClickedViewType (int id)
 	    continue;
 	GetViewAverage (viewNumber).AverageRelease ();
 	vs.SetViewType (newViewType);
-	GetViewAverage (viewNumber).AverageInitStep (viewNumber);
+	GetViewAverage (viewNumber).AverageInitStep ();
 	compile (viewNumber);
     }
     update ();

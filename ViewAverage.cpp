@@ -25,27 +25,29 @@
 // Methods
 // ======================================================================
 
-ViewAverage::ViewAverage (const WidgetGl& widgetGl,
+ViewAverage::ViewAverage (ViewNumber::Enum viewNumber,
+			  const WidgetGl& widgetGl,
 			  const ViewSettings& viewSettings) :
-    m_scalarAverage (new ScalarAverage (widgetGl)),
-    m_t1sPDE (new T1sPDE (widgetGl)),
+    AverageInterface (viewNumber),
+    m_scalarAverage (new ScalarAverage (viewNumber, widgetGl)),
+    m_t1sPDE (new T1sPDE (viewNumber, widgetGl)),
     m_deformationAverage (
-	new TensorAverage (widgetGl, m_scalarAverage->GetFbos ())),
+	new TensorAverage (viewNumber, widgetGl, m_scalarAverage->GetFbos ())),
     m_velocityAverage (
-	new VectorAverage (widgetGl, m_scalarAverage->GetFbos ())),
-    m_forceAverage (new ForceAverage (*widgetGl.GetSettings (),
+	new VectorAverage (viewNumber, widgetGl, m_scalarAverage->GetFbos ())),
+    m_forceAverage (new ForceAverage (viewNumber, *widgetGl.GetSettings (),
 				      widgetGl.GetSimulationGroup ())),
     m_viewSettings (viewSettings)
 {
 }
 
-void ViewAverage::AverageInit (ViewNumber::Enum viewNumber)
+void ViewAverage::AverageInit ()
 {
-    GetScalarAverage ().AverageInit (viewNumber);
-    GetDeformationAverage ().AverageInit (viewNumber);
-    GetVelocityAverage ().AverageInit (viewNumber);
-    GetForceAverage ().AverageInit (viewNumber);
-    GetT1sPDE ().AverageInit (viewNumber);
+    GetScalarAverage ().AverageInit ();
+    GetDeformationAverage ().AverageInit ();
+    GetVelocityAverage ().AverageInit ();
+    GetForceAverage ().AverageInit ();
+    GetT1sPDE ().AverageInit ();
 }
 
 void ViewAverage::AverageSetTimeWindow (size_t timeSteps)

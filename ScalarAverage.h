@@ -28,10 +28,11 @@ class ScalarAverageTemplate : public ImageBasedAverage<PropertySetter>
 public:
     static void InitShaders ();
 
-    ScalarAverageTemplate (const WidgetGl& widgetGl, string id, 
+    ScalarAverageTemplate (ViewNumber::Enum viewNumber, 
+			   const WidgetGl& widgetGl, string id, 
 			   QColor stepClearColor) :
 	ImageBasedAverage<PropertySetter> (
-	    widgetGl, id, stepClearColor, this->m_fbos)
+	    viewNumber, widgetGl, id, stepClearColor, this->m_fbos)
     {
     }
 
@@ -51,9 +52,9 @@ protected:
 class ScalarAverage : public ScalarAverageTemplate<SetterVertexAttribute>
 {
 public:
-    ScalarAverage (const WidgetGl& widgetGl) :
+    ScalarAverage (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
 	ScalarAverageTemplate<SetterVertexAttribute> (
-	    widgetGl, "scalar", QColor (0, 0, 0, 0))
+	    viewNumber, widgetGl, "scalar", QColor (0, 0, 0, 0))
     {
     }
 };

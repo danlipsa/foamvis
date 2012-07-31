@@ -103,7 +103,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     widgetGl->SetStatus (labelStatusBar);
     widgetVtk->Init (m_settings, simulationGroup);
     const Foam& foam = simulationGroup.GetSimulation (0).GetFoam (0);
-    widgetVtk->SetupPipeline (
+    widgetVtk->InitPipeline (
 	foam.GetObjects ().size (), foam.GetConstraintFacesSize ());
     setupColorBarModels ();
     setupViews ();

@@ -23,9 +23,9 @@ class Foam;
 class ForceAverage : public Average
 {
 public:
-    ForceAverage (const Settings& settings, 
+    ForceAverage (ViewNumber::Enum viewNumber, const Settings& settings, 
 		  const SimulationGroup& simulationGroup) :
-	Average (settings, simulationGroup)
+	Average (viewNumber, settings, simulationGroup)
     {
     }
     void DisplayOneTimeStep () const;
@@ -35,7 +35,7 @@ public:
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
     void AverageRelease () {}
-    virtual void AverageInit (ViewNumber::Enum viewNumber);
+    virtual void AverageInit ();
     const vector<ForcesOneObject>& GetForces (size_t timeStep) const;
 
 

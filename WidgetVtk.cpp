@@ -43,29 +43,13 @@ void SendPaintEnd::Execute (
 	Q_EMIT m_widgetVtk->PaintEnd ();
 }
 
-
-// Methods
+// Methods ViewPipeline
 // ======================================================================
 
-WidgetVtk::WidgetVtk (QWidget* parent) :
-    QVTKWidget (parent)
-{
-}
-
-void WidgetVtk::Init (boost::shared_ptr<Settings> settings,
-		      const SimulationGroup& simulationGroup)    
-{
-    m_settings = settings;
-    for (size_t i = 0; i < m_average.size (); ++i)
-    {
-	m_average[i].reset (new RegularGridAverage (*settings, simulationGroup));
-    }
-}
-
-void WidgetVtk::SetupPipeline (size_t objects, size_t constraintSurfaces)
+vtkSmartPointer<vtkRenderer> WidgetVtk::ViewPipeline::Init (
+    size_t objects, size_t constraintSurfaces)
 {
     // vtkImageData->vtkThreshold->vtkDatasetMapper->vtkActor->vtkRenderer
-    vtkSmartPointer<SendPaintEnd> sendPaint (new SendPaintEnd (this));
 
     // threshold
     VTK_CREATE (vtkThreshold, threshold);
@@ -75,6 +59,7 @@ void WidgetVtk::SetupPipeline (size_t objects, size_t constraintSurfaces)
     // renderer
     VTK_CREATE (vtkRenderer, renderer);
     renderer->SetBackground(1,1,1);
+    m_renderer = renderer;
 
     // scalar bar
     VTK_CREATE (vtkScalarBarActor, scalarBar);
@@ -116,62 +101,46 @@ void WidgetVtk::SetupPipeline (size_t objects, size_t constraintSurfaces)
 	m_constraintSurface[i] = actor;
 	renderer->AddViewProp (actor);
     }
-
-    GetRenderWindow()->AddRenderer(renderer);
-    GetRenderWindow ()->AddObserver (vtkCommand::EndEvent, sendPaint);
+    return renderer;
 }
 
-
-void WidgetVtk::UpdateThreshold (QwtDoubleInterval interval)
+void WidgetVtk::ViewPipeline::UpdateThreshold (QwtDoubleInterval interval)
 {
     if (m_threshold != 0)
     {
 	m_threshold->ThresholdBetween (
 	    interval.minValue (), interval.maxValue ());
-	update ();
     }
 }
 
-void WidgetVtk::UpdateColorTransferFunction (
+void WidgetVtk::ViewPipeline::UpdateColorTransferFunction (
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction)
 {
     if (m_averageActor != 0)
     {
 	m_scalarBar->SetLookupTable (colorTransferFunction);
 	m_averageActor->GetMapper ()->SetLookupTable (colorTransferFunction);
-	update ();
     }
 }
 
-void WidgetVtk::resizeEvent (QResizeEvent * event)
+void WidgetVtk::ViewPipeline::PositionScalarBar (G3D::Rect2D position)
 {
-    (void) event;
-    G3D::Rect2D viewRect = m_settings->GetViewRect (width (), height ());
-    G3D::Rect2D viewColorBarRect = Settings::GetViewColorBarRect (viewRect);
-    float heightRatio = viewColorBarRect.height () / viewRect.height ();
-    float widthRatio = viewColorBarRect.width () / viewRect.width ();
-    /*
-    cdbg << viewRect << endl;
-    cdbg << viewColorBarRect << endl;
-    cdbg << heightRatio << ", " << widthRatio << endl;    
-    */
-    m_scalarBar->SetHeight (heightRatio * 1.2);
-    m_scalarBar->SetWidth (widthRatio * 1.3);
-    m_scalarBar->SetPosition (viewColorBarRect.x0 () / viewRect.width (),
-			      viewColorBarRect.y0 () / viewRect.height ());
+    m_scalarBar->SetHeight (position.height ());
+    m_scalarBar->SetWidth (position.width ());
+    m_scalarBar->SetPosition (position.x0 (), position.y0 ());
 }
 
-
-void WidgetVtk::UpdateOpacity ()
+void WidgetVtk::ViewPipeline::UpdateOpacity (float contextAlpha)
 {
     BOOST_FOREACH (vtkSmartPointer<vtkActor> actor, m_constraintSurface)
     {
-	actor->GetProperty ()->SetOpacity (m_settings->GetContextAlpha ());
+	actor->GetProperty ()->SetOpacity (contextAlpha);
     }
-    update ();
 }
 
-void WidgetVtk::UpdateModelView (vtkSmartPointer<vtkMatrix4x4> modelView)
+
+void WidgetVtk::ViewPipeline::UpdateModelView (
+    vtkSmartPointer<vtkMatrix4x4> modelView)
 {
     m_averageActor->SetUserMatrix (modelView);
     BOOST_FOREACH (vtkSmartPointer<vtkActor> actor, m_object)
@@ -180,17 +149,16 @@ void WidgetVtk::UpdateModelView (vtkSmartPointer<vtkMatrix4x4> modelView)
 	actor->SetUserMatrix (modelView);
 }
 
-void WidgetVtk::UpdateAverage (
-    const boost::array<int, ViewNumber::COUNT>& direction)
+void WidgetVtk::ViewPipeline::UpdateAverage (
+    boost::shared_ptr<RegularGridAverage> average, int direction)
 {
     __LOG__ (cdbg << "UpdateAverage: " << direction[0] << endl;)
-    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
 
-    const Foam& foam = m_average[viewNumber]->GetFoam ();
+    const Foam& foam = average->GetFoam ();
     // calculate average
-    m_average[viewNumber]->AverageStep (direction[viewNumber]);
+    average->AverageStep (direction);
 
-    m_threshold->SetInput (m_average[viewNumber]->GetAverage ());
+    m_threshold->SetInput (average->GetAverage ());
     Foam::Bodies objects = foam.GetObjects ();
     for (size_t i = 0; i < objects.size (); ++i)
 	vtkDataSetMapper::SafeDownCast (m_object[i]->GetMapper ())
@@ -199,23 +167,125 @@ void WidgetVtk::UpdateAverage (
     for (size_t i = 0; i < foam.GetConstraintFacesSize (); ++i)
 	vtkDataSetMapper::SafeDownCast (m_constraintSurface[i]->GetMapper ())
 	    ->SetInput (foam.GetConstraintFacesPolyData (i));
+}
+
+
+
+// Methods WidgetVtk
+// ======================================================================
+
+WidgetVtk::WidgetVtk (QWidget* parent) :
+    QVTKWidget (parent)
+{
+}
+
+void WidgetVtk::Init (boost::shared_ptr<Settings> settings,
+		      const SimulationGroup& simulationGroup)    
+{
+    m_settings = settings;
+    for (size_t i = 0; i < m_average.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	m_average[i].reset (new RegularGridAverage (
+				viewNumber,
+				*settings, simulationGroup));
+    }
+}
+
+void WidgetVtk::InitPipeline (size_t objects, size_t constraintSurfaces)
+{
+    for (size_t i = 0; i < ViewNumber::COUNT; ++i)
+	m_pipeline[i].Init (objects, constraintSurfaces);
+    vtkSmartPointer<SendPaintEnd> sendPaint (new SendPaintEnd (this));
+    GetRenderWindow ()->AddObserver (vtkCommand::EndEvent, sendPaint);
+}
+
+void WidgetVtk::UpdateThreshold (QwtDoubleInterval interval)
+{
+    m_pipeline[ m_settings->GetViewNumber ()].UpdateThreshold (interval);
     update ();
 }
+
+void WidgetVtk::UpdateColorTransferFunction (
+    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction)
+{
+    m_pipeline[m_settings->GetViewNumber ()].UpdateColorTransferFunction (
+	colorTransferFunction);
+    update ();
+}
+
+void WidgetVtk::resizeEvent (QResizeEvent * event)
+{
+    (void) event;
+    for (size_t i = 0;
+	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
+	G3D::Rect2D viewRect = m_settings->GetViewRect (
+	    width (), height (), viewNumber);
+	G3D::Rect2D viewColorBarRect = Settings::GetViewColorBarRect (viewRect);
+	G3D::Rect2D position = G3D::Rect2D::xywh (
+	    viewColorBarRect.x0 () / viewRect.width (),
+	    viewColorBarRect.y0 () / viewRect.height (),
+	    viewColorBarRect.width () / viewRect.width () * 1.3,
+	    viewColorBarRect.height () / viewRect.height () * 1.2);
+	m_pipeline[viewNumber].PositionScalarBar (position);
+    }
+}
+
+
+void WidgetVtk::UpdateOpacity ()
+{
+    for (size_t i = 0;
+	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
+	m_pipeline[viewNumber].UpdateOpacity (m_settings->GetContextAlpha ());
+    }
+    update ();
+}
+
 
 void WidgetVtk::InitAverage (
     vtkSmartPointer<vtkMatrix4x4> modelView,
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
     QwtDoubleInterval interval)
 {    
-    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
-    m_average[viewNumber]->AverageInitStep (viewNumber);
+    for (size_t i = 0;
+	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
+	boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
+	ViewPipeline& pipeline = m_pipeline[viewNumber];
+	float w = width ();
+	float h = height ();
 
-    boost::array<int, ViewNumber::COUNT> direction = {{0, 0, 0, 0}};
-    UpdateAverage (direction);
-    UpdateModelView (modelView);
-    UpdateOpacity ();
-    UpdateThreshold (interval);
-    UpdateColorTransferFunction (colorTransferFunction);
+	average->AverageInitStep ();
+	int direction = 0;
+	pipeline.UpdateAverage (average, direction);
+	pipeline.UpdateModelView (modelView);
+	pipeline.UpdateOpacity (m_settings->GetContextAlpha ());
+	pipeline.UpdateThreshold (interval);
+	pipeline.UpdateColorTransferFunction (colorTransferFunction);
+	GetRenderWindow()->AddRenderer(pipeline.m_renderer);
+	G3D::Rect2D vr = m_settings->GetViewRect (w, h, viewNumber);
+	G3D::Rect2D viewRect = G3D::Rect2D::xyxy (vr.x0 () / w, vr.y0 () / h,
+						  vr.x1 () / 2, vr.y1 () / h);
+	pipeline.m_renderer->SetViewport (viewRect.x0 (), viewRect.y0 (),
+					  viewRect.x1 (), viewRect.y1 ());
+    }
     update ();
 }
 
+void WidgetVtk::UpdateAverage (
+    const boost::array<int, ViewNumber::COUNT>& direction)
+{
+    for (size_t i = 0;
+	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
+	ViewPipeline& pipeline = m_pipeline[viewNumber];
+	boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
+	pipeline.UpdateAverage (average, direction[i]);
+    }    
+}

@@ -16,10 +16,11 @@
 #include "Utils.h"
 #include "ViewSettings.h"
 
-VectorAverage::VectorAverage (const WidgetGl& widgetGl, 
+VectorAverage::VectorAverage (ViewNumber::Enum viewNumber, 
+			      const WidgetGl& widgetGl, 
 			      FramebufferObjects& scalarAverageFbos) :
     TensorAverageTemplate<SetterVelocity> (
-	widgetGl,
+	viewNumber, widgetGl,
 	&WidgetGl::GetVelocitySizeInitialRatio,
 	&ViewSettings::GetVelocityClampingRatio,
 	&ViewSettings::GetVelocityLineWidth,

@@ -44,9 +44,11 @@ ImageBasedAverage<PropertySetter>::m_removeShaderProgram;
 
 template<typename PropertySetter>
 ImageBasedAverage<PropertySetter>::ImageBasedAverage (
+    ViewNumber::Enum viewNumber,
     const WidgetGl& widgetGl, string id, QColor stepClearColor,
     FramebufferObjects& scalarAverageFbos) :
-    Average (*widgetGl.GetSettings (), widgetGl.GetSimulationGroup ()), 
+    Average (viewNumber, 
+	     *widgetGl.GetSettings (), widgetGl.GetSimulationGroup ()), 
     m_scalarAverageFbos (scalarAverageFbos), m_id (id),
     m_stepClearColor (stepClearColor),
     m_widgetGl (widgetGl)
@@ -55,13 +57,13 @@ ImageBasedAverage<PropertySetter>::ImageBasedAverage (
 
 
 template<typename PropertySetter>
-void ImageBasedAverage<PropertySetter>::AverageInit (ViewNumber::Enum viewNumber)
+void ImageBasedAverage<PropertySetter>::AverageInit ()
 {
     try
     {
-	Average::AverageInit (viewNumber);
+	Average::AverageInit ();
 	const G3D::Rect2D extendedArea = EncloseRotation (
-	    GetWidgetGl ().GetViewRect (viewNumber));
+	    GetWidgetGl ().GetViewRect (GetViewNumber ()));
 	QSize size (extendedArea.width (), extendedArea.height ());
 	glPushAttrib (GL_COLOR_BUFFER_BIT);
 	m_fbos.m_step.reset (

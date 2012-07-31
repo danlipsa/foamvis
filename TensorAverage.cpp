@@ -199,10 +199,11 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
 	    ViewingVolumeOperation::ENCLOSE2D)) - rotationCenter;
 }
 
-TensorAverage::TensorAverage (const WidgetGl& widgetGl,
+TensorAverage::TensorAverage (ViewNumber::Enum viewNumber, 
+			      const WidgetGl& widgetGl,
 			      FramebufferObjects& scalarAverageFbos) :
     TensorAverageTemplate<SetterDeformation> (
-	widgetGl, 
+	viewNumber, widgetGl, 
 	&WidgetGl::GetDeformationSizeInitialRatio,
 	&ViewSettings::GetDeformationSize,
 	&ViewSettings::GetDeformationLineWidth,

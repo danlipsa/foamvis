@@ -22,9 +22,9 @@
 
 
 
-void ForceAverage::AverageInit (ViewNumber::Enum viewNumber)
+void ForceAverage::AverageInit ()
 {
-    Average::AverageInit (viewNumber);
+    Average::AverageInit ();
     const vector<ForcesOneObject>& forces = GetForces (0);
     m_average.resize (forces.size ());
     for (size_t i = 0; i < forces.size (); ++i)
