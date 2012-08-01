@@ -113,6 +113,7 @@
 
 // VTK headers
 #define VTK_EXCLUDE_STRSTREAM_HEADERS
+#include <vtkCamera.h>
 #include <vtkCellData.h>
 #include <vtkCellDataToPointData.h>
 #include <vtkColorTransferFunction.h>
@@ -120,6 +121,7 @@
 #include <vtkDataSetMapper.h>
 #include <vtkFloatArray.h>
 #include <vtkImageData.h>
+#include <vtkIndent.h>
 #include <vtkInteractorStyle.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkRenderWindow.h>

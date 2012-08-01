@@ -43,14 +43,6 @@ void SendPaintEnd::Execute (
 	Q_EMIT m_widgetVtk->PaintEnd ();
 }
 
-void setUserMatrix (vtkSmartPointer<vtkActor> actor, 
-		    vtkSmartPointer<vtkMatrix4x4> modelView)
-{
-    actor->SetScale (1);
-    actor->SetPosition (0, 0, 0);
-    actor->SetOrientation (0, 0, 0);
-    actor->SetUserMatrix (modelView);
-}
 
 // Methods ViewPipeline
 // ======================================================================
@@ -77,15 +69,15 @@ vtkSmartPointer<vtkRenderer> WidgetVtk::ViewPipeline::Init (
     m_scalarBar = scalarBar;
     renderer->AddViewProp (scalarBar);
 
-    // average mapper and actor
+    // scalar average mapper and actor
     VTK_CREATE (vtkDataSetMapper, averageMapper);
     averageMapper->SetInputConnection (threshold->GetOutputPort ());
 
-    // scalar average
     VTK_CREATE(vtkActor, averageActor);
     averageActor->SetMapper(averageMapper);
-    renderer->AddViewProp(averageActor);
     m_averageActor = averageActor;
+    renderer->AddViewProp(averageActor);
+
 
     // foam objects
     m_object.resize (objects);
@@ -147,15 +139,12 @@ void WidgetVtk::ViewPipeline::UpdateOpacity (float contextAlpha)
     }
 }
 
-
+// @todo manipulate vtkCamera instead
 void WidgetVtk::ViewPipeline::UpdateModelView (
     vtkSmartPointer<vtkMatrix4x4> modelView)
 {
-    setUserMatrix (m_averageActor, modelView);
-    BOOST_FOREACH (vtkSmartPointer<vtkActor> actor, m_object)
-	setUserMatrix (actor, modelView);
-    BOOST_FOREACH (vtkSmartPointer<vtkActor> actor, m_constraintSurface)
-	setUserMatrix (actor, modelView);
+    vtkCamera* camera = m_renderer->GetActiveCamera ();
+    camera->SetModelTransformMatrix (modelView);
 }
 
 void WidgetVtk::ViewPipeline::UpdateAverage (
@@ -288,7 +277,6 @@ void WidgetVtk::InitAverage (
     pipeline.m_renderer->SetViewport (viewRect.x0 (), viewRect.y0 (),
 				      viewRect.x1 (), viewRect.y1 ());
     renderWindow->AddRenderer(pipeline.m_renderer);
-    renderWindow->GetInteractor ()->ReInitialize ();
     resizeEvent (0);
     update ();
 }

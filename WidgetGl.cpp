@@ -6,6 +6,7 @@
  */
 
 // @todo fix the (slow) movement of the focus in context view
+// @todo replace glScale with camera movement
 
 #include "Body.h"
 #include "BodyAlongTime.h"
