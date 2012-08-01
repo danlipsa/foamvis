@@ -207,6 +207,8 @@ private:
 	ColorBarType::Enum colorBarType, size_t bodyOrFaceScalar) const;
     boost::shared_ptr<ColorBarModel> getColorBarModel () const;
     boost::shared_ptr<ColorBarModel> getColorBarModel (
+	ViewNumber::Enum viewNumber) const;
+    boost::shared_ptr<ColorBarModel> getColorBarModel (
 	size_t simulationIndex,
 	ViewNumber::Enum viewNumber,
 	ViewType::Enum viewType, size_t property, 

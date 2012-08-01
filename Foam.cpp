@@ -92,7 +92,6 @@ vtkDataSetAttributes::AttributeTypes componentsToAttributeTypes (
     }
 }
 
-
 // Methods
 // ======================================================================
 
@@ -386,9 +385,18 @@ void Foam::StoreConstraintFaces ()
 	{
 	    if (of->HasConstraints ())
 	    {
-		pair<size_t, boost::shared_ptr<OrientedFace> > p(
-		    of->GetConstraintIndex (), of);
-		m_constraintFaces.insert (p);
+		size_t constraintIndex = of->GetConstraintIndex ();
+		ConstraintFaces::iterator it = 
+		    m_constraintFaces.find (constraintIndex);
+		if (it == m_constraintFaces.end ())
+		{
+		    ConstraintFaces::value_type value (
+			constraintIndex, 
+			ConstraintFaces::mapped_type (1, of));
+		    m_constraintFaces.insert (value);
+		}
+		else
+		    it->second.push_back (of);
 	    }
 	}
     }
@@ -1221,19 +1229,11 @@ boost::shared_ptr<OrientedFace> pairGetSecond (
 vtkSmartPointer<vtkPolyData> Foam::GetConstraintFacesPolyData (
     size_t constraintIndex) const
 {
-    typedef multimap<size_t, boost::shared_ptr<OrientedFace> >::const_iterator 
-	ConstIterator;
-    pair<ConstIterator, ConstIterator> range
-	= m_constraintFaces.equal_range (constraintIndex);
-    vector<boost::shared_ptr<OrientedFace> > vof;
-    size_t s = 0;
-    for (ConstIterator it = range.first; 
-	 it != range.second; ++it)
-	++s;
-    vof.resize (s);
-    transform (range.first, range.second, vof.begin (),
-	       boost::bind (pairGetSecond, _1));
-    return OrientedFace::GetPolyData (vof);
+    ConstraintFaces::const_iterator it = 
+	m_constraintFaces.find (constraintIndex);
+    RuntimeAssert (it != m_constraintFaces.end (), 
+		   "No constraint surface for ", constraintIndex);
+    return OrientedFace::GetPolyData (it->second);
 }
 
 

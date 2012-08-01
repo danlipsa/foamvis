@@ -694,30 +694,35 @@ void MainWindow::processBodyTorusStep ()
 
 void MainWindow::init3DAverage ()
 {
-    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
-    const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
-    const BodySelector& bodySelector = vs.GetBodySelector ();
-    QwtDoubleInterval interval;
-    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction = 
-	getColorBarModel ()->GetColorTransferFunction ();
-    if (bodySelector.GetType () == BodySelectorType::PROPERTY_VALUE)
+    widgetVtk->InitAverage ();
+    for (size_t i = 0;
+	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
     {
-	const vector<QwtDoubleInterval>& v = 
-	    static_cast<const PropertyValueBodySelector&> (bodySelector).
-	    GetIntervals ();
-	interval = v[0];
+	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
+	const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+	const BodySelector& bodySelector = vs.GetBodySelector ();
+	QwtDoubleInterval interval;
+	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction = 
+	    getColorBarModel (viewNumber)->GetColorTransferFunction ();
+	if (bodySelector.GetType () == BodySelectorType::PROPERTY_VALUE)
+	{
+	    const vector<QwtDoubleInterval>& v = 
+		static_cast<const PropertyValueBodySelector&> (bodySelector).
+		GetIntervals ();
+	    interval = v[0];
+	}
+	else
+	{
+	    double range[2];
+	    colorTransferFunction->GetRange (range);
+	    interval.setMinValue (range[0]);
+	    interval.setMaxValue (range[1]);
+	}
+	widgetVtk->InitAverage (
+	    viewNumber,
+	    widgetGl->GetModelViewMatrix (viewNumber, vs.GetCurrentTime ()),
+	    colorTransferFunction, interval);
     }
-    else
-    {
-	double range[2];
-	colorTransferFunction->GetRange (range);
-	interval.setMinValue (range[0]);
-	interval.setMaxValue (range[1]);
-    }
-    
-    widgetVtk->InitAverage (
-	widgetGl->GetModelViewMatrix (viewNumber, vs.GetCurrentTime ()),
-	colorTransferFunction, interval);
 }
 
 
@@ -1045,10 +1050,15 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
 
 boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel () const
 {
-    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    size_t simulationIndex = 
-	widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
-    ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
+    return getColorBarModel (m_settings->GetViewNumber ());
+}
+
+
+boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
+    ViewNumber::Enum viewNumber) const
+{
+    ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+    size_t simulationIndex = vs.GetSimulationIndex ();
     ViewType::Enum viewType = vs.GetViewType ();
     size_t property = vs.GetBodyOrFaceScalar ();
     ComputationType::Enum statisticsType = vs.GetComputationType ();

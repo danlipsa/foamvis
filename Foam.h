@@ -315,6 +315,9 @@ public:
     friend ostream& operator<< (ostream& ostr, const Foam& d);
 
 private:
+    typedef map<size_t, vector <boost::shared_ptr<OrientedFace> > > 
+        ConstraintFaces;
+private:
     vtkSmartPointer<vtkUnstructuredGrid> getTetraGrid () const;
     vtkSmartPointer<vtkImageData> calculateRegularGrid () const;
     vtkSmartPointer<vtkUnstructuredGrid> addCellAttribute (
@@ -417,7 +420,7 @@ private:
     /**
      * All the faces associated with a constraint, but not in an foam object.
      */
-    multimap<size_t, boost::shared_ptr<OrientedFace> > m_constraintFaces;
+    ConstraintFaces m_constraintFaces;
 
     /**
      * View matrix for displaying vertices, edges, faces and bodies.

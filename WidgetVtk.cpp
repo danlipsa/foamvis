@@ -43,6 +43,15 @@ void SendPaintEnd::Execute (
 	Q_EMIT m_widgetVtk->PaintEnd ();
 }
 
+void setUserMatrix (vtkSmartPointer<vtkActor> actor, 
+		    vtkSmartPointer<vtkMatrix4x4> modelView)
+{
+    actor->SetScale (1);
+    actor->SetPosition (0, 0, 0);
+    actor->SetOrientation (0, 0, 0);
+    actor->SetUserMatrix (modelView);
+}
+
 // Methods ViewPipeline
 // ======================================================================
 
@@ -142,11 +151,11 @@ void WidgetVtk::ViewPipeline::UpdateOpacity (float contextAlpha)
 void WidgetVtk::ViewPipeline::UpdateModelView (
     vtkSmartPointer<vtkMatrix4x4> modelView)
 {
-    m_averageActor->SetUserMatrix (modelView);
+    setUserMatrix (m_averageActor, modelView);
     BOOST_FOREACH (vtkSmartPointer<vtkActor> actor, m_object)
-	actor->SetUserMatrix (modelView);
+	setUserMatrix (actor, modelView);
     BOOST_FOREACH (vtkSmartPointer<vtkActor> actor, m_constraintSurface)
-	actor->SetUserMatrix (modelView);
+	setUserMatrix (actor, modelView);
 }
 
 void WidgetVtk::ViewPipeline::UpdateAverage (
@@ -217,18 +226,19 @@ void WidgetVtk::UpdateColorTransferFunction (
 void WidgetVtk::resizeEvent (QResizeEvent * event)
 {
     (void) event;
+    float w = width ();
+    float h = height ();
     for (size_t i = 0;
 	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
-	G3D::Rect2D viewRect = m_settings->GetViewRect (
-	    width (), height (), viewNumber);
+	G3D::Rect2D viewRect = m_settings->GetViewRect (w, h, viewNumber);
 	G3D::Rect2D viewColorBarRect = Settings::GetViewColorBarRect (viewRect);
 	G3D::Rect2D position = G3D::Rect2D::xywh (
-	    viewColorBarRect.x0 () / viewRect.width (),
-	    viewColorBarRect.y0 () / viewRect.height (),
+	    (viewColorBarRect.x0 () - viewRect.x0 ())/ viewRect.width (),
+	    (viewColorBarRect.y0 () - viewRect.y0 ())/ viewRect.height (),
 	    viewColorBarRect.width () / viewRect.width () * 1.3,
-	    viewColorBarRect.height () / viewRect.height () * 1.2);
+	    viewColorBarRect.height () / viewRect.height () * 1.2);	
 	m_pipeline[viewNumber].PositionScalarBar (position);
     }
 }
@@ -246,34 +256,40 @@ void WidgetVtk::UpdateOpacity ()
 }
 
 
+void WidgetVtk::InitAverage ()
+{
+    vtkSmartPointer<vtkRenderWindow> renderWindow = GetRenderWindow ();
+    for (size_t i = 0; i < m_pipeline.size (); ++i)
+	renderWindow->RemoveRenderer (m_pipeline[i].m_renderer);
+}
+
 void WidgetVtk::InitAverage (
+    ViewNumber::Enum viewNumber,
     vtkSmartPointer<vtkMatrix4x4> modelView,
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
     QwtDoubleInterval interval)
-{    
-    for (size_t i = 0;
-	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
-    {
-	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
-	boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
-	ViewPipeline& pipeline = m_pipeline[viewNumber];
-	float w = width ();
-	float h = height ();
+{
+    vtkSmartPointer<vtkRenderWindow> renderWindow = GetRenderWindow ();
+    boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
+    ViewPipeline& pipeline = m_pipeline[viewNumber];
+    float w = width ();
+    float h = height ();
 
-	average->AverageInitStep ();
-	int direction = 0;
-	pipeline.UpdateAverage (average, direction);
-	pipeline.UpdateModelView (modelView);
-	pipeline.UpdateOpacity (m_settings->GetContextAlpha ());
-	pipeline.UpdateThreshold (interval);
-	pipeline.UpdateColorTransferFunction (colorTransferFunction);
-	GetRenderWindow()->AddRenderer(pipeline.m_renderer);
-	G3D::Rect2D vr = m_settings->GetViewRect (w, h, viewNumber);
-	G3D::Rect2D viewRect = G3D::Rect2D::xyxy (vr.x0 () / w, vr.y0 () / h,
-						  vr.x1 () / 2, vr.y1 () / h);
-	pipeline.m_renderer->SetViewport (viewRect.x0 (), viewRect.y0 (),
-					  viewRect.x1 (), viewRect.y1 ());
-    }
+    average->AverageInitStep ();
+    int direction = 0;
+    pipeline.UpdateAverage (average, direction);
+    pipeline.UpdateModelView (modelView);
+    pipeline.UpdateOpacity (m_settings->GetContextAlpha ());
+    pipeline.UpdateThreshold (interval);
+    pipeline.UpdateColorTransferFunction (colorTransferFunction);
+    G3D::Rect2D vr = m_settings->GetViewRect (w, h, viewNumber);
+    G3D::Rect2D viewRect = G3D::Rect2D::xyxy (vr.x0 () / w, vr.y0 () / h,
+					      vr.x1 () / w, vr.y1 () / h);
+    pipeline.m_renderer->SetViewport (viewRect.x0 (), viewRect.y0 (),
+				      viewRect.x1 (), viewRect.y1 ());
+    renderWindow->AddRenderer(pipeline.m_renderer);
+    renderWindow->GetInteractor ()->ReInitialize ();
+    resizeEvent (0);
     update ();
 }
 

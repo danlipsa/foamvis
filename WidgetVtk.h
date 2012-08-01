@@ -27,7 +27,9 @@ public:
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction);
     void UpdateThreshold (QwtDoubleInterval interval);
     void UpdateModelView (vtkSmartPointer<vtkMatrix4x4> modelView);
+    void InitAverage ();
     void InitAverage (
+	ViewNumber::Enum viewNumber,
 	vtkSmartPointer<vtkMatrix4x4> modelView,
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
 	QwtDoubleInterval interval);
