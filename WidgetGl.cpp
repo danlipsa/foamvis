@@ -159,16 +159,51 @@ WidgetGl::WidgetGl(QWidget *parent)
       m_showType (SHOW_NOTHING)
 {
     makeCurrent ();
+    initList ();
+    initTexture ();
     initQuadrics ();
     initDisplayView ();
     createActions ();
+    fill (m_listCenterPaths.begin (), m_listCenterPaths.end (), 0);
 }
+
 
 WidgetGl::~WidgetGl()
 {
     makeCurrent();
     gluDeleteQuadric (m_quadric);
     m_quadric = 0;
+    glDeleteLists (m_listCenterPaths[0], m_listCenterPaths.size ());
+    glDeleteTextures (m_colorBarTexture.size (), &m_colorBarTexture[0]);
+    glDeleteTextures (m_overlayBarTexture.size (), &m_overlayBarTexture[0]);
+}
+
+
+void WidgetGl::initTexture ()
+{
+    initTexture (&m_colorBarTexture);
+    initTexture (&m_overlayBarTexture);
+}
+
+void WidgetGl::initTexture (boost::array<GLuint, ViewNumber::COUNT>* texture)
+{
+    glGenTextures (texture->size (), &(*texture)[0]);
+    for (size_t i = 0; i < texture->size (); ++i)
+    {
+	glBindTexture (GL_TEXTURE_1D, (*texture)[i]);
+	glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    }
+}
+
+
+
+void WidgetGl::initList ()
+{
+    GLuint n =  glGenLists (m_listCenterPaths.size ());
+    for (size_t i = 0; i < m_listCenterPaths.size (); ++i)
+	m_listCenterPaths[i] = n + i;
 }
 
 
@@ -1039,6 +1074,7 @@ void WidgetGl::OverlayBarClampClear ()
     colorBarModel->SetClampClear ();
     Q_EMIT OverlayBarModelChanged (viewNumber, colorBarModel);
 }
+
 
 // Uses antialiased points and lines
 // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
@@ -2010,7 +2046,7 @@ void WidgetGl::displayVelocity (ViewNumber::Enum viewNumber) const
     if (va.IsColorMapped ())
     {
 	glEnable(GL_TEXTURE_1D);
-	glBindTexture (GL_TEXTURE_1D, vs.GetOverlayBarTexture ());
+	glBindTexture (GL_TEXTURE_1D, m_overlayBarTexture[viewNumber]);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     }
     glColor (Qt::black);
@@ -2390,7 +2426,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	return;
     glPushAttrib (GL_ENABLE_BIT);    
     glDisable (GL_DEPTH_TEST);
-    glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
+    glBindTexture (GL_TEXTURE_1D, m_colorBarTexture[viewNumber]);
     bool adjustForAverageAroundMovementRotation = 
 	vs.IsAverageAroundRotationShown ();
     const Simulation& simulation = GetSimulation (viewNumber);
@@ -2516,7 +2552,7 @@ void WidgetGl::displayFacesInterior (
     //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
     //texture mapping?
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
+    glBindTexture (GL_TEXTURE_1D, m_colorBarTexture[viewNumber]);
     // render opaque bodies and then transparent objects
     // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
     // Antialiasing, Fog and Polygon Offset page 293
@@ -2621,9 +2657,9 @@ void WidgetGl::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
     glPopAttrib ();
 }
 
-void WidgetGl::displayCenterPaths (ViewNumber::Enum view) const
+void WidgetGl::displayCenterPaths (ViewNumber::Enum viewNumber) const
 {
-    glCallList (GetViewSettings (view).GetListCenterPaths ());
+    glCallList (m_listCenterPaths[viewNumber]);
 }
 
 void WidgetGl::CompileUpdate ()
@@ -2649,11 +2685,11 @@ void WidgetGl::compileCenterPaths (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const BodySelector& bodySelector = vs.GetBodySelector ();
-    glNewList (vs.GetListCenterPaths (), GL_COMPILE);
+    glNewList (m_listCenterPaths[viewNumber], GL_COMPILE);
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT | 
 		  GL_POLYGON_BIT | GL_LINE_BIT);
     glEnable(GL_TEXTURE_1D);
-    glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
+    glBindTexture (GL_TEXTURE_1D, m_colorBarTexture[viewNumber]);
     glEnable (GL_CULL_FACE);
 
     //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
@@ -2661,7 +2697,8 @@ void WidgetGl::compileCenterPaths (ViewNumber::Enum viewNumber) const
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     const BodiesAlongTime::BodyMap& bats = 
 	GetSimulation ().GetBodiesAlongTime ().GetBodyMap ();
-    if (m_settings->GetEdgeRadiusRatio () > 0 && ! m_settings->IsCenterPathLineUsed ())
+    if (m_settings->GetEdgeRadiusRatio () > 0 && 
+	! m_settings->IsCenterPathLineUsed ())
     {
 	if (m_settings->IsCenterPathTubeUsed ())
 	    for_each (
@@ -2916,13 +2953,13 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
 	cdbg << viewColorBarRect << endl;
 	*/
 	displayTextureColorBar (
-	    vs.GetColorBarTexture (), viewNumber, viewColorBarRect);
+	    m_colorBarTexture[viewNumber], viewNumber, viewColorBarRect);
     }
     if (vs.IsVelocityShown ())
     {
 	if (GetViewAverage (viewNumber).GetVelocityAverage ().IsColorMapped ())
 	    displayTextureColorBar (
-		vs.GetOverlayBarTexture (),
+		m_overlayBarTexture[viewNumber],
 		viewNumber, Settings::GetViewOverlayBarRect (viewRect));
 	else if ( 
 	    ! GetViewAverage (viewNumber).GetVelocityAverage ().IsSameSize ())
@@ -3992,27 +4029,45 @@ void WidgetGl::SetBodyOrFaceScalar (
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetBodyOrFaceScalar (bodyOrFaceScalar);
     if (vs.GetBodyOrFaceScalar () != FaceScalar::DMP_COLOR)
+    {
 	vs.SetColorBarModel (colorBarModel);
+	setTexture (colorBarModel, m_colorBarTexture[viewNumber]);
+    }
     else
 	vs.ResetColorBarModel ();
     CompileUpdate ();
 }
+
+void WidgetGl::setTexture (
+    boost::shared_ptr<ColorBarModel> colorBarModel, GLuint texture)
+{
+    if (colorBarModel)
+    {
+	const QImage image = colorBarModel->GetImage ();
+	glBindTexture (GL_TEXTURE_1D, texture);
+	glTexImage1D (GL_TEXTURE_1D, 0, GL_RGB, image.width (),
+		      0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
+    }
+}
+
 
 void WidgetGl::SetColorBarModel (ViewNumber::Enum viewNumber, 
 				 boost::shared_ptr<ColorBarModel> colorBarModel)
 {
     makeCurrent ();
     GetViewSettings (viewNumber).SetColorBarModel (colorBarModel);
+    setTexture (colorBarModel, m_colorBarTexture[viewNumber]);
     update ();
 }
 
 void WidgetGl::SetOverlayBarModel (
     ViewNumber::Enum viewNumber, 
-    boost::shared_ptr<ColorBarModel> colorBarModel)
+    boost::shared_ptr<ColorBarModel> overlayBarModel)
 {
     makeCurrent ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    vs.SetOverlayBarModel (colorBarModel);
+    vs.SetOverlayBarModel (overlayBarModel);
+    setTexture (overlayBarModel, m_overlayBarTexture[viewNumber]);
     update ();
 }
 

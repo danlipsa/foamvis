@@ -158,10 +158,11 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
     glBindTexture (GL_TEXTURE_2D, srcFbo.second->texture ());
     
     // bind "overlay bar" to texture unit 0
-    ViewSettings& vs = widgetGl.GetViewSettings (this->GetViewNumber ());
     this->glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetOverlayBarTexUnit ()));    
-    glBindTexture (GL_TEXTURE_1D, vs.GetOverlayBarTexture ());
+    glBindTexture (GL_TEXTURE_1D, 
+		   this->GetWidgetGl ().GetOverlayBarTexture (
+		       this->GetViewNumber ()));
 
     widgetGl.ActivateViewShader (this->GetViewNumber (), enclose,
 				 rotationCenter, angleDegrees);

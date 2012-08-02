@@ -41,7 +41,6 @@ ViewSettings::ViewSettings () :
     m_viewType (ViewType::COUNT),
     m_bodyOrFaceScalar (BodyScalar::PRESSURE),
     m_statisticsType (ComputationType::AVERAGE),
-    m_listCenterPaths (0),
     m_rotationFocus (G3D::Matrix3::identity ()),
     m_rotationCenterType (ROTATION_CENTER_FOAM),
     m_scaleRatio (1),
@@ -83,8 +82,6 @@ ViewSettings::ViewSettings () :
     m_torqueDistance (1),
     m_forceTorqueLineWidth (1)
 {    
-    initTexture ();
-    initList ();
     setInitialLightParameters ();
     for (size_t i = 0; i < m_averageAroundBodyId.size (); ++i)
 	m_averageAroundBodyId[i] = INVALID_INDEX;
@@ -92,8 +89,6 @@ ViewSettings::ViewSettings () :
 
 ViewSettings::~ViewSettings ()
 {
-    glDeleteTextures (2, m_colorBarTexture);
-    glDeleteLists (m_listCenterPaths, 1);
 }
 
 float ViewSettings::GetVelocityClampingRatio () const
@@ -108,25 +103,6 @@ float ViewSettings::GetVelocityClampingRatio () const
 	return interval / clampInterval;
 }
 
-
-void ViewSettings::initTexture ()
-{
-    glGenTextures (2, m_colorBarTexture);
-    glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
-    glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-    glBindTexture (GL_TEXTURE_1D, GetOverlayBarTexture ());
-    glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-}
-
-void ViewSettings::initList ()
-{
-    m_listCenterPaths = glGenLists (1);
-}
 
 void ViewSettings::setInitialLightParameters ()
 {
@@ -282,26 +258,12 @@ void ViewSettings::SetColorBarModel (
     const boost::shared_ptr<ColorBarModel>& colorBarModel)
 {
     m_colorBarModel = colorBarModel;
-    if (colorBarModel)
-    {
-	const QImage image = colorBarModel->GetImage ();
-	glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
-	glTexImage1D (GL_TEXTURE_1D, 0, GL_RGB, image.width (),
-		      0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
-    }
 }
 
 void ViewSettings::SetOverlayBarModel (
     const boost::shared_ptr<ColorBarModel>& colorBarModel)
 {
     m_velocityOverlayBarModel = colorBarModel;
-    if (colorBarModel)
-    {
-	const QImage image = colorBarModel->GetImage ();
-	glBindTexture (GL_TEXTURE_1D, GetOverlayBarTexture ());
-	glTexImage1D (GL_TEXTURE_1D, 0, GL_RGB, image.width (),
-		      0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
-    }
 }
 
 

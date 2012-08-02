@@ -104,7 +104,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     widgetVtk->Init (m_settings, simulationGroup);
     const Foam& foam = simulationGroup.GetSimulation (0).GetFoam (0);
     widgetVtk->InitPipeline (
-	foam.GetObjects ().size (), foam.GetConstraintFacesSize ());
+	foam.GetObjects ().size (), foam.GetConstraintFaces ().size ());
     setupColorBarModels ();
     setupViews ();
     initComboBoxSimulation (simulationGroup);

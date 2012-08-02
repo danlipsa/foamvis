@@ -297,8 +297,8 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
     G3D::Vector2 rotationCenter, 
     float angleDegrees) const
 {    
-    ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
-    glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
+    glBindTexture (GL_TEXTURE_1D, 
+		   GetWidgetGl ().GetColorBarTexture (GetViewNumber ()));
     pair<float,float> minMax = GetWidgetGl ().GetRange (GetViewNumber ());
     rotateAndDisplay (
 	minMax.first, minMax.second, displayType, 

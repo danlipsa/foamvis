@@ -39,6 +39,7 @@ public:
     typedef vector< boost::shared_ptr<Edge> > Edges;
     typedef vector< boost::shared_ptr<Face> > Faces;
     typedef vector< boost::shared_ptr<OrientedFace> > OrientedFaces;
+    typedef map<size_t, OrientedFaces> ConstraintFaces;
     typedef vector< boost::shared_ptr<Body> > Bodies;
     enum ParametersOperation 
     {
@@ -304,9 +305,9 @@ public:
     void StoreConstraintFaces ();
     vtkSmartPointer<vtkPolyData> GetConstraintFacesPolyData (
 	size_t constraintIndex) const;
-    size_t GetConstraintFacesSize () const
+    ConstraintFaces GetConstraintFaces () const
     {
-	return m_constraintFaces.size ();
+	return m_constraintFaces;
     }
 
     /**
@@ -314,9 +315,6 @@ public:
      */
     friend ostream& operator<< (ostream& ostr, const Foam& d);
 
-private:
-    typedef map<size_t, vector <boost::shared_ptr<OrientedFace> > > 
-        ConstraintFaces;
 private:
     vtkSmartPointer<vtkUnstructuredGrid> getTetraGrid () const;
     vtkSmartPointer<vtkImageData> calculateRegularGrid () const;

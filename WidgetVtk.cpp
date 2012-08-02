@@ -162,9 +162,14 @@ void WidgetVtk::ViewPipeline::UpdateAverage (
 	vtkDataSetMapper::SafeDownCast (m_object[i]->GetMapper ())
 	    ->SetInput (objects[i]->GetPolyData ());
 
-    for (size_t i = 0; i < foam.GetConstraintFacesSize (); ++i)
+    size_t i = 0;
+    pair<size_t, Foam::OrientedFaces> p;
+    BOOST_FOREACH (p, foam.GetConstraintFaces ())
+    {
 	vtkDataSetMapper::SafeDownCast (m_constraintSurface[i]->GetMapper ())
-	    ->SetInput (foam.GetConstraintFacesPolyData (i));
+	    ->SetInput (foam.GetConstraintFacesPolyData (p.first));
+	++i;
+    }
 }
 
 

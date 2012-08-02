@@ -18,7 +18,6 @@ class IdBodySelector;
 class PropertyValueBodySelector;
 class Simulation;
 
-
 class ViewSettings
 {
 public:
@@ -51,11 +50,6 @@ public:
 	m_bodyOrFaceScalar = bodyOrFaceScalar;
     }
     
-    GLuint GetListCenterPaths () const
-    {
-	return m_listCenterPaths;
-    }
-
     boost::shared_ptr<ColorBarModel> GetColorBarModel () const
     {
 	return m_colorBarModel;
@@ -80,14 +74,6 @@ public:
     void SetComputationType (ComputationType::Enum statisticsType)
     {
 	m_statisticsType = statisticsType;
-    }
-    GLuint GetColorBarTexture () const
-    {
-	return m_colorBarTexture[0];
-    }
-    GLuint GetOverlayBarTexture () const
-    {
-	return m_colorBarTexture[1];
     }
 
     const G3D::Matrix3& GetRotationFocus () const
@@ -579,8 +565,6 @@ private:
     static G3D::Matrix3 getRotation2DRight90Reflection ();
     static G3D::Matrix3 getRotation2DLeft90 ();
 
-    void initTexture ();
-    void initList ();
     void setInitialLightParameters ();
     /**
      * Rotates the view so that we get the same image as in Surface Evolver
@@ -599,9 +583,6 @@ private:
     ViewType::Enum m_viewType;
     size_t m_bodyOrFaceScalar;
     ComputationType::Enum m_statisticsType;
-    GLuint m_listCenterPaths;
-    // 0 is for visualization, 1 is for the overlay
-    GLuint m_colorBarTexture[2];
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
     boost::shared_ptr<ColorBarModel> m_velocityOverlayBarModel;
     G3D::Matrix3 m_rotationFocus;

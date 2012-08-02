@@ -230,7 +230,15 @@ public:
     float GetXOverY () const;
     void CompileUpdate ();
     void UpdateAverage (const boost::array<int, ViewNumber::COUNT>& direction);
-
+    GLuint GetColorBarTexture (ViewNumber::Enum viewNumber) const
+    {
+	return m_colorBarTexture[viewNumber];
+    }
+    GLuint GetOverlayBarTexture (ViewNumber::Enum viewNumber) const
+    {
+	return m_overlayBarTexture[viewNumber];
+    }
+    
 Q_SIGNALS:
     void PaintEnd ();
     void ColorBarModelChanged (
@@ -396,6 +404,7 @@ public:
     const static pair<float,float> TENSOR_LINE_WIDTH_EXP2;
     const static pair<float,float> FORCE_SIZE_EXP2;
     const static pair<float,float> TORQUE_SIZE_EXP2;
+
 protected:
     /**
      * Initializes OpenGL
@@ -655,12 +664,17 @@ private:
 	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation);
     string infoSelectedBody () const;
     string infoSelectedBodies () const;
+    void initList ();
+    void initTexture ();
+    void initTexture (boost::array<GLuint, ViewNumber::COUNT>* texture);
 
-private:
     /**
      * Setup lighting for displaying faces edges and vertices
      */
     static void quadricErrorCallback (GLenum errorCode);
+    static void setTexture (
+	boost::shared_ptr<ColorBarModel> colorBarModel, GLuint texture);
+
     
 private:
     // Min, max values for T1s, Context alpha, force length
@@ -772,6 +786,9 @@ private:
     size_t m_showBodyId;
     boost::array<
 	boost::shared_ptr<ViewAverage>, ViewNumber::COUNT> m_viewAverage;
+    boost::array<GLuint, ViewNumber::COUNT> m_listCenterPaths;
+    boost::array<GLuint, ViewNumber::COUNT> m_colorBarTexture;
+    boost::array<GLuint, ViewNumber::COUNT> m_overlayBarTexture;
 };
 
 
