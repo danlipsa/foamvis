@@ -1254,6 +1254,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 	m_currentTranslatedBody = const_cast<Foam&> (foam).GetBodies ().begin ();
     }
     updateButtons ();
+    widgetGl->CompileUpdate ();
 }
 
 void MainWindow::ValueChangedAverageTimeWindow (int timeSteps)
