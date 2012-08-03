@@ -2409,7 +2409,7 @@
    <header>AttributeHistogram.h</header>
    <container>1</container>
    <slots>
-    <signal>selectionChanged()</signal>
+    <signal>SelectionChanged()</signal>
     <slot>CurrentIndexChangedInteractionMode(int)</slot>
    </slots>
   </customwidget>
@@ -2771,7 +2771,7 @@
   </connection>
   <connection>
    <sender>widgetHistogram</sender>
-   <signal>selectionChanged()</signal>
+   <signal>SelectionChanged()</signal>
    <receiver>MainWindow</receiver>
    <slot>SelectionChangedHistogram()</slot>
    <hints>

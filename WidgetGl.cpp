@@ -164,7 +164,6 @@ WidgetGl::WidgetGl(QWidget *parent)
     initQuadrics ();
     initDisplayView ();
     createActions ();
-    fill (m_listCenterPaths.begin (), m_listCenterPaths.end (), 0);
 }
 
 
@@ -174,6 +173,7 @@ WidgetGl::~WidgetGl()
     gluDeleteQuadric (m_quadric);
     m_quadric = 0;
     glDeleteLists (m_listCenterPaths[0], m_listCenterPaths.size ());
+    glDeleteLists (m_listFacesNormal[0], m_listFacesNormal.size ());
     glDeleteTextures (m_colorBarTexture.size (), &m_colorBarTexture[0]);
     glDeleteTextures (m_overlayBarTexture.size (), &m_overlayBarTexture[0]);
 }
@@ -199,12 +199,19 @@ void WidgetGl::initTexture (boost::array<GLuint, ViewNumber::COUNT>* texture)
 
 
 
+void WidgetGl::initList (boost::array<GLuint, ViewNumber::COUNT>* list)
+{
+    GLuint n =  glGenLists (list->size ());
+    for (size_t i = 0; i < list->size (); ++i)
+	(*list)[i] = n + i;
+}
+
 void WidgetGl::initList ()
 {
-    GLuint n =  glGenLists (m_listCenterPaths.size ());
-    for (size_t i = 0; i < m_listCenterPaths.size (); ++i)
-	m_listCenterPaths[i] = n + i;
+    initList (&m_listCenterPaths);
+    initList (&m_listFacesNormal);
 }
+
 
 
 void WidgetGl::initQuadrics ()
@@ -2389,10 +2396,18 @@ void WidgetGl::displayContextMenuPos (ViewNumber::Enum viewNumber) const
 
 void WidgetGl::displayFacesNormal (ViewNumber::Enum viewNumber) const
 {
+    glCallList (m_listFacesNormal[viewNumber]);
+}
+
+
+void WidgetGl::compileFacesNormal (ViewNumber::Enum viewNumber) const
+{
     ViewSettings& vs = GetViewSettings (viewNumber);
     const Foam& foam = 
 	GetSimulation (viewNumber).GetFoam (vs.GetCurrentTime ());
     const Foam::Bodies& bodies = foam.GetBodies ();
+
+    glNewList (m_listFacesNormal[viewNumber], GL_COMPILE);
     if (EdgesShown ())
 	displayFacesContour (bodies, viewNumber);
     displayFacesInterior (bodies, viewNumber);
@@ -2406,6 +2421,7 @@ void WidgetGl::displayFacesNormal (ViewNumber::Enum viewNumber) const
     if (m_t1sShown)
 	displayT1sDot (viewNumber, GetCurrentTime (viewNumber));
     GetViewAverage (viewNumber).GetForceAverage ().DisplayOneTimeStep ();
+    glEndList ();
 }
 
 
@@ -2657,10 +2673,6 @@ void WidgetGl::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
     glPopAttrib ();
 }
 
-void WidgetGl::displayCenterPaths (ViewNumber::Enum viewNumber) const
-{
-    glCallList (m_listCenterPaths[viewNumber]);
-}
 
 void WidgetGl::CompileUpdate ()
 {
@@ -2669,16 +2681,24 @@ void WidgetGl::CompileUpdate ()
     update ();
 }
 
-void WidgetGl::compile (ViewNumber::Enum view) const
+void WidgetGl::compile (ViewNumber::Enum viewNumber) const
 {
-    switch (GetViewSettings (view).GetViewType ())
+    const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+    switch (vs.GetViewType ())
     {
     case ViewType::CENTER_PATHS:
-	compileCenterPaths (view);
+	compileCenterPaths (viewNumber);
 	break;
+    case ViewType::FACES:
+	compileFacesNormal (viewNumber);
     default:
 	break;
-    }    
+    }
+}
+
+void WidgetGl::displayCenterPaths (ViewNumber::Enum viewNumber) const
+{
+    glCallList (m_listCenterPaths[viewNumber]);
 }
 
 void WidgetGl::compileCenterPaths (ViewNumber::Enum viewNumber) const
@@ -3805,7 +3825,7 @@ void WidgetGl::ToggledAxesShown (bool checked)
 void WidgetGl::ToggledStandaloneElementsShown (bool checked)
 {
     m_standaloneElementsShown = checked;
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledConstraintsShown (bool checked)
@@ -3890,7 +3910,7 @@ void WidgetGl::ToggledFaceCenterShown (bool checked)
 void WidgetGl::ToggledEdgesShown (bool checked)
 {
     m_edgesShown = checked;
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledEdgesTessellationShown (bool checked)
@@ -3936,7 +3956,7 @@ void WidgetGl::ToggledTorusOriginalDomainClipped (bool checked)
 void WidgetGl::ToggledT1sShown (bool checked)
 {
     m_t1sShown = checked;
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledT1sShiftLower (bool checked)

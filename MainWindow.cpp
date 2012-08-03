@@ -1518,7 +1518,7 @@ void MainWindow::SelectionChangedHistogram ()
 	vs.SetBodySelector (
 	    boost::shared_ptr<PropertyValueBodySelector> (
 		new PropertyValueBodySelector (bodyScalar, valueIntervals)));
-    widgetGl->update ();
+    widgetGl->CompileUpdate ();
     widgetVtk->UpdateThreshold (valueIntervals[0]);
 }
 

@@ -554,6 +554,7 @@ private:
     void displayEdgesTorusLines () const;
 
     void displayFacesNormal (ViewNumber::Enum view) const;
+    void compileFacesNormal (ViewNumber::Enum view) const;
     void displayFacesTorus (ViewNumber::Enum view) const;
     void displayFacesAverage (ViewNumber::Enum view) const;
     void displayFacesTorusTubes () const;
@@ -665,6 +666,7 @@ private:
     string infoSelectedBody () const;
     string infoSelectedBodies () const;
     void initList ();
+    void initList (boost::array<GLuint, ViewNumber::COUNT>* list);
     void initTexture ();
     void initTexture (boost::array<GLuint, ViewNumber::COUNT>* texture);
 
@@ -787,6 +789,7 @@ private:
     boost::array<
 	boost::shared_ptr<ViewAverage>, ViewNumber::COUNT> m_viewAverage;
     boost::array<GLuint, ViewNumber::COUNT> m_listCenterPaths;
+    boost::array<GLuint, ViewNumber::COUNT> m_listFacesNormal;
     boost::array<GLuint, ViewNumber::COUNT> m_colorBarTexture;
     boost::array<GLuint, ViewNumber::COUNT> m_overlayBarTexture;
 };

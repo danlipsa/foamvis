@@ -75,7 +75,7 @@ public:
     }
 
 Q_SIGNALS:
-    void selectionChanged ();
+    void SelectionChanged ();
 
 public Q_SLOTS:
     void SelectionPointMoved (const QPoint& pos);

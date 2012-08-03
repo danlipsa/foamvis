@@ -11,6 +11,10 @@
 
 #include "Histogram.h"
 
+
+/**
+ * Histogram that allows clamping low and high.
+ */
 class TransferFunctionHistogram : public Histogram
 {
 public:

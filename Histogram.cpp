@@ -110,13 +110,13 @@ void Histogram::SelectionPointMoved (const QPoint& canvasPos)
 void Histogram::PolygonSelected (const QwtPolygon& poly)
 {
     static_cast<void> (poly);
-    Q_EMIT selectionChanged ();
+    Q_EMIT SelectionChanged ();
 }
 
 void Histogram::SetAllItemsSelection (bool selected)
 {
     m_histogramItem.setAllItemsSelection (selected);
-    Q_EMIT selectionChanged ();
+    Q_EMIT SelectionChanged ();
 }
 
 bool Histogram::AreAllItemsSelected () const
@@ -168,7 +168,7 @@ void Histogram::SetDataAllBinsSelected (
     setData (intervalData, maxValue);
     setAxisTitleDefaultFont (QwtPlot::xBottom, axisTitle);
     replot ();
-    Q_EMIT selectionChanged ();
+    Q_EMIT SelectionChanged ();
 }
 
 

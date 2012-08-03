@@ -12,6 +12,9 @@
 #include "Histogram.h"
 class ColorBarModel;
 
+/**
+ * Histogram of a scalar attribute for both one time step and all time steps.
+ */
 class AttributeHistogram : public Histogram
 {
 public:

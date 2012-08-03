@@ -16,6 +16,8 @@ Release log
 	- update to vtk-5.10.0 libraries, built dynamically
 	- fix "scanner overflow" error (for 1000.dmp) by reporting only 
 	  overflows not underflows.
+        - Add 3D average/multiple views using VTK.
+	- Improve interaction speed for f
 0.7.2374 2012-03-09
 	- fix bug: position of the two_discs for two views.
 	- added arrows for forces
