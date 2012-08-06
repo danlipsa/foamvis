@@ -2,7 +2,7 @@
  * Displays a color-mapped scalar average, min, max or count.
  */
 
-// This should match ComputationType::Enum
+// This should match StatisticsType::Enum
 // displayType possible values: 0=average, 1=min, 2=max, 3=count
 uniform int u_displayType;
 uniform float u_minValue;

@@ -16,6 +16,7 @@ class SendPaintEnd;
 class Settings;
 class SimulationGroup;
 class RegularGridAverage;
+class ViewSettings;
 
 class WidgetVtk : public QVTKWidget
 {
@@ -26,7 +27,7 @@ public:
     void UpdateColorTransferFunction (
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction);
     void UpdateThreshold (QwtDoubleInterval interval);
-    void UpdateModelView (vtkSmartPointer<vtkMatrix4x4> modelView);
+    void UpdateFromOpenGl (vtkSmartPointer<vtkMatrix4x4> modelView);
     void InitAverage ();
     void InitAverage (
 	ViewNumber::Enum viewNumber,
@@ -67,7 +68,8 @@ private:
 	    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction);
 	void PositionScalarBar (G3D::Rect2D position);
 	void UpdateOpacity (float contextAlpha);
-	void UpdateModelView (vtkSmartPointer<vtkMatrix4x4> modelView);
+	void UpdateFromOpenGl (
+	    vtkSmartPointer<vtkMatrix4x4> modelView, const ViewSettings& vs);
 	void UpdateAverage (
 	    boost::shared_ptr<RegularGridAverage> average, int direction);
 

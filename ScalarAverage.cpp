@@ -48,7 +48,7 @@ void ScalarAverageTemplate<PropertySetter>::InitShaders ()
 template<typename PropertySetter>
 void ScalarAverageTemplate<PropertySetter>::rotateAndDisplay (
     GLfloat minValue, GLfloat maxValue,
-    ComputationType::Enum displayType, 
+    StatisticsType::Enum displayType, 
     typename ImageBasedAverage<PropertySetter>::TensorScalarFbo srcFbo,
     ViewingVolumeOperation::Enum enclose,
     G3D::Vector2 rotationCenter, float angleDegrees) const

@@ -140,11 +140,24 @@ void WidgetVtk::ViewPipeline::UpdateOpacity (float contextAlpha)
 }
 
 // @todo manipulate vtkCamera instead
-void WidgetVtk::ViewPipeline::UpdateModelView (
-    vtkSmartPointer<vtkMatrix4x4> modelView)
+void WidgetVtk::ViewPipeline::UpdateFromOpenGl (
+    vtkSmartPointer<vtkMatrix4x4> modelView, const ViewSettings& vs)
 {
-    vtkCamera* camera = m_renderer->GetActiveCamera ();
+    VTK_CREATE (vtkCamera, camera);
     camera->SetModelTransformMatrix (modelView);
+    m_renderer->SetActiveCamera (camera);
+    m_renderer->ResetCamera ();
+
+    m_renderer->RemoveAllLights ();
+    for (size_t i = 0; i < LightNumber::COUNT; ++i)
+	if (vs.IsLightEnabled (LightNumber::Enum (i)))
+	{
+	    VTK_CREATE (vtkLight, light);
+	    light->SetColor (1, 1, 1);
+	    light->SetFocalPoint ();
+	    light->SetPosition ();
+	    m_renderer->AddLight (light);
+	}
 }
 
 void WidgetVtk::ViewPipeline::UpdateAverage (
@@ -265,14 +278,17 @@ void WidgetVtk::InitAverage (
 {
     vtkSmartPointer<vtkRenderWindow> renderWindow = GetRenderWindow ();
     boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
+    const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
     ViewPipeline& pipeline = m_pipeline[viewNumber];
     float w = width ();
     float h = height ();
 
+    m_settings->CalculateEyeViewingVolume (viewNumber,
+
     average->AverageInitStep ();
     int direction = 0;
     pipeline.UpdateAverage (average, direction);
-    pipeline.UpdateModelView (modelView);
+    pipeline.UpdateFromOpenGl (modelView, vs);
     pipeline.UpdateOpacity (m_settings->GetContextAlpha ());
     pipeline.UpdateThreshold (interval);
     pipeline.UpdateColorTransferFunction (colorTransferFunction);

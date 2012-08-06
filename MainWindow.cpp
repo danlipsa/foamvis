@@ -439,7 +439,7 @@ void MainWindow::ViewToUI ()
 
     SetCurrentIndexNoSignals (comboBoxColor, property);
     SetCurrentIndexNoSignals (comboBoxSimulation, simulationIndex);
-    SetCurrentIndexNoSignals (comboBoxComputationType, vs.GetComputationType ());
+    SetCurrentIndexNoSignals (comboBoxStatisticsType, vs.GetStatisticsType ());
     SetCurrentIndexNoSignals (comboBoxAxesOrder, vs.GetAxesOrder ());
 
     SetCheckedNoSignals (checkBoxSelectionContextShown, 
@@ -1030,7 +1030,7 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
     size_t simulationIndex,
     ViewNumber::Enum viewNumber,
     ViewType::Enum viewType, size_t property, 
-    ComputationType::Enum statisticsType) const
+    StatisticsType::Enum statisticsType) const
 {
     ColorBarType::Enum colorBarType = WidgetGl::GetColorBarType (
 	viewType, property, statisticsType);
@@ -1061,7 +1061,7 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
     size_t simulationIndex = vs.GetSimulationIndex ();
     ViewType::Enum viewType = vs.GetViewType ();
     size_t property = vs.GetBodyOrFaceScalar ();
-    ComputationType::Enum statisticsType = vs.GetComputationType ();
+    StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
     return getColorBarModel (simulationIndex, 
 			     viewNumber, viewType, property, statisticsType);
 }
@@ -1279,7 +1279,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 	ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
 	ViewType::Enum oldViewType = vs.GetViewType ();
 	size_t property = vs.GetBodyOrFaceScalar ();
-	ComputationType::Enum statisticsType = vs.GetComputationType ();
+	StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
 
 	setStackedWidget (viewType);
 	Q_EMIT ColorBarModelChanged (
@@ -1381,7 +1381,7 @@ void MainWindow::CurrentIndexChangedSimulation (int simulationIndex)
     ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
     ViewType::Enum viewType = vs.GetViewType ();
     size_t property = vs.GetBodyOrFaceScalar ();
-    ComputationType::Enum statisticsType = vs.GetComputationType ();
+    StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
     Q_EMIT ColorBarModelChanged (
 	viewNumber,
 	getColorBarModel (simulationIndex, 
@@ -1415,22 +1415,22 @@ void MainWindow::CurrentIndexChangedViewCount (int index)
 }
 
 
-void MainWindow::CurrentIndexChangedComputationType (int value)
+void MainWindow::CurrentIndexChangedStatisticsType (int value)
 {
     boost::array<QWidget*, 2> widgetsAverageTimeWindow = 
 	{{ spinBoxAverageTimeWindow, labelAverageTimeWindow}};
     switch (value)
     {
-    case ComputationType::AVERAGE:
+    case StatisticsType::AVERAGE:
 	connectColorBarHistogram (true);
 	::setVisible (widgetsAverageTimeWindow, true);
 	break;
-    case ComputationType::MIN:
-    case ComputationType::MAX:
+    case StatisticsType::MIN:
+    case StatisticsType::MAX:
 	connectColorBarHistogram (true);
 	::setVisible (widgetsAverageTimeWindow, false);
 	break;
-    case ComputationType::COUNT:
+    case StatisticsType::COUNT:
 	connectColorBarHistogram (false);
 	::setVisible (widgetsAverageTimeWindow, false);
 	break;

@@ -22,7 +22,7 @@ class ScalarDisplay : public ShaderProgram
 public:
     ScalarDisplay (const char* frag);
     void Bind (GLfloat minValue, GLfloat maxValue,
-	       ComputationType::Enum displayType);
+	       StatisticsType::Enum displayType);
 
     // assume the colorbar is alreay bound on texture unit 0
     GLint GetColorBarTexUnit ()

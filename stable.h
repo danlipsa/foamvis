@@ -123,6 +123,7 @@
 #include <vtkImageData.h>
 #include <vtkIndent.h>
 #include <vtkInteractorStyle.h>
+#include <vtkLight.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>

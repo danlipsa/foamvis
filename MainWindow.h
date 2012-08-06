@@ -93,7 +93,7 @@ public Q_SLOTS:
     void CurrentIndexChangedSimulation (int index);
     void CurrentIndexChangedInteractionMode (int index);
     void CurrentIndexChangedFaceColor (int value);
-    void CurrentIndexChangedComputationType (int value);
+    void CurrentIndexChangedStatisticsType (int value);
     void CurrentIndexChangedViewCount (int index);
     /**
      * Copy status from WidgetGl to the UI controls
@@ -212,7 +212,7 @@ private:
 	size_t simulationIndex,
 	ViewNumber::Enum viewNumber,
 	ViewType::Enum viewType, size_t property, 
-	ComputationType::Enum statisticsType) const;
+	StatisticsType::Enum statisticsType) const;
     void clickedPlay (PlayType playType);
 
 private:

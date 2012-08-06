@@ -602,7 +602,7 @@ void WidgetGl::displayLightDirection (
 
 	glPointSize (8.0);
 	glBegin (GL_POINTS);
-	::glVertex (initialLightPosition * vs.GetLightNumberRatio (i));
+	::glVertex (initialLightPosition * vs.GetLightPositionRatio (i));
 	glEnd ();
 
 	glPopMatrix ();
@@ -624,9 +624,9 @@ void WidgetGl::translateLight (ViewNumber::Enum viewNumber,
     float ratio = screenChange /
 	(viewport.x1y1 () - viewport.x0y0 ()).length ();
 
-    vs.SetLightNumberRatio (
+    vs.SetLightPositionRatio (
 	vs.GetSelectedLight (),
-	(1 + ratio) * vs.GetLightNumberRatio (vs.GetSelectedLight ()));
+	(1 + ratio) * vs.GetLightPositionRatio (vs.GetSelectedLight ()));
 }
 
 
@@ -668,12 +668,6 @@ void WidgetGl::transformFoamAverageAround (
 
 
 
-G3D::AABox WidgetGl::calculateCenteredViewingVolume (
-    ViewNumber::Enum viewNumber) const
-{
-    G3D::AABox vv = CalculateViewingVolume (viewNumber);
-    return vv - vv.center ();
-}
 
 G3D::Vector3 WidgetGl::calculateViewingVolumeScaledExtent (
     ViewNumber::Enum viewNumber) const
@@ -687,12 +681,9 @@ G3D::Vector3 WidgetGl::calculateViewingVolumeScaledExtent (
 G3D::AABox WidgetGl::calculateEyeViewingVolume (
     ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose) const
 {
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    G3D::AABox vv = CalculateViewingVolume (viewNumber, enclose);
-    vv = vv - vv.center ();
-    G3D::Vector3 translation (vs.GetCameraDistance () * G3D::Vector3::unitZ ());
-    G3D::AABox result = vv - translation;
-    return result;
+    return m_settings->CalculateEyeViewingVolume (
+	viewNumber, GetSimulation (viewNumber), GetXOverY (),
+	enclose);
 }
 
 
@@ -700,9 +691,18 @@ G3D::AABox WidgetGl::CalculateViewingVolume (
     ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose) const
 {    
     return m_settings->CalculateViewingVolume (
-	viewNumber, 
-	GetSimulation (viewNumber), GetXOverY (), enclose);
+	viewNumber, GetSimulation (viewNumber), GetXOverY (), enclose);
 }
+
+G3D::AABox WidgetGl::calculateCenteredViewingVolume (
+    ViewNumber::Enum viewNumber) const
+{
+    return m_settings->CalculateCenteredViewingVolume (
+	viewNumber, GetSimulation (viewNumber), GetXOverY (),
+	ViewingVolumeOperation::DONT_ENCLOSE2D);
+}
+
+
 
 G3D::Vector3 WidgetGl::getEyeTransform (ViewNumber::Enum viewNumber) const
 {
@@ -732,6 +732,11 @@ void WidgetGl::translateAndScale (
     glTranslate (contextView ? (translation / scaleRatio) : translation);
 }
 
+
+/**
+ * The camera is at (0,0,0), 
+ * the model is centered at (0, 0, - vs.GetCameraDistance ())
+ */
 void WidgetGl::ModelViewTransform (ViewNumber::Enum viewNumber, 
 				   size_t timeStep) const
 {
@@ -791,6 +796,7 @@ void WidgetGl::ProjectionTransform (
 	glOrtho (low.x, high.x, low.y, high.y, -high.z, -low.z);
     else
 	glFrustum (low.x, high.x, low.y, high.y, -high.z, -low.z);
+    //cdbg << "ProjectionTransform" << vv << endl;
 }
 
 
@@ -2220,7 +2226,7 @@ pair<float, float> WidgetGl::GetRange (ViewNumber::Enum viewNumber) const
     switch (vs.GetViewType ())
     {
     case ViewType::AVERAGE:
-	if (vs.GetComputationType () == ComputationType::COUNT)
+	if (vs.GetStatisticsType () == StatisticsType::COUNT)
 	    return GetRangeCount (viewNumber);
 	else
 	{
@@ -2473,7 +2479,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	angleDegrees = 0;
     }
     GetViewAverage (viewNumber).AverageRotateAndDisplay (
-	vs.GetComputationType (), rotationCenter.xy (), angleDegrees);
+	vs.GetStatisticsType (), rotationCenter.xy (), angleDegrees);
     GetViewAverage (viewNumber).GetForceAverage ().Display (
 	adjustForAverageAroundMovementRotation);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (
@@ -2775,21 +2781,21 @@ ColorBarType::Enum WidgetGl::GetColorBarType (ViewNumber::Enum viewNumber) const
     const ViewSettings& vs = GetViewSettings (viewNumber);
     ViewType::Enum viewType = vs.GetViewType ();
     size_t property = vs.GetBodyOrFaceScalar ();
-    ComputationType::Enum statisticsType = vs.GetComputationType ();
+    StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
     return WidgetGl::GetColorBarType (viewType, property, statisticsType);
 }
 
 
 ColorBarType::Enum WidgetGl::GetColorBarType (
     ViewType::Enum viewType, size_t property, 
-    ComputationType::Enum statisticsType)
+    StatisticsType::Enum statisticsType)
 {
     switch (viewType)
     {
     case ViewType::T1S_PDE:
 	return ColorBarType::T1S_PDE;
     case ViewType::AVERAGE:
-	if (statisticsType == ComputationType::COUNT)
+	if (statisticsType == StatisticsType::COUNT)
 	    return ColorBarType::STATISTICS_COUNT;
     case ViewType::FACES:
 	if (property == FaceScalar::DMP_COLOR)
@@ -4005,7 +4011,7 @@ void WidgetGl::CurrentIndexChangedViewCount (int index)
 	vs.CalculateCameraDistance (
 	    calculateCenteredViewingVolume (viewNumber));
     }
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::CurrentIndexChangedViewLayout (int index)
@@ -4026,10 +4032,10 @@ void WidgetGl::ButtonClickedInteractionObject (int index)
 }
 
 
-void WidgetGl::CurrentIndexChangedComputationType (int index)
+void WidgetGl::CurrentIndexChangedStatisticsType (int index)
 {
     makeCurrent ();
-    GetViewSettings ().SetComputationType (ComputationType::Enum(index));
+    GetViewSettings ().SetStatisticsType (StatisticsType::Enum(index));
     update ();
 }
 
@@ -4375,8 +4381,7 @@ void WidgetGl::ValueChangedAngleOfView (int angleOfView)
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings ();
     vs.SetAngleOfView (angleOfView);
-    vs.CalculateCameraDistance (
-	calculateCenteredViewingVolume (viewNumber));
+    vs.CalculateCameraDistance (calculateCenteredViewingVolume (viewNumber));
     update ();
 }
 

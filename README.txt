@@ -17,8 +17,9 @@ Release log
 	- fix "scanner overflow" error (for 1000.dmp) by reporting only 
 	  overflows not underflows.
         - Add 3D average/multiple views using VTK.
-	- Improve interaction speed for 'displayFaces' using OpenGL 
-	  display lists. (stokeslibre_22_04_17_0003_0001_bodies.dmp.dmp.dmp)
+	- Improve interaction speed for 'Visualization / Time Step / Faces' 
+	  using OpenGL display lists. 
+	  (stokeslibre_22_04_17_0003_0001_bodies.dmp.dmp.dmp)
 0.7.2374 2012-03-09
 	- fix bug: position of the two_discs for two views.
 	- added arrows for forces

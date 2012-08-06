@@ -40,7 +40,7 @@ boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
 ViewSettings::ViewSettings () :
     m_viewType (ViewType::COUNT),
     m_bodyOrFaceScalar (BodyScalar::PRESSURE),
-    m_statisticsType (ComputationType::AVERAGE),
+    m_statisticsType (StatisticsType::AVERAGE),
     m_rotationFocus (G3D::Matrix3::identity ()),
     m_rotationCenterType (ROTATION_CENTER_FOAM),
     m_scaleRatio (1),
@@ -178,7 +178,7 @@ void ViewSettings::SetGlLightParameters (
 	G3D::Vector3 initialLightPosition = GetInitialLightPosition (
 	    centeredViewingVolume, lightNumber);
 	G3D::Vector3 lp = initialLightPosition * 
-	    GetLightNumberRatio (lightNumber);
+	    GetLightPositionRatio (lightNumber);
 	if (IsDirectionalLightEnabled (lightNumber))
 	{
 	    glPushMatrix ();

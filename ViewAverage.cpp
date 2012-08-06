@@ -78,7 +78,7 @@ void ViewAverage::AverageStep (int direction)
 }
 
 void ViewAverage::AverageRotateAndDisplay (
-    ComputationType::Enum displayType,
+    StatisticsType::Enum displayType,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
     switch (m_viewSettings.GetViewType ())

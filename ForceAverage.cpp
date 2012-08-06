@@ -82,7 +82,7 @@ void ForceAverage::DisplayOneTimeStep () const
 }
 
 void ForceAverage::AverageRotateAndDisplay (
-    ComputationType::Enum displayType,
+    StatisticsType::Enum displayType,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
     (void)displayType;

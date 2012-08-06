@@ -144,7 +144,6 @@ void Settings::initViewSettings (
 	    viewNumber, simulation, xOverY,
 	    ViewingVolumeOperation::DONT_ENCLOSE2D).center ();
 	vs->SetSimulation (0, simulation, center, t1sShiftLower);
-	viewNumber = ViewNumber::Enum (viewNumber + 1);
 	if (simulation.Is3D ())
 	    vs->SetLightEnabled (LightNumber::LIGHT0, true);
 
@@ -161,6 +160,11 @@ void Settings::initViewSettings (
 	    vs->SetLight (LightNumber::Enum (light), 
 			  LightType::SPECULAR, specularLight);
 	}
+	vs->CalculateCameraDistance (
+	    CalculateCenteredViewingVolume (
+		viewNumber, simulation, xOverY,
+		ViewingVolumeOperation::DONT_ENCLOSE2D));
+	viewNumber = ViewNumber::Enum (viewNumber + 1);
     }
 }
 
@@ -334,6 +338,29 @@ pair<size_t, ViewNumber::Enum> Settings::LinkedTimeMaxInterval () const
     }
     return max;
 }
+
+G3D::AABox Settings::CalculateCenteredViewingVolume (
+    ViewNumber::Enum viewNumber, const Simulation& simulation, 
+    float xOverYWindow, ViewingVolumeOperation::Enum enclose) const
+{
+    G3D::AABox box = CalculateViewingVolume (viewNumber, simulation,
+					     xOverYWindow, enclose);
+    return box - box.center ();
+}
+
+G3D::AABox Settings::CalculateEyeViewingVolume (
+    ViewNumber::Enum viewNumber, const Simulation& simulation, 
+    float xOverYWindow, ViewingVolumeOperation::Enum enclose) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    G3D::AABox vv = CalculateViewingVolume (viewNumber, simulation, 
+					    xOverYWindow,enclose);
+    vv = vv - vv.center ();
+    G3D::Vector3 translation (vs.GetCameraDistance () * G3D::Vector3::unitZ ());
+    G3D::AABox result = vv - translation;
+    return result;
+}
+
 
 
 G3D::AABox Settings::CalculateViewingVolume (

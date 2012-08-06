@@ -153,7 +153,7 @@ public:
 protected:
     virtual void rotateAndDisplay (
 	GLfloat minValue, GLfloat maxValue,
-	ComputationType::Enum displayType, 
+	StatisticsType::Enum displayType, 
 	typename ImageBasedAverage<Setter>::TensorScalarFbo srcFbo,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 

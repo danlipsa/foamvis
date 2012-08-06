@@ -11,7 +11,7 @@ ScalarDisplay::ScalarDisplay (const char* frag) :
 }
 
 void ScalarDisplay::Bind (GLfloat minValue, GLfloat maxValue,
-			  ComputationType::Enum displayType)
+			  StatisticsType::Enum displayType)
 {
     ShaderProgram::Bind ();
     setUniformValue (m_displayTypeLocation, displayType);

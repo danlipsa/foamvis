@@ -114,19 +114,19 @@ void ImageBasedAverage<PropertySetter>::clear ()
     //save (
     //viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
     //"step", FAKE_TIMESTEP, 0, 
-    //minMax.first, minMax.second, ComputationType::AVERAGE);
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     initFramebuffer (m_fbos.m_current);
     //save (viewNumber, 
     //make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
     //"current", FAKE_TIMESTEP, 0,
-    //minMax.first, minMax.second, ComputationType::AVERAGE);
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
     
     initFramebuffer (m_fbos.m_previous);
     // save (viewNumber, 
     // 	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
     // 	  "previous", FAKE_TIMESTEP + 1,
-    // 	  minMax.first, minMax.second, ComputationType::AVERAGE);
+    // 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     WarnOnOpenGLError ("ImageBasedAverage::clear");
 }
 
@@ -149,20 +149,20 @@ void ImageBasedAverage<PropertySetter>::addStep (size_t timeStep, size_t subStep
     //save (
     //viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
     //"step", timeStep, subStep, 
-    //minMax.first, minMax.second, ComputationType::AVERAGE);
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     currentIsPreviousPlusStep ();
     //save (viewNumber, 
     //make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
     //"current", timeStep, subStep,
-    //minMax.first, minMax.second, ComputationType::AVERAGE);
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
     //cdbg << "addStep: " << timeStep << "-" << subStep << endl;
 
     copyCurrentToPrevious ();
     // save (viewNumber, 
     // 	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
     // 	  "previous", timeStep + 1,
-    // 	  minMax.first, minMax.second, ComputationType::AVERAGE);
+    // 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     glPopAttrib ();
     WarnOnOpenGLError ("ImageBasedAverage::addStep:" + m_id);
 }
@@ -176,20 +176,20 @@ void ImageBasedAverage<PropertySetter>::removeStep (
     renderToStep (timeStep, subStep);
     //save (viewNumber, 
     //TensorScalarFbo (*m_step, *m_scalarAverage.m_step), 
-    // "step", timeStep, minMax.first, minMax.second, ComputationType::AVERAGE);
+    // "step", timeStep, minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     currentIsPreviousMinusStep ();
     //save (viewNumber, 
     //make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
     //"current", timeStep, subStep,
-    //minMax.first, minMax.second, ComputationType::AVERAGE);
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
     //cdbg << "removeStep: " << timeStep << "-" << subStep << endl;
 
     copyCurrentToPrevious ();
     //save (viewNumber, 
     //TensorScalarFbo (*m_previous, *m_scalarAverage.m_previous), 
     //"previous", timeStep + 1,
-    //minMax.first, minMax.second, ComputationType::AVERAGE);
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     glPopAttrib ();
     WarnOnOpenGLError ("ImageBasedAverage::removeStep:" + m_id);
@@ -293,7 +293,7 @@ void ImageBasedAverage<PropertySetter>::initFramebuffer (
 
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
-    ComputationType::Enum displayType, 
+    StatisticsType::Enum displayType, 
     G3D::Vector2 rotationCenter, 
     float angleDegrees) const
 {    
@@ -309,7 +309,7 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::save (
     TensorScalarFbo fbo, const char* postfix, size_t timeStep, size_t subStep,
-    GLfloat minValue, GLfloat maxValue, ComputationType::Enum displayType)
+    GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
 {
     // render to the debug buffer
     m_fbos.m_debug->bind ();

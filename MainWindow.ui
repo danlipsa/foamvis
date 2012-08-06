@@ -1627,7 +1627,7 @@
                     </widget>
                    </item>
                    <item row="6" column="0">
-                    <widget class="QWidget" name="widgetComputationType" native="true">
+                    <widget class="QWidget" name="widgetStatisticsType" native="true">
                      <layout class="QHBoxLayout" name="horizontalLayout_10">
                       <property name="spacing">
                        <number>0</number>
@@ -1861,7 +1861,7 @@
                     </widget>
                    </item>
                    <item row="1" column="1">
-                    <widget class="QComboBox" name="comboBoxComputationType">
+                    <widget class="QComboBox" name="comboBoxStatisticsType">
                      <item>
                       <property name="text">
                        <string>Average</string>
@@ -2467,7 +2467,7 @@
     <slot>ToggledFullColorBarShown(bool)</slot>
     <slot>ToggledOnlyPathsWithSelectionShown(bool)</slot>
     <slot>ToggledCenterPathBodyShown(bool)</slot>
-    <slot>CurrentIndexChangedComputationType(int)</slot>
+    <slot>CurrentIndexChangedStatisticsType(int)</slot>
     <slot>CurrentIndexChangedProjectionTransformation(int)</slot>
     <slot>CurrentIndexChangedViewportTransformationType(int)</slot>
     <slot>CurrentIndexChangedViewportTransformType(int)</slot>
@@ -3282,10 +3282,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>comboBoxComputationType</sender>
+   <sender>comboBoxStatisticsType</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>CurrentIndexChangedComputationType(int)</slot>
+   <slot>CurrentIndexChangedStatisticsType(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>846</x>
@@ -3298,10 +3298,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>comboBoxComputationType</sender>
+   <sender>comboBoxStatisticsType</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>CurrentIndexChangedComputationType(int)</slot>
+   <slot>CurrentIndexChangedStatisticsType(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>846</x>
@@ -4395,7 +4395,7 @@
   <slot>ButtonClickedHistogram(int)</slot>
   <slot>ButtonClickedAllTimestepsHistogram(int)</slot>
   <slot>ToggledAverageTimeWindowEnabled(bool)</slot>
-  <slot>CurrentIndexChangedComputationType(int)</slot>
+  <slot>CurrentIndexChangedStatisticsType(int)</slot>
   <slot>CurrentIndexChangedFaceColor(int)</slot>
   <slot>ToggledFacesDomainHistogram(bool)</slot>
   <slot>CurrentIndexChangedViewCount(int)</slot>

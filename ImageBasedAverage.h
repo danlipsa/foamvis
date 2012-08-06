@@ -65,7 +65,7 @@ public:
 	FramebufferObjects& scalarAverageFbos);
     void AverageRelease ();
     void AverageRotateAndDisplay (	
-	ComputationType::Enum displayType = ComputationType::AVERAGE,	
+	StatisticsType::Enum displayType = StatisticsType::AVERAGE,	
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
     FramebufferObjects& GetFbos ()
@@ -90,7 +90,7 @@ protected:
     virtual void removeStep (size_t timeStep, size_t subStep);
     virtual void rotateAndDisplay (
 	GLfloat minValue, GLfloat maxValue,
-	ComputationType::Enum displayType, TensorScalarFbo fbo,
+	StatisticsType::Enum displayType, TensorScalarFbo fbo,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const = 0;
@@ -117,7 +117,7 @@ private:
     void save (TensorScalarFbo fbo, 
 	       const char* fileName, size_t timeStep, size_t subStep,
 	       GLfloat minValue, 
-	       GLfloat maxValue, ComputationType::Enum displayType);
+	       GLfloat maxValue, StatisticsType::Enum displayType);
     void renderToStep (size_t timeStep, size_t subStep);
     void currentIsPreviousPlusStep ();
     void currentIsPreviousMinusStep ();

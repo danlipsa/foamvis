@@ -284,7 +284,7 @@ public:
 };
 
 
-class ComputationType
+class StatisticsType
 {
 public:
     enum Enum

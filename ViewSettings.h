@@ -50,6 +50,19 @@ public:
 	m_bodyOrFaceScalar = bodyOrFaceScalar;
     }
     
+
+    StatisticsType::Enum GetStatisticsType () const
+    {
+	return m_statisticsType;
+    }
+    void SetStatisticsType (StatisticsType::Enum statisticsType)
+    {
+	m_statisticsType = statisticsType;
+    }
+
+    /**********
+     * ColorBar
+     */
     boost::shared_ptr<ColorBarModel> GetColorBarModel () const
     {
 	return m_colorBarModel;
@@ -66,16 +79,12 @@ public:
     {
 	m_colorBarModel.reset ();
     }
+    void CopyColorBar (const ViewSettings& from);
 
-    ComputationType::Enum GetComputationType () const
-    {
-	return m_statisticsType;
-    }
-    void SetComputationType (ComputationType::Enum statisticsType)
-    {
-	m_statisticsType = statisticsType;
-    }
 
+    /******************
+     * Transforms Focus
+     */
     const G3D::Matrix3& GetRotationFocus () const
     {
 	return m_rotationFocus;
@@ -92,10 +101,6 @@ public:
     {
 	m_rotationCenter = rotationCenter;
     }
-    const G3D::Matrix3& GetRotationLight (LightNumber::Enum i) const
-    {
-	return m_rotationLight[i];
-    }
     void SetRotationCenterType (RotationCenterType type)
     {
 	m_rotationCenterType = type;
@@ -104,23 +109,6 @@ public:
     {
 	return m_rotationCenterType;
     }
-
-    void SetRotationLight (LightNumber::Enum i, const G3D::Matrix3& rl)
-    {
-	m_rotationLight[i] = rl;
-    }
-
-    const G3D::Rect2D& GetViewport () const
-    {
-	return m_viewport;
-    }
-
-    void SetViewport (const G3D::Rect2D& v)
-    {
-	m_viewport = v;
-    }
-    
-
     double GetScaleRatio () const
     {
 	return m_scaleRatio;
@@ -129,8 +117,54 @@ public:
     {
 	m_scaleRatio = scaleRatio;
     }
+    const G3D::Vector3& GetTranslation () const
+    {
+	return m_translation;
+    }
+    
+    void SetTranslation (const G3D::Vector3& translation)
+    {
+	m_translation = translation;
+    }
+
+    void SetAxesOrder (AxesOrder::Enum axesOrder)
+    {
+	m_axesOrder = axesOrder;
+    }
+    AxesOrder::Enum GetAxesOrder () const
+    {
+	return m_axesOrder;
+    }
+    G3D::Matrix3 GetRotationForAxesOrder (const Foam& foam) const;
+
+    double GetAngleOfView () const
+    {
+	return m_angleOfView;
+    }
+    void SetAngleOfView (double value)
+    {
+	m_angleOfView = value;
+    }
+    float GetCameraDistance () const
+    {
+	return m_cameraDistance;
+    }
+    void CalculateCameraDistance (const G3D::AABox& centeredViewingVolume);
+
+    void CopyTransformation (const ViewSettings& from);
+    G3D::Vector2 GetScaleCenter () const
+    {
+	return m_scaleCenter;
+    }
+    void SetScaleCenter (G3D::Vector2 scaleCenter)
+    {
+	m_scaleCenter = scaleCenter;
+    }
 
 
+    /*****************
+     * Transforms grid
+     */
     double GetGridScaleRatio () const
     {
 	return m_gridScaleRatio;
@@ -139,7 +173,18 @@ public:
     {
 	m_gridScaleRatio = gridScaleRatio;
     }
+    const G3D::Vector3& GetGridTranslation () const
+    {
+	return m_gridTranslation;
+    }
+    void SetGridTranslation (const G3D::Vector3& gridTranslation)
+    {
+	m_gridTranslation = gridTranslation;
+    }
 
+    /*******************
+     * Transforms context
+     */
     double GetContextScaleRatio () const
     {
 	return m_contextScaleRatio;
@@ -151,26 +196,22 @@ public:
     }
 
 
-    const G3D::Vector3& GetTranslation () const
+    /**********
+     * Viewport
+     */
+    const G3D::Rect2D& GetViewport () const
     {
-	return m_translation;
-    }
-    const G3D::Vector3& GetGridTranslation () const
-    {
-	return m_gridTranslation;
-    }
-    
-    void SetTranslation (const G3D::Vector3& translation)
-    {
-	m_translation = translation;
-    }
-    void SetGridTranslation (const G3D::Vector3& gridTranslation)
-    {
-	m_gridTranslation = gridTranslation;
+	return m_viewport;
     }
 
-    /**
-     * Lighting
+    void SetViewport (const G3D::Rect2D& v)
+    {
+	m_viewport = v;
+    }
+    
+
+    /********
+     * Lights
      */
     bool IsLightingEnabled () const
     {
@@ -213,14 +254,6 @@ public:
     void SetLight (
 	LightNumber::Enum lightNumber, LightType::Enum lightType, 
 	const boost::array<GLfloat,4>& color);
-    double GetLightNumberRatio (LightNumber::Enum i) const
-    {
-	return m_lightPositionRatio [i];
-    }
-    void SetLightNumberRatio (LightNumber::Enum i, double lpr)
-    {
-	m_lightPositionRatio [i] = lpr;
-    }
     LightNumber::Enum GetSelectedLight () const
     {
 	return m_selectedLight;
@@ -229,33 +262,32 @@ public:
     {
 	m_selectedLight = i;
     }
-    void SetAxesOrder (AxesOrder::Enum axesOrder)
+    static G3D::Vector3 GetInitialLightPosition (
+	G3D::AABox centeredViewingVolume, LightNumber::Enum lightNumber);
+    double GetLightPositionRatio (LightNumber::Enum lightNumber) const
     {
-	m_axesOrder = axesOrder;
+	return m_lightPositionRatio [lightNumber];
     }
-    AxesOrder::Enum GetAxesOrder () const
+    void SetLightPositionRatio (LightNumber::Enum lightNumber, double lpr)
     {
-	return m_axesOrder;
+	m_lightPositionRatio [lightNumber] = lpr;
     }
-    G3D::Matrix3 GetRotationForAxesOrder (const Foam& foam) const;
 
-    double GetAngleOfView () const
+    const G3D::Matrix3& GetRotationLight (LightNumber::Enum i) const
     {
-	return m_angleOfView;
+	return m_rotationLight[i];
     }
-    void SetAngleOfView (double value)
+    void SetRotationLight (LightNumber::Enum i, const G3D::Matrix3& rl)
     {
-	m_angleOfView = value;
+	m_rotationLight[i] = rl;
     }
-    float GetCameraDistance () const
-    {
-	return m_cameraDistance;
-    }
-    void CalculateCameraDistance (const G3D::AABox& centeredViewingVolume);
 
-    void CopyTransformation (const ViewSettings& from);
-    void CopyColorBar (const ViewSettings& from);
 
+
+
+    /****************
+     * Average around
+     */
     size_t GetAverageAroundBodyId () const
     {
 	return m_averageAroundBodyId[0];
@@ -288,6 +320,26 @@ public:
     {
 	m_averageAround = averageAround;
     }
+    bool IsAverageAroundRotationShown () const
+    {
+	return m_averageAroundRotationShown;
+    }
+    void SetAverageAroundRotationShown (bool shown)
+    {
+	m_averageAroundRotationShown = shown;
+    }
+    ObjectPosition GetAverageAroundPosition (size_t timeStep) const
+    {
+	return m_averageAroundPositions[timeStep];
+    }
+    void SetAverageAroundPositions (const Simulation& simulation);
+    void SetAverageAroundPositions (const Simulation& simulation, size_t bodyId);
+    void SetAverageAroundPositions (const Simulation& simulation,
+				    size_t bodyId, size_t secondBodyId);
+    void RotateAndTranslateAverageAround (
+	size_t timeStep, int direction) const;
+
+
 
     // Context View
     void SetContextView (bool contextView)
@@ -298,6 +350,10 @@ public:
     {
 	return m_contextView;
     }
+
+    /**********
+     * Overlays
+     */
     void SetForceNetworkShown (bool value)
     {
 	m_forceNetworkShown = value;
@@ -391,16 +447,10 @@ public:
     {
 	return m_contextBody.size ();
     }
-
-    bool IsAverageAroundRotationShown () const
-    {
-	return m_averageAroundRotationShown;
-    }
-    void SetAverageAroundRotationShown (bool shown)
-    {
-	m_averageAroundRotationShown = shown;
-    }
     
+    /****************
+     * Body selection
+     */
     const BodySelector& GetBodySelector () const
     {
 	return *m_bodySelector;
@@ -426,6 +476,8 @@ public:
     {
 	m_selectionContextShown = shown;
     }
+
+
     bool IsCenterPathHidden () const
     {
 	return m_centerPathHidden;
@@ -461,16 +513,8 @@ public:
 	m_t1sShiftLower = t1sShiftLower;
     }
 
-    ObjectPosition GetAverageAroundPosition (size_t timeStep) const
-    {
-	return m_averageAroundPositions[timeStep];
-    }
     float AngleDisplay (float angle) const;
 
-    void SetAverageAroundPositions (const Simulation& simulation);
-    void SetAverageAroundPositions (const Simulation& simulation, size_t bodyId);
-    void SetAverageAroundPositions (const Simulation& simulation,
-				    size_t bodyId, size_t secondBodyId);
     void SetSimulation (int i, const Simulation& simulation,
 			G3D::Vector3 viewingVolumeCenter,
 			bool t1sShiftLower);
@@ -543,20 +587,6 @@ public:
     {
 	m_forceTorqueLineWidth = value;
     }
-    G3D::Vector2 GetScaleCenter () const
-    {
-	return m_scaleCenter;
-    }
-    void SetScaleCenter (G3D::Vector2 scaleCenter)
-    {
-	m_scaleCenter = scaleCenter;
-    }
-    void RotateAndTranslateAverageAround (
-	size_t timeStep, int direction) const;
-
-    static G3D::Vector3 GetInitialLightPosition (
-	G3D::AABox centeredViewingVolume,
-	LightNumber::Enum lightPosition);
 
     
 private:
@@ -582,7 +612,7 @@ private:
 private:
     ViewType::Enum m_viewType;
     size_t m_bodyOrFaceScalar;
-    ComputationType::Enum m_statisticsType;
+    StatisticsType::Enum m_statisticsType;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
     boost::shared_ptr<ColorBarModel> m_velocityOverlayBarModel;
     G3D::Matrix3 m_rotationFocus;

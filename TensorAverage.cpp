@@ -122,7 +122,7 @@ void TensorAverageTemplate<Setter>::InitShaders ()
 template<typename Setter>
 void TensorAverageTemplate<Setter>::rotateAndDisplay (
     GLfloat minValue, GLfloat maxValue,
-    ComputationType::Enum displayType, 
+    StatisticsType::Enum displayType, 
     typename ImageBasedAverage<Setter>::TensorScalarFbo srcFbo,
     ViewingVolumeOperation::Enum enclose,
     G3D::Vector2 rotationCenter, float angleDegrees) const
