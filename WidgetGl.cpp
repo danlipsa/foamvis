@@ -4007,8 +4007,9 @@ void WidgetGl::CurrentIndexChangedViewCount (int index)
 	    vs.SetViewType (ViewType::FACES);
 	vs.CalculateCameraDistance (
 	    calculateCenteredViewingVolume (viewNumber));
+	compile (viewNumber);
     }
-    CompileUpdate ();
+    update ();
 }
 
 void WidgetGl::CurrentIndexChangedViewLayout (int index)

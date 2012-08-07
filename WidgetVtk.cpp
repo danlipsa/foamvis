@@ -143,38 +143,24 @@ void WidgetVtk::ViewPipeline::UpdateOpacity (float contextAlpha)
 }
 
 void WidgetVtk::ViewPipeline::UpdateFromOpenGl (
-    const boost::array<GLdouble, 16>& mv, const ViewSettings& vs, 
-    const G3D::AABox& vv)
+    const ViewSettings& vs, const G3D::AABox& bb)
 {
-    /*
-    G3D::Vector3 center = vv.center ();
-    G3D::Matrix3 modelView = OpenGlToG3D(mv).upper3x3 ();
-    m_renderer->RemoveAllLights ();
-    for (size_t i = 0; i < LightNumber::COUNT; ++i)
-    {
-	LightNumber::Enum lightNumber = LightNumber::FromSizeT (i);
-	if (vs.IsLightEnabled (lightNumber))
-	{
-	    G3D::Vector3 position = 
-		ViewSettings::GetInitialLightPosition (vv, lightNumber);
-	    position = 
-		vs.GetRotationLight (lightNumber) * 
-		modelView.inverse () * position;
-	    VTK_CREATE (vtkLight, light);
-	    light->SetColor (1, 1, 1);
-	    light->SetFocalPoint (center.x, center.y, center.z);
-	    light->SetPosition (position.x, position.y, position.z);
-	    m_renderer->AddLight (light);
-	}
-    }
-    */
-
-    /*
-    VTK_CREATE (vtkCamera, camera);
-    camera->SetModelTransformMatrix (OpenGlToVtk (mv));
-    m_renderer->SetActiveCamera (camera);
     m_renderer->ResetCamera ();
-    */
+    vtkCamera* camera = m_renderer->GetActiveCamera ();
+    camera->PrintSelf (cdbg, vtkIndent ());
+/*
+    G3D::Vector3 fp = bb.center ();
+    G3D::Vector3 position = fp + 
+	G3D::Vector3 (0, 0, - vs.GetCameraDistance ());
+    cdbg << vs.GetCameraDistance () << endl;
+    vtkCamera* camera = m_renderer->GetActiveCamera ();
+    //camera->ParallelProjectionOn ();
+    camera->SetFocalPoint (fp.x, fp.y, fp.z);
+    camera->SetPosition (position.x, position.y, position.z);
+    camera->ComputeViewPlaneNormal ();
+    camera->SetViewUp (-0.0937721, -0.0571341, -0.993953);
+    camera->PrintSelf (cdbg, vtkIndent ());
+*/
 }
 
 void WidgetVtk::ViewPipeline::UpdateAverage (
@@ -294,23 +280,24 @@ void WidgetVtk::InitAverage ()
 
 void WidgetVtk::InitAverage (
     ViewNumber::Enum viewNumber,
-    const boost::array<GLdouble, 16>& modelView,
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
     QwtDoubleInterval interval)
 {
     vtkSmartPointer<vtkRenderWindow> renderWindow = GetRenderWindow ();
     boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
     const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+    const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
     ViewPipeline& pipeline = m_pipeline[viewNumber];
     float w = width ();
     float h = height ();
 
     G3D::AABox vv = m_settings->CalculateViewingVolume (
-	viewNumber, m_average[viewNumber]->GetSimulation (), w / h);
+	viewNumber, simulation, w / h);
+    G3D::AABox bb = simulation.GetBoundingBox ();
     average->AverageInitStep ();
     int direction = 0;
     pipeline.UpdateAverage (average, direction);
-    pipeline.UpdateFromOpenGl (modelView, vs, vv);
+    pipeline.UpdateFromOpenGl (vs, bb);
     pipeline.UpdateOpacity (m_settings->GetContextAlpha ());
     pipeline.UpdateThreshold (interval);
     pipeline.UpdateColorTransferFunction (colorTransferFunction);

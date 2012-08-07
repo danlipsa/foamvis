@@ -82,9 +82,10 @@ public:
     void CopyColorBar (const ViewSettings& from);
 
 
-    /******************
-     * Transforms Focus
-     */
+    ///////////////////
+    // Transforms Focus
+
+    // rotation
     const G3D::Matrix3& GetRotationFocus () const
     {
 	return m_rotationFocus;
@@ -109,24 +110,6 @@ public:
     {
 	return m_rotationCenterType;
     }
-    double GetScaleRatio () const
-    {
-	return m_scaleRatio;
-    }
-    void SetScaleRatio (double scaleRatio)
-    {
-	m_scaleRatio = scaleRatio;
-    }
-    const G3D::Vector3& GetTranslation () const
-    {
-	return m_translation;
-    }
-    
-    void SetTranslation (const G3D::Vector3& translation)
-    {
-	m_translation = translation;
-    }
-
     void SetAxesOrder (AxesOrder::Enum axesOrder)
     {
 	m_axesOrder = axesOrder;
@@ -137,21 +120,15 @@ public:
     }
     G3D::Matrix3 GetRotationForAxesOrder (const Foam& foam) const;
 
-    double GetAngleOfView () const
+    // scale
+    double GetScaleRatio () const
     {
-	return m_angleOfView;
+	return m_scaleRatio;
     }
-    void SetAngleOfView (double value)
+    void SetScaleRatio (double scaleRatio)
     {
-	m_angleOfView = value;
+	m_scaleRatio = scaleRatio;
     }
-    float GetCameraDistance () const
-    {
-	return m_cameraDistance;
-    }
-    void CalculateCameraDistance (const G3D::AABox& centeredViewingVolume);
-
-    void CopyTransformation (const ViewSettings& from);
     G3D::Vector2 GetScaleCenter () const
     {
 	return m_scaleCenter;
@@ -160,6 +137,34 @@ public:
     {
 	m_scaleCenter = scaleCenter;
     }
+    
+    // translation
+    const G3D::Vector3& GetTranslation () const
+    {
+	return m_translation;
+    }   
+    void SetTranslation (const G3D::Vector3& translation)
+    {
+	m_translation = translation;
+    }
+
+    // projection - angle of view
+    double GetAngleOfView () const
+    {
+	return m_angleOfView;
+    }
+    void SetAngleOfView (double value)
+    {
+	m_angleOfView = value;
+    }
+    // projection - camera distance
+    float GetCameraDistance () const
+    {
+	return m_cameraDistance;
+    }
+    void CalculateCameraDistance (const G3D::AABox& centeredViewingVolume);
+
+    void CopyTransformation (const ViewSettings& from);
 
 
     /*****************

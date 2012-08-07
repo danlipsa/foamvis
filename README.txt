@@ -20,6 +20,8 @@ Release log
 	- Improve interaction speed for 'Visualization / Time Step / Faces' 
 	  using OpenGL display lists. 
 	  (stokeslibre_22_04_17_0003_0001_bodies.dmp.dmp.dmp)
+	- Added --resolution <r> to specify the resolution of the regular grid 
+	  saved for 3D averages.
 0.7.2374 2012-03-09
 	- fix bug: position of the two_discs for two views.
 	- added arrows for forces

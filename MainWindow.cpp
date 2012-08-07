@@ -718,11 +718,8 @@ void MainWindow::init3DAverage ()
 	    interval.setMinValue (range[0]);
 	    interval.setMaxValue (range[1]);
 	}
-	boost::array<GLdouble, 16> mv;
 	widgetVtk->InitAverage (
-	    viewNumber,
-	    *widgetGl->GetModelViewMatrix (&mv, viewNumber, vs.GetCurrentTime ()),
-	    colorTransferFunction, interval);
+	    viewNumber, colorTransferFunction, interval);
     }
 }
 
