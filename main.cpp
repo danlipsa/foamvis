@@ -93,6 +93,8 @@ void parseOptions (int argc, char *argv[],
     for (size_t i = 0; i < simulationsCount; ++i)
     {
 	Simulation& simulation = simulationGroup->GetSimulation (i);
+	if (co[i]->m_vm.count (Option::m_name[Option::RESOLUTION]))
+	    simulation.SetRegularGridResolution (co[i]->m_resolution);
 	if (co[i]->m_vm.count (Option::m_name[Option::T1S]))
 	    simulation.ParseT1s (
 		co[i]->m_t1sFile, co[i]->m_ticksForTimeStep,

@@ -32,6 +32,7 @@ struct Option
 	OUTPUT_TEXT,
 	PARAMETERS,
 	REFLECTION_AXIS,
+	RESOLUTION,
 	ROTATION_2D,
 	SIMULATION,
 	T1S,
@@ -80,14 +81,15 @@ public:
     void read (string parameters, string filter);
     static po::options_description getDescription ()
     {
-	return getDescription (0, 0, 0, 0, 0, 0);
+	return getDescription (0, 0, 0, 0, 0, 0, 0);
     }
 
     static po::options_description getDescription (
 	string* t1sFile,
 	DmpObjectInfo* dmpObjectInfo,
 	vector<ForcesOneObjectNames>* forcesNames,
-	size_t* ticksForTimeStep, int* rotation2D, size_t* reflectionAxis);
+	size_t* ticksForTimeStep, size_t* resolution,
+	int* rotation2D, size_t* reflectionAxis);
 
 public:
     string m_t1sFile;
@@ -96,6 +98,7 @@ public:
     vector<ForcesOneObjectNames> m_forcesNames;
     size_t m_ticksForTimeStep;
     size_t m_reflectionAxis;
+    size_t m_resolution;
     int m_rotation2D;
     po::variables_map m_vm;
 

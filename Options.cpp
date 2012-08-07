@@ -274,6 +274,7 @@ const char* Option::m_name[] = {
     "output-text",
     "parameters",
     "reflection-axis",
+    "resolution",
     "rotation-2d",
     "simulation",
     "t1s",
@@ -372,7 +373,8 @@ CommonOptions::CommonOptions () :
 	getCommonAndHiddenOptions (
 	    &m_fileNames, 
 	    getDescription (&m_t1sFile, &m_dmpObjectInfo, &m_forcesNames, 
-			    &m_ticksForTimeStep, &m_rotation2D, 
+			    &m_ticksForTimeStep, &m_resolution,
+			    &m_rotation2D, 
 			    &m_reflectionAxis)))
 {
     m_positionalOptions.add (Option::m_name[Option::DMP_FILES], -1);    
@@ -430,7 +432,7 @@ po::options_description CommonOptions::getDescription (
     string* t1sFile,
     DmpObjectInfo* dmpObjectInfo,
     vector<ForcesOneObjectNames>* forcesNames,
-    size_t* ticksForTimeStep,
+    size_t* ticksForTimeStep, size_t* resolution,
     int *rotation2D,
     size_t *reflectionAxis)
 {
@@ -481,6 +483,13 @@ po::options_description CommonOptions::getDescription (
 	 po::value<size_t> (reflectionAxis),
 	 "reflect about specified axis (after rotation).\n"
 	 "arg=<axis>, where <axis> can be 0, 1 or 2.")
+	(Option::m_name[Option::RESOLUTION],
+	 po::value<size_t>(resolution), 
+	 "resolution of the regular grid saved from a simulation time "
+	 "step in 3D.\n"
+         "arg=<r> where r=0,64,128 or 256. The resolution is r^3, "
+	 "r=0 means no regular grid is saved, "
+	 "so the average computation is disabled.")
 	(Option::m_name[Option::ROTATION_2D],
 	 po::value<int> (rotation2D),
 	 "rotate around Z axes.\n"

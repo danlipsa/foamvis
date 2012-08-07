@@ -130,8 +130,19 @@ Simulation::Simulation () :
     m_t1sShift (0),
     m_useOriginal (false),
     m_rotation2D (0),
-    m_reflectAxis (numeric_limits<size_t>::max ())
+    m_reflectAxis (numeric_limits<size_t>::max ()),
+    m_maxDeformationEigenValue (0),
+    m_regularGridResolution (64)
 {
+}
+
+void Simulation::SetRegularGridResolution (size_t resolution)
+{
+    boost::array<size_t,4> v = {{0, 64, 128, 256}};
+    if (find (v.begin (), v.end (), resolution) == v.end ())
+	ThrowException ("Resolution needs to be one of 0, 64, 128, 256: ", 
+			resolution);
+    m_regularGridResolution = resolution;
 }
 
 void Simulation::CalculateBoundingBox ()
@@ -202,7 +213,8 @@ void Simulation::Preprocess ()
 	     << "than what has been cached, you'll have to delete the cache "
 	     << "files (*.vti), otherwise velocities are going to be "
 	     << "incorrect in the resampled regular grid.\n";
-	f = boost::bind (&Foam::SaveRegularGrid, _1);
+	f = boost::bind (&Foam::SaveRegularGrid, _1, 
+			 GetRegularGridResolution ());
 	MapPerFoam (&f, 1);
     }
 }

@@ -223,6 +223,11 @@ public:
 	m_reflectAxis = axis;
     }
     float GetBubbleSize () const;
+    size_t GetRegularGridResolution () const
+    {
+	return m_regularGridResolution;
+    }
+    void SetRegularGridResolution (size_t resolution);
 
 private:
     void MapPerFoam (FoamParamMethod* foamMethods, size_t n);
@@ -278,6 +283,7 @@ private:
     int m_rotation2D;
     size_t m_reflectAxis;
     float m_maxDeformationEigenValue;
+    size_t m_regularGridResolution;
 };
 
 class SimulationGroup

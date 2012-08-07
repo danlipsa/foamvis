@@ -12,6 +12,7 @@
 #include "Foam.h"
 #include "RegularGridAverage.h"
 #include "Settings.h"
+#include "Simulation.h"
 #include "ViewSettings.h"
 
 //#define __LOG__(code) code
@@ -102,8 +103,11 @@ void RegularGridAverage::AverageInit ()
 {    
     Average::AverageInit ();
     const Foam& foam = GetFoam ();
-    m_sum = foam.CreateEmptyRegularGrid (GetBodyAttribute ());
-    m_average = foam.CreateEmptyRegularGrid (GetBodyAttribute ());
+    size_t regularGridResolution = GetSimulation ().GetRegularGridResolution ();
+    m_sum = foam.CreateEmptyRegularGrid (
+	GetBodyAttribute (), regularGridResolution);
+    m_average = foam.CreateEmptyRegularGrid (
+	GetBodyAttribute (), regularGridResolution);
     __LOG__ (cdbg << "RegularGridAverage::AverageInit: " << viewNumber << endl;)
 }
 

@@ -146,7 +146,7 @@ void WidgetVtk::ViewPipeline::UpdateFromOpenGl (
     const boost::array<GLdouble, 16>& mv, const ViewSettings& vs, 
     const G3D::AABox& vv)
 {
-/*
+    /*
     G3D::Vector3 center = vv.center ();
     G3D::Matrix3 modelView = OpenGlToG3D(mv).upper3x3 ();
     m_renderer->RemoveAllLights ();
@@ -167,7 +167,7 @@ void WidgetVtk::ViewPipeline::UpdateFromOpenGl (
 	    m_renderer->AddLight (light);
 	}
     }
-*/
+    */
 
     /*
     VTK_CREATE (vtkCamera, camera);
