@@ -139,8 +139,8 @@ void ActivateShader (G3D::Rect2D destRect);
 bool isMatrixValid (GLenum matrixType);
 
     
-vtkSmartPointer<vtkMatrix4x4> openGlToVtk (const boost::array<GLdouble,16>& mv);
-G3D::Matrix4 openGlToG3D (const boost::array<GLdouble,16>& mv);
+vtkSmartPointer<vtkMatrix4x4> OpenGlToVtk (const boost::array<GLdouble,16>& mv);
+G3D::Matrix4 OpenGlToG3D (const boost::array<GLdouble,16>& mv);
 
 #endif //__OPENGL_UTIL_H__
 

@@ -115,6 +115,7 @@
 #define VTK_EXCLUDE_STRSTREAM_HEADERS
 #include <QVTKWidget.h>
 #include <QVTKApplication.h>
+#include <QVTKInteractor.h>
 #include <vtkCamera.h>
 #include <vtkCellData.h>
 #include <vtkCellDataToPointData.h>

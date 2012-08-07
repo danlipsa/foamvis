@@ -61,8 +61,8 @@ vtkSmartPointer<vtkRenderer> WidgetVtk::ViewPipeline::Init (
     // renderer
     VTK_CREATE (vtkRenderer, renderer);
     renderer->SetBackground(1,1,1);
-    renderer->LightFollowCameraOff ();
-    renderer->SetAutomaticLightCreation (0);
+    renderer->LightFollowCameraOn ();
+    //renderer->SetAutomaticLightCreation (0);
     m_renderer = renderer;
 
     // scalar bar
@@ -146,10 +146,9 @@ void WidgetVtk::ViewPipeline::UpdateFromOpenGl (
     const boost::array<GLdouble, 16>& mv, const ViewSettings& vs, 
     const G3D::AABox& vv)
 {
-    cdbg << "ViewingVolume:" << vv << endl;
-
-
+/*
     G3D::Vector3 center = vv.center ();
+    G3D::Matrix3 modelView = OpenGlToG3D(mv).upper3x3 ();
     m_renderer->RemoveAllLights ();
     for (size_t i = 0; i < LightNumber::COUNT; ++i)
     {
@@ -158,11 +157,9 @@ void WidgetVtk::ViewPipeline::UpdateFromOpenGl (
 	{
 	    G3D::Vector3 position = 
 		ViewSettings::GetInitialLightPosition (vv, lightNumber);
-	    cdbg << "light position: " << position << endl;
-	    cdbg << "center: " << center << endl;
 	    position = 
 		vs.GetRotationLight (lightNumber) * 
-		openGlToG3D(mv).upper3x3 ().inverse () * position;
+		modelView.inverse () * position;
 	    VTK_CREATE (vtkLight, light);
 	    light->SetColor (1, 1, 1);
 	    light->SetFocalPoint (center.x, center.y, center.z);
@@ -170,12 +167,14 @@ void WidgetVtk::ViewPipeline::UpdateFromOpenGl (
 	    m_renderer->AddLight (light);
 	}
     }
+*/
 
+    /*
     VTK_CREATE (vtkCamera, camera);
-    camera->SetModelTransformMatrix (openGlToVtk (mv));
+    camera->SetModelTransformMatrix (OpenGlToVtk (mv));
     m_renderer->SetActiveCamera (camera);
     m_renderer->ResetCamera ();
-
+    */
 }
 
 void WidgetVtk::ViewPipeline::UpdateAverage (
@@ -229,10 +228,11 @@ void WidgetVtk::InitAverage (boost::shared_ptr<Settings> settings,
 void WidgetVtk::InitPipeline (size_t objects, size_t constraintSurfaces)
 {
     vtkRenderWindow* renWin = GetRenderWindow ();
+    QVTKInteractor *interactor=GetInteractor();
+    interactor->LightFollowCameraOn ();
+
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
 	m_pipeline[i].Init (objects, constraintSurfaces);
-    vtkRenderWindowInteractor* interactor = renWin->GetInteractor ();
-    interactor->LightFollowCameraOff ();
 
     vtkSmartPointer<SendPaintEnd> sendPaint (new SendPaintEnd (this));
     renWin->AddObserver (vtkCommand::EndEvent, sendPaint);
