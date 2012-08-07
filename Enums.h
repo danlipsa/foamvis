@@ -320,6 +320,7 @@ struct LightNumber
 	LIGHT3,
 	COUNT
     };
+    static Enum FromSizeT (size_t i);
 };
 
 class BodySelectorType

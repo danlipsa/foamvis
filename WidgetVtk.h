@@ -31,11 +31,11 @@ public:
     void InitAverage ();
     void InitAverage (
 	ViewNumber::Enum viewNumber,
-	vtkSmartPointer<vtkMatrix4x4> modelView,
+	const boost::array<GLdouble, 16>& modelView,
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
 	QwtDoubleInterval interval);
-    void Init (boost::shared_ptr<Settings> settings,
-	       const SimulationGroup& simulationGroup);
+    void InitAverage (boost::shared_ptr<Settings> settings,
+		      const SimulationGroup& simulationGroup);
     void UpdateOpacity ();
     void UpdateAverage (const boost::array<int, ViewNumber::COUNT>& direction);
     void InitPipeline (size_t objects, size_t constraintSurfaces);
@@ -69,7 +69,8 @@ private:
 	void PositionScalarBar (G3D::Rect2D position);
 	void UpdateOpacity (float contextAlpha);
 	void UpdateFromOpenGl (
-	    vtkSmartPointer<vtkMatrix4x4> modelView, const ViewSettings& vs);
+	    const boost::array<GLdouble, 16>& mv, const ViewSettings& vs, 
+	    const G3D::AABox& vv);
 	void UpdateAverage (
 	    boost::shared_ptr<RegularGridAverage> average, int direction);
 

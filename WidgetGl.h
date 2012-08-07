@@ -139,8 +139,10 @@ public:
      */
     void ModelViewTransform (ViewNumber::Enum viewNumber, 
 			     size_t timeStep) const;
-    vtkSmartPointer<vtkMatrix4x4> GetModelViewMatrix (
-	ViewNumber::Enum viewNumber, size_t timeStep) const;
+    boost::array<GLdouble,16>* GetModelViewMatrix (
+	boost::array<GLdouble, 16>* mv,
+	ViewNumber::Enum viewNumber, 
+	size_t timeStep) const;
 
     /**
      * Setup the viewing volume first centered around origin and then 

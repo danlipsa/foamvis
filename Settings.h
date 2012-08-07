@@ -191,13 +191,16 @@ public:
     float GetXOverY (float xOverYWindow, ViewNumber::Enum viewNumber) const;
     G3D::AABox CalculateViewingVolume (
 	ViewNumber::Enum viewNumber, const Simulation& simulation, float xOverY,
-	ViewingVolumeOperation::Enum enclose) const;
+	ViewingVolumeOperation::Enum enclose = 
+	ViewingVolumeOperation::ENCLOSE2D) const;
     G3D::AABox CalculateCenteredViewingVolume (
 	ViewNumber::Enum viewNumber, const Simulation& simulation, float xOverY,
-	ViewingVolumeOperation::Enum enclose) const;
+	ViewingVolumeOperation::Enum enclose = 
+	ViewingVolumeOperation::ENCLOSE2D) const;
     G3D::AABox CalculateEyeViewingVolume (
 	ViewNumber::Enum viewNumber, const Simulation& simulation, 
-	float xOverYWindow, ViewingVolumeOperation::Enum enclose) const;
+	float xOverYWindow, ViewingVolumeOperation::Enum enclose = 
+	ViewingVolumeOperation::ENCLOSE2D) const;
     G3D::Rect2D GetViewRect (float w, float h,
 			     ViewNumber::Enum viewNumber) const;
     G3D::Rect2D GetViewRect (float w, float h) const

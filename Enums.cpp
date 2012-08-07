@@ -421,3 +421,12 @@ GLenum LightType::ToOpenGL (LightType::Enum lightType)
 		   "Invalid LightType: ", lightType);
     return glLightType[lightType];
 }
+
+// Methods LightNumber
+// ======================================================================
+LightNumber::Enum LightNumber::FromSizeT (size_t i)
+{
+    RuntimeAssert (i <= LightNumber::COUNT,
+		   "Value outside of LightNumber::Enum: ", i);
+    return LightNumber::Enum (i);
+}

@@ -101,7 +101,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     CurrentIndexChangedViewCount (ViewCount::ONE);
     widgetGl->Init (m_settings, &simulationGroup);
     widgetGl->SetStatus (labelStatusBar);
-    widgetVtk->Init (m_settings, simulationGroup);
+    widgetVtk->InitAverage (m_settings, simulationGroup);
     const Foam& foam = simulationGroup.GetSimulation (0).GetFoam (0);
     widgetVtk->InitPipeline (
 	foam.GetObjects ().size (), foam.GetConstraintFaces ().size ());
@@ -718,9 +718,10 @@ void MainWindow::init3DAverage ()
 	    interval.setMinValue (range[0]);
 	    interval.setMaxValue (range[1]);
 	}
+	boost::array<GLdouble, 16> mv;
 	widgetVtk->InitAverage (
 	    viewNumber,
-	    widgetGl->GetModelViewMatrix (viewNumber, vs.GetCurrentTime ()),
+	    *widgetGl->GetModelViewMatrix (&mv, viewNumber, vs.GetCurrentTime ()),
 	    colorTransferFunction, interval);
     }
 }

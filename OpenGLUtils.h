@@ -138,6 +138,10 @@ void drawEllipsis2D (float l1, float l2, float size, float lineWidth);
 void ActivateShader (G3D::Rect2D destRect);
 bool isMatrixValid (GLenum matrixType);
 
+    
+vtkSmartPointer<vtkMatrix4x4> openGlToVtk (const boost::array<GLdouble,16>& mv);
+G3D::Matrix4 openGlToG3D (const boost::array<GLdouble,16>& mv);
+
 #endif //__OPENGL_UTIL_H__
 
 // Local Variables:

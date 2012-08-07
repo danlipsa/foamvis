@@ -113,6 +113,8 @@
 
 // VTK headers
 #define VTK_EXCLUDE_STRSTREAM_HEADERS
+#include <QVTKWidget.h>
+#include <QVTKApplication.h>
 #include <vtkCamera.h>
 #include <vtkCellData.h>
 #include <vtkCellDataToPointData.h>
@@ -124,16 +126,15 @@
 #include <vtkIndent.h>
 #include <vtkInteractorStyle.h>
 #include <vtkLight.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkMatrix4x4.h>
+#include <vtkPolyDataMapper.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkProbeFilter.h>
 #include <vtkProperty.h>
 #include <vtkRenderer.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
 #include <vtkScalarBarActor.h>
 #include <vtkSmartPointer.h>
 #include <vtkShrinkFilter.h>
@@ -145,8 +146,7 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLImageDataWriter.h>
 #include <vtkXMLImageDataReader.h>
-#include <QVTKWidget.h>
-#include <QVTKApplication.h>
+
 
 // OpenGL G3D headers
 #include <GLG3D/getOpenGLState.h>

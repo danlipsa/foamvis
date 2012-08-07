@@ -451,3 +451,16 @@ void ActivateShader (G3D::Rect2D destRect)
     glPopAttrib ();
 }
 
+vtkSmartPointer<vtkMatrix4x4> openGlToVtk (const boost::array<GLdouble,16>& mv)
+{
+    VTK_CREATE(vtkMatrix4x4, m);
+    m->DeepCopy (&mv[0]);
+    m->Transpose ();    
+    return m;
+}
+
+G3D::Matrix4 openGlToG3D (const boost::array<GLdouble,16>& mv)
+{
+    G3D::Matrix4 m (&mv[0]);
+    return m.transpose ();
+}

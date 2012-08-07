@@ -10,6 +10,7 @@
 #include "BodySelector.h"
 #include "DebugStream.h"
 #include "Foam.h"
+#include "OpenGLUtils.h"
 #include "RegularGridAverage.h"
 #include "Settings.h"
 #include "Simulation.h"
@@ -60,6 +61,8 @@ vtkSmartPointer<vtkRenderer> WidgetVtk::ViewPipeline::Init (
     // renderer
     VTK_CREATE (vtkRenderer, renderer);
     renderer->SetBackground(1,1,1);
+    renderer->LightFollowCameraOff ();
+    renderer->SetAutomaticLightCreation (0);
     m_renderer = renderer;
 
     // scalar bar
@@ -139,25 +142,40 @@ void WidgetVtk::ViewPipeline::UpdateOpacity (float contextAlpha)
     }
 }
 
-// @todo manipulate vtkCamera instead
 void WidgetVtk::ViewPipeline::UpdateFromOpenGl (
-    vtkSmartPointer<vtkMatrix4x4> modelView, const ViewSettings& vs)
+    const boost::array<GLdouble, 16>& mv, const ViewSettings& vs, 
+    const G3D::AABox& vv)
 {
+    cdbg << "ViewingVolume:" << vv << endl;
+
+
+    G3D::Vector3 center = vv.center ();
+    m_renderer->RemoveAllLights ();
+    for (size_t i = 0; i < LightNumber::COUNT; ++i)
+    {
+	LightNumber::Enum lightNumber = LightNumber::FromSizeT (i);
+	if (vs.IsLightEnabled (lightNumber))
+	{
+	    G3D::Vector3 position = 
+		ViewSettings::GetInitialLightPosition (vv, lightNumber);
+	    cdbg << "light position: " << position << endl;
+	    cdbg << "center: " << center << endl;
+	    position = 
+		vs.GetRotationLight (lightNumber) * 
+		openGlToG3D(mv).upper3x3 ().inverse () * position;
+	    VTK_CREATE (vtkLight, light);
+	    light->SetColor (1, 1, 1);
+	    light->SetFocalPoint (center.x, center.y, center.z);
+	    light->SetPosition (position.x, position.y, position.z);
+	    m_renderer->AddLight (light);
+	}
+    }
+
     VTK_CREATE (vtkCamera, camera);
-    camera->SetModelTransformMatrix (modelView);
+    camera->SetModelTransformMatrix (openGlToVtk (mv));
     m_renderer->SetActiveCamera (camera);
     m_renderer->ResetCamera ();
 
-    m_renderer->RemoveAllLights ();
-    for (size_t i = 0; i < LightNumber::COUNT; ++i)
-	if (vs.IsLightEnabled (LightNumber::Enum (i)))
-	{
-	    VTK_CREATE (vtkLight, light);
-	    light->SetColor (1, 1, 1);
-	    light->SetFocalPoint ();
-	    light->SetPosition ();
-	    m_renderer->AddLight (light);
-	}
 }
 
 void WidgetVtk::ViewPipeline::UpdateAverage (
@@ -195,7 +213,7 @@ WidgetVtk::WidgetVtk (QWidget* parent) :
 {
 }
 
-void WidgetVtk::Init (boost::shared_ptr<Settings> settings,
+void WidgetVtk::InitAverage (boost::shared_ptr<Settings> settings,
 		      const SimulationGroup& simulationGroup)    
 {
     m_settings = settings;
@@ -210,10 +228,14 @@ void WidgetVtk::Init (boost::shared_ptr<Settings> settings,
 
 void WidgetVtk::InitPipeline (size_t objects, size_t constraintSurfaces)
 {
+    vtkRenderWindow* renWin = GetRenderWindow ();
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
 	m_pipeline[i].Init (objects, constraintSurfaces);
+    vtkRenderWindowInteractor* interactor = renWin->GetInteractor ();
+    interactor->LightFollowCameraOff ();
+
     vtkSmartPointer<SendPaintEnd> sendPaint (new SendPaintEnd (this));
-    GetRenderWindow ()->AddObserver (vtkCommand::EndEvent, sendPaint);
+    renWin->AddObserver (vtkCommand::EndEvent, sendPaint);
 }
 
 void WidgetVtk::UpdateThreshold (QwtDoubleInterval interval)
@@ -272,7 +294,7 @@ void WidgetVtk::InitAverage ()
 
 void WidgetVtk::InitAverage (
     ViewNumber::Enum viewNumber,
-    vtkSmartPointer<vtkMatrix4x4> modelView,
+    const boost::array<GLdouble, 16>& modelView,
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
     QwtDoubleInterval interval)
 {
@@ -283,12 +305,12 @@ void WidgetVtk::InitAverage (
     float w = width ();
     float h = height ();
 
-    m_settings->CalculateEyeViewingVolume (viewNumber,
-
+    G3D::AABox vv = m_settings->CalculateViewingVolume (
+	viewNumber, m_average[viewNumber]->GetSimulation (), w / h);
     average->AverageInitStep ();
     int direction = 0;
     pipeline.UpdateAverage (average, direction);
-    pipeline.UpdateFromOpenGl (modelView, vs);
+    pipeline.UpdateFromOpenGl (modelView, vs, vv);
     pipeline.UpdateOpacity (m_settings->GetContextAlpha ());
     pipeline.UpdateThreshold (interval);
     pipeline.UpdateColorTransferFunction (colorTransferFunction);
