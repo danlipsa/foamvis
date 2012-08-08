@@ -143,24 +143,37 @@ void WidgetVtk::ViewPipeline::UpdateOpacity (float contextAlpha)
 }
 
 void WidgetVtk::ViewPipeline::UpdateFromOpenGl (
-    const ViewSettings& vs, const G3D::AABox& bb)
+    const ViewSettings& vs, const G3D::AABox& bb, const Foam& foam)
 {
-    m_renderer->ResetCamera ();
-    vtkCamera* camera = m_renderer->GetActiveCamera ();
-    camera->PrintSelf (cdbg, vtkIndent ());
-/*
-    G3D::Vector3 fp = bb.center ();
-    G3D::Vector3 position = fp + 
-	G3D::Vector3 (0, 0, - vs.GetCameraDistance ());
-    cdbg << vs.GetCameraDistance () << endl;
+    G3D::Vector3 center = bb.center ();
+    G3D::Vector3 rotationCenter = vs.GetRotationCenter ();
+    G3D::Vector3 position = center + G3D::Vector3 (0, 0, 1);
+    G3D::Vector3 up = G3D::Vector3 (0, 1, 0);
+    G3D::Matrix3 cameraRotationAxes = 
+	vs.GetRotationForAxesOrder (foam).inverse ();
+    G3D::Matrix3 cameraRotation = vs.GetRotation ().inverse ();
+    
+    position = cameraRotation * (position - rotationCenter) + rotationCenter;
+    up = cameraRotation * up;
+    center = cameraRotation * (center - rotationCenter) + rotationCenter;
+
+    position = cameraRotationAxes * (position - center) + center;
+    up = cameraRotationAxes * up ;
+
+    cdbg << "position: " << (position - center) << endl;
+    cdbg << "up: " << up << endl;
+    cdbg << "rotation" << cameraRotation << endl;
+    cdbg << "center: " << center << ", " << rotationCenter << endl;
+
     vtkCamera* camera = m_renderer->GetActiveCamera ();
     //camera->ParallelProjectionOn ();
-    camera->SetFocalPoint (fp.x, fp.y, fp.z);
+    camera->SetFocalPoint (center.x, center.y, center.z);
     camera->SetPosition (position.x, position.y, position.z);
     camera->ComputeViewPlaneNormal ();
-    camera->SetViewUp (-0.0937721, -0.0571341, -0.993953);
+    camera->SetViewUp (up.x, up.y, up.z);
+
+    m_renderer->ResetCamera ();
     camera->PrintSelf (cdbg, vtkIndent ());
-*/
 }
 
 void WidgetVtk::ViewPipeline::UpdateAverage (
@@ -287,6 +300,7 @@ void WidgetVtk::InitAverage (
     boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
     const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
     const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
+    const Foam& foam = m_average[viewNumber]->GetFoam ();
     ViewPipeline& pipeline = m_pipeline[viewNumber];
     float w = width ();
     float h = height ();
@@ -297,7 +311,7 @@ void WidgetVtk::InitAverage (
     average->AverageInitStep ();
     int direction = 0;
     pipeline.UpdateAverage (average, direction);
-    pipeline.UpdateFromOpenGl (vs, bb);
+    pipeline.UpdateFromOpenGl (vs, bb, foam);
     pipeline.UpdateOpacity (m_settings->GetContextAlpha ());
     pipeline.UpdateThreshold (interval);
     pipeline.UpdateColorTransferFunction (colorTransferFunction);

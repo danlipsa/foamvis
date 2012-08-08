@@ -761,7 +761,7 @@ void WidgetGl::ModelViewTransform (ViewNumber::Enum viewNumber,
 	vs.GetRotationForAxesOrder (foam) * (vs.GetRotationCenter () - center);
     // rotate around the center of rotation
     glTranslate (translate);
-    glMultMatrix (vs.GetRotationFocus ());
+    glMultMatrix (vs.GetRotation ());
     glTranslate (- translate);
     // rotate around the center of the simulation
     glMultMatrix (vs.GetRotationForAxesOrder (foam));
@@ -1801,9 +1801,9 @@ void WidgetGl::mouseMoveRotate (QMouseEvent *event, ViewNumber::Enum viewNumber)
     switch (m_interactionObject)
     {
     case InteractionObject::FOCUS:
-	vs.SetRotationFocus (
+	vs.SetRotation (
 	    rotate (viewNumber, event->pos (), event->modifiers (), 
-		    vs.GetRotationFocus ()));
+		    vs.GetRotation ()));
 	break;
     case InteractionObject::LIGHT:
     {
@@ -3462,7 +3462,7 @@ void WidgetGl::ResetTransformFocus ()
     {
 	ViewNumber::Enum viewNumber = vn[i];
 	ViewSettings& vs = GetViewSettings (viewNumber);
-	vs.SetRotationFocus (G3D::Matrix3::identity ());
+	vs.SetRotation (G3D::Matrix3::identity ());
 	vs.SetScaleRatio (1);
 	vs.SetTranslation (G3D::Vector3::zero ());
 	glMatrixMode (GL_PROJECTION);

@@ -32,6 +32,9 @@ public:
     ViewSettings ();
     ~ViewSettings ();
 
+    ///////////////////////////////////
+    // scalar, view and statistics type
+    //
     ViewType::Enum GetViewType () const
     {
 	return m_viewType;
@@ -50,7 +53,6 @@ public:
 	m_bodyOrFaceScalar = bodyOrFaceScalar;
     }
     
-
     StatisticsType::Enum GetStatisticsType () const
     {
 	return m_statisticsType;
@@ -60,9 +62,9 @@ public:
 	m_statisticsType = statisticsType;
     }
 
-    /**********
-     * ColorBar
-     */
+    ///////////
+    // ColorBar
+    //
     boost::shared_ptr<ColorBarModel> GetColorBarModel () const
     {
 	return m_colorBarModel;
@@ -86,11 +88,11 @@ public:
     // Transforms Focus
 
     // rotation
-    const G3D::Matrix3& GetRotationFocus () const
+    const G3D::Matrix3& GetRotation () const
     {
 	return m_rotationFocus;
     }
-    void SetRotationFocus (const G3D::Matrix3& rotationFocus)
+    void SetRotation (const G3D::Matrix3& rotationFocus)
     {
 	m_rotationFocus = rotationFocus;
     }
@@ -167,9 +169,9 @@ public:
     void CopyTransformation (const ViewSettings& from);
 
 
-    /*****************
-     * Transforms grid
-     */
+    //////////////////
+    // Transforms grid
+    //
     double GetGridScaleRatio () const
     {
 	return m_gridScaleRatio;
@@ -178,6 +180,7 @@ public:
     {
 	m_gridScaleRatio = gridScaleRatio;
     }
+
     const G3D::Vector3& GetGridTranslation () const
     {
 	return m_gridTranslation;
@@ -187,9 +190,18 @@ public:
 	m_gridTranslation = gridTranslation;
     }
 
-    /*******************
-     * Transforms context
-     */
+    ///////////////
+    // Context view
+    //
+    void SetContextView (bool contextView)
+    {
+	m_contextView = contextView;
+    }
+    bool IsContextView () const
+    {
+	return m_contextView;
+    }
+
     double GetContextScaleRatio () const
     {
 	return m_contextScaleRatio;
@@ -201,9 +213,9 @@ public:
     }
 
 
-    /**********
-     * Viewport
-     */
+    ///////////
+    // Viewport
+    //
     const G3D::Rect2D& GetViewport () const
     {
 	return m_viewport;
@@ -215,9 +227,9 @@ public:
     }
     
 
-    /********
-     * Lights
-     */
+    /////////
+    // Lights
+    //
     bool IsLightingEnabled () const
     {
 	return m_lightingEnabled;
@@ -289,10 +301,9 @@ public:
 
 
 
-
-    /****************
-     * Average around
-     */
+    /////////////////
+    // Average around
+    //
     size_t GetAverageAroundBodyId () const
     {
 	return m_averageAroundBodyId[0];
@@ -341,24 +352,11 @@ public:
     void SetAverageAroundPositions (const Simulation& simulation, size_t bodyId);
     void SetAverageAroundPositions (const Simulation& simulation,
 				    size_t bodyId, size_t secondBodyId);
-    void RotateAndTranslateAverageAround (
-	size_t timeStep, int direction) const;
+    void RotateAndTranslateAverageAround (size_t timeStep, int direction) const;
 
-
-
-    // Context View
-    void SetContextView (bool contextView)
-    {
-	m_contextView = contextView;
-    }
-    bool IsContextView () const
-    {
-	return m_contextView;
-    }
-
-    /**********
-     * Overlays
-     */
+    ///////////
+    // Overlays
+    //
     void SetForceNetworkShown (bool value)
     {
 	m_forceNetworkShown = value;
@@ -453,9 +451,9 @@ public:
 	return m_contextBody.size ();
     }
     
-    /****************
-     * Body selection
-     */
+    /////////////////
+    // Body selection
+    //
     const BodySelector& GetBodySelector () const
     {
 	return *m_bodySelector;
@@ -501,9 +499,9 @@ public:
     {
 	return m_currentTime;
     }    
-    /**
-     * Return positive if time has moved forward or negative otherwise
-     */
+
+
+    // Return positive if time has moved forward or negative otherwise
     int SetCurrentTime (size_t time);
     size_t GetTimeSteps () const
     {

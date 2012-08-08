@@ -17,6 +17,7 @@ class Settings;
 class SimulationGroup;
 class RegularGridAverage;
 class ViewSettings;
+class Foam;
 
 class WidgetVtk : public QVTKWidget
 {
@@ -67,7 +68,8 @@ private:
 	    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction);
 	void PositionScalarBar (G3D::Rect2D position);
 	void UpdateOpacity (float contextAlpha);
-	void UpdateFromOpenGl (const ViewSettings& vs, const G3D::AABox& bb);
+	void UpdateFromOpenGl (
+	    const ViewSettings& vs, const G3D::AABox& bb, const Foam& foam);
 	void UpdateAverage (
 	    boost::shared_ptr<RegularGridAverage> average, int direction);
 
