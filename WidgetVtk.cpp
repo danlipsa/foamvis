@@ -153,6 +153,7 @@ void WidgetVtk::ViewPipeline::UpdateFromOpenGl (
 	vs.GetRotationForAxesOrder (foam).inverse ();
     G3D::Matrix3 cameraRotation = vs.GetRotation ().inverse ();
     
+    // apply the rotations from ModelViewTransform in reverse order
     position = cameraRotation * (position - rotationCenter) + rotationCenter;
     up = cameraRotation * up;
     center = cameraRotation * (center - rotationCenter) + rotationCenter;
@@ -160,20 +161,13 @@ void WidgetVtk::ViewPipeline::UpdateFromOpenGl (
     position = cameraRotationAxes * (position - center) + center;
     up = cameraRotationAxes * up ;
 
-    cdbg << "position: " << (position - center) << endl;
-    cdbg << "up: " << up << endl;
-    cdbg << "rotation" << cameraRotation << endl;
-    cdbg << "center: " << center << ", " << rotationCenter << endl;
-
     vtkCamera* camera = m_renderer->GetActiveCamera ();
-    //camera->ParallelProjectionOn ();
     camera->SetFocalPoint (center.x, center.y, center.z);
     camera->SetPosition (position.x, position.y, position.z);
     camera->ComputeViewPlaneNormal ();
     camera->SetViewUp (up.x, up.y, up.z);
 
     m_renderer->ResetCamera ();
-    camera->PrintSelf (cdbg, vtkIndent ());
 }
 
 void WidgetVtk::ViewPipeline::UpdateAverage (
