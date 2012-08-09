@@ -164,7 +164,7 @@ size_t Edge::GetTorusClippedSize (const OOBox& periods) const
 }
 
 
-void Edge::AddAdjacentFace (
+void Edge::AddAdjacentOrientedFace (
     boost::shared_ptr<OrientedFace> orientedFace, size_t edgeIndex)
 {
     m_adjacentOrientedFaces.insert (
@@ -175,7 +175,7 @@ void Edge::AddAdjacentFace (
 string Edge::AdjacentFacesToString () const
 {
     ostringstream ostr;
-    const AdjacentOrientedFaces& aofs = GetAdjacentFaces ();
+    const AdjacentOrientedFaces& aofs = GetAdjacentOrientedFaces ();
     size_t facePartOfSize = aofs.size ();
     ostr << "Edge " << GetStringId () << " is part of " 
 	 << facePartOfSize << " faces: ";
@@ -267,10 +267,10 @@ void Edge::GetVertexSet (VertexSet* vertexSet) const
     vertexSet->insert (GetEndPtr ());
 }
 
-double Edge::GetLength () const
+float Edge::GetLength () const
 {
     size_t pointCount = GetPointCount ();
-    double length = 0;
+    float length = 0;
     G3D::Vector3 prev = GetPoint (0);
     for (size_t i = 1; i < pointCount; ++i)
     {

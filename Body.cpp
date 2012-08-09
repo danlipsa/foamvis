@@ -80,6 +80,7 @@ Body::Body(
     ElementStatus::Enum duplicateStatus) :
     Element(id, duplicateStatus),
     m_area (0),
+    m_growthRate (0),
     m_deformationSimple (0),
     m_pressureDeduced (false),
     m_targetVolumeDeduced (false),
@@ -244,14 +245,14 @@ void Body::GetEdgeSet (EdgeSet* edgeSet) const
 bool Body::HasScalarValue (BodyScalar::Enum property, 
 				bool* deduced) const
 {
-    setPValue (deduced, false);
+    setPointerValue (deduced, false);
     if (IsObject ())
     {
 	if (property == BodyScalar::VELOCITY_X ||
 	    property == BodyScalar::VELOCITY_Y ||
 	    property == BodyScalar::VELOCITY_MAGNITUDE)
 	{
-	    setPValue (deduced, true);
+	    setPointerValue (deduced, true);
 	    return true;
 	}
 	else
@@ -263,13 +264,13 @@ bool Body::HasScalarValue (BodyScalar::Enum property,
 	return HasAttribute (BodyScalar::TARGET_VOLUME - 
 			     BodyScalar::DMP_BEGIN);
     case BodyScalar::PRESSURE:
-	setPValue (deduced, m_pressureDeduced);
+	setPointerValue (deduced, m_pressureDeduced);
 	return HasAttribute (property - BodyScalar::DMP_BEGIN);
     case BodyScalar::TARGET_VOLUME:
-	setPValue (deduced, m_targetVolumeDeduced);
+	setPointerValue (deduced, m_targetVolumeDeduced);
 	return HasAttribute (property - BodyScalar::DMP_BEGIN);
     case BodyScalar::ACTUAL_VOLUME:
-	setPValue (deduced, m_actualVolumeDeduced);
+	setPointerValue (deduced, m_actualVolumeDeduced);
 	return HasAttribute (property - BodyScalar::DMP_BEGIN);
     default:
 	return true;
@@ -294,12 +295,18 @@ float Body::GetScalarValue (BodyScalar::Enum property) const
 	return GetDeformationSimple ();
     case BodyScalar::DEFORMATION_EIGEN:
 	return GetDeformationEigenScalar ();
-    case BodyScalar::COUNT:
-	ThrowException ("Invalid BodyScalar: ", property);
-    default:
+    case BodyScalar::PRESSURE:
+    case BodyScalar::TARGET_VOLUME:
+    case BodyScalar::ACTUAL_VOLUME:
 	return GetAttribute<RealAttribute, double> (
 	    property - BodyScalar::DMP_BEGIN);
+    case BodyScalar::GROWTH_RATE:
+	return GetGrowthRate ();
+    case BodyScalar::COUNT:
+	ThrowException ("Invalid BodyScalar: ", property);
+	return 0;
     }
+    return 0;
 }
 
 void Body::GetAttributeValue (size_t attribute, float* value)
@@ -439,10 +446,16 @@ void Body::calculateNeighbors3D (const OOBox& originalDomain)
 	    pair< set<size_t>::iterator, bool> result = 
 		neighborsIds.insert (ab.GetBodyId ());
 	    if (! result.second)
-		// this neighbor is already in the list
+		// This neighbor is already in the list.
+		// As a physical face can have several tessellation faces
+		// a neighbor appears several times.
 		continue;
 	    Neighbor neighbor;
 	    neighbor.m_body = ab.GetBody ();
+	    m_growthRate += 
+		(GetScalarValue (BodyScalar::PRESSURE) - 
+		 neighbor.m_body->GetScalarValue (BodyScalar::PRESSURE)) * 
+		of->GetArea ();
 	    G3D::Vector3int16 translation;
 	    originalDomain.IsWrap (GetCenter (), neighbor.m_body->GetCenter (),
 				   &translation);
@@ -475,7 +488,7 @@ void Body::calculateNeighbors2D (const OOBox& originalDomain)
 	}
 	else
 	{
-	    const AdjacentOrientedFaces& aofs = oe.GetAdjacentFaces ();
+	    const AdjacentOrientedFaces& aofs = oe.GetAdjacentOrientedFaces ();
 	    RuntimeAssert (aofs.size () <= 2, 
 			   "AdjacentOrientedFaces size > 2: ", aofs.size ());
 	    AdjacentOrientedFaces::const_iterator it = aofs.begin ();
@@ -488,6 +501,10 @@ void Body::calculateNeighbors2D (const OOBox& originalDomain)
 		continue;
 	    }
 	    boost::shared_ptr<Body> neighbor = it->GetBody ();
+	    m_growthRate += 
+		(GetScalarValue (BodyScalar::PRESSURE) - 
+		 neighbor->GetScalarValue (BodyScalar::PRESSURE)) * 
+		oe.GetLength ();
 	    m_neighbors[j].m_body = neighbor;
 	    G3D::Vector3int16 translation;
 	    originalDomain.IsWrap (GetCenter (), neighbor->GetCenter (),

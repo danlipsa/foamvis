@@ -110,6 +110,7 @@ public:
 	    DMP_BEGIN = PRESSURE,
 	TARGET_VOLUME,
 	ACTUAL_VOLUME,
+	GROWTH_RATE,
 	COUNT
     };
 public:

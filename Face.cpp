@@ -394,7 +394,7 @@ void Face::UpdateAdjacentFaceStandalone (boost::shared_ptr<Face> face)
 	for (size_t i = 0; i < size (); i++)
 	{
 	    boost::shared_ptr<OrientedEdge> oe = GetOrientedEdgePtr (i);
-	    oe->AddAdjacentFace (m_orientedFace, i);
+	    oe->AddAdjacentOrientedFace (m_orientedFace, i);
 	}
     }
 }

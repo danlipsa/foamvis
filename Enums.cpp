@@ -104,7 +104,8 @@ boost::array<const char*, BodyScalar::COUNT> BodyScalar::NAME2D = {{
 	"Deformation eigen",
 	"Pressure",
 	"Target volume",
-	"Actual volume"
+	"Actual volume",
+	"Growth rate"
     }};
 
 boost::array<const char*, BodyScalar::COUNT> BodyScalar::NAME3D = {{
@@ -118,6 +119,7 @@ boost::array<const char*, BodyScalar::COUNT> BodyScalar::NAME3D = {{
 	"Pressure",
 	"Target volume",
 	"Actual volume",
+	"Growth rate"
     }};
 
 const boost::array<const char*, BodyScalar::COUNT>& BodyScalar::NAME ()

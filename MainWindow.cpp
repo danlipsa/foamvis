@@ -152,7 +152,7 @@ void MainWindow::configureInterfaceDataDependent (
     }
     if (! simulation.IsTorus ())
     {
-	checkBoxTorusOriginalDomain->setDisabled (true);
+	checkBoxBoundingBoxTorusDomain->setDisabled (true);
 	checkBoxTorusOriginalDomainWrapInside->setDisabled (true);
 	radioButtonEdgesTorus->setDisabled (true);
 	radioButtonFaceEdgesTorus->setDisabled (true);

@@ -55,9 +55,9 @@ G3D::Vector3 OrientedEdge::GetEndVector () const
     return GetEnd ().GetVector ();
 }
 
-const AdjacentOrientedFaces& OrientedEdge::GetAdjacentFaces () const
+const AdjacentOrientedFaces& OrientedEdge::GetAdjacentOrientedFaces () const
 {
-    return GetEdge ()->GetAdjacentFaces ();
+    return GetEdge ()->GetAdjacentOrientedFaces ();
 }
 
 bool OrientedEdge::HasConstraints () const
@@ -65,10 +65,10 @@ bool OrientedEdge::HasConstraints () const
     return GetEdge ()->HasConstraints ();
 }
 
-void OrientedEdge::AddAdjacentFace (
+void OrientedEdge::AddAdjacentOrientedFace (
     boost::shared_ptr<OrientedFace> of, size_t edgeIndex) const
 {
-    GetEdge ()->AddAdjacentFace (of, edgeIndex);
+    GetEdge ()->AddAdjacentOrientedFace (of, edgeIndex);
 }
 
 string OrientedEdge::ToStringShort () const
@@ -87,7 +87,7 @@ string OrientedEdge::ToString (const AttributesInfo* ai) const
 {
     ostringstream ostr;
     using G3D::Vector3;
-    const AdjacentOrientedFaces& afs = GetAdjacentFaces ();
+    const AdjacentOrientedFaces& afs = GetAdjacentOrientedFaces ();
     ostr << "Oriented Edge " << GetStringId () << " "
 	 << GetEdge ()->GetDuplicateStatus ()
 	 << ": " << endl;
@@ -120,7 +120,7 @@ size_t OrientedEdge::GetPointCount () const
     return GetEdge ()->GetPointCount ();
 }
 
-double OrientedEdge::GetLength () const
+float OrientedEdge::GetLength () const
 {
     return GetEdge ()->GetLength ();
 }

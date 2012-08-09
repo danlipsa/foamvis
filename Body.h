@@ -47,7 +47,8 @@ public:
 	 size_t id,
 	 ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
     /**
-     * Creates a body for a constraint
+     * Creates a body determined by a constraint. Usualy this is an
+     * object interacting with the foam.
      */
     Body (boost::shared_ptr<Face> face, size_t id);
 
@@ -208,6 +209,13 @@ public:
     size_t GetConstraintIndex () const;
 
     vtkSmartPointer<vtkPolyData> GetPolyData () const;
+    /**
+     * @pre {CalculateNeighbors executed}
+     */
+    float GetGrowthRate () const
+    {
+	return m_growthRate;
+    }
 
 private:
     /**
@@ -247,6 +255,7 @@ private:
     G3D::AABox m_boundingBox;
     G3D::Vector3 m_velocity;
     float m_area;
+    float m_growthRate;
     float m_deformationSimple;
     bool m_pressureDeduced;
     bool m_targetVolumeDeduced;

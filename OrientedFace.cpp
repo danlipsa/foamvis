@@ -88,7 +88,7 @@ void OrientedFace::UpdateAdjacentFace (const boost::shared_ptr<OrientedFace>& of
     for (size_t i = 0; i < size (); i++)
     {
 	const OrientedEdge& oe = GetOrientedEdge (i);
-	oe.AddAdjacentFace (of, i);
+	oe.AddAdjacentOrientedFace (of, i);
     }
 }
 

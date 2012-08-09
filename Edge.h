@@ -96,9 +96,9 @@ public:
     /**
      * Adds a face touched by this edge
      */
-    void AddAdjacentFace (
+    void AddAdjacentOrientedFace (
 	boost::shared_ptr<OrientedFace>  face, size_t edgeIndex);
-    const AdjacentOrientedFaces& GetAdjacentFaces () const
+    const AdjacentOrientedFaces& GetAdjacentOrientedFaces () const
     {
 	return m_adjacentOrientedFaces;
     }
@@ -130,7 +130,7 @@ public:
 
     bool IsStandalone () const
     {
-	return GetAdjacentFaces ().size () == 0;
+	return GetAdjacentOrientedFaces ().size () == 0;
     }
 
     size_t GetConstraintIndex (size_t i = 0) const;
@@ -138,7 +138,7 @@ public:
 
     string ToString (const AttributesInfo* ai = 0) const;
     void GetVertexSet (VertexSet* vertexSet) const;
-    double GetLength () const;
+    float GetLength () const;
 
     virtual boost::shared_ptr<Edge> Clone () const;
     boost::shared_ptr<Edge> GetDuplicate (

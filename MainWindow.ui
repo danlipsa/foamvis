@@ -342,8 +342,11 @@
            </property>
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>4</number>
              </property>
              <widget class="QWidget" name="tabLight">
               <attribute name="title">
@@ -798,7 +801,7 @@
                <item>
                 <widget class="QTabWidget" name="tabWidgetVariousAndView">
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>2</number>
                  </property>
                  <widget class="QWidget" name="tabVarious">
                   <attribute name="title">
@@ -832,37 +835,6 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="4" column="0">
-                    <widget class="QCheckBox" name="checkBoxBodyNeighbors">
-                     <property name="text">
-                      <string>Body neighbors</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="1">
-                    <widget class="QCheckBox" name="checkBoxConstraints">
-                     <property name="text">
-                      <string>Constraints</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="5" column="0">
-                    <widget class="QCheckBox" name="checkBoxConstraintPoints">
-                     <property name="text">
-                      <string>Constraint points</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QCheckBox" name="checkBoxCenterBody">
-                     <property name="text">
-                      <string>Center body</string>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="2" column="0">
                     <widget class="QCheckBox" name="checkBoxBoundingBoxSimulation">
                      <property name="text">
@@ -877,7 +849,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="1">
+                   <item row="4" column="1">
                     <widget class="QCheckBox" name="checkBoxCenterFace">
                      <property name="text">
                       <string>Center face</string>
@@ -894,7 +866,45 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="5" column="1">
+                   <item row="3" column="0">
+                    <widget class="QCheckBox" name="checkBoxBoundingBoxTorusDomain">
+                     <property name="text">
+                      <string>Box torus domain</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QCheckBox" name="checkBoxCenterBody">
+                     <property name="text">
+                      <string>Center body</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QCheckBox" name="checkBoxBodyNeighbors">
+                     <property name="text">
+                      <string>Body neighbors</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="0">
+                    <widget class="QCheckBox" name="checkBoxConstraints">
+                     <property name="text">
+                      <string>Constraints</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="1">
+                    <widget class="QCheckBox" name="checkBoxConstraintPoints">
+                     <property name="text">
+                      <string>Constraint points</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="7" column="0">
                     <widget class="QCheckBox" name="checkBoxHistogramGridShown">
                      <property name="text">
                       <string>Histogram grid</string>
@@ -979,13 +989,6 @@
                     </widget>
                    </item>
                    <item row="3" column="1">
-                    <widget class="QCheckBox" name="checkBoxTorusOriginalDomain">
-                     <property name="text">
-                      <string>Torus domain</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="0">
                     <widget class="QCheckBox" name="checkBoxViewFocusShown">
                      <property name="text">
                       <string>View focus</string>
@@ -1555,6 +1558,11 @@
                      <item>
                       <property name="text">
                        <string>Actual volume</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Growth rate</string>
                       </property>
                      </item>
                      <item>
@@ -2914,7 +2922,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxTorusOriginalDomain</sender>
+   <sender>checkBoxBoundingBoxTorusDomain</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
    <slot>ToggledTorusDomainShown(bool)</slot>

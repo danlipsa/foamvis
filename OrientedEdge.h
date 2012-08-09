@@ -59,9 +59,9 @@ public:
     /**
      * Adds a face that is touched by this oriented edge.
      */
-    void AddAdjacentFace (boost::shared_ptr<OrientedFace> face, 
-			size_t edgeIndex) const;
-    const AdjacentOrientedFaces& GetAdjacentFaces () const;
+    void AddAdjacentOrientedFace (boost::shared_ptr<OrientedFace> face, 
+				  size_t edgeIndex) const;
+    const AdjacentOrientedFaces& GetAdjacentOrientedFaces () const;
     bool HasConstraints () const;
     size_t GetConstraintIndex () const;
 
@@ -80,7 +80,7 @@ public:
     bool IsPhysical () const;
     size_t GetPointCount () const;
     G3D::Vector3 GetPoint (size_t i) const;
-    double GetLength () const;
+    float GetLength () const;
 };
 /**
  * Pretty prints an Edge

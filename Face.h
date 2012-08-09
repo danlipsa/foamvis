@@ -86,6 +86,9 @@ public:
     {
 	return m_perimeter;
     }
+    /**
+     * @pre {CalculateCentroidAndArea executed.}
+     */
     float GetArea () const
     {
 	return m_area;

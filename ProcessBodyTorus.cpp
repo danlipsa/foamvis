@@ -116,7 +116,7 @@ void ProcessBodyTorus::restrictFacesAroundAnEdge (
     OrientedEdge oe = aof.GetOrientedEdge ();
     size_t bodyId = aof.GetBodyId ();
     oe.Reverse ();
-    const AdjacentOrientedFaces& aofs = oe.GetAdjacentFaces ();
+    const AdjacentOrientedFaces& aofs = oe.GetAdjacentOrientedFaces ();
 
     __LOG__ (
 	cdbg << " ---------- Trying " << aofs.size ()
