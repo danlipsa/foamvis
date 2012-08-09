@@ -361,10 +361,11 @@ void Foam::Preprocess ()
     addConstraintEdges ();
 }
 
-void Foam::CalculateBodyNeighbors ()
+void Foam::CalculateBodyNeighborsAndGrowthRate ()
 {
     for_each (m_bodies.begin (), m_bodies.end (),
-	      boost::bind (&Body::CalculateNeighbors, _1, GetTorusDomain ()));
+	      boost::bind (&Body::CalculateNeighborsAndGrowthRate, _1, 
+			   GetTorusDomain ()));
 }
 
 void Foam::StoreObjects ()

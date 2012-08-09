@@ -163,7 +163,7 @@ public:
     }
     void CalculateDeformationSimple ();
     static const char* GetAttributeKeywordString (BodyScalar::Enum bp);
-    void CalculateNeighbors (const OOBox& originalDomain);
+    void CalculateNeighborsAndGrowthRate (const OOBox& originalDomain);
     void CalculateDeformationTensor (const OOBox& originalDomain);
     G3D::Matrix3 GetDeformationTensor (
 	const G3D::Matrix3& additionalRotation) const;
@@ -210,7 +210,7 @@ public:
 
     vtkSmartPointer<vtkPolyData> GetPolyData () const;
     /**
-     * @pre {CalculateNeighbors executed}
+     * @pre {CalculateNeighborsAndGrowthRateAndGrowthRate executed}
      */
     float GetGrowthRate () const
     {

@@ -422,7 +422,7 @@ const char* Body::GetAttributeKeywordString (BodyScalar::Enum bp)
 }
 
 
-void Body::CalculateNeighbors (const OOBox& originalDomain)
+void Body::CalculateNeighborsAndGrowthRate (const OOBox& originalDomain)
 {
     if (DATA_PROPERTIES.Is2D ())
 	calculateNeighbors2D (originalDomain);

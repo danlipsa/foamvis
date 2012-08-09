@@ -276,7 +276,10 @@ public:
     void CalculateDeformationSimple ();
     void FixConstraintPoints (const Foam* prevFoam);
     void StoreAttribute (Body* body, BodyScalar::Enum property, double r);
-    void CalculateBodyNeighbors ();
+    /**
+     * @pre {adjustPressureAlignMedians executed}
+     */
+    void CalculateBodyNeighborsAndGrowthRate ();
     void StoreObjects ();
     void CalculateBodyDeformationTensor ();
     void CreateObjectBody (size_t constraint);
