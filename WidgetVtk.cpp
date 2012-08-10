@@ -69,7 +69,7 @@ vtkSmartPointer<vtkRenderer> WidgetVtk::ViewPipeline::Init (
     // scalar bar
     VTK_CREATE (vtkScalarBarActor, scalarBar);
     scalarBar->SetOrientationToVertical ();
-    scalarBar->SetNumberOfLabels (0);
+    scalarBar->SetNumberOfLabels (3);
     m_scalarBar = scalarBar;
     renderer->AddViewProp (scalarBar);
 
@@ -259,7 +259,7 @@ void WidgetVtk::resizeEvent (QResizeEvent * event)
 	G3D::Rect2D position = G3D::Rect2D::xywh (
 	    (viewColorBarRect.x0 () - viewRect.x0 ())/ viewRect.width (),
 	    (viewColorBarRect.y0 () - viewRect.y0 ())/ viewRect.height (),
-	    viewColorBarRect.width () / viewRect.width () * 1.3,
+	    viewColorBarRect.width () / viewRect.width () * 5,
 	    viewColorBarRect.height () / viewRect.height () * 1.2);	
 	m_pipeline[viewNumber].PositionScalarBar (position);
     }

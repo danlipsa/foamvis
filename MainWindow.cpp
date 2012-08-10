@@ -782,34 +782,34 @@ void MainWindow::createActions ()
 {
     m_actionRotateShown = boost::make_shared<QAction> (
 	tr("&Rotate Model"), this);
-    //m_actionRotateShown->setShortcut(QKeySequence (tr ("R")));
+    m_actionRotateShown->setShortcut(QKeySequence (tr ("R")));
     m_actionRotateShown->setStatusTip(tr("Rotate Model"));
     connect(m_actionRotateShown.get (), SIGNAL(triggered()),
 	    this, SLOT(RotateShown ()));
     
     m_actionScaleShown = boost::make_shared<QAction> (tr("&Scale"), this);
-    //m_actionScaleShown->setShortcut(QKeySequence (tr ("Z")));
+    m_actionScaleShown->setShortcut(QKeySequence (tr ("Z")));
     m_actionScaleShown->setStatusTip(tr("Scale"));
     connect(m_actionScaleShown.get (), SIGNAL(triggered()),
 	    this, SLOT(ScaleShown ()));
     
     m_actionTranslateShown = boost::make_shared<QAction> (
 	tr("&Translate"), this);
-    //m_actionTranslateShown->setShortcut(QKeySequence (tr ("T")));
+    m_actionTranslateShown->setShortcut(QKeySequence (tr ("T")));
     m_actionTranslateShown->setStatusTip(tr("Translate"));
     connect(m_actionTranslateShown.get (), SIGNAL(triggered()),
 	    this, SLOT(TranslateShown ()));           
     
     m_actionSelectShown = boost::make_shared<QAction> (
 	tr("&Select"), this);
-    //m_actionSelectShown->setShortcut(QKeySequence (tr ("S")));
+    m_actionSelectShown->setShortcut(QKeySequence (tr ("S")));
     m_actionSelectShown->setStatusTip(tr("Select"));
     connect(m_actionSelectShown.get (), SIGNAL(triggered()),
 	    this, SLOT(SelectShown ()));
     
     m_actionDeselectShown = boost::make_shared<QAction> (
 	tr("&Deselect"), this);
-    //m_actionDeselectShown->setShortcut (QKeySequence (tr ("D")));
+    m_actionDeselectShown->setShortcut (QKeySequence (tr ("D")));
     m_actionDeselectShown->setStatusTip (tr("Deselect"));
     connect(m_actionDeselectShown.get (), SIGNAL(triggered()),
 	    this, SLOT(DeselectShown ()));

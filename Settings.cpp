@@ -457,13 +457,13 @@ G3D::Rect2D Settings::GetViewRect (float w, float h,
 G3D::Rect2D Settings::GetViewColorBarRect (const G3D::Rect2D& viewRect)
 {
     return G3D::Rect2D::xywh (
-	viewRect.x0 () + 5, viewRect.y0 () + 5,
+	viewRect.x0 () + 15, viewRect.y0 () + 15,
 	10, max (viewRect.height () / 4, 50.0f));
 }
 
 G3D::Rect2D Settings::GetViewOverlayBarRect (const G3D::Rect2D& viewRect)
 {
     return G3D::Rect2D::xywh (
-	viewRect.x0 () + 5 + 10 + 5, viewRect.y0 () + 5,
+	viewRect.x0 () + 15 + 10 + 5, viewRect.y0 () + 15,
 	10, max (viewRect.height () / 4, 50.0f));
 }

@@ -1697,7 +1697,7 @@ void WidgetGl::AverageAroundBody ()
 	    vs.SetAverageAroundPositions (simulation);
 	else
 	    vs.SetAverageAroundPositions (simulation, bodyId);
-	update ();
+	CompileUpdate ();
     }
     else
     {
@@ -1729,7 +1729,7 @@ void WidgetGl::AverageAroundSecondBody ()
 		vs.SetAverageAround (true);
 		vs.SetAverageAroundPositions (simulation, bodyId, secondBodyId);
 		vs.SetDifferenceBodyId (secondBodyId);
-		update ();
+		CompileUpdate ();
 		return;
 	    }
 	}
@@ -1750,7 +1750,7 @@ void WidgetGl::AverageAroundReset ()
     vs.SetAverageAround (false);
     vs.SetAverageAroundBodyId (INVALID_INDEX);
     vs.SetAverageAroundSecondBodyId (INVALID_INDEX);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ContextDisplayBody ()
