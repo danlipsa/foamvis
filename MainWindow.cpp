@@ -176,6 +176,8 @@ void MainWindow::configureInterfaceDataDependent (
     }
     else
     {
+	if (simulation.GetRegularGridResolution () == 0)
+	    radioButtonAverage->setDisabled (true);
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::THREE_D);
 	comboBoxColor->setItemText (
 	    BodyScalar::SIDES_PER_BUBBLE, 

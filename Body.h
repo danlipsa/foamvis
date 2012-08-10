@@ -31,11 +31,30 @@ public:
      * domain (m_translation) or 
      * a point obtained by reflecting against a wall or object m_centerReflection
      */
-    typedef struct {
-	G3D::Vector3int16 m_translation;
+    class Neighbor {
+    public:
+	Neighbor ();
+	Neighbor (G3D::Vector3 centerOfReflection);
+	Neighbor (boost::shared_ptr<Body> body, G3D::Vector3int16 translation);
+
+	boost::shared_ptr<Body> GetBody () const
+	{
+	    return m_body;
+	}
+	G3D::Vector3int16 GetTranslation () const
+	{
+	    return m_translation;
+	}
+	G3D::Vector3 GetCenterReflection () const
+	{
+	    return m_centerReflection;
+	}
+
+    private:
 	boost::shared_ptr<Body> m_body;
+	G3D::Vector3int16 m_translation;
 	G3D::Vector3 m_centerReflection;
-    } Neighbor;
+    };
 
 
 public:
@@ -51,11 +70,6 @@ public:
      * object interacting with the foam.
      */
     Body (boost::shared_ptr<Face> face, size_t id);
-
-    const vector<Neighbor>& GetNeighbors () const
-    {
-	return m_neighbors;
-    }
     
     const Face& GetFace (size_t i) const;
     Face& GetFace (size_t i);
@@ -163,7 +177,6 @@ public:
     }
     void CalculateDeformationSimple ();
     static const char* GetAttributeKeywordString (BodyScalar::Enum bp);
-    void CalculateNeighborsAndGrowthRate (const OOBox& originalDomain);
     void CalculateDeformationTensor (const OOBox& originalDomain);
     G3D::Matrix3 GetDeformationTensor (
 	const G3D::Matrix3& additionalRotation) const;
@@ -209,13 +222,25 @@ public:
     size_t GetConstraintIndex () const;
 
     vtkSmartPointer<vtkPolyData> GetPolyData () const;
+
     /**
-     * @pre {CalculateNeighborsAndGrowthRateAndGrowthRate executed}
+     * @pre {CalculateNeighborsAndGrowthRate}
+     */
+    const vector<Neighbor>& GetNeighbors () const
+    {
+	return m_neighbors;
+    }
+    /**
+     * @pre {CalculateNeighborsAndGrowthRate}
      */
     float GetGrowthRate () const
     {
 	return m_growthRate;
     }
+    /**
+     * @pre {Face::CalculateCentroidAndArea}
+     */
+    void CalculateNeighborsAndGrowthRate (const OOBox& originalDomain);
 
 private:
     /**

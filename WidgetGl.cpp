@@ -83,20 +83,20 @@ void displayBodyNeighbors (boost::shared_ptr<Body> body,
     BOOST_FOREACH (Body::Neighbor neighbor, body->GetNeighbors ())
     {
 	G3D::Vector3 s;
-	if (neighbor.m_body)
+	if (neighbor.GetBody ())
 	{
-	    s = neighbor.m_body->GetCenter ();
+	    s = neighbor.GetBody ()->GetCenter ();
 	}
 	else
 	{
 	    // debug
 	    // no reflection displayed
 	    // continue;
-	    s = neighbor.m_centerReflection;
+	    s = neighbor.GetCenterReflection ();
 	}
 	G3D::Vector3 first = body->GetCenter ();	    
 	G3D::Vector3 second = 
-	    originalDomain.TorusTranslate (s, neighbor.m_translation);
+	    originalDomain.TorusTranslate (s, neighbor.GetTranslation ());
 	::glVertex (first);
 	::glVertex (second);
     }

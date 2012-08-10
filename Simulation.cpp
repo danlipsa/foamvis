@@ -179,12 +179,6 @@ void Simulation::Preprocess ()
 {
     cdbg << "Preprocess temporal foam data ..." << endl;
     fixConstraintPoints ();
-    if (m_adjustPressure)
-        adjustPressureAlignMedians ();
-    else
-    {
-	cdbg << "Show ORIGINAL pressure values." << endl;
-    }
     boost::array<FoamParamMethod, 9> methods = {{
 	    boost::bind (&Foam::CreateObjectBody, _1, 
 			 GetDmpObjectInfo ().m_constraintIndex),
@@ -204,9 +198,14 @@ void Simulation::Preprocess ()
     calculateVelocity ();
     FoamParamMethod f = boost::bind (&Foam::CalculateMinMaxStatistics, _1);
     MapPerFoam (&f, 1);
+    if (m_adjustPressure)
+        adjustPressureAlignMedians ();
+    else
+    {
+	cdbg << "Show ORIGINAL pressure values." << endl;
+    }
     calculateStatistics ();
-
-    if (Is3D ())
+    if (Is3D () && GetRegularGridResolution () != 0)
     {
 	cdbg << "Resampling to a regular grid ..." << endl;
 	cdbg << "WARNING: if you load different timesteps in the simulation "
@@ -214,7 +213,7 @@ void Simulation::Preprocess ()
 	     << "files (*.vti), otherwise velocities are going to be "
 	     << "incorrect in the resampled regular grid.\n";
 	f = boost::bind (&Foam::SaveRegularGrid, _1, 
-					 GetRegularGridResolution ());
+			 GetRegularGridResolution ());
 	MapPerFoam (&f, 1);
     }
 }

@@ -179,15 +179,15 @@ BodyAttribute::DEPENDS_ON_INFO = {{
 	{BodyAttribute::VELOCITY, vectorExtract<1>},
 	{BodyAttribute::VELOCITY, vectorExtract<2>},
 	{BodyAttribute::VELOCITY, vectorMagnitude},
-	{COUNT, 0},
-	{COUNT, 0},
-	//{BodyAttribute::DEFORMATION, deformationEigen}, // takes too much time
-	{COUNT, 0},
-	{COUNT, 0},
-	{COUNT, 0},
-	{COUNT, 0},
-	{COUNT, 0},
-	{COUNT, 0}
+	{COUNT, 0}, // SIDES_PER_BUBBLE
+	{COUNT, 0}, // DEFORMATION_SIMPLE
+	{COUNT, 0}, //{BodyAttribute::DEFORMATION, deformationEigen}, // too long
+	{COUNT, 0}, // PRESSURE
+	{COUNT, 0}, // TARGET_VOLUME
+	{COUNT, 0}, // ACTUAL_VOLUME
+	{COUNT, 0}, // GROWTH_RATE
+	{COUNT, 0}, // VELOCITY
+	{COUNT, 0}  // DEFORMATION
     }};
 
 boost::array<BodyAttribute::Info, BodyAttribute::COUNT> BodyAttribute::INFO = {{

@@ -368,6 +368,7 @@ void Foam::CalculateBodyNeighborsAndGrowthRate ()
 			   GetTorusDomain ()));
 }
 
+
 void Foam::StoreObjects ()
 {
     BOOST_FOREACH (boost::shared_ptr<Body> body, m_bodies)

@@ -68,9 +68,33 @@ private:
     const vector<boost::shared_ptr<Face> >& m_faces;
 };
 
+Body::Neighbor pairToNeighbor (const pair<size_t, Body::Neighbor>& p)
+{
+    return p.second;
+}
 
 
-// Methods
+// Methods Body::Neighbor
+// ======================================================================
+Body::Neighbor::Neighbor ()
+{
+}
+
+Body::Neighbor::Neighbor (G3D::Vector3 centerOfReflection) :
+    m_centerReflection (centerOfReflection)
+{
+}
+
+Body::Neighbor::Neighbor (
+    boost::shared_ptr<Body> body, G3D::Vector3int16 translation) :
+
+    m_body (body),
+    m_translation (translation), 
+    m_centerReflection (G3D::Vector3::zero ())
+{
+}
+
+// Methods Body
 // ======================================================================
 
 Body::Body(
@@ -421,7 +445,6 @@ const char* Body::GetAttributeKeywordString (BodyScalar::Enum bp)
     }
 }
 
-
 void Body::CalculateNeighborsAndGrowthRate (const OOBox& originalDomain)
 {
     if (DATA_PROPERTIES.Is2D ())
@@ -430,9 +453,10 @@ void Body::CalculateNeighborsAndGrowthRate (const OOBox& originalDomain)
 	calculateNeighbors3D (originalDomain);
 }
 
+
 void Body::calculateNeighbors3D (const OOBox& originalDomain)
 {
-    set<size_t> neighborsIds;
+    set<size_t> neighborId;
     BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, GetOrientedFaces ())
     {
 	// wall faces do not create neighbors (have only this as adjacent body)
@@ -443,24 +467,24 @@ void Body::calculateNeighbors3D (const OOBox& originalDomain)
 	else if (of->GetAdjacentBodySize () == 2)
 	{
 	    const AdjacentBody& ab = of->GetAdjacentBody (true);
-	    pair< set<size_t>::iterator, bool> result = 
-		neighborsIds.insert (ab.GetBodyId ());
-	    if (! result.second)
-		// This neighbor is already in the list.
+	    boost::shared_ptr<Body> body = ab.GetBody ();
+	    G3D::Vector3int16 translation;
+	    originalDomain.IsWrap (GetCenter (), body->GetCenter (),
+				   &translation);
+	    Neighbor neighbor (body, Vector3int16Zero - translation);
+	    // The calculations can be executed on original pressure
+	    // (medians are not aligned) yielding the same results.
+	    m_growthRate += (GetScalarValue (BodyScalar::PRESSURE) - 
+			     body->GetScalarValue (BodyScalar::PRESSURE)) * 
+		of->GetArea ();
+	    // insert the neighbor into the map
+	    pair< set<size_t>::iterator, bool> p = 
+		neighborId.insert (body->GetId ());
+	    if (p.second)
+		// Neighbor that has not been seen before.
 		// As a physical face can have several tessellation faces
 		// a neighbor appears several times.
-		continue;
-	    Neighbor neighbor;
-	    neighbor.m_body = ab.GetBody ();
-	    m_growthRate += 
-		(GetScalarValue (BodyScalar::PRESSURE) - 
-		 neighbor.m_body->GetScalarValue (BodyScalar::PRESSURE)) * 
-		of->GetArea ();
-	    G3D::Vector3int16 translation;
-	    originalDomain.IsWrap (GetCenter (), neighbor.m_body->GetCenter (),
-				   &translation);
-	    neighbor.m_translation = Vector3int16Zero - translation;
-	    m_neighbors.push_back (neighbor);
+		m_neighbors.push_back (neighbor);
 	}
     }
 }
@@ -484,7 +508,7 @@ void Body::calculateNeighbors2D (const OOBox& originalDomain)
 	    G3D::Vector3 m = oe.GetPoint (i);
 	    */
 	    G3D::Vector3 c = GetCenter ();
-	    m_neighbors[j].m_centerReflection = c + 2 * (m - c);
+	    m_neighbors[j] = Neighbor (c + 2 * (m - c));
 	}
 	else
 	{
@@ -500,16 +524,18 @@ void Body::calculateNeighbors2D (const OOBox& originalDomain)
 		--j;
 		continue;
 	    }
-	    boost::shared_ptr<Body> neighbor = it->GetBody ();
-	    m_growthRate += 
-		(GetScalarValue (BodyScalar::PRESSURE) - 
-		 neighbor->GetScalarValue (BodyScalar::PRESSURE)) * 
-		oe.GetLength ();
-	    m_neighbors[j].m_body = neighbor;
+	    boost::shared_ptr<Body> body = it->GetBody ();
 	    G3D::Vector3int16 translation;
-	    originalDomain.IsWrap (GetCenter (), neighbor->GetCenter (),
+	    originalDomain.IsWrap (GetCenter (), body->GetCenter (),
 				   &translation);
-	    m_neighbors[j].m_translation = Vector3int16Zero - translation;
+
+
+	    m_neighbors[j] = Neighbor (body,
+				       Vector3int16Zero - translation);
+	    m_growthRate += (GetScalarValue (BodyScalar::PRESSURE) - 
+			     body->GetScalarValue (BodyScalar::PRESSURE)) * 
+		oe.GetLength ();
+
 	}
     }
     m_neighbors.resize (j);
@@ -525,20 +551,20 @@ void Body::CalculateDeformationTensor (const OOBox& originalDomain)
     BOOST_FOREACH (Body::Neighbor neighbor, neighbors)
     {
 	G3D::Vector3 s;
-	if (neighbor.m_body)
+	if (neighbor.GetBody ())
 	{
 	    ++bubbleNeighborsCount;
-	    s = neighbor.m_body->GetCenter ();
+	    s = neighbor.GetBody ()->GetCenter ();
 	}
 	else 
 	{
 	    // debug: no reflection used in average computation.
 	    // continue;
-	    s = neighbor.m_centerReflection;
+	    s = neighbor.GetCenterReflection ();
 	}
 	G3D::Vector3 first = GetCenter ();
 	G3D::Vector3 second = 
-	    originalDomain.TorusTranslate (s, neighbor.m_translation);
+	    originalDomain.TorusTranslate (s, neighbor.GetTranslation ());
 	G3D::Vector3 l = second - first;
 	textureTensor += G3D::Matrix3 (l.x * l.x, l.x * l.y, l.x * l.z,
 				       l.y * l.x, l.y * l.y, l.y * l.z,

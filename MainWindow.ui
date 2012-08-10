@@ -343,7 +343,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="currentIndex">
               <number>4</number>
@@ -1338,6 +1338,9 @@
               </layout>
              </widget>
              <widget class="QWidget" name="tabNoise">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <attribute name="title">
                <string>Noise</string>
               </attribute>
