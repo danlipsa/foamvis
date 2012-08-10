@@ -205,8 +205,8 @@ WidgetVtk::WidgetVtk (QWidget* parent) :
 {
 }
 
-void WidgetVtk::InitAverage (boost::shared_ptr<Settings> settings,
-		      const SimulationGroup& simulationGroup)    
+void WidgetVtk::CreateAverage (boost::shared_ptr<Settings> settings,
+			       const SimulationGroup& simulationGroup)    
 {
     m_settings = settings;
     for (size_t i = 0; i < m_average.size (); ++i)
@@ -218,7 +218,7 @@ void WidgetVtk::InitAverage (boost::shared_ptr<Settings> settings,
     }
 }
 
-void WidgetVtk::InitPipeline (size_t objects, size_t constraintSurfaces)
+void WidgetVtk::CreateViewPipelines (size_t objects, size_t constraintSurfaces)
 {
     vtkRenderWindow* renWin = GetRenderWindow ();
     QVTKInteractor *interactor=GetInteractor();
@@ -278,14 +278,14 @@ void WidgetVtk::UpdateOpacity ()
 }
 
 
-void WidgetVtk::InitAverage ()
+void WidgetVtk::RemoveViews ()
 {
     vtkSmartPointer<vtkRenderWindow> renderWindow = GetRenderWindow ();
     for (size_t i = 0; i < m_pipeline.size (); ++i)
 	renderWindow->RemoveRenderer (m_pipeline[i].m_renderer);
 }
 
-void WidgetVtk::InitAverage (
+void WidgetVtk::AddView (
     ViewNumber::Enum viewNumber,
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
     QwtDoubleInterval interval)
@@ -312,11 +312,11 @@ void WidgetVtk::InitAverage (
     G3D::Rect2D vr = m_settings->GetViewRect (w, h, viewNumber);
     G3D::Rect2D viewRect = G3D::Rect2D::xyxy (vr.x0 () / w, vr.y0 () / h,
 					      vr.x1 () / w, vr.y1 () / h);
+    renderWindow->AddRenderer(pipeline.m_renderer);
     pipeline.m_renderer->SetViewport (viewRect.x0 (), viewRect.y0 (),
 				      viewRect.x1 (), viewRect.y1 ());
-    renderWindow->AddRenderer(pipeline.m_renderer);
-    resizeEvent (0);
-    update ();
+    pipeline.m_renderer->ResetCamera ();
+    renderWindow->Render ();
 }
 
 void WidgetVtk::UpdateAverage (

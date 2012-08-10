@@ -29,16 +29,16 @@ public:
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction);
     void UpdateThreshold (QwtDoubleInterval interval);
     void UpdateFromOpenGl (vtkSmartPointer<vtkMatrix4x4> modelView);
-    void InitAverage ();
-    void InitAverage (
+    void RemoveViews ();
+    void AddView (
 	ViewNumber::Enum viewNumber,
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
 	QwtDoubleInterval interval);
-    void InitAverage (boost::shared_ptr<Settings> settings,
+    void CreateAverage (boost::shared_ptr<Settings> settings,
 		      const SimulationGroup& simulationGroup);
     void UpdateOpacity ();
     void UpdateAverage (const boost::array<int, ViewNumber::COUNT>& direction);
-    void InitPipeline (size_t objects, size_t constraintSurfaces);
+    void CreateViewPipelines (size_t objects, size_t constraintSurfaces);
 
 public:
     QSize sizeHint ()

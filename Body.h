@@ -114,7 +114,7 @@ public:
 	return m_center;
     }
     void UpdateAdjacentBody (const boost::shared_ptr<Body>& body);
-    string ToString (const AttributesInfo* ai = 0) const;
+    string ToString () const;
     void GetVertexSet (VertexSet* vertexSet) const;    
     VertexSet GetVertexSet () const
     {
@@ -133,10 +133,10 @@ public:
     float GetScalarValue (BodyScalar::Enum property) const;
     bool HasScalarValue (BodyScalar::Enum property, bool* deduced = 0) const;
     /**
-     * 1, 3 or 9 floats have to be alocated in 'value' for scalars, 
-     * vectors and tensors
+     * BodyAttribute::GetNumberOfComponents (attribute) floats have to 
+     * be alocated in 'value' for scalars, vectors and tensors
      */
-    void GetAttributeValue (size_t attribute, float* value);
+    void GetAttributeValue (size_t attribute, float* value) const;
     G3D::Vector3 GetVelocity () const
     {
 	return m_velocity;
@@ -181,7 +181,7 @@ public:
     G3D::Matrix3 GetDeformationTensor (
 	const G3D::Matrix3& additionalRotation) const;
     void GetDeformationTensor (float value[6], 
-			       const G3D::Matrix3& additionalRotation)
+			       const G3D::Matrix3& additionalRotation) const
     {
 	G3D::Matrix3 m = GetDeformationTensor (additionalRotation);
 	memcpy (value, m, sizeof (value));

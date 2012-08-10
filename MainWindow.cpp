@@ -101,9 +101,9 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     CurrentIndexChangedViewCount (ViewCount::ONE);
     widgetGl->Init (m_settings, &simulationGroup);
     widgetGl->SetStatus (labelStatusBar);
-    widgetVtk->InitAverage (m_settings, simulationGroup);
+    widgetVtk->CreateAverage (m_settings, simulationGroup);
     const Foam& foam = simulationGroup.GetSimulation (0).GetFoam (0);
-    widgetVtk->InitPipeline (
+    widgetVtk->CreateViewPipelines (
 	foam.GetObjects ().size (), foam.GetConstraintFaces ().size ());
     setupColorBarModels ();
     setupViews ();
@@ -696,7 +696,7 @@ void MainWindow::processBodyTorusStep ()
 
 void MainWindow::init3DAverage ()
 {
-    widgetVtk->InitAverage ();
+    widgetVtk->RemoveViews ();
     for (size_t i = 0;
 	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
     {
@@ -720,7 +720,7 @@ void MainWindow::init3DAverage ()
 	    interval.setMinValue (range[0]);
 	    interval.setMaxValue (range[1]);
 	}
-	widgetVtk->InitAverage (
+	widgetVtk->AddView (
 	    viewNumber, colorTransferFunction, interval);
     }
 }

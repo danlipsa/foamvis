@@ -157,6 +157,7 @@ struct BodyAttribute
     };
     static const char* ToString (BodyAttribute::Enum attribute);
     static const char* ToString (size_t attribute);
+    static string ValueToString (size_t attribute, float* value);
     static size_t DependsOn (size_t attribute);
     static ConvertType Convert (size_t attribute);
 

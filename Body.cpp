@@ -217,8 +217,9 @@ void Body::GetFaceSet (FaceSet* faceSet) const
 	faceSet->insert (of->GetFace ());
 }
 
-string Body::ToString (const AttributesInfo* ai) const
+string Body::ToString () const
 {
+    
     ostringstream ostr;
     ostr << "Body " << GetId ();
     if (IsObject ())
@@ -229,15 +230,20 @@ string Body::ToString (const AttributesInfo* ai) const
     ostr << m_orientedFaces.size () << " faces part of the body\n";
     BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, m_orientedFaces)
 	ostr << of->GetStringId () << " ";
-    if (HasAttributes ())
+    ostr << "Body attributes:\n";
+    for (size_t i = 0; i < BodyAttribute::COUNT; ++i)
     {
-	ostr << "\nBody attributes: ";
-	PrintAttributes (ostr, ai);
+	float value[BodyAttribute::MAX_NUMBER_OF_COMPONENTS];
+	GetAttributeValue (i, value);
+	ostr << BodyAttribute::ToString (i) << ": ";
+	ostr << BodyAttribute::ValueToString (i, value);
+	ostr << endl;
     }
+
     ostr << "\nBody center: " << m_center;
-    ostr << "\nEigen values: " 
+    ostr << "\nDeformation eigen values: " 
 	 << GetDeformationEigenValues ()
-	 << "\nEigen vectors: "
+	 << "\nDeformation eigen vectors: "
 	 << GetDeformationEigenVector (0) << ", "
 	 << GetDeformationEigenVector (1) << ", " 
 	 << GetDeformationEigenVector (2);
@@ -333,7 +339,7 @@ float Body::GetScalarValue (BodyScalar::Enum property) const
     return 0;
 }
 
-void Body::GetAttributeValue (size_t attribute, float* value)
+void Body::GetAttributeValue (size_t attribute, float* value) const
 {
     if (BodyAttribute::IsScalar (attribute))
     {
@@ -382,11 +388,12 @@ float Body::GetDeformationEigenScalar () const
 
 size_t Body::GetSidesPerBody () const
 {
-    size_t ofSize = m_orientedFaces.size ();
-    if (ofSize == 1)
+
+    if (DATA_PROPERTIES.Is2D ())
 	return GetOrientedFace (0).GetFace ()->GetEdgesPerFace ();
     else
-	return ofSize;
+	// return the number of physical faces
+	return GetNeighbors ().size ();
 }
 
 

@@ -987,13 +987,11 @@ string WidgetGl::infoSelectedBody () const
 {
     ostringstream ostr;
     vector< boost::shared_ptr<Body> > bodies;
-    const Foam& foam = GetSimulation ().GetFoam (GetCurrentTime ());
     brushedBodies (m_contextMenuPosScreen, &bodies);
     if (bodies.size () == 0)
 	ostr << "No bodies focused.";
     else
-	ostr << bodies[0]->ToString (
-	    &foam.GetAttributesInfoElements ().GetInfoBody ());
+	ostr << bodies[0]->ToString ();
     return ostr.str ();
 }
 

@@ -220,6 +220,29 @@ const char* BodyAttribute::ToString (BodyAttribute::Enum attribute)
     return INFO[attribute - BodyScalar::COUNT].m_name;
 }
 
+string BodyAttribute::ValueToString (size_t attribute, float* value)
+{
+    ostringstream ostr;
+    size_t numberOfComponents = BodyAttribute::GetNumberOfComponents (attribute);
+    if (numberOfComponents == 1)
+	ostr << *value;
+    else if (numberOfComponents == 3)
+    {
+	G3D::Vector3 v(value);
+	ostr << v;
+    }
+    else if (numberOfComponents == 9)
+    {
+	G3D::Matrix3 m (value[0], value[1], value[2],
+			value[3], value[4], value[5],
+			value[6], value[7], value[8]);
+	ostr << m;
+    }
+    else
+	ThrowException ("Invalid number of components: ", numberOfComponents);
+    return ostr.str ();
+}
+
 const char* BodyAttribute::ToString (size_t attribute)
 {
     if (attribute < BodyScalar::COUNT)
