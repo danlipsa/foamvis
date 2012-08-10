@@ -16,6 +16,7 @@
 #include "Simulation.h"
 #include "ViewSettings.h"
 #include "WidgetVtk.h"
+#include "vtkConeSource.h"
 
 //#define __LOG__(code) code
 #define __LOG__(code)
@@ -221,8 +222,6 @@ void WidgetVtk::CreateAverage (boost::shared_ptr<Settings> settings,
 void WidgetVtk::CreateViewPipelines (size_t objects, size_t constraintSurfaces)
 {
     vtkRenderWindow* renWin = GetRenderWindow ();
-    QVTKInteractor *interactor=GetInteractor();
-    interactor->LightFollowCameraOn ();
 
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
 	m_pipeline[i].Init (objects, constraintSurfaces);
@@ -247,6 +246,7 @@ void WidgetVtk::UpdateColorTransferFunction (
 
 void WidgetVtk::resizeEvent (QResizeEvent * event)
 {
+    QVTKWidget::resizeEvent (event);
     (void) event;
     float w = width ();
     float h = height ();
@@ -315,9 +315,11 @@ void WidgetVtk::AddView (
     renderWindow->AddRenderer(pipeline.m_renderer);
     pipeline.m_renderer->SetViewport (viewRect.x0 (), viewRect.y0 (),
 				      viewRect.x1 (), viewRect.y1 ());
+    resizeEvent (0);
     pipeline.m_renderer->ResetCamera ();
-    renderWindow->Render ();
+
 }
+
 
 void WidgetVtk::UpdateAverage (
     const boost::array<int, ViewNumber::COUNT>& direction)
