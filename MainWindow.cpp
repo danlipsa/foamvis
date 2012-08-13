@@ -1242,7 +1242,10 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
     if (viewType == ViewType::AVERAGE)
     {
 	if (DATA_PROPERTIES.Is3D ())
+	{
 	    widgetVtk->UpdateAverage (direction);
+	    widgetVtk->update ();
+	}
 	else
 	    widgetGl->UpdateAverage (direction);
     }

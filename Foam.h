@@ -292,8 +292,6 @@ public:
     void SetSpaceDimension (size_t spaceDimension);
     void SetQuadratic (bool quadratic);
     vtkSmartPointer<vtkImageData> GetRegularGrid (size_t bodyAttribute) const;
-    vtkSmartPointer<vtkImageData> CreateEmptyRegularGrid (
-	size_t bodyAttribute, size_t regularGridResolution) const;
 
     const AttributesInfoElements& GetAttributesInfoElements () const
     {
@@ -325,8 +323,6 @@ private:
     vtkSmartPointer<vtkUnstructuredGrid> addCellAttribute (
 	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
 	size_t attribute) const;
-    static void addEmptyPointAttribute (
-	vtkSmartPointer<vtkImageData> regularGrid, size_t attribute);
     static void addRedundantAttributes (vtkSmartPointer<vtkImageData> data);
     static void addRedundantAttribute (
 	vtkSmartPointer<vtkImageData> data, size_t attribute);
@@ -395,8 +391,6 @@ private:
 			       size_t constraintIndex) const;
     G3D::Vector3int16 getVectorOnConstraintTranslation (
 	const G3D::Vector3& v, size_t constraintIndex) const;
-    vtkSmartPointer<vtkImageData> createRegularGridNoAttributes (
-	size_t regularGridResolution) const;
 
 public:
     static const double Z_COORDINATE_2D = 0.0;

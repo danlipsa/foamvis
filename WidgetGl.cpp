@@ -3354,7 +3354,6 @@ void WidgetGl::UpdateAverage (
 	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
 	if (direction[i] != 0)
 	    m_viewAverage[i]->AverageStep (direction[i]);
-    update ();
 }
 
 

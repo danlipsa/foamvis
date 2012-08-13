@@ -78,12 +78,17 @@ void Average::AverageStep (int timeDifference)
     WarnOnOpenGLError ("AverageStep");
 }
 
+const ViewSettings& Average::GetViewSettings () const
+{
+    return GetSettings ().GetViewSettings (GetViewNumber ());
+}
+
+
 const Simulation& Average::GetSimulation () const
 {
     return
 	GetSimulationGroup ().GetSimulation (
-	    GetSettings ().GetViewSettings (
-		GetViewNumber ()).GetSimulationIndex ());
+	    GetViewSettings ().GetSimulationIndex ());
 }
 
 const Foam& Average::GetFoam (size_t timeStep) const
@@ -93,14 +98,12 @@ const Foam& Average::GetFoam (size_t timeStep) const
 
 const Foam& Average::GetFoam () const
 {
-    size_t currentTime = GetSettings ().GetViewSettings (
-	GetViewNumber ()).GetCurrentTime ();
+    size_t currentTime = GetViewSettings ().GetCurrentTime ();
     return GetSimulation ().GetFoam (currentTime);
 }
 
 
 size_t Average::GetBodyAttribute () const
 {
-    return GetSettings ().GetViewSettings (
-	GetViewNumber ()).GetBodyOrFaceScalar ();
+    return GetViewSettings ().GetBodyOrFaceScalar ();
 }

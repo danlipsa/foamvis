@@ -222,6 +222,12 @@ int Value2ExponentIndex (QSlider* slider,
 float Index2Value (const QSlider* slider, const pair<float,float>& minMax);
 int Value2Index (QSlider* slider, 
 		 const pair<float,float>& minMax, float value);
+vtkSmartPointer<vtkImageData> CreateEmptyRegularGrid (
+    size_t bodyAttribute, size_t regularGridResolution, G3D::AABox bb);
+vtkSmartPointer<vtkImageData> CreateRegularGridNoAttributes (
+    G3D::AABox bb, size_t regularGridResolution);
+
+
 
 #endif //__UTILS_H__
 

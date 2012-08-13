@@ -197,6 +197,22 @@ boost::array<BodyAttribute::Info, BodyAttribute::COUNT> BodyAttribute::INFO = {{
 	 BodyAttribute::TENSOR_NUMBER_OF_COMPONENTS}
     }};
 
+vtkDataSetAttributes::AttributeTypes BodyAttribute::GetType (size_t attribute)
+{
+    size_t components = GetNumberOfComponents (attribute);
+    switch (components)
+    {
+    case SCALAR_NUMBER_OF_COMPONENTS:
+	return vtkDataSetAttributes::SCALARS;
+    case VECTOR_NUMBER_OF_COMPONENTS:
+	return vtkDataSetAttributes::VECTORS;
+    case TENSOR_NUMBER_OF_COMPONENTS:
+	return vtkDataSetAttributes::TENSORS;
+    default:
+	return vtkDataSetAttributes::NUM_ATTRIBUTES;
+    }
+}
+
 size_t BodyAttribute::DependsOn (size_t attribute)
 {
     return DEPENDS_ON_INFO[attribute].m_dependsOnAttribute;

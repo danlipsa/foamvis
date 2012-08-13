@@ -642,6 +642,51 @@ int Value2Index (QSlider* slider,
 	       (maxSlider - minSlider)); 
 }
 
+void addEmptyPointAttribute (
+    vtkSmartPointer<vtkImageData> regularGrid, size_t attribute)
+{
+    vtkIdType numberOfPoints = regularGrid->GetNumberOfPoints ();
+    VTK_CREATE(vtkFloatArray, attributes);
+    attributes->SetNumberOfComponents (
+	BodyAttribute::GetNumberOfComponents (attribute));
+    attributes->SetNumberOfTuples (numberOfPoints);
+    attributes->SetName (BodyAttribute::ToString (attribute));
+    vector<float> v (BodyAttribute::MAX_NUMBER_OF_COMPONENTS, 0);
+    for (vtkIdType i = 0; i < numberOfPoints; ++i)
+	attributes->SetTuple (i, &v[0]);
+    regularGrid->GetPointData ()->AddArray (attributes);
+}
+
+
+vtkSmartPointer<vtkImageData> CreateEmptyRegularGrid (
+    size_t bodyAttribute, size_t regularGridResolution, G3D::AABox bb)
+{
+    vtkSmartPointer<vtkImageData> regularFoam = 
+	CreateRegularGridNoAttributes (bb, regularGridResolution);
+    addEmptyPointAttribute (regularFoam, bodyAttribute);
+    regularFoam->GetPointData ()->SetActiveAttribute (
+	BodyAttribute::ToString (bodyAttribute),
+	BodyAttribute::GetType (bodyAttribute));
+    return regularFoam;
+}
+
+vtkSmartPointer<vtkImageData> CreateRegularGridNoAttributes (
+    G3D::AABox bb, size_t regularGridResolution)
+{
+    G3D::Vector3 spacing = bb.extent () / (regularGridResolution - 1);
+    G3D::Vector3 origin = bb.low ();
+
+    VTK_CREATE (vtkImageData, regularFoam);
+    regularFoam->SetExtent (0, regularGridResolution - 1,
+			    0, regularGridResolution - 1,
+			    0, regularGridResolution - 1);
+    regularFoam->SetOrigin (origin.x, origin.y, origin.z);
+    regularFoam->SetSpacing (spacing.x, spacing.y, spacing.z);
+    return regularFoam;
+}
+
+
+
 // Template instantiations
 //======================================================================
 

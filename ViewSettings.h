@@ -63,6 +63,88 @@ public:
     }
 
     ///////////
+    // Overlays
+    //
+    void SetForceNetworkShown (bool value)
+    {
+	m_forceNetworkShown = value;
+    }
+    bool IsForceNetworkShown () const
+    {
+	return m_forceNetworkShown;
+    }
+    void SetForcePressureShown (bool value)
+    {
+	m_forcePressureShown = value;
+    }
+    bool IsForcePressureShown () const
+    {
+	return m_forcePressureShown;
+    }
+    void SetForceResultShown (bool value)
+    {
+	m_forceResultShown = value;
+    }
+    bool IsForceResultShown () const
+    {
+	return m_forceResultShown;
+    }
+
+    void SetTorqueNetworkShown (bool value)
+    {
+	m_torqueNetworkShown = value;
+    }
+    bool IsTorqueNetworkShown () const
+    {
+	return m_torqueNetworkShown;
+    }
+    void SetTorquePressureShown (bool value)
+    {
+	m_torquePressureShown = value;
+    }
+    bool IsTorquePressureShown () const
+    {
+	return m_torquePressureShown;
+    }
+    void SetTorqueResultShown (bool value)
+    {
+	m_torqueResultShown = value;
+    }
+    bool IsTorqueResultShown () const
+    {
+	return m_torqueResultShown;
+    }
+
+    void SetForceDifferenceShown (bool value)
+    {
+	m_forceDifferenceShown = value;
+    }
+    bool IsForceDifferenceShown () const
+    {
+	return m_forceDifferenceShown;
+    }
+
+    void SetDeformationTensorShown (bool deformationTensorShown)
+    {
+	m_deformationShown = deformationTensorShown;
+    }
+
+    bool IsDeformationShown () const
+    {
+	return m_deformationShown;
+    }
+
+    void SetVelocityShown (bool velocityShown)
+    {
+	m_velocityShown = velocityShown;
+    }
+
+    bool IsVelocityShown () const
+    {
+	return m_velocityShown;
+    }
+
+    ///////////
     // ColorBar
     //
     boost::shared_ptr<ColorBarModel> GetColorBarModel () const
@@ -304,6 +386,15 @@ public:
     /////////////////
     // Average around
     //
+    bool IsAverageAround () const
+    {
+	return m_averageAround;
+    }
+    void SetAverageAround (bool averageAround)
+    {
+	m_averageAround = averageAround;
+    }
+
     size_t GetAverageAroundBodyId () const
     {
 	return m_averageAroundBodyId[0];
@@ -328,14 +419,6 @@ public:
     {
 	m_differenceBodyId = id;
     }
-    bool IsAverageAround () const
-    {
-	return m_averageAround;
-    }
-    void SetAverageAround (bool averageAround)
-    {
-	m_averageAround = averageAround;
-    }
     bool IsAverageAroundRotationShown () const
     {
 	return m_averageAroundRotationShown;
@@ -354,87 +437,6 @@ public:
 				    size_t bodyId, size_t secondBodyId);
     void RotateAndTranslateAverageAround (size_t timeStep, int direction) const;
 
-    ///////////
-    // Overlays
-    //
-    void SetForceNetworkShown (bool value)
-    {
-	m_forceNetworkShown = value;
-    }
-    bool IsForceNetworkShown () const
-    {
-	return m_forceNetworkShown;
-    }
-    void SetForcePressureShown (bool value)
-    {
-	m_forcePressureShown = value;
-    }
-    bool IsForcePressureShown () const
-    {
-	return m_forcePressureShown;
-    }
-    void SetForceResultShown (bool value)
-    {
-	m_forceResultShown = value;
-    }
-    bool IsForceResultShown () const
-    {
-	return m_forceResultShown;
-    }
-
-    void SetTorqueNetworkShown (bool value)
-    {
-	m_torqueNetworkShown = value;
-    }
-    bool IsTorqueNetworkShown () const
-    {
-	return m_torqueNetworkShown;
-    }
-    void SetTorquePressureShown (bool value)
-    {
-	m_torquePressureShown = value;
-    }
-    bool IsTorquePressureShown () const
-    {
-	return m_torquePressureShown;
-    }
-    void SetTorqueResultShown (bool value)
-    {
-	m_torqueResultShown = value;
-    }
-    bool IsTorqueResultShown () const
-    {
-	return m_torqueResultShown;
-    }
-
-    void SetForceDifferenceShown (bool value)
-    {
-	m_forceDifferenceShown = value;
-    }
-    bool IsForceDifferenceShown () const
-    {
-	return m_forceDifferenceShown;
-    }
-
-    void SetDeformationTensorShown (bool deformationTensorShown)
-    {
-	m_deformationShown = deformationTensorShown;
-    }
-
-    bool IsDeformationShown () const
-    {
-	return m_deformationShown;
-    }
-
-    void SetVelocityShown (bool velocityShown)
-    {
-	m_velocityShown = velocityShown;
-    }
-
-    bool IsVelocityShown () const
-    {
-	return m_velocityShown;
-    }
 
     // ContextDisplay
     void AddContextDisplayBody (size_t bodyId)

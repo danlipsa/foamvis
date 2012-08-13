@@ -100,14 +100,16 @@ RegularGridAverage::RegularGridAverage (ViewNumber::Enum viewNumber,
 
 
 void RegularGridAverage::AverageInit ()
-{    
+{
     Average::AverageInit ();
-    const Foam& foam = GetFoam ();
-    size_t regularGridResolution = GetSimulation ().GetRegularGridResolution ();
-    m_sum = foam.CreateEmptyRegularGrid (
-	GetBodyAttribute (), regularGridResolution);
-    m_average = foam.CreateEmptyRegularGrid (
-	GetBodyAttribute (), regularGridResolution);
+    const Simulation& simulation = GetSimulation ();
+    size_t regularGridResolution = simulation.GetRegularGridResolution ();
+    m_sum = CreateEmptyRegularGrid (
+	GetBodyAttribute (), regularGridResolution, 
+	simulation.GetBoundingBox ());
+    m_average = CreateEmptyRegularGrid (
+	GetBodyAttribute (), regularGridResolution, 
+	simulation.GetBoundingBox ());
     __LOG__ (cdbg << "RegularGridAverage::AverageInit: " << viewNumber << endl;)
 }
 
@@ -145,9 +147,15 @@ void RegularGridAverage::opStep (
     size_t timeStep, RegularGridAverage::VectorOpVectorType f)
 {
     const Foam& foam = GetFoam (timeStep);
+    const ViewSettings& vs = GetViewSettings ();
     size_t attribute = GetBodyAttribute ();
     vtkSmartPointer<vtkImageData> regularFoam = foam.GetRegularGrid (attribute);
     const char* attributeName = BodyAttribute::ToString (attribute);
+    if (vs.IsAverageAround ())
+    {
+	const ObjectPosition current = 
+	    vs.GetAverageAroundPosition (vs.GetCurrentTime ());
+    }
     vtkSmartPointer<vtkFloatArray> sumAttribute = 
 	vtkFloatArray::SafeDownCast (
 	    m_sum->GetPointData ()->GetArray (attributeName));

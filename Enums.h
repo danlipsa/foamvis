@@ -166,6 +166,7 @@ struct BodyAttribute
     static BodyAttribute::Enum FromSizeT (size_t i);
 
 
+    static vtkDataSetAttributes::AttributeTypes GetType (size_t attribute);
     static bool IsScalar (size_t attribute)
     {
 	return GetNumberOfComponents (attribute) == SCALAR_NUMBER_OF_COMPONENTS;

@@ -16,6 +16,7 @@ class Foam;
 class Settings;
 class Simulation;
 class SimulationGroup;
+class ViewSettings;
 
 
 /**
@@ -36,6 +37,7 @@ public:
     {
 	return m_settings;
     }
+    const ViewSettings& GetViewSettings () const;   
     void AverageSetTimeWindow (size_t timeWindow)
     {
 	m_timeWindow = timeWindow;
