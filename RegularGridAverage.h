@@ -20,6 +20,9 @@ class SimulationGroup;
 class RegularGridAverage : public Average
 {
 public:
+    typedef boost::function<double (double, double)> OpType;
+
+public:
     RegularGridAverage (ViewNumber::Enum viewNumber, 
 			const Settings& settings, 
 			const SimulationGroup& simulationGroup);
@@ -30,21 +33,16 @@ public:
 	float angleDegrees = 0) const;
     virtual void AverageRelease ();
     vtkSmartPointer<vtkImageData> GetAverage ();
+    G3D::Vector3 GetTranslation (size_t timeStep) const;
+    G3D::Vector3 GetTranslation () const;
 
 protected:
-    typedef boost::function<void (
-	vtkSmartPointer<vtkFloatArray>, 
-	vtkSmartPointer<vtkFloatArray>)> VectorOpVectorType;
-    typedef boost::function<void (
-	vtkSmartPointer<vtkFloatArray>, 
-	vtkSmartPointer<vtkFloatArray>, double)> VectorOpScalarType;
-
     virtual void addStep (
 	size_t timeStep, size_t subStep);
     virtual void removeStep (size_t timeStep, size_t subStep);
 
 private:
-    void opStep (size_t timeStep, VectorOpVectorType f);
+    void opStep (size_t timeStep, OpType f);
     void computeAverage ();
 
 private:

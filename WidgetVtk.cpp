@@ -177,14 +177,23 @@ void WidgetVtk::ViewPipeline::UpdateAverage (
     __LOG__ (cdbg << "UpdateAverage: " << direction[0] << endl;)
 
     const Foam& foam = average->GetFoam ();
+    const ViewSettings& vs = average->GetViewSettings ();
     // calculate average
     average->AverageStep (direction);
 
     m_threshold->SetInput (average->GetAverage ());
+
     Foam::Bodies objects = foam.GetObjects ();
     for (size_t i = 0; i < objects.size (); ++i)
+    {
 	vtkDataSetMapper::SafeDownCast (m_object[i]->GetMapper ())
 	    ->SetInput (objects[i]->GetPolyData ());
+	if (vs.IsAverageAround ())
+	{
+	    G3D::Vector3 t = average->GetTranslation ();
+	    m_object[i]->SetPosition (t.x, t.y, t.z);
+	}
+    }
 
     size_t i = 0;
     pair<size_t, Foam::OrientedFaces> p;

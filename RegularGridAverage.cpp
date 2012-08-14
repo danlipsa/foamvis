@@ -22,11 +22,14 @@
 // Private Classes/Functions
 // ======================================================================
 
+typedef boost::function<void (vtkSmartPointer<vtkFloatArray>, 
+			      vtkSmartPointer<vtkFloatArray>, 
+			      double)> VectorOpScalarType;
+
+
 struct VectorOpVector
 {
-    typedef boost::function<double (double, double)> OpType;
-
-    VectorOpVector (OpType f) : 
+    VectorOpVector (RegularGridAverage::OpType f) : 
 	m_f (f)
     {
     }
@@ -49,9 +52,15 @@ struct VectorOpVector
 	    left->SetTuple (i, leftValue);
 	}
     }
+
+    void operator () (G3D::Vector3& left, const G3D::Vector3& right)
+    {
+	for (size_t i = 0; i < 3; ++i)
+	    left[i] = m_f (left[i], right[i]);
+    }
     
 private:
-    OpType m_f;
+    RegularGridAverage::OpType m_f;
 };
 
 struct VectorOpScalar
@@ -131,30 +140,43 @@ void RegularGridAverage::addStep (
     size_t timeStep, size_t subStep)
 {
     (void)subStep;
-    opStep (timeStep, VectorOpVector (std::plus<double> ()));
+    opStep (timeStep, std::plus<double> ());
     __LOG__ (cdbg << "addStep" << endl;)
 }
 
 void RegularGridAverage::removeStep (size_t timeStep, size_t subStep)
 {
     (void)subStep;
-    opStep (timeStep, VectorOpVector (std::minus<double> ()));
+    opStep (timeStep, std::minus<double> ());
     __LOG__ (cdbg << "removeStep" << endl;)
 }
 
-
-void RegularGridAverage::opStep (
-    size_t timeStep, RegularGridAverage::VectorOpVectorType f)
+void RegularGridAverage::opStep (size_t timeStep, RegularGridAverage::OpType f)
 {
     const Foam& foam = GetFoam (timeStep);
     const ViewSettings& vs = GetViewSettings ();
     size_t attribute = GetBodyAttribute ();
     vtkSmartPointer<vtkImageData> regularFoam = foam.GetRegularGrid (attribute);
     const char* attributeName = BodyAttribute::ToString (attribute);
+    VectorOpVector vf (f);
     if (vs.IsAverageAround ())
     {
-	const ObjectPosition current = 
-	    vs.GetAverageAroundPosition (vs.GetCurrentTime ());
+	const Simulation& simulation = GetSimulation ();
+	G3D::Vector3 translate = GetTranslation (timeStep);
+	G3D::Vector3 origin (regularFoam->GetOrigin ());
+	origin += translate;
+	regularFoam->SetOrigin (origin.x, origin.y, origin.z);
+
+	vtkSmartPointer<vtkImageData> translatedRegularFoam = 
+	    CreateEmptyRegularGrid (
+		GetBodyAttribute (), simulation.GetRegularGridResolution (), 
+		simulation.GetBoundingBox ());
+	VTK_CREATE (vtkProbeFilter, translatedDataProbe);
+	translatedDataProbe->SetSource (regularFoam);
+	translatedDataProbe->SetInput (translatedRegularFoam);
+	translatedDataProbe->Update ();
+	regularFoam = 
+	    vtkImageData::SafeDownCast(translatedDataProbe->GetOutput ());
     }
     vtkSmartPointer<vtkFloatArray> sumAttribute = 
 	vtkFloatArray::SafeDownCast (
@@ -162,7 +184,7 @@ void RegularGridAverage::opStep (
     vtkSmartPointer<vtkFloatArray> newAttribute = 
 	vtkFloatArray::SafeDownCast (
 	    regularFoam->GetPointData ()->GetArray (attributeName));
-    f (sumAttribute, newAttribute);
+    vf (sumAttribute, newAttribute);
     m_sum->Modified ();
 }
 
@@ -186,4 +208,21 @@ vtkSmartPointer<vtkImageData> RegularGridAverage::GetAverage ()
     if (m_average->GetMTime () < m_sum->GetMTime ())
 	computeAverage ();
     return m_average;
+}
+
+G3D::Vector3 RegularGridAverage::GetTranslation (size_t timeStep) const
+{
+    const ViewSettings& vs = GetViewSettings ();
+    const Simulation& simulation = GetSimulation ();
+    G3D::AABox bb = simulation.GetBoundingBox ();
+    G3D::Vector3 center = bb.center ();
+    const ObjectPosition current = vs.GetAverageAroundPosition (timeStep);
+    G3D::Vector3 t = center - current.m_rotationCenter;
+    return t;
+}
+
+G3D::Vector3 RegularGridAverage::GetTranslation () const
+{
+    const ViewSettings& vs = GetViewSettings ();
+    return GetTranslation (vs.GetCurrentTime ());
 }
