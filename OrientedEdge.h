@@ -62,6 +62,7 @@ public:
     void AddAdjacentOrientedFace (boost::shared_ptr<OrientedFace> face, 
 				  size_t edgeIndex) const;
     const AdjacentOrientedFaces& GetAdjacentOrientedFaces () const;
+    size_t GetAdjacentOrientedFacesSize () const;
     bool HasConstraints () const;
     size_t GetConstraintIndex () const;
 

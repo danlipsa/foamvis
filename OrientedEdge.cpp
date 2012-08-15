@@ -60,6 +60,12 @@ const AdjacentOrientedFaces& OrientedEdge::GetAdjacentOrientedFaces () const
     return GetEdge ()->GetAdjacentOrientedFaces ();
 }
 
+size_t OrientedEdge::GetAdjacentOrientedFacesSize () const
+{
+    return GetEdge ()->GetAdjacentOrientedFacesSize ();
+}
+
+
 bool OrientedEdge::HasConstraints () const
 {
     return GetEdge ()->HasConstraints ();

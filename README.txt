@@ -16,12 +16,13 @@ Release log
 	- update to vtk-5.10.0 libraries, built dynamically
 	- fix "scanner overflow" error (for 1000.dmp) by reporting only 
 	  overflows not underflows.
-        - Add 3D average/multiple views using VTK.
+	- Add average/multiple views for 3D data.
 	- Improve interaction speed for 'Visualization / Time Step / Faces' 
 	  using OpenGL display lists. 
 	  (stokeslibre_22_04_17_0003_0001_bodies.dmp.dmp.dmp)
 	- Added --resolution <r> to specify the resolution of the regular grid 
 	  saved for 3D averages.
+	- Fix: translate pressure only if there are no free surfaces.
 0.7.2374 2012-03-09
 	- fix bug: position of the two_discs for two views.
 	- added arrows for forces

@@ -103,6 +103,7 @@ Body::Body(
     size_t id,
     ElementStatus::Enum duplicateStatus) :
     Element(id, duplicateStatus),
+    m_hasFreeFace (false),
     m_area (0),
     m_growthRate (0),
     m_deformationSimple (0),
@@ -118,6 +119,7 @@ Body::Body(
 
 Body::Body (boost::shared_ptr<Face> face, size_t id) :
     Element (id, ElementStatus::ORIGINAL),
+    m_hasFreeFace (false),
     m_deformationSimple (0),
     m_pressureDeduced (false),
     m_targetVolumeDeduced (false),
@@ -464,12 +466,13 @@ void Body::CalculateNeighborsAndGrowthRate (const OOBox& originalDomain)
 void Body::calculateNeighbors3D (const OOBox& originalDomain)
 {
     set<size_t> neighborId;
+    size_t i = 0;
     BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, GetOrientedFaces ())
     {
 	// wall faces do not create neighbors (have only this as adjacent body)
 	if (of->HasConstraints ())
 	{
-	    // reflect
+	    // @todo reflect for 3D faces with constraints?
 	}
 	else if (of->GetAdjacentBodySize () == 2)
 	{
@@ -493,6 +496,17 @@ void Body::calculateNeighbors3D (const OOBox& originalDomain)
 		// a neighbor appears several times.
 		m_neighbors.push_back (neighbor);
 	}
+	else
+	{
+	    // there are several free tessellation faces contained in one 
+	    // physical face
+	    m_hasFreeFace = true;
+	    // pressure of the outside is 0
+	    m_growthRate += GetScalarValue (BodyScalar::PRESSURE) * 
+		of->GetArea ();
+	    // @todo reflect for free faces as well?
+	}
+	++i;
     }
 }
 
@@ -517,11 +531,9 @@ void Body::calculateNeighbors2D (const OOBox& originalDomain)
 	    G3D::Vector3 c = GetCenter ();
 	    m_neighbors[j] = Neighbor (c + 2 * (m - c));
 	}
-	else
+	else if (oe.GetAdjacentOrientedFacesSize () == 2)
 	{
 	    const AdjacentOrientedFaces& aofs = oe.GetAdjacentOrientedFaces ();
-	    RuntimeAssert (aofs.size () <= 2, 
-			   "AdjacentOrientedFaces size > 2: ", aofs.size ());
 	    AdjacentOrientedFaces::const_iterator it = aofs.begin ();
 	    while (it != aofs.end () && (it->IsStandalone () ||
 					 it->GetBodyId () == GetId ()))
@@ -543,6 +555,17 @@ void Body::calculateNeighbors2D (const OOBox& originalDomain)
 			     body->GetScalarValue (BodyScalar::PRESSURE)) * 
 		oe.GetLength ();
 
+	}
+	else
+	{
+	    RuntimeAssert (
+		oe.GetAdjacentOrientedFacesSize () == 1,
+		"OrientedEdge::GetAdjacentOrientedFacesSize != 1:", 
+		oe.GetAdjacentOrientedFacesSize ());
+	    m_hasFreeFace = true;
+	    m_growthRate += GetScalarValue (BodyScalar::PRESSURE) * 
+		oe.GetLength ();
+	    // @todo reflect for free faces as well?
 	}
     }
     m_neighbors.resize (j);
@@ -606,4 +629,3 @@ vtkSmartPointer<vtkPolyData> Body::GetPolyData () const
 {
     return OrientedFace::GetPolyData (GetOrientedFaces ());
 }
-

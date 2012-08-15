@@ -285,6 +285,10 @@ public:
     void CreateObjectBody (size_t constraint);
     bool Is2D () const;
     bool IsQuadratic () const;
+    /**
+     * @pre CalculateBodyNeighborsAndGrowthRate
+     */    
+    bool HasFreeFace () const;
     const DataProperties& GetDataProperties () const
     {
 	return m_properties;

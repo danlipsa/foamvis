@@ -102,6 +102,10 @@ public:
     {
 	return m_adjacentOrientedFaces;
     }
+    size_t GetAdjacentOrientedFacesSize () const
+    {
+	return m_adjacentOrientedFaces.size ();
+    }
     string AdjacentFacesToString () const;
 
 

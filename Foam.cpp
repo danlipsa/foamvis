@@ -353,6 +353,14 @@ void Foam::CalculateBodyNeighborsAndGrowthRate ()
 			   GetTorusDomain ()));
 }
 
+bool Foam::HasFreeFace () const
+{
+    BOOST_FOREACH (boost::shared_ptr<Body> body, GetBodies ())
+	if (body->HasFreeFace ())
+	    return true;
+    return false;
+}
+
 
 void Foam::StoreObjects ()
 {

@@ -27,7 +27,8 @@ void RuntimeAssert (bool condition, const string& message, const T& t)
     if (! condition)
     {
 	ostringstream ostr;
-	ostr << message << t << ends;
+	ostr << message 
+	     << " " << t << ends;
 	ThrowException (ostr.str ());
     }
 }
@@ -39,7 +40,9 @@ void RuntimeAssert (bool condition, const string& message, const T1& t1,
     if (! condition)
     {
 	ostringstream ostr;
-	ostr << message << t1 << t2 << ends;
+	ostr << message 
+	     << " " << t1 
+	     << " " << t2 << ends;
 	ThrowException (ostr.str ());
     }
 }
@@ -53,7 +56,10 @@ void RuntimeAssert (bool condition,
     if (! condition)
     {
 	ostringstream ostr;
-	ostr << message << t1 << t2 << t3 << ends;
+	ostr << message 
+	     << " " << t1 
+	     << " " << t2 
+	     << " " << t3 << ends;
 	ThrowException (ostr.str ());
     }
 }
@@ -66,7 +72,11 @@ void RuntimeAssert (bool condition,
     if (! condition)
     {
 	ostringstream ostr;
-	ostr << message << t1 << t2 << t3 << t4 << ends;
+	ostr << message 
+	     << " " << t1 
+	     << " " << t2 
+	     << " " << t3 
+	     << " " << t4 << ends;
 	ThrowException (ostr.str ());
     }
 }
@@ -80,7 +90,12 @@ void RuntimeAssert (bool condition,
     if (! condition)
     {
 	ostringstream ostr;
-	ostr << message << t1 << t2 << t3 << t4 << t5 << ends;
+	ostr << message 
+	     << " " << t1 
+	     << " " << t2 
+	     << " " << t3 
+	     << " " << t4 
+	     << " " << t5 << ends;
 	ThrowException (ostr.str ());
     }
 }

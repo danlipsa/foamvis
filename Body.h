@@ -241,6 +241,13 @@ public:
      * @pre {Face::CalculateCentroidAndArea}
      */
     void CalculateNeighborsAndGrowthRate (const OOBox& originalDomain);
+    /**
+     * @pre CalculateNeighborsAndGrowthRate
+     */
+    bool HasFreeFace () const
+    {
+	return m_hasFreeFace;
+    }
 
 private:
     /**
@@ -270,6 +277,7 @@ private:
      * Oriented faces that are part of this body.
      */
     OrientedFaces m_orientedFaces;
+    bool m_hasFreeFace;
     vector<Neighbor> m_neighbors;
     boost::array <G3D::Vector3, 3> m_deformationEigenVectors;
     boost::array <float, 3> m_deformationEigenValues;
