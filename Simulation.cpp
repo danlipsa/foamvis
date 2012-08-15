@@ -204,10 +204,6 @@ void Simulation::Preprocess ()
     if (Is3D () && GetRegularGridResolution () != 0)
     {
 	cdbg << "Resampling to a regular grid ..." << endl;
-	cdbg << "WARNING: if you load different timesteps in the simulation "
-	     << "than what has been cached, you'll have to delete the cache "
-	     << "files (*.vti), otherwise velocities are going to be "
-	     << "incorrect in the resampled regular grid.\n";
 	f = boost::bind (&Foam::SaveRegularGrid, _1, 
 			 GetRegularGridResolution ());
 	MapPerFoam (&f, 1);
