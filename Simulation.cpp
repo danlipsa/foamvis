@@ -198,7 +198,7 @@ void Simulation::Preprocess ()
     calculateVelocity ();
     FoamParamMethod f = boost::bind (&Foam::CalculateMinMaxStatistics, _1);
     MapPerFoam (&f, 1);
-    if (m_adjustPressure && GetFoam (0).HasFreeFace ())
+    if (m_adjustPressure && ! GetFoam (0).HasFreeFace ())
         adjustPressureAlignMedians ();
     calculateStatistics ();
     if (Is3D () && GetRegularGridResolution () != 0)
