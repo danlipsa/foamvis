@@ -18,7 +18,7 @@ class SimulationGroup;
 class WidgetGl;
 
 /**
- * Class that contains the OpenGL widget and the  UI widgets.
+ * Class that stores the OpenGL, Vtk, Histogram and  UI widgets.
  */
 class MainWindow : public QMainWindow, private Ui::MainWindow
 {
@@ -243,6 +243,8 @@ private:
     Foam::Bodies::iterator m_currentTranslatedBody;
     size_t m_currentBody;
 
+    //////////
+    // Actions
     boost::shared_ptr<QAction> m_actionRotateShown;
     boost::shared_ptr<QAction> m_actionTranslateShown;
     boost::shared_ptr<QAction> m_actionScaleShown;
@@ -257,12 +259,15 @@ private:
 	    boost::array<boost::shared_ptr<ColorBarModel>, 
 			 BodyScalar::COUNT>,
 	    ViewNumber::COUNT> > m_colorBarModelBodyScalar;
+    // index order: simulation index, view number
     vector <
 	boost::array<boost::shared_ptr<ColorBarModel>, 
 		     ViewNumber::COUNT> > m_overlayBarModelVelocityVector;
+    // index order: simulation index, view number
     vector <
 	boost::array<boost::shared_ptr<ColorBarModel>,
 		     ViewNumber::COUNT> > m_colorBarModelDomainHistogram;
+    // index order: simulation index, view number
     vector <boost::array<boost::shared_ptr<ColorBarModel>,
 			 ViewNumber::COUNT> > m_colorBarModelT1sPDE;
     boost::shared_ptr<EditColorMap> m_editColorMap;
