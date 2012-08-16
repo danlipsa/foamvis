@@ -87,8 +87,7 @@ const ViewSettings& Average::GetViewSettings () const
 const Simulation& Average::GetSimulation () const
 {
     return
-	GetSimulationGroup ().GetSimulation (
-	    GetViewSettings ().GetSimulationIndex ());
+	GetSimulationGroup ().GetSimulation (GetSettings (), GetViewNumber ());
 }
 
 const Foam& Average::GetFoam (size_t timeStep) const

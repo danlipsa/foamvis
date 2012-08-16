@@ -16,6 +16,7 @@ class QTimer;
 class Settings;
 class SimulationGroup;
 class WidgetGl;
+class AttributeHistogram;
 
 /**
  * Class that stores the OpenGL, Vtk, Histogram and  UI widgets.
@@ -67,10 +68,13 @@ Q_SIGNALS:
 public Q_SLOTS:
     void ValueChangedContextAlpha (int sliderValue);
     void ToggledVelocityShown (bool checked);
-    void ButtonClickedHistogram (int histogramType);
+    void ToggledHistogramGridShown (bool checked);
+    void ToggledHistogramShown (bool checked);
+    void ToggledHistogramColorMapped (bool checked);
+    void ToggledHistogramAllTimestepsShown (bool checked);
+
     void ButtonClickedViewType (int viewType);
 
-    void ToggledHistogramGridShown (bool checked);
     void ToggledReflectedHalfView (bool checked);
     void ToggledForceDifference (bool checked);
 
@@ -109,7 +113,7 @@ public Q_SLOTS:
     void SelectShown ();
     void DeselectShown ();
 
-    void SelectionChangedHistogram ();
+    void SelectionChangedHistogram (int viewNumber);
     /**
      * Invoqued by the timer to show the next data in the vector
      */
@@ -132,11 +136,13 @@ public Q_SLOTS:
 private:
     /**
      * Shows a histogram of the current display
-     */
-    void setAndDisplayHistogram (
-	HistogramSelection histogramSelection,
-	MaxValueOperation maxValueOperation,
-	ViewType::Enum viewType);
+     */   
+    void updateHistogram (HistogramSelection histogramSelection,
+			  MaxValueOperation maxValueOperation);
+    void updateHistogram (ViewNumber::Enum viewNumber, 
+			  HistogramSelection histogramSelection,
+			  MaxValueOperation maxValueOperation);
+    void setupHistograms ();
     void init3DAverage ();
     void currentIndexChangedFaceColor (ViewNumber::Enum viewNumber);
     void deformationViewToUI ();
@@ -196,13 +202,11 @@ private:
     void setupColorBarModels ();
     void setupViews ();
 
-    void setupHistogram ();
     void processBodyTorusStep ();
     void translatedBodyInit ();
     void initComboBoxSimulation (SimulationGroup& simulationGroup);
     void translatedBodyStep ();
     void createActions ();
-    void displayHistogramColorBar (bool checked);
     HistogramInfo getHistogramInfo (
 	ColorBarType::Enum colorBarType, size_t bodyOrFaceScalar) const;
     boost::shared_ptr<ColorBarModel> getColorBarModel () const;
@@ -251,8 +255,7 @@ private:
     boost::shared_ptr<QAction> m_actionSelectShown;
     boost::shared_ptr<QAction> m_actionDeselectShown;
 
-    HistogramType::Enum m_histogramType;
-    ViewNumber::Enum m_histogramViewNumber;
+    boost::array<AttributeHistogram*, ViewNumber::COUNT> m_histogram;
     // index order: simulation index, view number, body property
     vector <
 	boost::array<

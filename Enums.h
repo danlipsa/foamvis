@@ -201,13 +201,16 @@ private:
 class HistogramType
 {
 public:
-    enum Enum
+    enum Option
     {
-	NONE,
-	UNICOLOR,
-	COLOR_CODED
+	UNICOLOR_TIME_STEP = 0x0,
+	COLOR_MAPPED = 0x1,
+	ALL_TIME_STEPS_SHOWN = 0x2
     };
+    Q_DECLARE_FLAGS (Options, Option);
 };
+Q_DECLARE_OPERATORS_FOR_FLAGS (HistogramType::Options);
+
 
 class PaletteType
 {

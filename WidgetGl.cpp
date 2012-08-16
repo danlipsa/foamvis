@@ -2675,10 +2675,10 @@ void WidgetGl::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
 }
 
 
-void WidgetGl::CompileUpdate ()
+void WidgetGl::CompileUpdate (ViewNumber::Enum viewNumber)
 {
     makeCurrent ();
-    compile (GetViewNumber ());
+    compile (viewNumber);
     update ();
 }
 

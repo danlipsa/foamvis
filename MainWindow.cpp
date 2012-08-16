@@ -7,6 +7,7 @@
 // @todo Store the palette per BodyScalar instead of storing it per view 
 //       and simulation index.
 #include "Application.h"
+#include "AttributeHistogram.h"
 #include "BodySelector.h"
 #include "ColorBarModel.h"
 #include "ScalarAverage.h"
@@ -35,11 +36,6 @@
 int checkedId (const QButtonGroup* group)
 {
     return group->id (group->checkedButton ());
-}
-
-HistogramType::Enum histogramType (const QButtonGroup* group)
-{
-    return HistogramType::Enum (checkedId (group));
 }
 
 template<size_t size>
@@ -71,13 +67,13 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     m_processBodyTorus (0), 
     m_debugTranslatedBody (false),
     m_currentBody (0),
-    m_histogramType (HistogramType::NONE),
-    m_histogramViewNumber (ViewNumber::COUNT),
     m_editColorMap (new EditColorMap (this)),
     m_playForward (false),
     m_playReverse (false),
     m_simulationGroup (simulationGroup)
 {
+    fill (m_histogram.begin (), m_histogram.end (), (AttributeHistogram*)0);
+
     // for anti-aliased lines
     QGLFormat format = QGLFormat::defaultFormat ();
     format.setSampleBuffers (true);
@@ -85,6 +81,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     QGLFormat::setDefaultFormat(format);
     
     setupUi (this);
+    setupHistograms ();
     const Simulation& simulation = simulationGroup.GetSimulation (0);
     m_settings.reset (new Settings (simulation, 
 				    widgetGl->GetXOverY (),
@@ -93,23 +90,21 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     setupButtonGroups ();
 
     boost::shared_ptr<Application> app = Application::Get ();
-    QFont defaultFont = app->font ();
-    spinBoxFontSize->setValue (defaultFont.pointSize ());
-    spinBoxHistogramHeight->setMaximum (500);
-    spinBoxHistogramHeight->setValue (widgetHistogram->sizeHint ().height ());
 
     CurrentIndexChangedViewCount (ViewCount::ONE);
     widgetGl->Init (m_settings, &simulationGroup);
     widgetGl->SetStatus (labelStatusBar);
-    widgetVtk->CreateAverage (m_settings, simulationGroup);
-    const Foam& foam = simulationGroup.GetSimulation (0).GetFoam (0);
-    widgetVtk->CreateViewPipelines (
-	foam.GetObjects ().size (), foam.GetConstraintFaces ().size ());
+    if (DATA_PROPERTIES.Is3D ())
+    {
+	widgetVtk->CreateAverage (m_settings, simulationGroup);
+	const Foam& foam = simulationGroup.GetSimulation (0).GetFoam (0);
+	widgetVtk->CreateViewPipelines (
+	    foam.GetObjects ().size (), foam.GetConstraintFaces ().size ());
+    }
     setupColorBarModels ();
     setupViews ();
     initComboBoxSimulation (simulationGroup);
     configureInterface ();
-    setupHistogram ();
     createActions ();
     setTabOrder (radioButtonBubblesPaths, sliderTimeSteps);
     string title ("FoamVis");
@@ -120,7 +115,13 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
 	title += simulation.GetName ();
     }
     setWindowTitle (QString (title.c_str ()));
-    widgetHistogram->setHidden (true);
+
+    QFont defaultFont = app->font ();
+    spinBoxFontSize->setValue (defaultFont.pointSize ());
+    spinBoxHistogramHeight->setMaximum (500);
+    spinBoxHistogramHeight->setValue (m_histogram[0]->sizeHint ().height ());
+
+
     widgetVtk->setHidden (true);
     m_timer->setInterval (20);
     //initTranslatedBody ();
@@ -128,6 +129,31 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     ValueChangedSliderTimeSteps (0);
     ButtonClickedViewType (ViewType::FACES);
 }
+
+void MainWindow::setupHistograms ()
+{
+    QVBoxLayout* histogramLayout = new QVBoxLayout ();
+    QSignalMapper* mapper = new QSignalMapper (this);
+    for (size_t i = 0; i < m_histogram.size (); ++i)
+    {
+	m_histogram[i] = new AttributeHistogram (widgetHistogramContainer);
+	m_histogram[i]->setHidden (true);
+	histogramLayout->addWidget (m_histogram[i]);
+	connect (
+	    m_histogram[i], 
+	    SIGNAL (SelectionChanged ()),
+	    mapper, 
+	    SLOT (map ()));
+	mapper->setMapping (m_histogram[i], i);
+    }
+    connect (
+	mapper,
+	SIGNAL (mapped (int)),
+	this, 
+	SLOT (SelectionChangedHistogram (int)));
+    widgetHistogramContainer->setLayout (histogramLayout);
+}
+
 
 void MainWindow::configureInterface ()
 {
@@ -435,9 +461,13 @@ void MainWindow::ViewToUI ()
 
     SetCheckedNoSignals (buttonGroupViewType, viewType, true);    
     setStackedWidget (viewType);
-    SetCheckedNoSignals (buttonGroupHistogram, 
-			 (viewNumber == m_histogramViewNumber) ?
-			 m_histogramType : HistogramType::NONE, true);
+    SetCheckedNoSignals (checkBoxHistogramShown, vs.IsHistogramShown ());
+    SetCheckedNoSignals (
+	checkBoxHistogramColorMapped, 
+	vs.HasHistogramOption(HistogramType::COLOR_MAPPED));
+    SetCheckedNoSignals (
+	checkBoxHistogramAllTimestepsShown,
+	vs.HasHistogramOption(HistogramType::ALL_TIME_STEPS_SHOWN));
 
     SetCurrentIndexNoSignals (comboBoxColor, property);
     SetCurrentIndexNoSignals (comboBoxSimulation, simulationIndex);
@@ -503,14 +533,7 @@ void MainWindow::ViewToUI ()
 
 
 void MainWindow::setupButtonGroups ()
-{
-    buttonGroupHistogram->setId (
-	radioButtonHistogramNone, HistogramType::NONE);
-    buttonGroupHistogram->setId (
-	radioButtonHistogramUnicolor, HistogramType::UNICOLOR);
-    buttonGroupHistogram->setId (
-	radioButtonHistogramColorCoded, HistogramType::COLOR_CODED);
-        
+{        
     buttonGroupViewType->setId (radioButtonEdgesNormal, ViewType::EDGES);
     buttonGroupViewType->setId (radioButtonEdgesTorus, ViewType::EDGES_TORUS);
     buttonGroupViewType->setId (radioButtonFaceEdgesTorus, 
@@ -544,13 +567,6 @@ void MainWindow::setupSliderData (const Simulation& simulation)
     sliderTimeSteps->setMaximum (simulation.GetTimeSteps () - 1);
     sliderTimeSteps->setSingleStep (1);
     sliderTimeSteps->setPageStep (10);
-}
-
-void MainWindow::setupHistogram ()
-{
-    // does not work
-    QwtScaleWidget* yLeftAxis = widgetHistogram->axisWidget (QwtPlot::yLeft);
-    yLeftAxis->setBorderDist (100, 100);
 }
 
 void MainWindow::RotateShown ()
@@ -725,36 +741,34 @@ void MainWindow::init3DAverage ()
     }
 }
 
-
-void MainWindow::setAndDisplayHistogram (
-    HistogramSelection histogramSelection,
-    MaxValueOperation maxValueOperation, ViewType::Enum viewType)
+void MainWindow::updateHistogram (HistogramSelection histogramSelection, 
+				  MaxValueOperation maxValueOperation)
 {
-    switch (m_histogramType)
-    {
-    case HistogramType::NONE:
-	widgetHistogram->setHidden (true);
-	return;
-    case HistogramType::UNICOLOR:
-	widgetHistogram->setVisible (true);
-	widgetHistogram->SetColorCoded (false);
-	break;
-    case HistogramType::COLOR_CODED:
-	widgetHistogram->setVisible (true);
-	widgetHistogram->SetColorCoded (true);
-	//widgetHistogram->SetColorTransferFunction (getColorBarModel ());
-	break;
-    default:
-	RuntimeAssert (false, "Invalid histogram type");
-	return;
-    }
-    const ViewSettings& vs = widgetGl->GetViewSettings (m_histogramViewNumber);
+    updateHistogram (m_settings->GetViewNumber (),
+		     histogramSelection, maxValueOperation);
+}
+
+
+
+void MainWindow::updateHistogram (ViewNumber::Enum viewNumber,
+				  HistogramSelection histogramSelection, 
+				  MaxValueOperation maxValueOperation)
+{
+    const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+    m_histogram[viewNumber]->setVisible (vs.IsHistogramShown ());
+    bool colorMapped = vs.HasHistogramOption (HistogramType::COLOR_MAPPED);
+    m_histogram[viewNumber]->SetColorCoded (colorMapped);
+    if (colorMapped)
+	m_histogram[viewNumber]->SetColorTransferFunction (
+	    getColorBarModel (viewNumber));
+
     BodyScalar::Enum property = BodyScalar::FromSizeT (
 	vs.GetBodyOrFaceScalar ());
-    const Simulation& simulation = widgetGl->GetSimulation ();
+    const Simulation& simulation = m_simulationGroup.GetSimulation (
+	*m_settings, viewNumber);
     double maxYValue = 0;
     QwtIntervalData intervalData;
-    if (viewType == ViewType::CENTER_PATHS)
+    if (vs.HasHistogramOption (HistogramType::ALL_TIME_STEPS_SHOWN))
     {
 	const HistogramStatistics& allTimestepsHistogram = 
 	    simulation.GetHistogram (property);
@@ -769,12 +783,12 @@ void MainWindow::setAndDisplayHistogram (
 	    maxYValue = simulation.GetMaxCountPerBinIndividual (property);
     }
     if (maxValueOperation == KEEP_MAX_VALUE)
-	maxYValue = widgetHistogram->GetMaxValueAxis ();
+	maxYValue = m_histogram[viewNumber]->GetMaxValueAxis ();
     if (histogramSelection == KEEP_SELECTION)
-	widgetHistogram->SetDataKeepBinSelection (
+	m_histogram[viewNumber]->SetDataKeepBinSelection (
 	    intervalData, maxYValue, BodyScalar::ToString (property));
     else
-	widgetHistogram->SetDataAllBinsSelected (
+	m_histogram[viewNumber]->SetDataAllBinsSelected (
 	    intervalData, maxYValue, BodyScalar::ToString (property));
 }
 
@@ -873,15 +887,6 @@ MainWindow::HistogramInfo MainWindow::createHistogramInfo (
 	d[i] = count;
     }
     return HistogramInfo (QwtIntervalData (a, d), count);
-}
-
-
-void MainWindow::displayHistogramColorBar (bool checked)
-{
-    widgetHistogram->setVisible (
-	checked && 
-	widgetGl->GetBodyOrFaceScalar () != FaceScalar::DMP_COLOR && 
-	m_histogramType);
 }
 
 void MainWindow::setupColorBarModels ()
@@ -1099,11 +1104,10 @@ void MainWindow::currentIndexChangedFaceColor (
 {
     int value = static_cast<QComboBox*> (sender ())->currentIndex ();
     const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
-    ViewType::Enum viewType = vs.GetViewType ();
     boost::array<QWidget*, 4> widgetsVisible = {{
-	    labelFacesHistogram, radioButtonHistogramNone,
-	    radioButtonHistogramUnicolor, 
-	    radioButtonHistogramColorCoded}};
+	    labelFacesHistogram, checkBoxHistogramShown,
+	    checkBoxHistogramColorMapped, 
+	    checkBoxHistogramAllTimestepsShown}};
     boost::array<QWidget*, 1> widgetsEnabled = {{
 	    radioButtonAverage}};
     size_t simulationIndex = vs.GetSimulationIndex ();
@@ -1122,7 +1126,7 @@ void MainWindow::currentIndexChangedFaceColor (
 	    viewNumber,
 	    m_colorBarModelBodyScalar
 	    [simulationIndex][viewNumber][property], property);
-	setAndDisplayHistogram (DISCARD_SELECTION, REPLACE_MAX_VALUE, viewType);
+	updateHistogram (DISCARD_SELECTION, REPLACE_MAX_VALUE);
     }
 }
 
@@ -1157,8 +1161,34 @@ void MainWindow::ToggledVelocityShown (bool checked)
 
 void MainWindow::ToggledHistogramGridShown (bool checked)
 {
-    widgetHistogram->SetGridEnabled (checked);
+    m_histogram[m_settings->GetViewNumber ()]->SetGridEnabled (checked);
 }
+
+void MainWindow::ToggledHistogramShown (bool checked)
+{
+    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
+    ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+    vs.SetHistogramShown (checked);
+    updateHistogram (DISCARD_SELECTION, REPLACE_MAX_VALUE);    
+}
+
+
+void MainWindow::ToggledHistogramColorMapped (bool checked)
+{
+    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
+    ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+    vs.SetHistogramOption (HistogramType::COLOR_MAPPED, checked);
+    updateHistogram (KEEP_SELECTION, KEEP_MAX_VALUE);
+}
+
+void MainWindow::ToggledHistogramAllTimestepsShown (bool checked)
+{
+    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
+    ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+    vs.SetHistogramOption (HistogramType::ALL_TIME_STEPS_SHOWN, checked);
+    updateHistogram (KEEP_SELECTION, REPLACE_MAX_VALUE);
+}
+
 
 void MainWindow::ClickedPlay ()
 {
@@ -1207,14 +1237,16 @@ void MainWindow::ValueChangedFontSize (int fontSize)
     QFont defaultFont = app->font ();
     defaultFont.setPointSize (fontSize);
     app->setFont (defaultFont);
-    widgetHistogram->SetDefaultFont ();
+    for (size_t i = 0; i < m_histogram.size (); ++i)
+	m_histogram[i]->SetDefaultFont ();
     m_editColorMap->SetDefaultFont ();
 }
 
 void MainWindow::ValueChangedHistogramHeight (int s)
 {
-    widgetHistogram->SetSizeHint (QSize(s, s));
-    widgetHistogram->updateGeometry ();
+    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
+    m_histogram[viewNumber]->SetSizeHint (QSize(s, s));
+    m_histogram[viewNumber]->updateGeometry ();
 }
 
 void MainWindow::ValueChangedT1sKernelSigma (int index)
@@ -1238,7 +1270,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 
     boost::array<int, ViewNumber::COUNT> direction;
     m_settings->SetCurrentTime (timeStep, &direction);
-    setAndDisplayHistogram (KEEP_SELECTION, KEEP_MAX_VALUE, viewType);
+    updateHistogram (KEEP_SELECTION, KEEP_MAX_VALUE);
     if (viewType == ViewType::AVERAGE)
     {
 	if (DATA_PROPERTIES.Is3D ())
@@ -1293,9 +1325,6 @@ void MainWindow::ButtonClickedViewType (int vt)
 	switch (viewType)
 	{
 	case ViewType::FACES:
-	    if (m_histogramViewNumber == viewNumber)
-		setAndDisplayHistogram (
-		    KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
 	    if (DATA_PROPERTIES.Is3D ())
 	    {
 		widgetVtk->setHidden (true);
@@ -1306,9 +1335,6 @@ void MainWindow::ButtonClickedViewType (int vt)
 	case ViewType::AVERAGE:
 	    labelAverageColor->setText (
 		BodyScalar::ToString (BodyScalar::FromSizeT (property)));
-	    if (m_histogramViewNumber == viewNumber)
-		setAndDisplayHistogram (
-		    KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
 	    if (DATA_PROPERTIES.Is3D ())
 	    {
 		init3DAverage ();
@@ -1320,9 +1346,6 @@ void MainWindow::ButtonClickedViewType (int vt)
 	case ViewType::CENTER_PATHS:
 	    labelCenterPathColor->setText (
 		BodyScalar::ToString (BodyScalar::FromSizeT (property)));
-	    if (m_histogramViewNumber == viewNumber)
-		setAndDisplayHistogram (
-		    KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
 	    if (DATA_PROPERTIES.Is3D ())
 	    {
 		widgetVtk->setHidden (true);
@@ -1415,6 +1438,11 @@ void MainWindow::CurrentIndexChangedViewCount (int index)
     else
 	::setVisible (widgetsViewLayout, false);
     checkBoxTitleShown->setChecked (viewCount != ViewCount::ONE);
+    for (size_t i = ViewCount::GetCount (viewCount); 
+	 i <= ViewCount::GetCount (ViewCount::MAX); ++i)
+    {
+	
+    }
 }
 
 
@@ -1457,17 +1485,6 @@ void MainWindow::CurrentIndexChangedWindowSize (int value)
 }
 
 
-void MainWindow::ButtonClickedHistogram (int histogramType)
-{
-    m_histogramType = HistogramType::Enum (histogramType);
-    m_histogramViewNumber = widgetGl->GetViewNumber ();
-    const ViewSettings& vs = widgetGl->GetViewSettings (m_histogramViewNumber);
-    ViewType::Enum viewType = vs.GetViewType ();
-    setAndDisplayHistogram (KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
-    widgetHistogram->SetColorTransferFunction (getColorBarModel ());
-}
-
-
 
 void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)
 {
@@ -1502,28 +1519,30 @@ void MainWindow::ToggledForceDifference (bool forceDifference)
     widgetGl->SetForceDifferenceShown (forceDifference);
 }
 
-void MainWindow::SelectionChangedHistogram ()
+void MainWindow::SelectionChangedHistogram (int vn)
 {
+    ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (vn);
+    ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
     vector<QwtDoubleInterval> valueIntervals;
-    widgetHistogram->GetSelectedIntervals (&valueIntervals);
+    m_histogram[viewNumber]->GetSelectedIntervals (&valueIntervals);
     vector<bool> timeStepSelection;
     const Simulation& simulation = widgetGl->GetSimulation ();
-    ViewSettings& vs = widgetGl->GetViewSettings (m_histogramViewNumber);
     BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT (
-	widgetGl->GetBodyOrFaceScalar (m_histogramViewNumber));
+	vs.GetBodyOrFaceScalar ());
     simulation.GetTimeStepSelection (
 	bodyScalar, valueIntervals, &timeStepSelection);
     sliderTimeSteps->SetRestrictedTo (timeStepSelection);
     
-    if (widgetHistogram->AreAllItemsSelected ())
+    if (m_histogram[viewNumber]->AreAllItemsSelected ())
 	vs.SetBodySelector (
 	    AllBodySelector::Get (), BodySelectorType::PROPERTY_VALUE);
     else
 	vs.SetBodySelector (
 	    boost::shared_ptr<PropertyValueBodySelector> (
 		new PropertyValueBodySelector (bodyScalar, valueIntervals)));
-    widgetGl->CompileUpdate ();
-    widgetVtk->UpdateThreshold (valueIntervals[0]);
+    widgetGl->CompileUpdate (viewNumber);
+    if (DATA_PROPERTIES.Is3D ())
+	widgetVtk->UpdateThreshold (valueIntervals[0]);
 }
 
 void MainWindow::ShowEditOverlayMap ()
@@ -1566,8 +1585,7 @@ void MainWindow::SetHistogramColorBarModel (
     ViewNumber::Enum viewNumber,
     boost::shared_ptr<ColorBarModel> colorBarModel)
 {
-    if (m_histogramViewNumber == viewNumber)
-	widgetHistogram->SetColorTransferFunction (colorBarModel);
+    m_histogram[viewNumber]->SetColorTransferFunction (colorBarModel);
 }
 
 void MainWindow::CurrentIndexChangedInteractionMode (int index)
@@ -1607,5 +1625,7 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
 	comboBoxInteractionMode->setToolTip ("");
 	break;
     }
+    m_histogram[m_settings->GetViewNumber ()]->
+	CurrentIndexChangedInteractionMode (index);
 }
 

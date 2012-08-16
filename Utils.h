@@ -227,8 +227,6 @@ vtkSmartPointer<vtkImageData> CreateEmptyRegularGrid (
 vtkSmartPointer<vtkImageData> CreateRegularGridNoAttributes (
     G3D::AABox bb, size_t regularGridResolution);
 
-
-
 #endif //__UTILS_H__
 
 // Local Variables:

@@ -482,6 +482,19 @@ public:
 	m_selectionContextShown = shown;
     }
 
+    ////////////
+    // Histogram
+    bool IsHistogramShown () const
+    {
+	return m_histogramShown;
+    }
+    void SetHistogramShown (bool shown)
+    {
+	m_histogramShown = shown;
+    }
+    bool HasHistogramOption (HistogramType::Option option) const;
+    void SetHistogramOption (HistogramType::Option option, bool on = true);
+    void ResetHistogramOption (HistogramType::Option option);
 
     bool IsCenterPathHidden () const
     {
@@ -692,6 +705,9 @@ private:
     bool m_missingPressureShown;
     bool m_missingVolumeShown;
     bool m_objectVelocityShown;
+
+    bool m_histogramShown;
+    HistogramType::Options m_histogramOptions;
 };
 
 

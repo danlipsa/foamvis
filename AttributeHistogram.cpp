@@ -15,6 +15,9 @@ AttributeHistogram::AttributeHistogram (QWidget* parent) :
     Histogram (parent)
 {
     createActions ();
+    // does not work
+    QwtScaleWidget* yLeftAxis = axisWidget (QwtPlot::yLeft);
+    yLeftAxis->setBorderDist (100, 100);
 }
 
 void AttributeHistogram::contextMenuEvent(QContextMenuEvent *event)

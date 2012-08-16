@@ -16,6 +16,7 @@
 #include "Utils.h"
 
 class Foam;
+class Settings;
 
 /**
  * Stores information about a list of DMP files
@@ -299,6 +300,8 @@ public:
     {
 	return m_simulation[i];
     }
+    const Simulation& GetSimulation(
+	const Settings& settings, ViewNumber::Enum viewNumber) const;
     Simulation& GetSimulation (size_t i)
     {
 	return m_simulation[i];

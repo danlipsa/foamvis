@@ -11,6 +11,8 @@
 #include "Foam.h"
 #include "Simulation.h"
 #include "ParsingData.h"
+#include "Settings.h"
+#include "ViewSettings.h"
 #include "Utils.h"
 
 // Private Functions and classes
@@ -627,4 +629,12 @@ float SimulationGroup::GetBubbleSize () const
 	a (simulation.GetBubbleSize ());
     }
     return acc::min (a);
+}
+
+const Simulation& SimulationGroup::GetSimulation(
+    const Settings& settings, ViewNumber::Enum viewNumber) const
+{
+    return
+	GetSimulation (
+	    settings.GetViewSettings (viewNumber).GetSimulationIndex ());
 }

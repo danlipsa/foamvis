@@ -230,7 +230,11 @@ public:
 	return GetViewSettings (GetViewNumber ());
     }
     float GetXOverY () const;
-    void CompileUpdate ();
+    void CompileUpdate ()
+    {
+	CompileUpdate (GetViewNumber ());
+    }
+    void CompileUpdate (ViewNumber::Enum viewNumber);
     void UpdateAverage (const boost::array<int, ViewNumber::COUNT>& direction);
     GLuint GetColorBarTexture (ViewNumber::Enum viewNumber) const
     {

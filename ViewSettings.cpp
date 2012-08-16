@@ -80,7 +80,9 @@ ViewSettings::ViewSettings () :
     m_velocityLineWidth (1),
     m_forceTorqueSize (1),
     m_torqueDistance (1),
-    m_forceTorqueLineWidth (1)
+    m_forceTorqueLineWidth (1),
+    m_histogramShown (false),
+    m_histogramOptions (HistogramType::UNICOLOR_TIME_STEP)
 {    
     setInitialLightParameters ();
     for (size_t i = 0; i < m_averageAroundBodyId.size (); ++i)
@@ -614,4 +616,23 @@ void ViewSettings::RotateAndTranslateAverageAround (
 	glRotatef (angleDegrees, 0, 0, 1);
 	glTranslate (-rotationCenter);
     }
+}
+
+bool ViewSettings::HasHistogramOption (HistogramType::Option option) const
+{
+    return m_histogramOptions.testFlag (option);
+}
+
+void ViewSettings::SetHistogramOption (HistogramType::Option option, bool on)
+{
+    if (on)
+	m_histogramOptions |= option;
+    else
+	ResetHistogramOption (option);
+}
+
+void ViewSettings::ResetHistogramOption (HistogramType::Option option)
+{
+    if (HasHistogramOption (option))
+	m_histogramOptions ^= option;
 }
