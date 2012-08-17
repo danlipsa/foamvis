@@ -68,7 +68,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QWidget" name="widgetHistogramContainer" native="true">
+           <widget class="QWidget" name="histogramContainer" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -2489,8 +2489,6 @@
     <slot>ToggledT1sShown(bool)</slot>
     <slot>ToggledT1sBeforeTimestep(bool)</slot>
     <slot>ToggledT1sShiftLower(bool)</slot>
-    <slot>CurrentIndexChangedViewCount(int)</slot>
-    <slot>CurrentIndexChangedViewLayout(int)</slot>
     <slot>ValueChangedT1Size(int)</slot>
     <slot>ToggledZeroedPressureShown(bool)</slot>
     <slot>ToggledTitleShown(bool)</slot>
@@ -3306,25 +3304,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>comboBoxViewCount</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>CurrentIndexChangedViewCount(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>820</x>
-     <y>268</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>264</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>comboBoxViewLayout</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>MainWindow</receiver>
    <slot>CurrentIndexChangedViewLayout(int)</slot>
    <hints>
     <hint type="sourcelabel">

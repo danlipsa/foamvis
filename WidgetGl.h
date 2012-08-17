@@ -244,6 +244,9 @@ public:
     {
 	return m_overlayBarTexture[viewNumber];
     }
+    G3D::AABox CalculateCenteredViewingVolume (
+	ViewNumber::Enum viewNumber) const;
+
     
 Q_SIGNALS:
     void PaintEnd ();
@@ -329,8 +332,6 @@ public Q_SLOTS:
     void CurrentIndexChangedStatisticsType (int index);
     void CurrentIndexChangedAxesOrder (int index);
     void CurrentIndexChangedSelectedLight (int selectedLight);
-    void CurrentIndexChangedViewCount (int index);
-    void CurrentIndexChangedViewLayout (int index);
 
     void ValueChangedNoiseStart (int i);
     void ValueChangedNoiseAmplitude (int i);
@@ -527,8 +528,6 @@ private:
     void displayLightDirection (
 	ViewNumber::Enum viewNumber, LightNumber::Enum light) const;
     void displayLightDirection (ViewNumber::Enum viewNumber) const;
-    G3D::AABox calculateCenteredViewingVolume (
-	ViewNumber::Enum viewNumber) const;
     G3D::Vector3 calculateViewingVolumeScaledExtent (
 	ViewNumber::Enum viewNumber) const;
     void initQuadrics ();

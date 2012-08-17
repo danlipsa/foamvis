@@ -593,7 +593,7 @@ void WidgetGl::displayLightDirection (
 	glMultMatrix (vs.GetRotationLight (i));
 	G3D::Vector3 initialLightPosition = 
 	    vs.GetInitialLightPosition (
-		calculateCenteredViewingVolume (viewNumber), i);
+		CalculateCenteredViewingVolume (viewNumber), i);
 	G3D::Vector3 lp =  initialLightPosition / sqrt3;
 	::glColor (QColor (vs.IsLightEnabled (i) ? Qt::red : Qt::gray));
 	if (vs.IsLightingEnabled ())
@@ -694,7 +694,7 @@ G3D::AABox WidgetGl::CalculateViewingVolume (
 	viewNumber, GetSimulation (viewNumber), GetXOverY (), enclose);
 }
 
-G3D::AABox WidgetGl::calculateCenteredViewingVolume (
+G3D::AABox WidgetGl::CalculateCenteredViewingVolume (
     ViewNumber::Enum viewNumber) const
 {
     return m_settings->CalculateCenteredViewingVolume (
@@ -1155,7 +1155,7 @@ void WidgetGl::displayView (ViewNumber::Enum viewNumber)
 {
     //QTime t;t.start ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    vs.SetGlLightParameters (calculateCenteredViewingVolume (viewNumber));
+    vs.SetGlLightParameters (CalculateCenteredViewingVolume (viewNumber));
     allTransform (viewNumber);
     m_settings->SetEdgeArrow (GetOnePixelInObjectSpace ());
     (this->*(m_display[vs.GetViewType ()])) (viewNumber);
@@ -1877,7 +1877,7 @@ void WidgetGl::displayFocusBox (ViewNumber::Enum viewNumber) const
 	glLoadIdentity ();
 	glTranslatef (0, 0, - vs.GetCameraDistance ());
 
-	G3D::AABox focusBox = calculateCenteredViewingVolume (viewNumber);
+	G3D::AABox focusBox = CalculateCenteredViewingVolume (viewNumber);
 	translateAndScale ( viewNumber, 1 / vs.GetScaleRatio (), 
 			    - vs.GetContextScaleRatio () * 
 			    vs.GetTranslation (), true);
@@ -2430,7 +2430,7 @@ G3D::Vector2 WidgetGl::toTexture (ViewNumber::Enum viewNumber,
 				  G3D::Vector2 object) const
 {
     G3D::Vector2 eye = toEye (G3D::Vector3 (object, 0)).xy ();
-    G3D::AABox vv = calculateCenteredViewingVolume (viewNumber);
+    G3D::AABox vv = CalculateCenteredViewingVolume (viewNumber);
     return (eye - vv.low ().xy ()) / (vv.high ().xy () - vv.low ().xy ());
 }
 
@@ -3990,31 +3990,6 @@ void WidgetGl::CurrentIndexChangedSimulation (int i)
     update ();
 }
 
-void WidgetGl::CurrentIndexChangedViewCount (int index)
-{
-    makeCurrent ();
-    m_settings->SetViewCount (ViewCount::Enum (index));
-    m_settings->SetViewNumber (ViewNumber::VIEW0);
-    size_t n = ViewCount::GetCount (m_settings->GetViewCount ());
-    for (size_t i = 0; i < n; ++i)
-    {
-	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	ViewSettings& vs = GetViewSettings (viewNumber);
-	if (vs.GetViewType () == ViewType::COUNT)
-	    vs.SetViewType (ViewType::FACES);
-	vs.CalculateCameraDistance (
-	    calculateCenteredViewingVolume (viewNumber));
-	compile (viewNumber);
-    }
-    update ();
-}
-
-void WidgetGl::CurrentIndexChangedViewLayout (int index)
-{
-    m_settings->SetViewLayout (ViewLayout::Enum (index));
-    update ();
-}
-
 void WidgetGl::CurrentIndexChangedInteractionMode (int index)
 {
     m_interactionMode = InteractionMode::Enum(index);
@@ -4376,7 +4351,7 @@ void WidgetGl::ValueChangedAngleOfView (int angleOfView)
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings ();
     vs.SetAngleOfView (angleOfView);
-    vs.CalculateCameraDistance (calculateCenteredViewingVolume (viewNumber));
+    vs.CalculateCameraDistance (CalculateCenteredViewingVolume (viewNumber));
     update ();
 }
 

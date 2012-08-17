@@ -66,6 +66,8 @@ Q_SIGNALS:
 
 
 public Q_SLOTS:
+    void CurrentIndexChangedViewCount (int index);
+    void CurrentIndexChangedViewLayout (int index);
     void ValueChangedContextAlpha (int sliderValue);
     void ToggledVelocityShown (bool checked);
     void ToggledHistogramGridShown (bool checked);
@@ -98,7 +100,6 @@ public Q_SLOTS:
     void CurrentIndexChangedInteractionMode (int index);
     void CurrentIndexChangedFaceColor (int value);
     void CurrentIndexChangedStatisticsType (int value);
-    void CurrentIndexChangedViewCount (int index);
     /**
      * Copy status from WidgetGl to the UI controls
      */
@@ -142,6 +143,7 @@ private:
     void updateHistogram (HistogramSelection histogramSelection,
 			  MaxValueOperation maxValueOperation,
 			  ViewNumber::Enum viewNumber);
+    void updateHistogramLayout ();
     void setupHistograms ();
     void forAllShownHistograms (
 	boost::function <void (ViewNumber::Enum)> f, size_t start = 0);

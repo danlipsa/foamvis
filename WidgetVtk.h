@@ -50,6 +50,11 @@ public:
     {
 	return QSize (128, 128);
     }
+    const RegularGridAverage& GetScalarAverage (
+	ViewNumber::Enum viewNumber) const
+    {
+	return *m_average[viewNumber];
+    }
 
 protected:
     virtual void resizeEvent (QResizeEvent * event);

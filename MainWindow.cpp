@@ -25,6 +25,7 @@
 #include "TensorAverage.h"
 #include "Utils.h"
 #include "OpenGLUtils.h"
+#include "RegularGridAverage.h"
 #include "VectorAverage.h"
 #include "ViewAverage.h"
 #include "ViewSettings.h"
@@ -81,17 +82,15 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     QGLFormat::setDefaultFormat(format);
     
     setupUi (this);
-    setupHistograms ();
     const Simulation& simulation = simulationGroup.GetSimulation (0);
     m_settings.reset (new Settings (simulation, 
 				    widgetGl->GetXOverY (),
 				    simulation.GetT1sShift ()));
+    setupHistograms ();
     connectSignals ();
     setupButtonGroups ();
 
     boost::shared_ptr<Application> app = Application::Get ();
-
-    CurrentIndexChangedViewCount (ViewCount::ONE);
     widgetGl->Init (m_settings, &simulationGroup);
     widgetGl->SetStatus (labelStatusBar);
     if (DATA_PROPERTIES.Is3D ())
@@ -128,17 +127,16 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     configureInterfaceDataDependent (simulationGroup);    
     ValueChangedSliderTimeSteps (0);
     ButtonClickedViewType (ViewType::FACES);
+    CurrentIndexChangedViewCount (ViewCount::ONE);
 }
 
 void MainWindow::setupHistograms ()
 {
-    QVBoxLayout* histogramLayout = new QVBoxLayout ();
     QSignalMapper* mapper = new QSignalMapper (this);
     for (size_t i = 0; i < m_histogram.size (); ++i)
     {
-	m_histogram[i] = new AttributeHistogram (widgetHistogramContainer);
+	m_histogram[i] = new AttributeHistogram (histogramContainer);
 	m_histogram[i]->setHidden (true);
-	histogramLayout->addWidget (m_histogram[i]);
 	connect (
 	    m_histogram[i], 
 	    SIGNAL (SelectionChanged ()),
@@ -151,7 +149,41 @@ void MainWindow::setupHistograms ()
 	SIGNAL (mapped (int)),
 	this, 
 	SLOT (SelectionChangedHistogram (int)));
-    widgetHistogramContainer->setLayout (histogramLayout);
+    updateHistogramLayout ();
+}
+
+void MainWindow::updateHistogramLayout ()
+{
+    ViewCount::Enum viewCount = m_settings->GetViewCount ();
+    QLayout* layout = histogramContainer->layout ();
+    if (layout != 0)
+    {
+      QLayoutItem *item;
+      while ((item = layout->takeAt(0)) != 0)
+          layout->removeItem (item);
+	delete layout;
+    }
+    layout = 0;
+    switch (viewCount)
+    {
+    case ViewCount::ONE:
+	layout = new QVBoxLayout ();
+	break;
+    case ViewCount::TWO:
+    case ViewCount::THREE:
+	if (m_settings->GetViewLayout () == ViewLayout::HORIZONTAL)
+	    layout = new QHBoxLayout ();
+	else
+	    layout = new QVBoxLayout ();
+	break;
+    case ViewCount::FOUR:
+	layout = new QFormLayout ();
+	break;
+    }
+    for (size_t i = 0; i < ViewCount::GetCount (viewCount); ++i)
+	layout->addWidget (m_histogram[i]);
+    histogramContainer->setLayout (layout);
+    histogramContainer->update ();
 }
 
 
@@ -363,16 +395,22 @@ void MainWindow::connectColorBarHistogram (bool connected)
 
 void MainWindow::deformationViewToUI ()
 {
-    const ViewSettings& vs = widgetGl->GetViewSettings ();
-    ViewAverage& va = widgetGl->GetViewAverage ();
+    const ViewSettings& vs = m_settings->GetViewSettings ();
     SetCheckedNoSignals (checkBoxDeformationShown, 
 			 vs.IsDeformationShown ());
-    SetCheckedNoSignals (
-	checkBoxDeformationGridShown, 
-	va.GetDeformationAverage ().IsGridShown ());
-    SetCheckedNoSignals (
-	checkBoxDeformationGridCellCenterShown, 
-	va.GetDeformationAverage ().IsGridCellCenterShown ());
+    bool gridShown = false;
+    bool gridCellCenterShown = false;
+    if (DATA_PROPERTIES.Is2D ())
+    {
+	ViewAverage& va = widgetGl->GetViewAverage ();
+	gridShown = va.GetDeformationAverage ().IsGridShown ();
+	gridCellCenterShown = 
+	    va.GetDeformationAverage ().IsGridCellCenterShown ();
+    }
+
+    SetCheckedNoSignals (checkBoxDeformationGridShown, gridShown);
+    SetCheckedNoSignals (checkBoxDeformationGridCellCenterShown, 
+			 gridCellCenterShown);
     SetValueNoSignals (
 	horizontalSliderDeformationSize, 
 	Value2ExponentIndex (horizontalSliderDeformationSize, 
@@ -386,36 +424,51 @@ void MainWindow::deformationViewToUI ()
 
 void MainWindow::velocityViewToUI ()
 {
-    const ViewSettings& vs = widgetGl->GetViewSettings ();
-    const VectorAverage& va = widgetGl->GetViewAverage ().GetVelocityAverage ();
+    const ViewSettings& vs = m_settings->GetViewSettings ();
+    bool gridShown = false;
+    bool clampingShown = false;
+    bool gridCellCenterShown = false;
+    bool sameSize = false;
+    bool colorMapped = false;
+    if (DATA_PROPERTIES.Is2D ())
+    {
+	const VectorAverage& va = 
+	    widgetGl->GetViewAverage ().GetVelocityAverage ();
+	gridShown = va.IsGridShown ();
+	clampingShown = va.IsClampingShown ();
+	gridCellCenterShown = va.IsGridCellCenterShown ();
+	sameSize = va.IsSameSize ();
+	colorMapped = va.IsColorMapped ();
+    }
+
     SetCheckedNoSignals (checkBoxVelocityShown, vs.IsVelocityShown ());
-    SetCheckedNoSignals (checkBoxVelocityGridShown, va.IsGridShown ());
-    SetCheckedNoSignals (checkBoxVelocityClampingShown, va.IsClampingShown ());
+    SetCheckedNoSignals (checkBoxVelocityGridShown, gridShown);
+    SetCheckedNoSignals (checkBoxVelocityClampingShown, clampingShown);
     SetCheckedNoSignals (checkBoxVelocityGridCellCenterShown, 
-			 va.IsGridCellCenterShown ());
-    SetCheckedNoSignals (checkBoxVelocitySameSize, va.IsSameSize ());
-    SetCheckedNoSignals (checkBoxVelocityColorMapped, va.IsColorMapped ());
+			 gridCellCenterShown);
+    SetCheckedNoSignals (checkBoxVelocitySameSize, sameSize);
+    SetCheckedNoSignals (checkBoxVelocityColorMapped, colorMapped);
     SetValueNoSignals (
 	horizontalSliderVelocityLineWidth, 
 	Value2ExponentIndex (horizontalSliderVelocityLineWidth,
-		    WidgetGl::TENSOR_LINE_WIDTH_EXP2,
-		    vs.GetVelocityLineWidth ()));
+			     WidgetGl::TENSOR_LINE_WIDTH_EXP2,
+			     vs.GetVelocityLineWidth ()));
 }
 
 void MainWindow::forceViewToUI ()
 {
-    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
+    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
+    const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+    const Simulation& simulation = m_simulationGroup.GetSimulation (
+	*m_settings, viewNumber);
     SetCheckedNoSignals (
-	checkBoxForceNetwork, vs.IsForceNetworkShown (),
-	widgetGl->GetSimulation (viewNumber).ForcesUsed ());
+	checkBoxForceNetwork, vs.IsForceNetworkShown (), 
+	simulation.ForcesUsed ());
     SetCheckedNoSignals (
 	checkBoxForcePressure, 
-	vs.IsForcePressureShown (), 
-	widgetGl->GetSimulation (viewNumber).ForcesUsed ());
+	vs.IsForcePressureShown (), simulation.ForcesUsed ());
     SetCheckedNoSignals (
-	checkBoxForceResult, vs.IsForceResultShown (),
-	widgetGl->GetSimulation (viewNumber).ForcesUsed ());
+	checkBoxForceResult, vs.IsForceResultShown (), simulation.ForcesUsed ());
     SetValueNoSignals (
 	horizontalSliderForceTorqueSize, 
 	Value2ExponentIndex (horizontalSliderForceTorqueSize,
@@ -429,24 +482,31 @@ void MainWindow::forceViewToUI ()
 
 void MainWindow::t1sPDEViewToUI ()
 {
-    ViewAverage& va = widgetGl->GetViewAverage ();
-    SetCheckedNoSignals (checkBoxTextureSizeShown, 
-			 va.GetT1sPDE ().IsKernelTextureSizeShown ());
+    bool kernelTextureSizeShown = false;
+    size_t kernelTextureSize = 0;
+    float kernelIntervalPerPixel = 0;
+    float kernelSigma = 0;
+    if (DATA_PROPERTIES.Is2D ())
+    {
+	const T1sPDE& kde = widgetGl->GetViewAverage ().GetT1sPDE ();
+	kernelTextureSizeShown = kde.IsKernelTextureSizeShown ();
+	kernelTextureSize = kde.GetKernelTextureSize ();
+	kernelIntervalPerPixel = kde.GetKernelIntervalPerPixel ();
+	kernelSigma = kde.GetKernelSigma ();
+    }
+    SetCheckedNoSignals (checkBoxTextureSizeShown, kernelTextureSizeShown);
     SetValueNoSignals (
 	horizontalSliderT1sKernelTextureSize,
 	Value2Index (horizontalSliderT1sKernelTextureSize,
-		     T1sPDE::KERNEL_TEXTURE_SIZE,
-		     va.GetT1sPDE ().GetKernelTextureSize ()));
+		     T1sPDE::KERNEL_TEXTURE_SIZE, kernelTextureSize));
     SetValueNoSignals (
 	horizontalSliderT1sKernelIntervalPerPixel,
 	Value2Index(horizontalSliderT1sKernelIntervalPerPixel,
-		    T1sPDE::KERNEL_INTERVAL_PER_PIXEL,
-		    va.GetT1sPDE ().GetKernelIntervalPerPixel ()));
+		    T1sPDE::KERNEL_INTERVAL_PER_PIXEL, kernelIntervalPerPixel));
     SetValueNoSignals (
 	horizontalSliderT1sKernelSigma,
 	Value2Index (horizontalSliderT1sKernelSigma,
-		     T1sPDE::KERNEL_SIGMA,
-		     va.GetT1sPDE ().GetKernelSigma ()));
+		     T1sPDE::KERNEL_SIGMA, kernelSigma));
 }
 
 void MainWindow::setupButtonGroups ()
@@ -1105,6 +1165,46 @@ void MainWindow::hideHistogram (ViewNumber::Enum viewNumber)
 // Slots and methods called by the UI
 // ==================================
 
+void MainWindow::CurrentIndexChangedViewLayout (int index)
+{
+    m_settings->SetViewLayout (ViewLayout::Enum (index));
+    widgetGl->update ();
+    updateHistogramLayout ();
+    widgetVtk->update ();
+}
+
+void MainWindow::CurrentIndexChangedViewCount (int index)
+{
+    m_settings->SetViewCount (ViewCount::Enum (index));
+    m_settings->SetViewNumber (ViewNumber::VIEW0);
+    size_t n = ViewCount::GetCount (m_settings->GetViewCount ());
+    for (size_t i = 0; i < n; ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+	if (vs.GetViewType () == ViewType::COUNT)
+	    vs.SetViewType (ViewType::FACES);
+	vs.CalculateCameraDistance (
+	    widgetGl->CalculateCenteredViewingVolume (viewNumber));
+	widgetGl->CompileUpdate (viewNumber);
+    }
+
+    boost::array<QWidget*, 2> widgetsViewLayout = 
+	{{labelViewLayout, comboBoxViewLayout}};
+    ViewCount::Enum viewCount = ViewCount::Enum (index);
+    if (viewCount == ViewCount::TWO || viewCount == ViewCount::THREE)
+	::setVisible (widgetsViewLayout, true);
+    else
+	::setVisible (widgetsViewLayout, false);
+    checkBoxTitleShown->setChecked (viewCount != ViewCount::ONE);
+    forAllShownHistograms (boost::bind (&MainWindow::hideHistogram, this, _1), 
+			   ViewCount::GetCount (viewCount));
+    updateHistogramLayout ();
+}
+
+
+
+
 void MainWindow::ValueChangedContextAlpha (int index)
 {
     (void)index;
@@ -1379,19 +1479,6 @@ void MainWindow::CurrentIndexChangedFaceColor (int value)
     widgetGl->SetOneOrTwoViews (this, &MainWindow::currentIndexChangedFaceColor);
 }
 
-void MainWindow::CurrentIndexChangedViewCount (int index)
-{
-    boost::array<QWidget*, 2> widgetsViewLayout = 
-	{{labelViewLayout, comboBoxViewLayout}};
-    ViewCount::Enum viewCount = ViewCount::Enum (index);
-    if (viewCount == ViewCount::TWO || viewCount == ViewCount::THREE)
-	::setVisible (widgetsViewLayout, true);
-    else
-	::setVisible (widgetsViewLayout, false);
-    checkBoxTitleShown->setChecked (viewCount != ViewCount::ONE);
-    forAllShownHistograms (boost::bind (&MainWindow::hideHistogram, this, _1), 
-			   ViewCount::GetCount (viewCount));
- }
 
 void MainWindow::CurrentIndexChangedStatisticsType (int value)
 {
@@ -1536,7 +1623,8 @@ void MainWindow::SetHistogramColorBarModel (
     ViewNumber::Enum viewNumber,
     boost::shared_ptr<ColorBarModel> colorBarModel)
 {
-    m_histogram[viewNumber]->SetColorTransferFunction (colorBarModel);
+    if (colorBarModel)
+	m_histogram[viewNumber]->SetColorTransferFunction (colorBarModel);
 }
 
 void MainWindow::CurrentIndexChangedInteractionMode (int index)
@@ -1593,7 +1681,6 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 {
     ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
     const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
-    const ViewAverage& va = widgetGl->GetViewAverage (viewNumber);
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     int property = vs.GetBodyOrFaceScalar ();
     size_t simulationIndex = vs.GetSimulationIndex ();
@@ -1632,11 +1719,26 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     t1sPDEViewToUI ();
 
     SetValueNoSignals (horizontalSliderAngleOfView, vs.GetAngleOfView ());
+    
+    size_t scalarAverageTimeWindow = 0;
+    size_t t1sPdeTimeWindow = 0;
+    if (DATA_PROPERTIES.Is2D ())
+    {
+	const ViewAverage& va = widgetGl->GetViewAverage (viewNumber);	
+	scalarAverageTimeWindow = va.GetScalarAverage ().GetTimeWindow ();
+	t1sPdeTimeWindow = va.GetT1sPDE ().GetTimeWindow ();
+    }
+    else
+    {
+	scalarAverageTimeWindow = 
+	    widgetVtk->GetScalarAverage (viewNumber).GetTimeWindow ();
+    }
+
     SetValueAndMaxNoSignals (spinBoxAverageTimeWindow,
-			     va.GetScalarAverage ().GetTimeWindow (), 
+			     scalarAverageTimeWindow, 
 			     widgetGl->GetTimeSteps (viewNumber));
     SetValueAndMaxNoSignals (spinBoxT1sTimeWindow,
-			     va.GetT1sPDE ().GetTimeWindow (), 
+			     t1sPdeTimeWindow, 
 			     widgetGl->GetTimeSteps (viewNumber));
     if (m_settings->GetTimeLinkage () == TimeLinkage::INDEPENDENT)
     {
@@ -1653,7 +1755,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 	labelAverageLinkedTimeWindowTitle->setHidden (false);
 	labelAverageLinkedTimeWindow->setHidden (false);
 	ostringstream ostr;
-	ostr << va.GetScalarAverage ().GetTimeWindow () * 
+	ostr << scalarAverageTimeWindow * 
 	    m_settings->LinkedTimeStepStretch (viewNumber);
 	labelAverageLinkedTimeWindow->setText (ostr.str ().c_str ());
     }
