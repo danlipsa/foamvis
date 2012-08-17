@@ -449,89 +449,6 @@ void MainWindow::t1sPDEViewToUI ()
 		     va.GetT1sPDE ().GetKernelSigma ()));
 }
 
-void MainWindow::ViewToUI ()
-{
-    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
-    const ViewAverage& va = widgetGl->GetViewAverage (viewNumber);
-    LightNumber::Enum selectedLight = vs.GetSelectedLight ();
-    int property = vs.GetBodyOrFaceScalar ();
-    size_t simulationIndex = vs.GetSimulationIndex ();
-    ViewType::Enum viewType = vs.GetViewType ();
-
-    SetCheckedNoSignals (buttonGroupViewType, viewType, true);    
-    setStackedWidget (viewType);
-    SetCheckedNoSignals (checkBoxHistogramShown, vs.IsHistogramShown ());
-    SetCheckedNoSignals (
-	checkBoxHistogramColorMapped, 
-	vs.HasHistogramOption(HistogramType::COLOR_MAPPED));
-    SetCheckedNoSignals (
-	checkBoxHistogramAllTimestepsShown,
-	vs.HasHistogramOption(HistogramType::ALL_TIME_STEPS_SHOWN));
-
-    SetCurrentIndexNoSignals (comboBoxColor, property);
-    SetCurrentIndexNoSignals (comboBoxSimulation, simulationIndex);
-    SetCurrentIndexNoSignals (comboBoxStatisticsType, vs.GetStatisticsType ());
-    SetCurrentIndexNoSignals (comboBoxAxesOrder, vs.GetAxesOrder ());
-
-    SetCheckedNoSignals (checkBoxSelectionContextShown, 
-			 vs.IsSelectionContextShown ());
-    SetCheckedNoSignals (checkBoxCenterPathHidden, vs.IsCenterPathHidden ());
-    SetCheckedNoSignals (checkBoxT1sShiftLower, vs.T1sShiftLower ());
-
-    deformationViewToUI ();
-    velocityViewToUI ();
-    forceViewToUI ();
-    t1sPDEViewToUI ();
-
-    SetValueNoSignals (horizontalSliderAngleOfView, vs.GetAngleOfView ());
-    SetValueAndMaxNoSignals (spinBoxAverageTimeWindow,
-			     va.GetScalarAverage ().GetTimeWindow (), 
-			     widgetGl->GetTimeSteps (viewNumber));
-    SetValueAndMaxNoSignals (spinBoxT1sTimeWindow,
-			     va.GetT1sPDE ().GetTimeWindow (), 
-			     widgetGl->GetTimeSteps (viewNumber));
-    if (m_settings->GetTimeLinkage () == TimeLinkage::INDEPENDENT)
-    {
-	sliderTimeSteps->SetValueAndMaxNoSignals (
-	    vs.GetCurrentTime (), widgetGl->GetTimeSteps (viewNumber) - 1);
-	labelAverageLinkedTimeWindowTitle->setHidden (true);
-	labelAverageLinkedTimeWindow->setHidden (true);
-    }
-    else
-    {
-	size_t steps = widgetGl->LinkedTimeMaxSteps ().first;
-	sliderTimeSteps->SetValueAndMaxNoSignals (
-	    m_settings->GetLinkedTime (), steps - 1);
-	labelAverageLinkedTimeWindowTitle->setHidden (false);
-	labelAverageLinkedTimeWindow->setHidden (false);
-	ostringstream ostr;
-	ostr << va.GetScalarAverage ().GetTimeWindow () * 
-	    m_settings->LinkedTimeStepStretch (viewNumber);
-	labelAverageLinkedTimeWindow->setText (ostr.str ().c_str ());
-    }
-
-    labelAverageColor->setText (FaceScalar::ToString (property));
-    labelCenterPathColor->setText (FaceScalar::ToString (property));
-
-    ostringstream ostr;
-    ostr << vs.GetLinkedTimeBegin ();
-    labelLinkedTimeBegin->setText (ostr.str ().c_str ());
-    ostr.str ("");
-    ostr << vs.GetLinkedTimeEnd ();
-    labelLinkedTimeEnd->setText (ostr.str ().c_str ());
-    ostr.str ("");
-    ostr << widgetGl->GetTimeSteps (viewNumber);
-    labelLinkedTimeSteps->setText (ostr.str ().c_str ());
-    ostr.str ("");
-    ostr << setprecision (3) << m_settings->LinkedTimeStepStretch (viewNumber);
-    labelLinkedTimeStepStretch->setText (ostr.str ().c_str ());
-
-    updateLightControls (vs, selectedLight);
-    updateButtons ();
-}
-
-
 void MainWindow::setupButtonGroups ()
 {        
     buttonGroupViewType->setId (radioButtonEdgesNormal, ViewType::EDGES);
@@ -744,15 +661,15 @@ void MainWindow::init3DAverage ()
 void MainWindow::updateHistogram (HistogramSelection histogramSelection, 
 				  MaxValueOperation maxValueOperation)
 {
-    updateHistogram (m_settings->GetViewNumber (),
-		     histogramSelection, maxValueOperation);
+    updateHistogram (histogramSelection, maxValueOperation, 
+		     m_settings->GetViewNumber ());
 }
 
 
 
-void MainWindow::updateHistogram (ViewNumber::Enum viewNumber,
-				  HistogramSelection histogramSelection, 
-				  MaxValueOperation maxValueOperation)
+void MainWindow::updateHistogram (HistogramSelection histogramSelection, 
+				  MaxValueOperation maxValueOperation, 
+				  ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
     m_histogram[viewNumber]->setVisible (vs.IsHistogramShown ());
@@ -1130,6 +1047,58 @@ void MainWindow::currentIndexChangedFaceColor (
     }
 }
 
+void MainWindow::setStackedWidget (ViewType::Enum viewType)
+{
+    // WARNING: Has to match ViewType::Enum order
+    QWidget* pages[] = 
+	{
+	    pageEdgesNormal,
+	    pageTimeStepEmpty,
+	    pageTimeStepEmpty,
+	    pageFacesNormal,
+
+	    pageCenterPath,
+	    pageAverage,
+	    pageT1sProbabilityDensity
+	};
+    if (ViewType::IsTimeDependent (viewType))
+    {
+	stackedWidgetTimeStep->setCurrentWidget (pageTimeStepEmpty);
+	stackedWidgetTimeDependent->setCurrentWidget (pages[viewType]);
+    }
+    else
+    {
+	stackedWidgetTimeStep->setCurrentWidget (pages[viewType]);
+	stackedWidgetTimeDependent->setCurrentWidget (pageTimeDependentEmpty);
+    }
+}
+
+void MainWindow::setHistogramSize (ViewNumber::Enum viewNumber, int s)
+{
+    m_histogram[viewNumber]->SetSizeHint (QSize(s, s));
+    m_histogram[viewNumber]->updateGeometry ();
+}
+
+
+void MainWindow::forAllShownHistograms (
+    boost::function <void (ViewNumber::Enum)> f, size_t start)
+{
+    for (size_t i = start; i < ViewNumber::COUNT; ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
+	const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+	if (vs.IsHistogramShown ())
+	    f (viewNumber);
+    }
+}
+
+void MainWindow::hideHistogram (ViewNumber::Enum viewNumber)
+{
+    ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+    vs.SetHistogramShown (false);
+    updateHistogram (KEEP_SELECTION, KEEP_MAX_VALUE, viewNumber);
+}
+
 
 // Slots and methods called by the UI
 // ==================================
@@ -1161,7 +1130,15 @@ void MainWindow::ToggledVelocityShown (bool checked)
 
 void MainWindow::ToggledHistogramGridShown (bool checked)
 {
-    m_histogram[m_settings->GetViewNumber ()]->SetGridEnabled (checked);
+    for (size_t i = 0; i < ViewNumber::COUNT; ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
+	const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+	if (vs.IsHistogramShown ())
+	{
+	    m_histogram[viewNumber]->SetGridEnabled (checked);
+	}
+    }
 }
 
 void MainWindow::ToggledHistogramShown (bool checked)
@@ -1189,6 +1166,11 @@ void MainWindow::ToggledHistogramAllTimestepsShown (bool checked)
     updateHistogram (KEEP_SELECTION, REPLACE_MAX_VALUE);
 }
 
+void MainWindow::ValueChangedHistogramHeight (int s)
+{
+    forAllShownHistograms (
+	boost::bind (&MainWindow::setHistogramSize, this, _1, s));
+}
 
 void MainWindow::ClickedPlay ()
 {
@@ -1240,13 +1222,6 @@ void MainWindow::ValueChangedFontSize (int fontSize)
     for (size_t i = 0; i < m_histogram.size (); ++i)
 	m_histogram[i]->SetDefaultFont ();
     m_editColorMap->SetDefaultFont ();
-}
-
-void MainWindow::ValueChangedHistogramHeight (int s)
-{
-    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
-    m_histogram[viewNumber]->SetSizeHint (QSize(s, s));
-    m_histogram[viewNumber]->updateGeometry ();
 }
 
 void MainWindow::ValueChangedT1sKernelSigma (int index)
@@ -1375,32 +1350,6 @@ void MainWindow::ButtonClickedViewType (int vt)
     }
 }
 
-void MainWindow::setStackedWidget (ViewType::Enum viewType)
-{
-    // WARNING: Has to match ViewType::Enum order
-    QWidget* pages[] = 
-	{
-	    pageEdgesNormal,
-	    pageTimeStepEmpty,
-	    pageTimeStepEmpty,
-	    pageFacesNormal,
-
-	    pageCenterPath,
-	    pageAverage,
-	    pageT1sProbabilityDensity
-	};
-    if (ViewType::IsTimeDependent (viewType))
-    {
-	stackedWidgetTimeStep->setCurrentWidget (pageTimeStepEmpty);
-	stackedWidgetTimeDependent->setCurrentWidget (pages[viewType]);
-    }
-    else
-    {
-	stackedWidgetTimeStep->setCurrentWidget (pages[viewType]);
-	stackedWidgetTimeDependent->setCurrentWidget (pageTimeDependentEmpty);
-    }
-}
-
 void MainWindow::CurrentIndexChangedSimulation (int simulationIndex)
 {
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
@@ -1438,13 +1387,9 @@ void MainWindow::CurrentIndexChangedViewCount (int index)
     else
 	::setVisible (widgetsViewLayout, false);
     checkBoxTitleShown->setChecked (viewCount != ViewCount::ONE);
-    for (size_t i = ViewCount::GetCount (viewCount); 
-	 i <= ViewCount::GetCount (ViewCount::MAX); ++i)
-    {
-	
-    }
-}
-
+    forAllShownHistograms (boost::bind (&MainWindow::hideHistogram, this, _1), 
+			   ViewCount::GetCount (viewCount));
+ }
 
 void MainWindow::CurrentIndexChangedStatisticsType (int value)
 {
@@ -1483,8 +1428,6 @@ void MainWindow::CurrentIndexChangedWindowSize (int value)
 	break;
     }
 }
-
-
 
 void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)
 {
@@ -1565,7 +1508,6 @@ void MainWindow::ShowEditOverlayMap ()
     }
 }
 
-
 void MainWindow::ShowEditColorMap ()
 {
     HistogramInfo p = getHistogramInfo (
@@ -1625,7 +1567,97 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
 	comboBoxInteractionMode->setToolTip ("");
 	break;
     }
-    m_histogram[m_settings->GetViewNumber ()]->
-	CurrentIndexChangedInteractionMode (index);
+    forAllShownHistograms (
+	boost::bind (&MainWindow::currentIndexChangedInteractionModeHistogram, 
+		     this, _1, index));
 }
 
+
+void MainWindow::currentIndexChangedInteractionModeHistogram (
+    ViewNumber::Enum viewNumber, int index)
+{
+    m_histogram[viewNumber]->CurrentIndexChangedInteractionMode (index);
+}
+
+
+void MainWindow::ViewToUI ()
+{
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
+    const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
+    const ViewAverage& va = widgetGl->GetViewAverage (viewNumber);
+    LightNumber::Enum selectedLight = vs.GetSelectedLight ();
+    int property = vs.GetBodyOrFaceScalar ();
+    size_t simulationIndex = vs.GetSimulationIndex ();
+    ViewType::Enum viewType = vs.GetViewType ();
+
+    SetCheckedNoSignals (buttonGroupViewType, viewType, true);    
+    setStackedWidget (viewType);
+    SetCheckedNoSignals (checkBoxHistogramShown, vs.IsHistogramShown ());
+    SetCheckedNoSignals (
+	checkBoxHistogramColorMapped, 
+	vs.HasHistogramOption(HistogramType::COLOR_MAPPED));
+    SetCheckedNoSignals (
+	checkBoxHistogramAllTimestepsShown,
+	vs.HasHistogramOption(HistogramType::ALL_TIME_STEPS_SHOWN));
+
+    SetCurrentIndexNoSignals (comboBoxColor, property);
+    SetCurrentIndexNoSignals (comboBoxSimulation, simulationIndex);
+    SetCurrentIndexNoSignals (comboBoxStatisticsType, vs.GetStatisticsType ());
+    SetCurrentIndexNoSignals (comboBoxAxesOrder, vs.GetAxesOrder ());
+
+    SetCheckedNoSignals (checkBoxSelectionContextShown, 
+			 vs.IsSelectionContextShown ());
+    SetCheckedNoSignals (checkBoxCenterPathHidden, vs.IsCenterPathHidden ());
+    SetCheckedNoSignals (checkBoxT1sShiftLower, vs.T1sShiftLower ());
+
+    deformationViewToUI ();
+    velocityViewToUI ();
+    forceViewToUI ();
+    t1sPDEViewToUI ();
+
+    SetValueNoSignals (horizontalSliderAngleOfView, vs.GetAngleOfView ());
+    SetValueAndMaxNoSignals (spinBoxAverageTimeWindow,
+			     va.GetScalarAverage ().GetTimeWindow (), 
+			     widgetGl->GetTimeSteps (viewNumber));
+    SetValueAndMaxNoSignals (spinBoxT1sTimeWindow,
+			     va.GetT1sPDE ().GetTimeWindow (), 
+			     widgetGl->GetTimeSteps (viewNumber));
+    if (m_settings->GetTimeLinkage () == TimeLinkage::INDEPENDENT)
+    {
+	sliderTimeSteps->SetValueAndMaxNoSignals (
+	    vs.GetCurrentTime (), widgetGl->GetTimeSteps (viewNumber) - 1);
+	labelAverageLinkedTimeWindowTitle->setHidden (true);
+	labelAverageLinkedTimeWindow->setHidden (true);
+    }
+    else
+    {
+	size_t steps = widgetGl->LinkedTimeMaxSteps ().first;
+	sliderTimeSteps->SetValueAndMaxNoSignals (
+	    m_settings->GetLinkedTime (), steps - 1);
+	labelAverageLinkedTimeWindowTitle->setHidden (false);
+	labelAverageLinkedTimeWindow->setHidden (false);
+	ostringstream ostr;
+	ostr << va.GetScalarAverage ().GetTimeWindow () * 
+	    m_settings->LinkedTimeStepStretch (viewNumber);
+	labelAverageLinkedTimeWindow->setText (ostr.str ().c_str ());
+    }
+
+    labelAverageColor->setText (FaceScalar::ToString (property));
+    labelCenterPathColor->setText (FaceScalar::ToString (property));
+
+    ostringstream ostr;
+    ostr << vs.GetLinkedTimeBegin ();
+    labelLinkedTimeBegin->setText (ostr.str ().c_str ());
+    ostr.str ("");
+    ostr << vs.GetLinkedTimeEnd ();
+    labelLinkedTimeEnd->setText (ostr.str ().c_str ());
+    ostr.str ("");
+    ostr << widgetGl->GetTimeSteps (viewNumber);
+    labelLinkedTimeSteps->setText (ostr.str ().c_str ());
+    ostr.str ("");
+    ostr << setprecision (3) << m_settings->LinkedTimeStepStretch (viewNumber);
+    labelLinkedTimeStepStretch->setText (ostr.str ().c_str ());
+
+    updateLightControls (vs, selectedLight);
+    updateButtons ();
+}

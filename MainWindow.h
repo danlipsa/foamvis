@@ -139,10 +139,18 @@ private:
      */   
     void updateHistogram (HistogramSelection histogramSelection,
 			  MaxValueOperation maxValueOperation);
-    void updateHistogram (ViewNumber::Enum viewNumber, 
-			  HistogramSelection histogramSelection,
-			  MaxValueOperation maxValueOperation);
+    void updateHistogram (HistogramSelection histogramSelection,
+			  MaxValueOperation maxValueOperation,
+			  ViewNumber::Enum viewNumber);
     void setupHistograms ();
+    void forAllShownHistograms (
+	boost::function <void (ViewNumber::Enum)> f, size_t start = 0);
+    void hideHistogram (ViewNumber::Enum viewNumber);
+    void setHistogramSize (ViewNumber::Enum viewNumber, int s);
+    void currentIndexChangedInteractionModeHistogram (
+	ViewNumber::Enum viewNumber, int index);
+
+
     void init3DAverage ();
     void currentIndexChangedFaceColor (ViewNumber::Enum viewNumber);
     void deformationViewToUI ();
