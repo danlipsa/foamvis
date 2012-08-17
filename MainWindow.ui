@@ -324,7 +324,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tabSettings">
           <attribute name="title">
@@ -346,8 +346,149 @@
               <bool>true</bool>
              </property>
              <property name="currentIndex">
-              <number>2</number>
+              <number>7</number>
              </property>
+             <widget class="QWidget" name="tabA_G">
+              <attribute name="title">
+               <string>A-G</string>
+              </attribute>
+              <layout class="QFormLayout" name="formLayout_4">
+               <property name="fieldGrowthPolicy">
+                <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+               </property>
+               <item row="0" column="0">
+                <widget class="QCheckBox" name="checkBoxAverageAroundMarked">
+                 <property name="text">
+                  <string>Average around</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QCheckBox" name="checkBoxAxes">
+                 <property name="text">
+                  <string>Axes</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QCheckBox" name="checkBoxBoundingBoxBody">
+                 <property name="text">
+                  <string>Box body</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QCheckBox" name="checkBoxBoundingBoxFoam">
+                 <property name="text">
+                  <string>Box foam</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="checkBoxBoundingBoxSimulation">
+                 <property name="text">
+                  <string>Box simulation</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QCheckBox" name="checkBoxBoundingBoxContext">
+                 <property name="text">
+                  <string>Box context</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QCheckBox" name="checkBoxBoundingBoxTorusDomain">
+                 <property name="text">
+                  <string>Box torus domain</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QCheckBox" name="checkBoxBodyNeighbors">
+                 <property name="text">
+                  <string>Body neighbors</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
+                <widget class="QCheckBox" name="checkBoxCenterBody">
+                 <property name="text">
+                  <string>Center body</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <widget class="QCheckBox" name="checkBoxCenterFace">
+                 <property name="text">
+                  <string>Center face</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="0">
+                <widget class="QCheckBox" name="checkBoxConstraints">
+                 <property name="text">
+                  <string>Constraints</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="1">
+                <widget class="QCheckBox" name="checkBoxConstraintPoints">
+                 <property name="text">
+                  <string>Constraint points</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tabHistogram">
+              <attribute name="title">
+               <string>Histogram</string>
+              </attribute>
+              <layout class="QFormLayout" name="formLayout_18">
+               <item row="0" column="0">
+                <widget class="QCheckBox" name="checkBoxHistogramShown">
+                 <property name="text">
+                  <string>Shown</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QCheckBox" name="checkBoxHistogramGridShown">
+                 <property name="text">
+                  <string>Grid</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="checkBoxHistogramColorMapped">
+                 <property name="text">
+                  <string>Color mapped</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QCheckBox" name="checkBoxHistogramAllTimestepsShown">
+                 <property name="text">
+                  <string>All timesteps shown</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
              <widget class="QWidget" name="tabLight">
               <attribute name="title">
                <string>Light</string>
@@ -790,454 +931,76 @@
                </item>
               </layout>
              </widget>
-             <widget class="QWidget" name="tabShow">
+             <widget class="QWidget" name="tabM_Z">
               <attribute name="title">
-               <string>Show</string>
+               <string>M-Z</string>
               </attribute>
-              <layout class="QVBoxLayout" name="verticalLayout_6">
-               <property name="margin">
-                <number>0</number>
-               </property>
-               <item>
-                <widget class="QTabWidget" name="tabWidgetVariousAndView">
-                 <property name="currentIndex">
-                  <number>1</number>
+              <layout class="QFormLayout" name="formLayout_17">
+               <item row="0" column="0">
+                <widget class="QCheckBox" name="checkBoxMissingPressureShown">
+                 <property name="text">
+                  <string>Missing pressure</string>
                  </property>
-                 <widget class="QWidget" name="tabA_G">
-                  <attribute name="title">
-                   <string>A-G</string>
-                  </attribute>
-                  <layout class="QFormLayout" name="formLayout_4">
-                   <property name="fieldGrowthPolicy">
-                    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-                   </property>
-                   <item row="0" column="0">
-                    <widget class="QCheckBox" name="checkBoxAverageAroundMarked">
-                     <property name="text">
-                      <string>Average around</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QCheckBox" name="checkBoxAxes">
-                     <property name="text">
-                      <string>Axes</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QCheckBox" name="checkBoxBoundingBoxBody">
-                     <property name="text">
-                      <string>Box body</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QCheckBox" name="checkBoxBoundingBoxFoam">
-                     <property name="text">
-                      <string>Box foam</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <widget class="QCheckBox" name="checkBoxBoundingBoxSimulation">
-                     <property name="text">
-                      <string>Box simulation</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QCheckBox" name="checkBoxBoundingBoxContext">
-                     <property name="text">
-                      <string>Box context</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QCheckBox" name="checkBoxBoundingBoxTorusDomain">
-                     <property name="text">
-                      <string>Box torus domain</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="1">
-                    <widget class="QCheckBox" name="checkBoxBodyNeighbors">
-                     <property name="text">
-                      <string>Body neighbors</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="0">
-                    <widget class="QCheckBox" name="checkBoxCenterBody">
-                     <property name="text">
-                      <string>Center body</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="1">
-                    <widget class="QCheckBox" name="checkBoxCenterFace">
-                     <property name="text">
-                      <string>Center face</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="6" column="0">
-                    <widget class="QCheckBox" name="checkBoxConstraints">
-                     <property name="text">
-                      <string>Constraints</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="6" column="1">
-                    <widget class="QCheckBox" name="checkBoxConstraintPoints">
-                     <property name="text">
-                      <string>Constraint points</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                 <widget class="QWidget" name="tabHistogram">
-                  <attribute name="title">
-                   <string>Histogram</string>
-                  </attribute>
-                  <layout class="QFormLayout" name="formLayout_18">
-                   <item row="0" column="0">
-                    <widget class="QCheckBox" name="checkBoxHistogramShown">
-                     <property name="text">
-                      <string>Shown</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QCheckBox" name="checkBoxHistogramGridShown">
-                     <property name="text">
-                      <string>Grid</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <widget class="QCheckBox" name="checkBoxHistogramColorMapped">
-                     <property name="text">
-                      <string>Color mapped</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QCheckBox" name="checkBoxHistogramAllTimestepsShown">
-                     <property name="text">
-                      <string>All timesteps shown</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                 <widget class="QWidget" name="tabM_Z">
-                  <attribute name="title">
-                   <string>M-Z</string>
-                  </attribute>
-                  <layout class="QFormLayout" name="formLayout_17">
-                   <item row="0" column="0">
-                    <widget class="QCheckBox" name="checkBoxMissingPressureShown">
-                     <property name="text">
-                      <string>Missing pressure</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QCheckBox" name="checkBoxMissingVolumeShown">
-                     <property name="text">
-                      <string>Missing volume</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QCheckBox" name="checkBoxObjectVelocity">
-                     <property name="text">
-                      <string>Object velocity</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QCheckBox" name="checkBoxStandaloneElementsShown">
-                     <property name="text">
-                      <string>Standalone</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <widget class="QCheckBox" name="checkBoxSelectionContextShown">
-                     <property name="text">
-                      <string>Selection context</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QCheckBox" name="checkBoxEdgesTessellation">
-                     <property name="text">
-                      <string>Tessellation edges</string>
-                     </property>
-                     <property name="checked">
-                      <bool>false</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QCheckBox" name="checkBoxTitleShown">
-                     <property name="text">
-                      <string>Title</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                 <widget class="QWidget" name="tabView">
-                  <attribute name="title">
-                   <string>View</string>
-                  </attribute>
-                  <layout class="QFormLayout" name="formLayout_2">
-                   <item row="0" column="0">
-                    <widget class="QLabel" name="labelViewCount">
-                     <property name="text">
-                      <string>Count</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QComboBox" name="comboBoxViewCount">
-                     <item>
-                      <property name="text">
-                       <string>One</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>Two</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>Three</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>Four</string>
-                      </property>
-                     </item>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QLabel" name="labelViewLayout">
-                     <property name="text">
-                      <string>Layout</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QComboBox" name="comboBoxViewLayout">
-                     <item>
-                      <property name="text">
-                       <string>Horizontal</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>Vertical</string>
-                      </property>
-                     </item>
-                    </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QCheckBox" name="checkBoxContextView">
-                     <property name="text">
-                      <string>Context</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <widget class="QCheckBox" name="checkBoxReflectedHalfView">
-                     <property name="text">
-                      <string>Reflected half</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="0">
-                    <widget class="QLabel" name="label_32">
-                     <property name="text">
-                      <string>Time</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="1">
-                    <widget class="QRadioButton" name="radioButtonTimeIndependent">
-                     <property name="text">
-                      <string>Independent</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string>buttonGroupTimeLinkage</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                   <item row="5" column="1">
-                    <widget class="QWidget" name="widget_14" native="true">
-                     <layout class="QGridLayout" name="gridLayout_3">
-                      <property name="sizeConstraint">
-                       <enum>QLayout::SetDefaultConstraint</enum>
-                      </property>
-                      <property name="margin">
-                       <number>0</number>
-                      </property>
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="label_37">
-                        <property name="text">
-                         <string>Begin</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="1">
-                       <widget class="QLabel" name="label_38">
-                        <property name="text">
-                         <string>End</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="2">
-                       <widget class="QLabel" name="label_39">
-                        <property name="text">
-                         <string>Steps</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="labelLinkedTimeBegin">
-                        <property name="text">
-                         <string>0</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="1">
-                       <widget class="QLabel" name="labelLinkedTimeEnd">
-                        <property name="text">
-                         <string>0</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="2">
-                       <widget class="QLabel" name="labelLinkedTimeSteps">
-                        <property name="text">
-                         <string>0</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
-                   <item row="6" column="1">
-                    <widget class="QRadioButton" name="radioButtonTimeLinked">
-                     <property name="text">
-                      <string>Linked</string>
-                     </property>
-                     <property name="checkable">
-                      <bool>true</bool>
-                     </property>
-                     <property name="checked">
-                      <bool>false</bool>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string>buttonGroupTimeLinkage</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                   <item row="7" column="1">
-                    <widget class="QWidget" name="widget_3" native="true">
-                     <layout class="QGridLayout" name="gridLayout_2">
-                      <property name="sizeConstraint">
-                       <enum>QLayout::SetDefaultConstraint</enum>
-                      </property>
-                      <property name="margin">
-                       <number>0</number>
-                      </property>
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="label_35">
-                        <property name="text">
-                         <string>Stretch factor</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="labelLinkedTimeStepStretch">
-                        <property name="text">
-                         <string>1</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
-                   <item row="3" column="1">
-                    <widget class="QCheckBox" name="checkBoxViewFocusShown">
-                     <property name="text">
-                      <string>View focus</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QCheckBox" name="checkBoxMissingVolumeShown">
+                 <property name="text">
+                  <string>Missing volume</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QCheckBox" name="checkBoxObjectVelocity">
+                 <property name="text">
+                  <string>Object velocity</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QCheckBox" name="checkBoxStandaloneElementsShown">
+                 <property name="text">
+                  <string>Standalone</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="checkBoxSelectionContextShown">
+                 <property name="text">
+                  <string>Selection context</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QCheckBox" name="checkBoxEdgesTessellation">
+                 <property name="text">
+                  <string>Tessellation edges</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QCheckBox" name="checkBoxTitleShown">
+                 <property name="text">
+                  <string>Title</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
                 </widget>
                </item>
               </layout>
@@ -1412,6 +1175,226 @@
                 <widget class="QSlider" name="horizontalSliderNoiseAmplitude">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tabView">
+              <attribute name="title">
+               <string>View</string>
+              </attribute>
+              <layout class="QFormLayout" name="formLayout_2">
+               <item row="0" column="0">
+                <widget class="QLabel" name="labelViewCount">
+                 <property name="text">
+                  <string>Count</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QComboBox" name="comboBoxViewCount">
+                 <item>
+                  <property name="text">
+                   <string>One</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Two</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Three</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Four</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="labelViewLayout">
+                 <property name="text">
+                  <string>Layout</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QComboBox" name="comboBoxViewLayout">
+                 <item>
+                  <property name="text">
+                   <string>Horizontal</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Vertical</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QCheckBox" name="checkBoxContextView">
+                 <property name="text">
+                  <string>Context</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="checkBoxReflectedHalfView">
+                 <property name="text">
+                  <string>Reflected half</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
+                <widget class="QLabel" name="label_32">
+                 <property name="text">
+                  <string>Time</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <widget class="QRadioButton" name="radioButtonTimeIndependent">
+                 <property name="text">
+                  <string>Independent</string>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string>buttonGroupTimeLinkage</string>
+                 </attribute>
+                </widget>
+               </item>
+               <item row="5" column="1">
+                <widget class="QWidget" name="widget_14" native="true">
+                 <layout class="QGridLayout" name="gridLayout_3">
+                  <property name="sizeConstraint">
+                   <enum>QLayout::SetDefaultConstraint</enum>
+                  </property>
+                  <property name="margin">
+                   <number>0</number>
+                  </property>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_37">
+                    <property name="text">
+                     <string>Begin</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLabel" name="label_38">
+                    <property name="text">
+                     <string>End</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="2">
+                   <widget class="QLabel" name="label_39">
+                    <property name="text">
+                     <string>Steps</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="labelLinkedTimeBegin">
+                    <property name="text">
+                     <string>0</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QLabel" name="labelLinkedTimeEnd">
+                    <property name="text">
+                     <string>0</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="2">
+                   <widget class="QLabel" name="labelLinkedTimeSteps">
+                    <property name="text">
+                     <string>0</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item row="6" column="1">
+                <widget class="QRadioButton" name="radioButtonTimeLinked">
+                 <property name="text">
+                  <string>Linked</string>
+                 </property>
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string>buttonGroupTimeLinkage</string>
+                 </attribute>
+                </widget>
+               </item>
+               <item row="7" column="1">
+                <widget class="QWidget" name="widget_3" native="true">
+                 <layout class="QGridLayout" name="gridLayout_2">
+                  <property name="sizeConstraint">
+                   <enum>QLayout::SetDefaultConstraint</enum>
+                  </property>
+                  <property name="margin">
+                   <number>0</number>
+                  </property>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_35">
+                    <property name="text">
+                     <string>Stretch factor</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="labelLinkedTimeStepStretch">
+                    <property name="text">
+                     <string>1</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QCheckBox" name="checkBoxViewFocusShown">
+                 <property name="text">
+                  <string>View focus</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -2489,6 +2472,8 @@
     <slot>ToggledT1sShown(bool)</slot>
     <slot>ToggledT1sBeforeTimestep(bool)</slot>
     <slot>ToggledT1sShiftLower(bool)</slot>
+    <slot>CurrentIndexChangedViewCount(int)</slot>
+    <slot>CurrentIndexChangedViewLayout(int)</slot>
     <slot>ValueChangedT1Size(int)</slot>
     <slot>ToggledZeroedPressureShown(bool)</slot>
     <slot>ToggledTitleShown(bool)</slot>
@@ -2680,38 +2665,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxCenterBody</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledBodyCenterShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>738</x>
-     <y>281</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>420</x>
-     <y>429</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxEdgesTessellation</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledEdgesTessellationShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>820</x>
-     <y>280</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>420</x>
-     <y>452</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>comboBoxColor</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -2792,18 +2745,786 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxSelectionContextShown</sender>
+   <sender>checkBoxTubeCenterPathUsed</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledSelectionContextShown(bool)</slot>
+   <slot>ToggledCenterPathTubeUsed(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>738</x>
+     <x>838</x>
+     <y>315</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxStatisticsType</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>CurrentIndexChangedStatisticsType(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>838</x>
+     <y>315</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>410</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxStatisticsType</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>CurrentIndexChangedStatisticsType(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>838</x>
+     <y>315</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>874</x>
+     <y>406</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxAverageTimeWindow</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedAverageTimeWindow(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>838</x>
+     <y>315</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxT1sShown</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledT1sShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>764</x>
+     <y>273</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>113</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxT1sShiftLower</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledT1sShiftLower(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>820</x>
+     <y>273</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>134</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderT1Size</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedT1Size(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>820</x>
+     <y>282</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>410</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxLineCenterPathUsed</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledCenterPathLineUsed(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>838</x>
+     <y>315</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>229</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderForceTorqueSize</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedForceTorqueSize(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1020</x>
+     <y>314</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>498</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxForcePressure</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledForcePressureShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1011</x>
+     <y>366</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxForceNetwork</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledForceNetworkShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>856</x>
+     <y>366</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>265</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxForceResult</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledForceResultShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>846</x>
+     <y>393</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>287</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonGroupViewType</sender>
+   <signal>buttonClicked(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ButtonClickedViewType(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>521</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonGroupViewType</sender>
+   <signal>buttonClicked(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ButtonClickedViewType(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>346</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonGroupTimeLinkage</sender>
+   <signal>buttonClicked(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ButtonClickedTimeLinkage(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>41</x>
+     <y>41</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButtonPlayReverse</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ClickedPlayReverse()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>803</x>
+     <y>143</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1020</x>
+     <y>156</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderDeformationSize</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedDeformationSizeExp(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>820</x>
      <y>280</y>
     </hint>
     <hint type="destinationlabel">
-     <x>457</x>
-     <y>510</y>
+     <x>509</x>
+     <y>476</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxDeformationShown</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledDeformationShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>796</x>
+     <y>270</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>318</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxCenterPathHidden</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledCenterPathHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>838</x>
+     <y>315</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>247</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderDeformationLineWidth</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedDeformationLineWidthExp(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>820</x>
+     <y>285</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>499</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxInteractionMode</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>CurrentIndexChangedInteractionMode(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1033</x>
+     <y>59</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1039</x>
+     <y>105</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonGroupInteractionObject</sender>
+   <signal>buttonClicked(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ButtonClickedInteractionObject(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>342</x>
+     <y>273</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderT1sKernelTextureSize</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedT1sKernelTextureSize(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>838</x>
+     <y>315</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>585</x>
+     <y>236</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderT1sKernelIntervalPerPixel</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedT1sKernelIntervalPerPixel(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>838</x>
+     <y>315</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>602</x>
+     <y>286</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderT1sKernelSigma</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedT1sKernelSigma(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>838</x>
+     <y>315</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>602</x>
+     <y>316</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxDeformationGridShown</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledDeformationShownGrid(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>820</x>
+     <y>270</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>602</x>
+     <y>265</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxDeformationGridCellCenterShown</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledDeformationGridCellCenterShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>820</x>
+     <y>275</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>602</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxTextureSizeShown</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledT1sKernelTextureSizeShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>838</x>
+     <y>315</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>602</x>
+     <y>371</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderT1sKernelSigma</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ValueChangedT1sKernelSigma(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>838</x>
+     <y>315</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1039</x>
+     <y>348</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxSimulation</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>CurrentIndexChangedSimulation(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1033</x>
+     <y>186</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>602</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxSimulation</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>CurrentIndexChangedSimulation(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1033</x>
+     <y>186</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1039</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButtonEnd</sender>
+   <signal>clicked()</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ClickedEnd()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>870</x>
+     <y>143</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>602</x>
+     <y>207</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxAverageTimeWindow</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ValueChangedAverageTimeWindow(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>838</x>
+     <y>315</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1040</x>
+     <y>422</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxVelocityShown</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledVelocityShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>796</x>
+     <y>270</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>589</x>
+     <y>249</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxVelocityGridShown</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledVelocityGridShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>820</x>
+     <y>270</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>545</x>
+     <y>275</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderVelocityLineWidth</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedVelocityLineWidthExp(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>820</x>
+     <y>285</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>579</x>
+     <y>344</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderForceTorqueLineWidth</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedForceTorqueLineWidth(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1020</x>
+     <y>289</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>602</x>
+     <y>369</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxVelocityClampingShown</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledVelocityClampingShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>796</x>
+     <y>275</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>638</x>
+     <y>369</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxVelocityGridCellCenterShown</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledVelocityGridCellCenterShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>820</x>
+     <y>275</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>649</x>
+     <y>323</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxVelocitySameSize</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledVelocitySameSize(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>796</x>
+     <y>280</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>701</x>
+     <y>388</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxVelocityColorMapped</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledVelocityColorMapped(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>820</x>
+     <y>280</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>690</x>
+     <y>411</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxForceDifference</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledForceDifference(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1011</x>
+     <y>393</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1039</x>
+     <y>582</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxTorqueNetwork</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledTorqueNetworkShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>856</x>
+     <y>447</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>665</x>
+     <y>392</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxTorquePressure</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledTorquePressureShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1011</x>
+     <y>447</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>710</x>
+     <y>446</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxTorqueResult</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledTorqueResultShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>846</x>
+     <y>474</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>710</x>
+     <y>465</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderTorqueDistance</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedTorqueDistance(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1011</x>
+     <y>499</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>700</x>
+     <y>470</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxT1sTimeWindow</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedT1sTimeWindow(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>838</x>
+     <y>315</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>697</x>
+     <y>398</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxCenterBody</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledBodyCenterShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>738</x>
+     <y>281</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>420</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxEdgesTessellation</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledEdgesTessellationShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>820</x>
+     <y>280</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>420</x>
+     <y>452</y>
     </hint>
    </hints>
   </connection>
@@ -2824,18 +3545,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>horizontalSliderContextAlpha</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ValueChangedContextAlpha(int)</slot>
+   <sender>checkBoxSelectionContextShown</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledSelectionContextShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>820</x>
-     <y>279</y>
+     <x>738</x>
+     <y>280</y>
     </hint>
     <hint type="destinationlabel">
-     <x>424</x>
-     <y>503</y>
+     <x>457</x>
+     <y>510</y>
     </hint>
    </hints>
   </connection>
@@ -2852,6 +3573,22 @@
     <hint type="destinationlabel">
      <x>420</x>
      <y>420</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderContextAlpha</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ValueChangedContextAlpha(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>820</x>
+     <y>279</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>424</x>
+     <y>503</y>
     </hint>
    </hints>
   </connection>
@@ -3208,118 +3945,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxTubeCenterPathUsed</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledCenterPathTubeUsed(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>838</x>
-     <y>315</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>383</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBoxStatisticsType</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>CurrentIndexChangedStatisticsType(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>838</x>
-     <y>315</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>410</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBoxStatisticsType</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>CurrentIndexChangedStatisticsType(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>838</x>
-     <y>315</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>874</x>
-     <y>406</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxAverageTimeWindow</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedAverageTimeWindow(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>838</x>
-     <y>315</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>429</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxT1sShown</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledT1sShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>764</x>
-     <y>273</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>113</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxT1sShiftLower</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledT1sShiftLower(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>820</x>
-     <y>273</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>134</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBoxViewLayout</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>CurrentIndexChangedViewLayout(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>820</x>
-     <y>272</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>286</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>comboBoxViewCount</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -3336,18 +3961,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>horizontalSliderT1Size</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedT1Size(int)</slot>
+   <sender>comboBoxViewLayout</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>CurrentIndexChangedViewLayout(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>820</x>
-     <y>282</y>
+     <y>272</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
-     <y>410</y>
+     <y>286</y>
     </hint>
    </hints>
   </connection>
@@ -3396,22 +4021,6 @@
     <hint type="destinationlabel">
      <x>509</x>
      <y>459</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxLineCenterPathUsed</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledCenterPathLineUsed(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>838</x>
-     <y>315</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>229</y>
     </hint>
    </hints>
   </connection>
@@ -3480,70 +4089,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>horizontalSliderForceTorqueSize</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedForceTorqueSize(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1020</x>
-     <y>314</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>498</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxForcePressure</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledForcePressureShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1011</x>
-     <y>366</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>240</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxForceNetwork</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledForceNetworkShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>856</x>
-     <y>366</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>265</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxForceResult</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledForceResultShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>846</x>
-     <y>393</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>287</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkBoxMissingVolumeShown</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
@@ -3556,70 +4101,6 @@
     <hint type="destinationlabel">
      <x>509</x>
      <y>360</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonGroupViewType</sender>
-   <signal>buttonClicked(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ButtonClickedViewType(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>521</x>
-     <y>297</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonGroupViewType</sender>
-   <signal>buttonClicked(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ButtonClickedViewType(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>346</x>
-     <y>277</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonGroupTimeLinkage</sender>
-   <signal>buttonClicked(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ButtonClickedTimeLinkage(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>41</x>
-     <y>41</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>toolButtonPlayReverse</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ClickedPlayReverse()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>803</x>
-     <y>143</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1020</x>
-     <y>156</y>
     </hint>
    </hints>
   </connection>
@@ -3640,54 +4121,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>horizontalSliderDeformationSize</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedDeformationSizeExp(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>820</x>
-     <y>280</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>476</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxDeformationShown</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledDeformationShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>796</x>
-     <y>270</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>318</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxCenterPathHidden</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledCenterPathHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>838</x>
-     <y>315</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>247</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkBoxBodyNeighbors</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
@@ -3700,294 +4133,6 @@
     <hint type="destinationlabel">
      <x>509</x>
      <y>284</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSliderDeformationLineWidth</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedDeformationLineWidthExp(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>820</x>
-     <y>285</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>499</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBoxInteractionMode</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>CurrentIndexChangedInteractionMode(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1033</x>
-     <y>59</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1039</x>
-     <y>105</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonGroupInteractionObject</sender>
-   <signal>buttonClicked(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ButtonClickedInteractionObject(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>342</x>
-     <y>273</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSliderT1sKernelTextureSize</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedT1sKernelTextureSize(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>838</x>
-     <y>315</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>585</x>
-     <y>236</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSliderT1sKernelIntervalPerPixel</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedT1sKernelIntervalPerPixel(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>838</x>
-     <y>315</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>602</x>
-     <y>286</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSliderT1sKernelSigma</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedT1sKernelSigma(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>838</x>
-     <y>315</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>602</x>
-     <y>316</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxDeformationGridShown</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledDeformationShownGrid(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>820</x>
-     <y>270</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>602</x>
-     <y>265</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxDeformationGridCellCenterShown</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledDeformationGridCellCenterShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>820</x>
-     <y>275</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>602</x>
-     <y>283</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxTextureSizeShown</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledT1sKernelTextureSizeShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>838</x>
-     <y>315</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>602</x>
-     <y>371</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSliderT1sKernelSigma</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ValueChangedT1sKernelSigma(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>838</x>
-     <y>315</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1039</x>
-     <y>348</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBoxSimulation</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>CurrentIndexChangedSimulation(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1033</x>
-     <y>186</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>602</x>
-     <y>148</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBoxSimulation</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>CurrentIndexChangedSimulation(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1033</x>
-     <y>186</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1039</x>
-     <y>183</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>toolButtonEnd</sender>
-   <signal>clicked()</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ClickedEnd()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>870</x>
-     <y>143</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>602</x>
-     <y>207</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxAverageTimeWindow</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ValueChangedAverageTimeWindow(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>838</x>
-     <y>315</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1040</x>
-     <y>422</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxVelocityShown</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledVelocityShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>796</x>
-     <y>270</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>589</x>
-     <y>249</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxVelocityGridShown</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledVelocityGridShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>820</x>
-     <y>270</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>545</x>
-     <y>275</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSliderVelocityLineWidth</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedVelocityLineWidthExp(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>820</x>
-     <y>285</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>579</x>
-     <y>344</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSliderForceTorqueLineWidth</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedForceTorqueLineWidth(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1020</x>
-     <y>289</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>602</x>
-     <y>369</y>
     </hint>
    </hints>
   </connection>
@@ -4072,38 +4217,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxVelocityClampingShown</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledVelocityClampingShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>796</x>
-     <y>275</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>638</x>
-     <y>369</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxVelocityGridCellCenterShown</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledVelocityGridCellCenterShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>820</x>
-     <y>275</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>649</x>
-     <y>323</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>horizontalSliderNoiseStart</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
@@ -4152,134 +4265,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxVelocitySameSize</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledVelocitySameSize(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>796</x>
-     <y>280</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>701</x>
-     <y>388</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxVelocityColorMapped</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledVelocityColorMapped(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>820</x>
-     <y>280</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>690</x>
-     <y>411</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxForceDifference</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledForceDifference(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1011</x>
-     <y>393</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1039</x>
-     <y>582</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxTorqueNetwork</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledTorqueNetworkShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>856</x>
-     <y>447</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>665</x>
-     <y>392</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxTorquePressure</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledTorquePressureShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1011</x>
-     <y>447</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>710</x>
-     <y>446</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxTorqueResult</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledTorqueResultShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>846</x>
-     <y>474</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>710</x>
-     <y>465</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSliderTorqueDistance</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedTorqueDistance(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1011</x>
-     <y>499</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>700</x>
-     <y>470</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxT1sTimeWindow</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedT1sTimeWindow(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>838</x>
-     <y>315</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>697</x>
-     <y>398</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkBoxBoundingBoxContext</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
@@ -4312,6 +4297,22 @@
    </hints>
   </connection>
   <connection>
+   <sender>checkBoxHistogramAllTimestepsShown</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledHistogramAllTimestepsShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>987</x>
+     <y>509</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1043</x>
+     <y>536</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>checkBoxHistogramShown</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -4340,22 +4341,6 @@
     <hint type="destinationlabel">
      <x>1040</x>
      <y>508</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxHistogramAllTimestepsShown</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledHistogramAllTimestepsShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>987</x>
-     <y>509</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1043</x>
-     <y>536</y>
     </hint>
    </hints>
   </connection>
