@@ -392,6 +392,7 @@ const char* PaletteType::ToString (PaletteType::Enum type)
     case DIVERGING:
 	return "Diverging";
     }
+    return "Invalid";
 }
 
 // Methods PaletteSequential
