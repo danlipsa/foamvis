@@ -18,7 +18,17 @@ AttributeHistogram::AttributeHistogram (QWidget* parent) :
     // does not work
     QwtScaleWidget* yLeftAxis = axisWidget (QwtPlot::yLeft);
     yLeftAxis->setBorderDist (100, 100);
-    setMargin (4);
+    setFrameStyle (QFrame::Box | QFrame::Plain);
+    setMargin (9);
+    DisplayFocus (false);
+}
+
+void AttributeHistogram::DisplayFocus (bool focus)
+{
+    if (focus)
+	setLineWidth (1);
+    else
+	setLineWidth (0);
 }
 
 void AttributeHistogram::contextMenuEvent(QContextMenuEvent *event)
@@ -44,11 +54,11 @@ void AttributeHistogram::CurrentIndexChangedInteractionMode (int index)
 {
     InteractionMode::Enum interactionMode = InteractionMode::Enum(index);
     if (interactionMode == InteractionMode::SELECT)
-	SetSelectionTool (BRUSH);
+	SetSelectionTool (Histogram::BRUSH);
     else if (interactionMode == InteractionMode::DESELECT)
-	SetSelectionTool (ERASER);
+	SetSelectionTool (Histogram::ERASER);
     else
-	SetSelectionTool (NONE);
+	SetSelectionTool (Histogram::NONE);
 }
 
 void AttributeHistogram::createActions ()

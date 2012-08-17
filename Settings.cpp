@@ -187,8 +187,9 @@ QColor Settings::GetHighlightColor (
 
 void Settings::SetViewNumber (ViewNumber::Enum viewNumber)
 {
+    ViewNumber::Enum prevViewNumber = m_viewNumber;
     m_viewNumber = viewNumber;
-    Q_EMIT ViewChanged ();
+    Q_EMIT ViewChanged (prevViewNumber);
 }
 
 void Settings::LinkedTimeBegin ()
@@ -200,7 +201,7 @@ void Settings::LinkedTimeBegin ()
     size_t linkedTimeEnd = vs.GetLinkedTimeEnd ();
     checkLinkedTimesValid (linkedTimeBegin, linkedTimeEnd);
     vs.SetLinkedTimeBegin (linkedTimeBegin);
-    Q_EMIT ViewChanged ();
+    Q_EMIT ViewChanged (viewNumber);
 }
 
 void Settings::LinkedTimeEnd ()
@@ -212,7 +213,7 @@ void Settings::LinkedTimeEnd ()
     size_t linkedTimeEnd = GetCurrentTime (viewNumber);
     checkLinkedTimesValid (linkedTimeBegin, linkedTimeEnd);
     vs.SetLinkedTimeEnd (linkedTimeEnd);
-    Q_EMIT ViewChanged ();
+    Q_EMIT ViewChanged (viewNumber);
 }
 
 
@@ -246,7 +247,7 @@ void Settings::SetTimeLinkage (TimeLinkage::Enum timeLinkage)
 {
     m_timeLinkage = timeLinkage;
     SetCurrentTime (GetCurrentTime ());
-    Q_EMIT ViewChanged ();
+    Q_EMIT ViewChanged (GetViewNumber ());
 }
 
 void Settings::SetCurrentTime (

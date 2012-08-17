@@ -128,7 +128,7 @@ public Q_SLOTS:
     void ValueChangedSliderTimeSteps (int value);
     void ValueChangedAverageTimeWindow (int timeSteps);
     void ValueChangedT1sKernelSigma (int index);
-    void ViewToUI ();
+    void ViewToUI (ViewNumber::Enum prevViewNumber);
     void SetHistogramColorBarModel (
 	ViewNumber::Enum viewNumber,
 	boost::shared_ptr<ColorBarModel> colorBarModel);

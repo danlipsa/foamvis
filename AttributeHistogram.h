@@ -19,6 +19,7 @@ class AttributeHistogram : public Histogram
 {
 public:
     AttributeHistogram (QWidget* parent = 0);
+    void DisplayFocus (bool focus);
 
 public Q_SLOTS:
     void SelectAll ();

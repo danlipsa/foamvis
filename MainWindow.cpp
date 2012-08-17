@@ -316,9 +316,9 @@ void MainWindow::connectSignals ()
     
     connect (
 	m_settings.get (),
-	SIGNAL (ViewChanged ()),
+	SIGNAL (ViewChanged (ViewNumber::Enum)),
 	this,
-	SLOT (ViewToUI ()));
+	SLOT (ViewToUI (ViewNumber::Enum)));
 }
 
 void MainWindow::connectColorBarHistogram (bool connected)
@@ -678,6 +678,9 @@ void MainWindow::updateHistogram (HistogramSelection histogramSelection,
     if (colorMapped)
 	m_histogram[viewNumber]->SetColorTransferFunction (
 	    getColorBarModel (viewNumber));
+    if (m_settings->GetViewCount () != ViewCount::ONE)
+	m_histogram[viewNumber]->DisplayFocus (
+	    viewNumber == m_settings->GetViewNumber ());
 
     BodyScalar::Enum property = BodyScalar::FromSizeT (
 	vs.GetBodyOrFaceScalar ());
@@ -1361,7 +1364,7 @@ void MainWindow::CurrentIndexChangedSimulation (int simulationIndex)
 	viewNumber,
 	getColorBarModel (simulationIndex, 
 			  viewNumber, viewType, property, statisticsType));
-    ViewToUI ();
+    ViewToUI (viewNumber);
 }
 
 void MainWindow::CurrentIndexChangedSelectedLight (int i)
@@ -1580,15 +1583,22 @@ void MainWindow::currentIndexChangedInteractionModeHistogram (
 }
 
 
-void MainWindow::ViewToUI ()
+void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 {
-    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
+    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
+    const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
     const ViewAverage& va = widgetGl->GetViewAverage (viewNumber);
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     int property = vs.GetBodyOrFaceScalar ();
     size_t simulationIndex = vs.GetSimulationIndex ();
     ViewType::Enum viewType = vs.GetViewType ();
+
+    if (m_settings->GetViewCount () != ViewCount::ONE && 
+	viewNumber != prevViewNumber)
+    {
+	m_histogram[prevViewNumber]->DisplayFocus (false);
+	m_histogram[viewNumber]->DisplayFocus (true);
+    }
 
     SetCheckedNoSignals (buttonGroupViewType, viewType, true);    
     setStackedWidget (viewType);

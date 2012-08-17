@@ -211,7 +211,7 @@ public:
     static G3D::Rect2D GetViewOverlayBarRect (const G3D::Rect2D& viewRect);
 
 Q_SIGNALS:
-    void ViewChanged ();
+    void ViewChanged (ViewNumber::Enum prevViewNumber);
 
 public:
     const static pair<float,float> CONTEXT_ALPHA;

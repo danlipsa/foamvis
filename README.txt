@@ -23,6 +23,7 @@ Release log
 	- Added --resolution <r> to specify the resolution of the regular grid 
 	  saved for 3D averages.
 	- Fix: translate pressure only if there are no free surfaces.
+	- Allow displaying a histogram per view.
 0.7.2374 2012-03-09
 	- fix bug: position of the two_discs for two views.
 	- added arrows for forces
