@@ -1024,9 +1024,8 @@ void MainWindow::currentIndexChangedFaceColor (
 {
     int value = static_cast<QComboBox*> (sender ())->currentIndex ();
     const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
-    boost::array<QWidget*, 4> widgetsVisible = {{
-	    labelFacesHistogram, checkBoxHistogramShown,
-	    checkBoxHistogramColorMapped, 
+    boost::array<QWidget*, 3> widgetsVisible = {{
+	    checkBoxHistogramShown, checkBoxHistogramColorMapped, 
 	    checkBoxHistogramAllTimestepsShown}};
     boost::array<QWidget*, 1> widgetsEnabled = {{
 	    radioButtonAverage}};
@@ -1488,7 +1487,14 @@ void MainWindow::SelectionChangedHistogram (int vn)
 		new PropertyValueBodySelector (bodyScalar, valueIntervals)));
     widgetGl->CompileUpdate (viewNumber);
     if (DATA_PROPERTIES.Is3D ())
-	widgetVtk->UpdateThreshold (valueIntervals[0]);
+    {
+	QwtDoubleInterval interval;
+	if (valueIntervals.size () == 0)
+	    interval = QwtDoubleInterval (0, -1);
+	else
+	    interval = valueIntervals[0];
+	widgetVtk->UpdateThreshold (interval);
+    }
 }
 
 void MainWindow::ShowEditOverlayMap ()

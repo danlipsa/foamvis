@@ -346,7 +346,7 @@
               <bool>true</bool>
              </property>
              <property name="currentIndex">
-              <number>4</number>
+              <number>2</number>
              </property>
              <widget class="QWidget" name="tabLight">
               <attribute name="title">
@@ -801,11 +801,11 @@
                <item>
                 <widget class="QTabWidget" name="tabWidgetVariousAndView">
                  <property name="currentIndex">
-                  <number>2</number>
+                  <number>1</number>
                  </property>
-                 <widget class="QWidget" name="tabVarious">
+                 <widget class="QWidget" name="tabA_G">
                   <attribute name="title">
-                   <string>A-L</string>
+                   <string>A-G</string>
                   </attribute>
                   <layout class="QFormLayout" name="formLayout_4">
                    <property name="fieldGrowthPolicy">
@@ -835,13 +835,6 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="0">
-                    <widget class="QCheckBox" name="checkBoxBoundingBoxSimulation">
-                     <property name="text">
-                      <string>Box simulation</string>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="1" column="1">
                     <widget class="QCheckBox" name="checkBoxBoundingBoxFoam">
                      <property name="text">
@@ -849,10 +842,10 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="4" column="1">
-                    <widget class="QCheckBox" name="checkBoxCenterFace">
+                   <item row="2" column="0">
+                    <widget class="QCheckBox" name="checkBoxBoundingBoxSimulation">
                      <property name="text">
-                      <string>Center face</string>
+                      <string>Box simulation</string>
                      </property>
                     </widget>
                    </item>
@@ -873,6 +866,13 @@
                      </property>
                     </widget>
                    </item>
+                   <item row="3" column="1">
+                    <widget class="QCheckBox" name="checkBoxBodyNeighbors">
+                     <property name="text">
+                      <string>Body neighbors</string>
+                     </property>
+                    </widget>
+                   </item>
                    <item row="4" column="0">
                     <widget class="QCheckBox" name="checkBoxCenterBody">
                      <property name="text">
@@ -880,10 +880,10 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="1">
-                    <widget class="QCheckBox" name="checkBoxBodyNeighbors">
+                   <item row="4" column="1">
+                    <widget class="QCheckBox" name="checkBoxCenterFace">
                      <property name="text">
-                      <string>Body neighbors</string>
+                      <string>Center face</string>
                      </property>
                     </widget>
                    </item>
@@ -904,19 +904,47 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="7" column="0">
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="tabHistogram">
+                  <attribute name="title">
+                   <string>Histogram</string>
+                  </attribute>
+                  <layout class="QFormLayout" name="formLayout_18">
+                   <item row="0" column="0">
+                    <widget class="QCheckBox" name="checkBoxHistogramShown">
+                     <property name="text">
+                      <string>Shown</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
                     <widget class="QCheckBox" name="checkBoxHistogramGridShown">
                      <property name="text">
-                      <string>Histogram grid</string>
+                      <string>Grid</string>
                      </property>
                      <property name="checked">
                       <bool>true</bool>
                      </property>
                     </widget>
                    </item>
+                   <item row="2" column="0">
+                    <widget class="QCheckBox" name="checkBoxHistogramColorMapped">
+                     <property name="text">
+                      <string>Color mapped</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QCheckBox" name="checkBoxHistogramAllTimestepsShown">
+                     <property name="text">
+                      <string>All timesteps shown</string>
+                     </property>
+                    </widget>
+                   </item>
                   </layout>
                  </widget>
-                 <widget class="QWidget" name="tab">
+                 <widget class="QWidget" name="tabM_Z">
                   <attribute name="title">
                    <string>M-Z</string>
                   </attribute>
@@ -988,19 +1016,9 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="1">
-                    <widget class="QCheckBox" name="checkBoxViewFocusShown">
-                     <property name="text">
-                      <string>View focus</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
                   </layout>
                  </widget>
-                 <widget class="QWidget" name="tabView_2">
+                 <widget class="QWidget" name="tabView">
                   <attribute name="title">
                    <string>View</string>
                   </attribute>
@@ -1071,14 +1089,14 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="0">
+                   <item row="4" column="0">
                     <widget class="QLabel" name="label_32">
                      <property name="text">
                       <string>Time</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="1">
+                   <item row="4" column="1">
                     <widget class="QRadioButton" name="radioButtonTimeIndependent">
                      <property name="text">
                       <string>Independent</string>
@@ -1088,7 +1106,7 @@
                      </attribute>
                     </widget>
                    </item>
-                   <item row="4" column="1">
+                   <item row="5" column="1">
                     <widget class="QWidget" name="widget_14" native="true">
                      <layout class="QGridLayout" name="gridLayout_3">
                       <property name="sizeConstraint">
@@ -1160,7 +1178,7 @@
                      </layout>
                     </widget>
                    </item>
-                   <item row="5" column="1">
+                   <item row="6" column="1">
                     <widget class="QRadioButton" name="radioButtonTimeLinked">
                      <property name="text">
                       <string>Linked</string>
@@ -1176,7 +1194,7 @@
                      </attribute>
                     </widget>
                    </item>
-                   <item row="6" column="1">
+                   <item row="7" column="1">
                     <widget class="QWidget" name="widget_3" native="true">
                      <layout class="QGridLayout" name="gridLayout_2">
                       <property name="sizeConstraint">
@@ -1206,6 +1224,16 @@
                        </widget>
                       </item>
                      </layout>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QCheckBox" name="checkBoxViewFocusShown">
+                     <property name="text">
+                      <string>View focus</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
                     </widget>
                    </item>
                   </layout>
@@ -1589,13 +1617,6 @@
                     </widget>
                    </item>
                    <item row="2" column="0">
-                    <widget class="QLabel" name="labelFacesHistogram">
-                     <property name="text">
-                      <string>Histogram</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
                     <widget class="QWidget" name="widgetFaceColor" native="true">
                      <layout class="QHBoxLayout" name="horizontalLayout_6">
                       <property name="spacing">
@@ -1607,7 +1628,7 @@
                      </layout>
                     </widget>
                    </item>
-                   <item row="4" column="0">
+                   <item row="3" column="0">
                     <widget class="QWidget" name="widgetStatisticsType" native="true">
                      <layout class="QHBoxLayout" name="horizontalLayout_10">
                       <property name="spacing">
@@ -1619,7 +1640,7 @@
                      </layout>
                     </widget>
                    </item>
-                   <item row="5" column="0">
+                   <item row="4" column="0">
                     <spacer name="verticalSpacer_3">
                      <property name="orientation">
                       <enum>Qt::Vertical</enum>
@@ -1631,27 +1652,6 @@
                       </size>
                      </property>
                     </spacer>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QCheckBox" name="checkBoxHistogramShown">
-                     <property name="text">
-                      <string>Shown</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="1">
-                    <widget class="QCheckBox" name="checkBoxHistogramColorMapped">
-                     <property name="text">
-                      <string>Color mapped</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="1">
-                    <widget class="QCheckBox" name="checkBoxHistogramAllTimestepsShown">
-                     <property name="text">
-                      <string>All timesteps shown</string>
-                     </property>
-                    </widget>
                    </item>
                   </layout>
                  </widget>
