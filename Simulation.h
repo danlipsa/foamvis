@@ -302,6 +302,7 @@ public:
     }
     const Simulation& GetSimulation(
 	const Settings& settings, ViewNumber::Enum viewNumber) const;
+    const Simulation& GetSimulation(const Settings& settings) const;
     Simulation& GetSimulation (size_t i)
     {
 	return m_simulation[i];

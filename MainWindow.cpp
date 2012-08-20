@@ -120,14 +120,12 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     spinBoxHistogramHeight->setMaximum (500);
     spinBoxHistogramHeight->setValue (m_histogram[0]->sizeHint ().height ());
 
-
-    widgetVtk->setHidden (true);
     m_timer->setInterval (20);
     //initTranslatedBody ();
     configureInterfaceDataDependent (simulationGroup);    
     ValueChangedSliderTimeSteps (0);
     ButtonClickedViewType (ViewType::FACES);
-    CurrentIndexChangedViewCount (ViewCount::ONE);
+    CurrentIndexChangedViewCount (0); //ViewCount::ONE
 }
 
 void MainWindow::setupHistograms ()
@@ -154,18 +152,17 @@ void MainWindow::setupHistograms ()
 
 void MainWindow::updateHistogramLayout ()
 {
+    RemoveLayout (histogramContainer);
+    QLayout* layout;
+
+    // determine new layout
     ViewCount::Enum viewCount = m_settings->GetViewCount ();
-    QLayout* layout = histogramContainer->layout ();
-    if (layout != 0)
-    {
-      QLayoutItem *item;
-      while ((item = layout->takeAt(0)) != 0)
-          layout->removeItem (item);
-	delete layout;
-    }
-    layout = 0;
     switch (viewCount)
     {
+    case ViewCount::ZERO:
+    case ViewCount::COUNT:
+	RuntimeAssert (false, "Invalid view count:", viewCount);
+	break;
     case ViewCount::ONE:
 	layout = new QVBoxLayout ();
 	break;
@@ -180,10 +177,13 @@ void MainWindow::updateHistogramLayout ()
 	layout = new QFormLayout ();
 	break;
     }
-    for (size_t i = 0; i < ViewCount::GetCount (viewCount); ++i)
+
+    // add new layout
+    for (int i = 0; i < viewCount; ++i)
 	layout->addWidget (m_histogram[i]);
+    layout->setContentsMargins (0, 0, 0, 0);
     histogramContainer->setLayout (layout);
-    histogramContainer->update ();
+    histogramContainer->updateGeometry ();
 }
 
 
@@ -195,6 +195,7 @@ void MainWindow::configureInterface ()
     horizontalSliderTorqueDistance->setValue (49);
     comboBoxColor->setCurrentIndex (BodyScalar::PRESSURE);
     CurrentIndexChangedInteractionMode (InteractionMode::ROTATE);
+    comboBoxWindowLayout->setCurrentIndex (ViewLayout::VERTICAL);
 }
 
 
@@ -244,8 +245,8 @@ void MainWindow::configureInterfaceDataDependent (
 	    BodyScalar::DEFORMATION_SIMPLE,
 	    BodyScalar::ToString (BodyScalar::DEFORMATION_SIMPLE));
     }
-    size_t viewCount = min (simulationGroup.size (),
-			    ViewCount::GetCount (ViewCount::MAX));
+    size_t viewCount = min (simulationGroup.size (), 
+			    size_t (ViewCount::COUNT - 1));
     if (simulationGroup.size () > 1)
 	comboBoxViewCount->setCurrentIndex (ViewCount::FromSizeT (viewCount));
     for (size_t i = 1; i < viewCount; ++i)
@@ -687,34 +688,37 @@ void MainWindow::processBodyTorusStep ()
     }
 }
 
-void MainWindow::init3DAverage ()
+void MainWindow::update3DAverage ()
 {
+    if (DATA_PROPERTIES.Is2D ())
+	return;
     widgetVtk->RemoveViews ();
-    for (size_t i = 0;
-	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+    for (int i = 0; i < m_settings->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
 	const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
-	const BodySelector& bodySelector = vs.GetBodySelector ();
-	QwtDoubleInterval interval;
-	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction = 
-	    getColorBarModel (viewNumber)->GetColorTransferFunction ();
-	if (bodySelector.GetType () == BodySelectorType::PROPERTY_VALUE)
+	if (vs.GetViewType () == ViewType::AVERAGE)
 	{
-	    const vector<QwtDoubleInterval>& v = 
-		static_cast<const PropertyValueBodySelector&> (bodySelector).
-		GetIntervals ();
-	    interval = v[0];
+	    const BodySelector& bodySelector = vs.GetBodySelector ();
+	    QwtDoubleInterval interval;
+	    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction = 
+		getColorBarModel (viewNumber)->GetColorTransferFunction ();
+	    if (bodySelector.GetType () == BodySelectorType::PROPERTY_VALUE)
+	    {
+		const vector<QwtDoubleInterval>& v = 
+		    static_cast<const PropertyValueBodySelector&> (bodySelector).
+		    GetIntervals ();
+		interval = v[0];
+	    }
+	    else
+	    {
+		double range[2];
+		colorTransferFunction->GetRange (range);
+		interval.setMinValue (range[0]);
+		interval.setMaxValue (range[1]);
+	    }
+	    widgetVtk->AddView (viewNumber, colorTransferFunction, interval);
 	}
-	else
-	{
-	    double range[2];
-	    colorTransferFunction->GetRange (range);
-	    interval.setMinValue (range[0]);
-	    interval.setMaxValue (range[1]);
-	}
-	widgetVtk->AddView (
-	    viewNumber, colorTransferFunction, interval);
     }
 }
 
@@ -1171,14 +1175,14 @@ void MainWindow::CurrentIndexChangedViewLayout (int index)
     widgetGl->update ();
     updateHistogramLayout ();
     widgetVtk->update ();
+    update3DAverage ();
 }
 
 void MainWindow::CurrentIndexChangedViewCount (int index)
 {
-    m_settings->SetViewCount (ViewCount::Enum (index));
+    m_settings->SetViewCount (ViewCount::Enum (index + 1));
     m_settings->SetViewNumber (ViewNumber::VIEW0);
-    size_t n = ViewCount::GetCount (m_settings->GetViewCount ());
-    for (size_t i = 0; i < n; ++i)
+    for (int i = 0; i < m_settings->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
@@ -1198,10 +1202,32 @@ void MainWindow::CurrentIndexChangedViewCount (int index)
 	::setVisible (widgetsViewLayout, false);
     checkBoxTitleShown->setChecked (viewCount != ViewCount::ONE);
     forAllShownHistograms (boost::bind (&MainWindow::hideHistogram, this, _1), 
-			   ViewCount::GetCount (viewCount));
+			   viewCount);
     updateHistogramLayout ();
+    update3DAverage ();
 }
 
+void MainWindow::CurrentIndexChangedWindowLayout (int index)
+{
+    RemoveLayout (widgetDisplay);
+
+    // determine new layout
+    ViewLayout::Enum windowLayout = ViewLayout::Enum (index);
+    QLayout* layout;
+    if (windowLayout == ViewLayout::HORIZONTAL)
+	layout = new QHBoxLayout ();
+    else
+	layout = new QVBoxLayout ();
+    layout->setSpacing (0);
+
+    // add new layout    
+    boost::array<QWidget*, 3> widgets = {{
+	    widgetGl, widgetVtk, histogramContainer}};
+    for (size_t i = 0; i < widgets.size (); ++i)
+	layout->addWidget (widgets[i]);
+    widgetDisplay->setLayout (layout);
+    widgetDisplay->update ();
+}
 
 
 
@@ -1217,7 +1243,7 @@ void MainWindow::ValueChangedContextAlpha (int index)
 
 void MainWindow::ToggledVelocityShown (bool checked)
 {
-    vector<ViewNumber::Enum> vn = widgetGl->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -1329,7 +1355,7 @@ void MainWindow::ValueChangedFontSize (int fontSize)
 void MainWindow::ValueChangedT1sKernelSigma (int index)
 {
     (void)index;
-    vector<ViewNumber::Enum> vn = widgetGl->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -1380,15 +1406,20 @@ void MainWindow::ValueChangedAverageTimeWindow (int timeSteps)
 
 void MainWindow::ButtonClickedViewType (int vt)
 {
-    vector<ViewNumber::Enum> vn = widgetGl->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
+    ViewType::Enum viewType = ViewType::Enum(vt);
+    ViewType::Enum oldViewType = 
+	m_settings->GetViewSettings (vn[0]).GetViewType ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
+	ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+	vs.SetViewType (viewType);
+
 	const Simulation& simulation = widgetGl->GetSimulation (viewNumber);
-	ViewType::Enum viewType = ViewType::Enum(vt);
+
 	size_t simulationIndex = 
 	    widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
-	ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
 	ViewType::Enum oldViewType = vs.GetViewType ();
 	size_t property = vs.GetBodyOrFaceScalar ();
 	StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
@@ -1402,54 +1433,30 @@ void MainWindow::ButtonClickedViewType (int vt)
 	switch (viewType)
 	{
 	case ViewType::FACES:
-	    if (DATA_PROPERTIES.Is3D ())
-	    {
-		widgetVtk->setHidden (true);
-		widgetGl->setVisible (true);
-	    }
 	    break;
 
 	case ViewType::AVERAGE:
 	    labelAverageColor->setText (
 		BodyScalar::ToString (BodyScalar::FromSizeT (property)));
-	    if (DATA_PROPERTIES.Is3D ())
-	    {
-		init3DAverage ();
-		widgetGl->setHidden (true);
-		widgetVtk->setVisible (true);
-	    }
+	    update3DAverage ();
 	    break;
 
 	case ViewType::CENTER_PATHS:
 	    labelCenterPathColor->setText (
 		BodyScalar::ToString (BodyScalar::FromSizeT (property)));
-	    if (DATA_PROPERTIES.Is3D ())
-	    {
-		widgetVtk->setHidden (true);
-		widgetGl->setVisible (true);
-	    }
 	    break;
 
 	case ViewType::T1S_PDE:
 	    sliderTimeSteps->setMaximum (simulation.GetT1sTimeSteps () - 1);
-	    if (DATA_PROPERTIES.Is3D ())
-	    {
-		widgetGl->setHidden (true);
-		widgetVtk->setVisible (true);
-	    }
 	    break;
 
 	default:
-	    if (DATA_PROPERTIES.Is3D ())
-	    {
-		widgetVtk->setHidden (true);
-		widgetGl->setVisible (true);
-	    }
 	    break;
 	}
 	if (oldViewType == ViewType::T1S_PDE)
 	    sliderTimeSteps->setMaximum (simulation.GetTimeSteps () - 1);
     }
+    widgetGl->ButtonClickedViewType (oldViewType);
 }
 
 void MainWindow::CurrentIndexChangedSimulation (int simulationIndex)
@@ -1532,7 +1539,9 @@ void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)
 	return;
     }
     checkBoxTitleShown->setChecked (false);
-    widgetGl->SetReflectedHalfView (reflectedHalfView);
+    m_settings->SetReflectedHalfView (
+	reflectedHalfView, 
+	m_simulationGroup.GetSimulation (*m_settings), widgetGl->GetXOverY ());
 }
 
 void MainWindow::ToggledForceDifference (bool forceDifference)

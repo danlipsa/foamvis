@@ -119,11 +119,13 @@ void WidgetVtk::ViewPipeline::UpdateThreshold (QwtDoubleInterval interval)
 }
 
 void WidgetVtk::ViewPipeline::UpdateColorTransferFunction (
-    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction)
+    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction, 
+    const char * name)
 {
     if (m_averageActor != 0)
     {
 	m_scalarBar->SetLookupTable (colorTransferFunction);
+	m_scalarBar->SetTitle (name);
 	m_averageActor->GetMapper ()->SetLookupTable (colorTransferFunction);
     }
 }
@@ -213,6 +215,7 @@ void WidgetVtk::ViewPipeline::UpdateAverage (
 WidgetVtk::WidgetVtk (QWidget* parent) :
     QVTKWidget (parent)
 {
+    setVisible (false);
 }
 
 void WidgetVtk::CreateAverage (boost::shared_ptr<Settings> settings,
@@ -246,10 +249,11 @@ void WidgetVtk::UpdateThreshold (QwtDoubleInterval interval)
 }
 
 void WidgetVtk::UpdateColorTransferFunction (
-    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction)
+    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction, 
+    const char* name)
 {
     m_pipeline[m_settings->GetViewNumber ()].UpdateColorTransferFunction (
-	colorTransferFunction);
+	colorTransferFunction, name);
     update ();
 }
 
@@ -259,8 +263,7 @@ void WidgetVtk::resizeEvent (QResizeEvent * event)
     (void) event;
     float w = width ();
     float h = height ();
-    for (size_t i = 0;
-	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+    for (int i = 0; i < m_settings->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
 	G3D::Rect2D viewRect = m_settings->GetViewRect (w, h, viewNumber);
@@ -277,8 +280,7 @@ void WidgetVtk::resizeEvent (QResizeEvent * event)
 
 void WidgetVtk::UpdateOpacity ()
 {
-    for (size_t i = 0;
-	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+    for (int i = 0; i < m_settings->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
 	m_pipeline[viewNumber].UpdateOpacity (m_settings->GetContextAlpha ());
@@ -292,6 +294,7 @@ void WidgetVtk::RemoveViews ()
     vtkSmartPointer<vtkRenderWindow> renderWindow = GetRenderWindow ();
     for (size_t i = 0; i < m_pipeline.size (); ++i)
 	renderWindow->RemoveRenderer (m_pipeline[i].m_renderer);
+    setVisible (false);
 }
 
 void WidgetVtk::AddView (
@@ -302,6 +305,7 @@ void WidgetVtk::AddView (
     vtkSmartPointer<vtkRenderWindow> renderWindow = GetRenderWindow ();
     boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
     const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+    const char* scalarName = FaceScalar::ToString (vs.GetBodyOrFaceScalar ());
     const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
     const Foam& foam = m_average[viewNumber]->GetFoam ();
     ViewPipeline& pipeline = m_pipeline[viewNumber];
@@ -317,8 +321,9 @@ void WidgetVtk::AddView (
     pipeline.UpdateFromOpenGl (vs, bb, foam);
     pipeline.UpdateOpacity (m_settings->GetContextAlpha ());
     pipeline.UpdateThreshold (interval);
-    pipeline.UpdateColorTransferFunction (colorTransferFunction);
-    G3D::Rect2D vr = m_settings->GetViewRect (w, h, viewNumber);
+    pipeline.UpdateColorTransferFunction (colorTransferFunction, scalarName);
+    G3D::Rect2D vr = m_settings->GetViewRect (w, h, viewNumber,
+					      m_settings->GetVtkCount ());
     G3D::Rect2D viewRect = G3D::Rect2D::xyxy (vr.x0 () / w, vr.y0 () / h,
 					      vr.x1 () / w, vr.y1 () / h);
     renderWindow->AddRenderer(pipeline.m_renderer);
@@ -326,15 +331,14 @@ void WidgetVtk::AddView (
 				      viewRect.x1 (), viewRect.y1 ());
     resizeEvent (0);
     pipeline.m_renderer->ResetCamera ();
-
+    setVisible (true);
 }
 
 
 void WidgetVtk::UpdateAverage (
     const boost::array<int, ViewNumber::COUNT>& direction)
 {
-    for (size_t i = 0;
-	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+    for (int i = 0; i < m_settings->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
 	ViewPipeline& pipeline = m_pipeline[viewNumber];

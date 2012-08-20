@@ -685,6 +685,17 @@ vtkSmartPointer<vtkImageData> CreateRegularGridNoAttributes (
     return regularFoam;
 }
 
+void RemoveLayout (QWidget* widget)
+{
+    QLayout* layout = widget->layout ();
+    if (layout != 0)
+    {
+	QLayoutItem *item;
+	while ((item = layout->takeAt(0)) != 0)
+	    layout->removeItem (item);
+	delete layout;
+    }
+}
 
 
 // Template instantiations

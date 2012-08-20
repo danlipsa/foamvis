@@ -155,7 +155,6 @@ WidgetGl::WidgetGl(QWidget *parent)
       m_averageAroundMarked (true),
       m_viewFocusShown (true),
       m_contextBoxShown (true),
-      m_reflectedHalfView (false),
       m_showType (SHOW_NOTHING)
 {
     makeCurrent ();
@@ -534,7 +533,8 @@ void WidgetGl::Init (
 
 float WidgetGl::GetBubbleSize (ViewNumber::Enum defaultViewNumber) const
 {    
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers (defaultViewNumber);
+    vector<ViewNumber::Enum> vn = 
+	m_settings->GetConnectedViewNumbers (defaultViewNumber);
     float size = GetSimulation (vn[0]).GetBubbleSize ();
     for (size_t i = 1; i < vn.size (); ++i)
     {
@@ -804,6 +804,7 @@ void WidgetGl::viewportTransform (ViewNumber::Enum viewNumber) const
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetViewport (viewRect);
     glViewport (viewRect);
+    //cdbg << viewRect << endl;
 }
 
 G3D::Rect2D WidgetGl::GetViewRect (ViewNumber::Enum viewNumber) const
@@ -820,8 +821,7 @@ float WidgetGl::GetXOverY () const
 
 void WidgetGl::setView (const G3D::Vector2& clickedPoint)
 {
-    for (size_t i = 0; 
-	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+    for (int i = 0; i < m_settings->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	G3D::Rect2D viewRect = GetViewRect (viewNumber);
@@ -1122,8 +1122,7 @@ void WidgetGl::paintGL ()
 void WidgetGl::resizeGL(int w, int h)
 {
     (void)w;(void)h;
-    for (size_t i = 0; 
-	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+    for (int i = 0; i < m_settings->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	GetViewAverage (viewNumber).AverageInitStep ();
@@ -1134,8 +1133,13 @@ void WidgetGl::resizeGL(int w, int h)
 
 void WidgetGl::displayViews ()
 {
-    switch (m_settings->GetViewCount ())
+    ViewCount::Enum viewCount = m_settings->GetViewCount ();
+    switch (viewCount)
     {
+    case ViewCount::ZERO:
+    case ViewCount::COUNT:
+	RuntimeAssert (false, "Invalid view count:", viewCount);
+	break;
     case ViewCount::FOUR:
 	for (size_t i = 0; i < 4; ++i)
 	    displayView (ViewNumber::Enum (i));
@@ -1203,23 +1207,11 @@ G3D::Matrix3 WidgetGl::getRotationAround (int axis, double angleRadians)
     return Matrix3::fromAxisAngle (axes[axis], angleRadians);
 }
 
-G3D::Vector2 WidgetGl::calculateScaleCenter (
-    ViewNumber::Enum viewNumber, const G3D::Rect2D& rect) const
-{
-    if (! m_reflectedHalfView)
-	return rect.center ();
-    else if (viewNumber == ViewNumber::VIEW0)
-	return (rect.x0y0 () + rect.x1y0 ()) / 2;
-    else
-	return (rect.x0y1 () + rect.x1y1 ()) / 2;
-}
-
 
 float WidgetGl::ratioFromScaleCenter (
     ViewNumber::Enum viewNumber, const QPoint& p)
 {
-    
-    G3D::Vector2 center = calculateScaleCenter (
+    G3D::Vector2 center = m_settings->CalculateScaleCenter (
 	viewNumber, GetViewRect (viewNumber));
     int windowHeight = height ();
     G3D::Vector2 lastPos = QtToOpenGl (m_lastPos, windowHeight);
@@ -2811,7 +2803,7 @@ pair<size_t, ViewNumber::Enum> WidgetGl::LinkedTimeMaxSteps () const
 {
     pair<size_t, ViewNumber::Enum> maxInterval = m_settings->LinkedTimeMaxInterval ();    
     pair<size_t, ViewNumber::Enum> max (0, ViewNumber::COUNT);
-    for (size_t i = 0; i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+    for (int i = 0; i < m_settings->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	size_t maxStep = 
@@ -2859,10 +2851,10 @@ void WidgetGl::contextMenuEventColorBar (QMenu* menu) const
     menu->addAction (m_actionColorBarClampClear.get ());
     bool actions = false;
     QMenu* menuCopy = menu->addMenu ("Copy");
-    if (ViewCount::GetCount (m_settings->GetViewCount ()) > 1)
+    if (m_settings->GetViewCount () > 1)
     {
 	size_t currentProperty = vs.GetBodyOrFaceScalar ();
-	for (size_t i = 0; i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+	for (int i = 0; i < m_settings->GetViewCount (); ++i)
 	{
 	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	    const ViewSettings& otherVs = GetViewSettings (viewNumber);
@@ -2899,12 +2891,12 @@ void WidgetGl::contextMenuEventView (QMenu* menu) const
 	menuContext->addAction (m_actionContextDisplayBody.get ());
 	menuContext->addAction (m_actionContextDisplayReset.get ());
     }
-    if (ViewCount::GetCount (m_settings->GetViewCount ()) > 1)
+    if (m_settings->GetViewCount () > 1)
     {
 	QMenu* menuCopy = menu->addMenu ("Copy");
 	QMenu* menuTransformation = menuCopy->addMenu ("Transformation");
 	QMenu* menuSelection = menuCopy->addMenu ("Selection");
-	for (size_t i = 0; i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+	for (int i = 0; i < m_settings->GetViewCount (); ++i)
 	{
 	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	    if (viewNumber == GetViewNumber ())
@@ -3120,7 +3112,7 @@ void WidgetGl::displayViewsGrid ()
     size_t h = height ();
     glDisable (GL_DEPTH_TEST);
     glColor (Qt::black);
-    if (m_reflectedHalfView)	
+    if (m_settings->IsReflectedHalfView ())	
 	glLineWidth (3);
     glBegin (GL_LINES);
     switch (m_settings->GetViewCount ())
@@ -3253,26 +3245,6 @@ void WidgetGl::ActivateViewShader (
 			rotationCenter, angleDegrees);
 }
 
-void WidgetGl::setScaleCenter (ViewNumber::Enum viewNumber)
-{
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    G3D::Rect2D rect = 
-	toRect2D (CalculateViewingVolume (
-		      viewNumber, 
-		      ViewingVolumeOperation::DONT_ENCLOSE2D));
-    G3D::Vector2 newCenter = calculateScaleCenter (viewNumber, rect);
-    vs.SetScaleCenter (newCenter);
-}
-
-
-void WidgetGl::SetReflectedHalfView (bool reflectedHalfView)
-{
-    m_reflectedHalfView = reflectedHalfView;
-    setScaleCenter (ViewNumber::VIEW0);
-    setScaleCenter (ViewNumber::VIEW1);
-    update ();
-}
-
 void WidgetGl::SetForceDifferenceShown (bool value)
 {
     GetViewSettings ().SetForceDifferenceShown (value);
@@ -3317,7 +3289,7 @@ void WidgetGl::valueChangedT1sKernelIntervalPerPixel (
 template<typename T>
 void WidgetGl::SetOneOrTwoViews (T* t, void (T::*f) (ViewNumber::Enum))
 {
-    if (IsReflectedHalfView ())
+    if (m_settings->IsReflectedHalfView ())
     {
 	CALL_MEMBER_FN (*t, f) (ViewNumber::VIEW0);
 	CALL_MEMBER_FN (*t, f) (ViewNumber::VIEW1);
@@ -3327,33 +3299,32 @@ void WidgetGl::SetOneOrTwoViews (T* t, void (T::*f) (ViewNumber::Enum))
     update ();
 }
 
-vector<ViewNumber::Enum> WidgetGl::GetConnectedViewNumbers (
-    ViewNumber::Enum viewNumber) const
-{
-    if (m_reflectedHalfView)
-    {
-	vector<ViewNumber::Enum> vn(2);
-	vn[0] = ViewNumber::VIEW0;
-	vn[1] = ViewNumber::VIEW1;
-	return vn;
-    }
-    else
-    {
-	vector<ViewNumber::Enum> vn(1);
-	vn[0] = 
-	    (viewNumber == ViewNumber::COUNT ? GetViewNumber () : viewNumber);
-	return vn;
-    }
-}
-
 
 void WidgetGl::UpdateAverage (
     const boost::array<int, ViewNumber::COUNT>& direction)
 {
-    for (size_t i = 0;
-	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+    for (int i = 0; i < m_settings->GetViewCount (); ++i)
 	if (direction[i] != 0)
 	    m_viewAverage[i]->AverageStep (direction[i]);
+}
+
+
+void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
+{
+    makeCurrent ();
+    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	ViewType::Enum newViewType = vs.GetViewType ();
+	if (oldViewType == newViewType)
+	    continue;
+	GetViewAverage (viewNumber).AverageRelease ();
+	GetViewAverage (viewNumber).AverageInitStep ();
+	compile (viewNumber);
+    }
+    update ();
 }
 
 
@@ -3386,7 +3357,7 @@ void WidgetGl::mousePressEvent(QMouseEvent *event)
 void WidgetGl::mouseMoveEvent(QMouseEvent *event)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3454,7 +3425,7 @@ void WidgetGl::ResetTransformAll ()
 void WidgetGl::ResetTransformFocus ()
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3474,7 +3445,7 @@ void WidgetGl::ResetTransformFocus ()
 void WidgetGl::ResetTransformContext ()
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3492,7 +3463,7 @@ void WidgetGl::ResetTransformContext ()
 void WidgetGl::ResetTransformGrid ()
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3506,7 +3477,7 @@ void WidgetGl::ResetTransformGrid ()
 void WidgetGl::ResetTransformLight ()
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3581,7 +3552,7 @@ void WidgetGl::ToggledDirectionalLightEnabled (bool checked)
 void WidgetGl::ToggledDeformationShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3594,7 +3565,7 @@ void WidgetGl::ToggledDeformationShown (bool checked)
 void WidgetGl::ToggledDeformationShownGrid (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3608,7 +3579,7 @@ void WidgetGl::ToggledDeformationShownGrid (bool checked)
 void WidgetGl::ToggledVelocityShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3621,7 +3592,7 @@ void WidgetGl::ToggledVelocityShown (bool checked)
 void WidgetGl::ToggledVelocityGridShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3634,7 +3605,7 @@ void WidgetGl::ToggledVelocityGridShown (bool checked)
 void WidgetGl::ToggledVelocityClampingShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3648,7 +3619,7 @@ void WidgetGl::ToggledVelocityClampingShown (bool checked)
 void WidgetGl::ToggledDeformationGridCellCenterShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3662,7 +3633,7 @@ void WidgetGl::ToggledDeformationGridCellCenterShown (bool checked)
 void WidgetGl::ToggledVelocityGridCellCenterShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3676,7 +3647,7 @@ void WidgetGl::ToggledVelocityGridCellCenterShown (bool checked)
 void WidgetGl::ToggledVelocitySameSize (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
 	GetViewAverage (vn[i]).GetVelocityAverage ().SetSameSize (checked);
     update ();    
@@ -3685,7 +3656,7 @@ void WidgetGl::ToggledVelocitySameSize (bool checked)
 void WidgetGl::ToggledVelocityColorMapped (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
 	GetViewAverage (vn[i]).GetVelocityAverage ().SetColorMapped (checked);
     update ();    
@@ -3860,25 +3831,6 @@ void WidgetGl::ToggledCenterPathHidden (bool checked)
     CompileUpdate ();
 }
 
-void WidgetGl::ButtonClickedViewType (int id)
-{
-    makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
-    for (size_t i = 0; i < vn.size (); ++i)
-    {
-	ViewNumber::Enum viewNumber = vn[i];
-	ViewSettings& vs = GetViewSettings (viewNumber);
-	ViewType::Enum newViewType = ViewType::Enum(id);
-	ViewType::Enum oldViewType = vs.GetViewType ();
-	if (oldViewType == newViewType)
-	    continue;
-	GetViewAverage (viewNumber).AverageRelease ();
-	vs.SetViewType (newViewType);
-	GetViewAverage (viewNumber).AverageInitStep ();
-	compile (viewNumber);
-    }
-    update ();
-}
 
 void WidgetGl::ButtonClickedTimeLinkage (int id)
 {
@@ -4070,7 +4022,7 @@ void WidgetGl::SetOverlayBarModel (
 void WidgetGl::ValueChangedNoiseStart (int index)
 {
     makeCurrent ();
-    for (size_t i = 0; i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+    for (int i = 0; i < m_settings->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	float noiseStart = 0.5 + 0.5 * index / 99;
@@ -4087,7 +4039,7 @@ void WidgetGl::ValueChangedNoiseStart (int index)
 void WidgetGl::ValueChangedNoiseAmplitude (int index)
 {
     makeCurrent ();
-    for (size_t i = 0; i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+    for (int i = 0; i < m_settings->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	float noiseAmplitude = 5.0 + index / 10.0;
@@ -4104,7 +4056,7 @@ void WidgetGl::ValueChangedNoiseAmplitude (int index)
 void WidgetGl::ValueChangedNoiseFrequency (int index)
 {
     makeCurrent ();
-    for (size_t i = 0; i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+    for (int i = 0; i < m_settings->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	float noiseFrequency = (1.0 + index) / 2.0;

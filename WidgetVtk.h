@@ -26,7 +26,8 @@ class WidgetVtk : public QVTKWidget
 public:
     WidgetVtk (QWidget* parent);
     void UpdateColorTransferFunction (
-	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction);
+	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
+	const char* name);
     void UpdateThreshold (QwtDoubleInterval interval);
     void UpdateFromOpenGl (vtkSmartPointer<vtkMatrix4x4> modelView);
     void RemoveViews ();
@@ -70,7 +71,8 @@ private:
 	    size_t objects, size_t constraintSurfaces);
 	void UpdateThreshold (QwtDoubleInterval interval);
 	void UpdateColorTransferFunction (
-	    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction);
+	    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
+	    const char* name);
 	void PositionScalarBar (G3D::Rect2D position);
 	void UpdateOpacity (float contextAlpha);
 	void UpdateFromOpenGl (

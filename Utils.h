@@ -226,6 +226,7 @@ vtkSmartPointer<vtkImageData> CreateEmptyRegularGrid (
     size_t bodyAttribute, size_t regularGridResolution, G3D::AABox bb);
 vtkSmartPointer<vtkImageData> CreateRegularGridNoAttributes (
     G3D::AABox bb, size_t regularGridResolution);
+void RemoveLayout (QWidget* widget);
 
 #endif //__UTILS_H__
 

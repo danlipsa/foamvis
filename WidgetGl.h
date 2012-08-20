@@ -74,8 +74,6 @@ public:
     const Simulation& GetSimulation (size_t index) const;
     const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
     const Simulation& GetSimulation () const;
-    vector<ViewNumber::Enum> GetConnectedViewNumbers (
-	ViewNumber::Enum viewNumber = ViewNumber::COUNT) const;
 
     size_t GetHighlightLineWidth () const
     {
@@ -207,11 +205,6 @@ public:
     ColorBarType::Enum GetColorBarType (ViewNumber::Enum viewNumber) const;
     ColorBarType::Enum GetColorBarType () const;
     pair<size_t, ViewNumber::Enum> LinkedTimeMaxSteps () const;
-    bool IsReflectedHalfView () const
-    {
-	return m_reflectedHalfView;
-    }
-    void SetReflectedHalfView (bool reflectedHalfView);
     void SetForceDifferenceShown (bool forceDifference);
     template<typename T>
     void SetOneOrTwoViews (T* t,void (T::*f) (ViewNumber::Enum));
@@ -246,7 +239,7 @@ public:
     }
     G3D::AABox CalculateCenteredViewingVolume (
 	ViewNumber::Enum viewNumber) const;
-
+    void ButtonClickedViewType (ViewType::Enum oldViewType);
     
 Q_SIGNALS:
     void PaintEnd ();
@@ -259,7 +252,6 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void ButtonClickedTimeLinkage (int id);
-    void ButtonClickedViewType (int id);
     void ButtonClickedInteractionObject (int id);
     void ClickedEnd ();
 
@@ -475,9 +467,6 @@ private:
     void toggledT1sKernelTextureSizeShown (ViewNumber::Enum viewNumber);
     void valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber);
     void valueChangedT1sKernelIntervalPerPixel (ViewNumber::Enum viewNumber);
-    void setScaleCenter (ViewNumber::Enum viewNumber);
-    G3D::Vector2 calculateScaleCenter (ViewNumber::Enum viewNumber, 
-				       const G3D::Rect2D& rect) const;
     bool linkedTimesValid (size_t timeBegin, size_t timeEnd);
     bool linkedTimesValid ();
     void contextMenuEventColorBar (QMenu* menu) const;
@@ -788,7 +777,6 @@ private:
     bool m_averageAroundMarked;
     bool m_viewFocusShown;
     bool m_contextBoxShown;
-    bool m_reflectedHalfView;
     ShowType m_showType;
     size_t m_showBodyId;
     boost::array<

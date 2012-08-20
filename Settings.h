@@ -104,6 +104,24 @@ public:
     {
 	return m_viewNumber;
     }
+    vector<ViewNumber::Enum> GetConnectedViewNumbers (
+	ViewNumber::Enum viewNumber) const;
+    bool IsReflectedHalfView () const
+    {
+	return m_reflectedHalfView;
+    }
+    void SetReflectedHalfView (bool reflectedHalfView,
+			       const Simulation& simulation, float xOverY);
+    G3D::Vector2 CalculateScaleCenter (
+	ViewNumber::Enum viewNumber, const G3D::Rect2D& rect) const;
+
+
+    vector<ViewNumber::Enum> GetConnectedViewNumbers () const
+    {
+	return GetConnectedViewNumbers (GetViewNumber ());
+    }
+
+
     void SetViewNumber (ViewNumber::Enum viewNumber);
     ViewSettings& GetViewSettings (ViewNumber::Enum viewNumber) const
     {
@@ -142,6 +160,8 @@ public:
     {
 	return m_viewCount;
     }
+    ViewCount::Enum GetVtkCount () const;
+
     void SetViewCount (ViewCount::Enum viewCount)
     {
 	m_viewCount = viewCount;
@@ -202,7 +222,14 @@ public:
 	float xOverYWindow, ViewingVolumeOperation::Enum enclose = 
 	ViewingVolumeOperation::ENCLOSE2D) const;
     G3D::Rect2D GetViewRect (float w, float h,
-			     ViewNumber::Enum viewNumber) const;
+			     ViewNumber::Enum viewNumber, 
+			     ViewCount::Enum viewCount) const;
+    G3D::Rect2D GetViewRect (float w, float h,
+			     ViewNumber::Enum viewNumber) const
+    {
+	return GetViewRect (w, h, viewNumber, GetViewCount ());
+    }
+
     G3D::Rect2D GetViewRect (float w, float h) const
     {
 	return GetViewRect (w, h, GetViewNumber ());
@@ -219,6 +246,8 @@ public:
     const static size_t QUADRIC_STACKS;
 
 private:
+    void setScaleCenter (ViewNumber::Enum viewNumber, 
+			 const Simulation& simulation, float xOverY);
     void initEndTranslationColor ();
     void initViewSettings (const Simulation& simulation, float xOverY, 
 			   bool t1sShiftLower);
@@ -262,6 +291,7 @@ private:
     bool m_objectVelocityShown;
     bool m_centerPathTubeUsed;
     bool m_centerPathLineUsed;
+    bool m_reflectedHalfView;
 };
 
 

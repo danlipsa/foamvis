@@ -648,3 +648,8 @@ G3D::AABox SimulationGroup::CalculateCenteredViewingVolume (
 	viewNumber, GetSimulation (settings, viewNumber), xOverY,
 	enclose);    
 }
+
+const Simulation& SimulationGroup::GetSimulation(const Settings& settings) const
+{
+    return GetSimulation (settings, settings.GetViewNumber ());
+}

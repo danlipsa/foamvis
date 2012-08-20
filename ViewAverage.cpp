@@ -50,6 +50,16 @@ void ViewAverage::AverageInit ()
     GetT1sPDE ().AverageInit ();
 }
 
+void ViewAverage::AverageRelease ()
+{
+    GetScalarAverage ().AverageRelease ();
+    GetDeformationAverage ().AverageRelease ();
+    GetVelocityAverage ().AverageRelease ();
+    GetForceAverage ().AverageRelease ();
+    GetT1sPDE ().AverageRelease ();
+}
+
+
 void ViewAverage::AverageSetTimeWindow (size_t timeSteps)
 {
     GetScalarAverage ().AverageSetTimeWindow (timeSteps);
@@ -103,13 +113,6 @@ void ViewAverage::AverageRotateAndDisplay (
     }
 }
 
-void ViewAverage::AverageRelease ()
-{
-    GetScalarAverage ().AverageRelease ();
-    GetDeformationAverage ().AverageRelease ();
-    GetVelocityAverage ().AverageRelease ();
-    GetT1sPDE ().AverageRelease ();
-}
 
 //@todo remove this and replace with AverageInit
 //@todo overwrite AverageInit for T1sPDE

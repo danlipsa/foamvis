@@ -8,6 +8,7 @@
 
 #include "ColorBarModel.h"
 #include "Debug.h"
+
 #include "Edge.h"
 #include "Settings.h"
 #include "Simulation.h"
@@ -86,7 +87,8 @@ Settings::Settings (const Simulation& simulation, float xOverY,
     m_missingVolumeShown (true),
     m_objectVelocityShown (false),
     m_centerPathTubeUsed (true),
-    m_centerPathLineUsed (false)
+    m_centerPathLineUsed (false),
+    m_reflectedHalfView (false)
 {
     initViewSettings (simulation, xOverY, t1sShiftLower);
     initEndTranslationColor ();
@@ -267,7 +269,7 @@ void Settings::SetCurrentTime (
     }
     case TimeLinkage::LINKED:
 	m_linkedTime = currentTime;
-	for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
+	for (int i = 0; i < m_viewCount; ++i)
 	{
 	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	    ViewSettings& vs = GetViewSettings (viewNumber);
@@ -326,7 +328,7 @@ float Settings::LinkedTimeStepStretch (size_t max,
 pair<size_t, ViewNumber::Enum> Settings::LinkedTimeMaxInterval () const
 {
     pair<size_t, ViewNumber::Enum> max (0, ViewNumber::COUNT);
-    for (size_t i = 0; i < ViewCount::GetCount (GetViewCount ()); ++i)
+    for (int i = 0; i < GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	ViewSettings& vs = GetViewSettings (viewNumber);
@@ -355,7 +357,7 @@ G3D::AABox Settings::CalculateEyeViewingVolume (
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::AABox vv = CalculateViewingVolume (viewNumber, simulation, 
-					    xOverYWindow,enclose);
+					    xOverYWindow, enclose);
     vv = vv - vv.center ();
     G3D::Vector3 translation (vs.GetCameraDistance () * G3D::Vector3::unitZ ());
     G3D::AABox result = vv - translation;
@@ -390,15 +392,34 @@ float Settings::GetXOverY (float xOverY, ViewNumber::Enum viewNumber) const
 	xOverY/3, 3*xOverY, // THREE (HORIZONTAL, VERTICAL)
 	xOverY, xOverY      // FOUR
     };
-    return v[GetViewCount () * 2 + GetViewLayout ()];
+    return v[(GetViewCount () - 1) * 2 + GetViewLayout ()];
 }
 
-G3D::Rect2D Settings::GetViewRect (float w, float h,
-				   ViewNumber::Enum viewNumber) const
+ViewCount::Enum Settings::GetVtkCount () const
+{
+    ViewCount::Enum viewCount = GetViewCount ();
+    int vtkCount = 0;
+    for (int i = 0; i < viewCount; ++i)
+    {
+	const ViewSettings& vs = GetViewSettings (ViewNumber::FromSizeT (i));
+	if (vs.GetViewType () == ViewType::AVERAGE)
+	    ++vtkCount;
+    }
+    return ViewCount::FromSizeT (vtkCount);
+}
+
+
+G3D::Rect2D Settings::GetViewRect (
+    float w, float h,
+    ViewNumber::Enum viewNumber, ViewCount::Enum viewCount) const
 {
     using G3D::Rect2D;
-    switch (GetViewCount ())
+    switch (viewCount)
     {
+    case ViewCount::ZERO:
+    case ViewCount::COUNT:
+	RuntimeAssert (false, "Invalid view count:", viewCount);
+	return G3D::Rect2D ();
     case ViewCount::ONE:
 	return Rect2D::xywh (0, 0, w, h);
     case ViewCount::TWO:
@@ -422,7 +443,8 @@ G3D::Rect2D Settings::GetViewRect (float w, float h,
 	Rect2D v[][3] = {
 	    // 0 | 1 | 3
 	    // horizontal layout
-	    {Rect2D::xywh (0, 0, w/3, h), Rect2D::xywh (w/3, 0, w/3, h),
+	    {Rect2D::xywh (0, 0, w/3, h),
+	     Rect2D::xywh (w/3, 0, w/3, h),
 	     Rect2D::xywh (2*w/3, 0, w/3, h)},
 	    // 0
 	    // -
@@ -430,7 +452,8 @@ G3D::Rect2D Settings::GetViewRect (float w, float h,
 	    // -
 	    // 3
 	    // vertical layout
-	    {Rect2D::xywh (0, 2*h/3, w, h/3), Rect2D::xywh (0, h/3, w, h/3), 
+	    {Rect2D::xywh (0, 2*h/3, w, h/3),
+	     Rect2D::xywh (0, h/3, w, h/3), 
 	     Rect2D::xywh (0, 0, w, h/3)}
 	};
 	return v[GetViewLayout ()][viewNumber];
@@ -447,13 +470,11 @@ G3D::Rect2D Settings::GetViewRect (float w, float h,
 	};
 	return v[viewNumber];
     }
-    default:
-    {
-	RuntimeAssert (false, "Illegal number of views: ", GetViewCount ());
-	return Rect2D ();	
     }
-    }
+    return G3D::Rect2D ();
 }
+
+
 
 G3D::Rect2D Settings::GetViewColorBarRect (const G3D::Rect2D& viewRect)
 {
@@ -467,4 +488,53 @@ G3D::Rect2D Settings::GetViewOverlayBarRect (const G3D::Rect2D& viewRect)
     return G3D::Rect2D::xywh (
 	viewRect.x0 () + 15 + 10 + 5, viewRect.y0 () + 15,
 	10, max (viewRect.height () / 4, 50.0f));
+}
+
+vector<ViewNumber::Enum> Settings::GetConnectedViewNumbers (
+    ViewNumber::Enum viewNumber) const
+{
+    if (m_reflectedHalfView)
+    {
+	vector<ViewNumber::Enum> vn(2);
+	vn[0] = ViewNumber::VIEW0;
+	vn[1] = ViewNumber::VIEW1;
+	return vn;
+    }
+    else
+    {
+	vector<ViewNumber::Enum> vn(1);
+	vn[0] = viewNumber;
+	return vn;
+    }
+}
+
+void Settings::SetReflectedHalfView (bool reflectedHalfView, 
+				     const Simulation& simulation, float xOverY)
+{
+    m_reflectedHalfView = reflectedHalfView;
+    setScaleCenter (ViewNumber::VIEW0, simulation, xOverY);
+    setScaleCenter (ViewNumber::VIEW1, simulation, xOverY);
+}
+
+void Settings::setScaleCenter (
+    ViewNumber::Enum viewNumber, const Simulation& simulation, float xOverY)
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    G3D::Rect2D rect = 
+	toRect2D (CalculateViewingVolume (
+		      viewNumber, simulation, xOverY,
+		      ViewingVolumeOperation::DONT_ENCLOSE2D));
+    G3D::Vector2 newCenter = CalculateScaleCenter (viewNumber, rect);
+    vs.SetScaleCenter (newCenter);
+}
+
+G3D::Vector2 Settings::CalculateScaleCenter (
+    ViewNumber::Enum viewNumber, const G3D::Rect2D& rect) const
+{
+    if (! IsReflectedHalfView ())
+	return rect.center ();
+    else if (viewNumber == ViewNumber::VIEW0)
+	return (rect.x0y0 () + rect.x1y0 ()) / 2;
+    else
+	return (rect.x0y1 () + rect.x1y1 ()) / 2;
 }

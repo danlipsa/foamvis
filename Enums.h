@@ -374,12 +374,13 @@ struct ViewCount
 {
     enum Enum
     {
+	ZERO = 0,
 	ONE,
 	TWO,
 	THREE,
-	FOUR, MAX = FOUR
+	FOUR,
+	COUNT
     };
-    static size_t GetCount (ViewCount::Enum);
     static ViewCount::Enum FromSizeT (size_t count);
 };
 

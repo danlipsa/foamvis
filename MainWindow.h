@@ -66,8 +66,6 @@ Q_SIGNALS:
 
 
 public Q_SLOTS:
-    void CurrentIndexChangedViewCount (int index);
-    void CurrentIndexChangedViewLayout (int index);
     void ValueChangedContextAlpha (int sliderValue);
     void ToggledVelocityShown (bool checked);
     void ToggledHistogramGridShown (bool checked);
@@ -105,6 +103,9 @@ public Q_SLOTS:
      */
     void CurrentIndexChangedSelectedLight (int i);
     void CurrentIndexChangedWindowSize (int i);
+    void CurrentIndexChangedViewCount (int index);
+    void CurrentIndexChangedViewLayout (int index);
+    void CurrentIndexChangedWindowLayout (int index);
 
     void ShowEditColorMap ();
     void ShowEditOverlayMap ();
@@ -153,7 +154,7 @@ private:
 	ViewNumber::Enum viewNumber, int index);
 
 
-    void init3DAverage ();
+    void update3DAverage ();
     void currentIndexChangedFaceColor (ViewNumber::Enum viewNumber);
     void deformationViewToUI ();
     void velocityViewToUI ();
