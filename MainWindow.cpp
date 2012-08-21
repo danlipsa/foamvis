@@ -1408,18 +1408,17 @@ void MainWindow::ButtonClickedViewType (int vt)
 {
     vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
     ViewType::Enum viewType = ViewType::Enum(vt);
-    ViewType::Enum oldViewType = 
-	m_settings->GetViewSettings (vn[0]).GetViewType ();
+    ViewType::Enum oldViewType = m_settings->SetConnectedViewType (viewType);
+    widgetGl->ButtonClickedViewType (oldViewType);
+    update3DAverage ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
 	ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
-	vs.SetViewType (viewType);
+	const Simulation& simulation = m_simulationGroup.GetSimulation (
+	    *m_settings, viewNumber);
 
-	const Simulation& simulation = widgetGl->GetSimulation (viewNumber);
-
-	size_t simulationIndex = 
-	    widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
+	size_t simulationIndex = vs.GetSimulationIndex ();
 	ViewType::Enum oldViewType = vs.GetViewType ();
 	size_t property = vs.GetBodyOrFaceScalar ();
 	StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
@@ -1438,7 +1437,6 @@ void MainWindow::ButtonClickedViewType (int vt)
 	case ViewType::AVERAGE:
 	    labelAverageColor->setText (
 		BodyScalar::ToString (BodyScalar::FromSizeT (property)));
-	    update3DAverage ();
 	    break;
 
 	case ViewType::CENTER_PATHS:
@@ -1456,7 +1454,6 @@ void MainWindow::ButtonClickedViewType (int vt)
 	if (oldViewType == ViewType::T1S_PDE)
 	    sliderTimeSteps->setMaximum (simulation.GetTimeSteps () - 1);
     }
-    widgetGl->ButtonClickedViewType (oldViewType);
 }
 
 void MainWindow::CurrentIndexChangedSimulation (int simulationIndex)
@@ -1539,7 +1536,7 @@ void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)
 	return;
     }
     checkBoxTitleShown->setChecked (false);
-    m_settings->SetReflectedHalfView (
+    m_settings->SetSplitHalfView (
 	reflectedHalfView, 
 	m_simulationGroup.GetSimulation (*m_settings), widgetGl->GetXOverY ());
 }

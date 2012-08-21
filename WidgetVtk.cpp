@@ -322,8 +322,10 @@ void WidgetVtk::AddView (
     pipeline.UpdateOpacity (m_settings->GetContextAlpha ());
     pipeline.UpdateThreshold (interval);
     pipeline.UpdateColorTransferFunction (colorTransferFunction, scalarName);
-    G3D::Rect2D vr = m_settings->GetViewRect (w, h, viewNumber,
-					      m_settings->GetVtkCount ());
+    vector<ViewNumber::Enum> mapping;
+    ViewCount::Enum viewCount = m_settings->GetVtkCount (&mapping);
+    G3D::Rect2D vr = m_settings->GetViewRect (w, h, mapping[viewNumber],
+					      viewCount);
     G3D::Rect2D viewRect = G3D::Rect2D::xyxy (vr.x0 () / w, vr.y0 () / h,
 					      vr.x1 () / w, vr.y1 () / h);
     renderWindow->AddRenderer(pipeline.m_renderer);

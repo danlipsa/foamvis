@@ -88,7 +88,7 @@ Settings::Settings (const Simulation& simulation, float xOverY,
     m_objectVelocityShown (false),
     m_centerPathTubeUsed (true),
     m_centerPathLineUsed (false),
-    m_reflectedHalfView (false)
+    m_splitHalfView (false)
 {
     initViewSettings (simulation, xOverY, t1sShiftLower);
     initEndTranslationColor ();
@@ -395,17 +395,59 @@ float Settings::GetXOverY (float xOverY, ViewNumber::Enum viewNumber) const
     return v[(GetViewCount () - 1) * 2 + GetViewLayout ()];
 }
 
-ViewCount::Enum Settings::GetVtkCount () const
+bool Settings::IsVtkView (ViewNumber::Enum viewNumber) const
+{
+    const ViewSettings& vs = 
+	GetViewSettings (ViewNumber::FromSizeT (viewNumber));
+    return DATA_PROPERTIES.Is3D () && vs.GetViewType () == ViewType::AVERAGE;
+}
+
+ViewCount::Enum Settings::GetVtkCount (vector<ViewNumber::Enum>* mapping) const
 {
     ViewCount::Enum viewCount = GetViewCount ();
+    mapping->resize (viewCount);
+    fill (mapping->begin (), mapping->end (), ViewNumber::COUNT);
     int vtkCount = 0;
     for (int i = 0; i < viewCount; ++i)
-    {
-	const ViewSettings& vs = GetViewSettings (ViewNumber::FromSizeT (i));
-	if (vs.GetViewType () == ViewType::AVERAGE)
-	    ++vtkCount;
-    }
+	if (IsVtkView (ViewNumber::FromSizeT (i)))
+	{
+	    (*mapping)[i] = ViewNumber::FromSizeT (vtkCount);
+	    vtkCount++;
+	}
     return ViewCount::FromSizeT (vtkCount);
+}
+
+ViewCount::Enum Settings::GetGlCount (vector<ViewNumber::Enum>* mapping) const
+{
+    vector<ViewNumber::Enum> m;
+    if (mapping == 0)
+	mapping = &m;
+    ViewCount::Enum viewCount = GetVtkCount (mapping);
+    // complement the result
+    viewCount = ViewCount::FromSizeT (GetViewCount () - viewCount);
+    int glViewNumber = 0;
+    for (size_t i = 0; i < mapping->size (); ++i)
+	if ((*mapping)[i] == ViewNumber::COUNT)
+	    (*mapping)[i] = ViewNumber::FromSizeT (glViewNumber++);
+	else
+	    (*mapping)[i] = ViewNumber::COUNT;
+    RuntimeAssert (glViewNumber == viewCount, 
+		   "GetGLCount: counts should be equal:", 
+		   viewCount, glViewNumber);
+    return viewCount;
+}
+
+ViewType::Enum Settings::SetConnectedViewType (ViewType::Enum viewType)
+{
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    ViewType::Enum oldViewType = GetViewSettings (vn[0]).GetViewType ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	vs.SetViewType (viewType);
+    }
+    return oldViewType;
 }
 
 
@@ -493,7 +535,7 @@ G3D::Rect2D Settings::GetViewOverlayBarRect (const G3D::Rect2D& viewRect)
 vector<ViewNumber::Enum> Settings::GetConnectedViewNumbers (
     ViewNumber::Enum viewNumber) const
 {
-    if (m_reflectedHalfView)
+    if (m_splitHalfView)
     {
 	vector<ViewNumber::Enum> vn(2);
 	vn[0] = ViewNumber::VIEW0;
@@ -508,10 +550,10 @@ vector<ViewNumber::Enum> Settings::GetConnectedViewNumbers (
     }
 }
 
-void Settings::SetReflectedHalfView (bool reflectedHalfView, 
+void Settings::SetSplitHalfView (bool reflectedHalfView, 
 				     const Simulation& simulation, float xOverY)
 {
-    m_reflectedHalfView = reflectedHalfView;
+    m_splitHalfView = reflectedHalfView;
     setScaleCenter (ViewNumber::VIEW0, simulation, xOverY);
     setScaleCenter (ViewNumber::VIEW1, simulation, xOverY);
 }
@@ -531,7 +573,7 @@ void Settings::setScaleCenter (
 G3D::Vector2 Settings::CalculateScaleCenter (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& rect) const
 {
-    if (! IsReflectedHalfView ())
+    if (! IsSplitHalfView ())
 	return rect.center ();
     else if (viewNumber == ViewNumber::VIEW0)
 	return (rect.x0y0 () + rect.x1y0 ()) / 2;

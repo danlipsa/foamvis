@@ -614,7 +614,7 @@ void WidgetGl::translateLight (ViewNumber::Enum viewNumber,
 			       const QPoint& position)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    G3D::Rect2D viewport = vs.GetViewport ();
+    G3D::Rect2D viewport = GetViewRect (viewNumber);
     G3D::Vector2 oldPosition = G3D::Vector2 (m_lastPos.x (), m_lastPos.y ());
     G3D::Vector2 newPosition = G3D::Vector2 (position.x (), position.y ());
     G3D::Vector2 viewportCenter = viewport.center ();
@@ -800,16 +800,20 @@ void WidgetGl::ProjectionTransform (
 
 void WidgetGl::viewportTransform (ViewNumber::Enum viewNumber) const
 {
-    G3D::Rect2D viewRect = GetViewRect (viewNumber);
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    vs.SetViewport (viewRect);
+    vector<ViewNumber::Enum> mapping;
+    ViewCount::Enum glViewCount = m_settings->GetGlCount (&mapping);
+    G3D::Rect2D viewRect = m_settings->GetViewRect (
+	width (), height (), mapping[viewNumber], glViewCount);
     glViewport (viewRect);
     //cdbg << viewRect << endl;
 }
 
 G3D::Rect2D WidgetGl::GetViewRect (ViewNumber::Enum viewNumber) const
 {
-    return m_settings->GetViewRect (width (), height (), viewNumber);
+    vector<ViewNumber::Enum> mapping;
+    ViewCount::Enum glViewCount = m_settings->GetGlCount (&mapping);
+    return m_settings->GetViewRect (width (), height (), mapping[viewNumber],
+				    glViewCount);
 }
 
 
@@ -1115,8 +1119,9 @@ void WidgetGl::paintGL ()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     displayViews ();
-    displayViewsGrid ();
+    displayViewsGrid ();	
     Q_EMIT PaintEnd ();
+    
 }
 
 void WidgetGl::resizeGL(int w, int h)
@@ -1141,17 +1146,16 @@ void WidgetGl::displayViews ()
 	RuntimeAssert (false, "Invalid view count:", viewCount);
 	break;
     case ViewCount::FOUR:
-	for (size_t i = 0; i < 4; ++i)
-	    displayView (ViewNumber::Enum (i));
-	break;
     case ViewCount::THREE:
-	for (size_t i = 0; i < 3; ++i)
-	    displayView (ViewNumber::Enum (i));
-	break;
     case ViewCount::TWO:
-	displayView (ViewNumber::VIEW1);
     case ViewCount::ONE:
-	displayView (ViewNumber::VIEW0);
+	for (int i = 0; i < viewCount; ++i)
+	{
+	    ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
+	    if (m_settings->IsGlView (viewNumber))
+		displayView (viewNumber);
+	}
+	break;
     }
 }
 
@@ -1227,7 +1231,7 @@ G3D::Matrix3 WidgetGl::rotate (
     const G3D::Matrix3& r)
 {
     G3D::Matrix3 rotate = r;
-    const G3D::Rect2D& viewport = GetViewSettings (viewNumber).GetViewport ();
+    const G3D::Rect2D& viewport = GetViewRect (viewNumber);
     int dx = position.x() - m_lastPos.x();
     int dy = position.y() - m_lastPos.y();
 
@@ -1264,16 +1268,15 @@ G3D::Vector3 WidgetGl::calculateTranslationRatio (
     G3D::Vector3::Axis screenXTranslation,
     G3D::Vector3::Axis screenYTranslation) const
 {
-    ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::Vector3 translationRatio;
+    G3D::Rect2D viewport = GetViewRect (viewNumber);
     if (screenXTranslation != G3D::Vector3::DETECT_AXIS)
 	translationRatio[screenXTranslation] =
-	    static_cast<float>(position.x() - m_lastPos.x()) /
-	    vs.GetViewport ().width ();
+	    static_cast<float>(position.x() - m_lastPos.x()) / viewport.width ();
     if (screenYTranslation != G3D::Vector3::DETECT_AXIS)
 	translationRatio[screenYTranslation] =
 	    - static_cast<float> (position.y() - m_lastPos.y()) / 
-	    vs.GetViewport ().height ();
+	    viewport.height ();
     return translationRatio;
 }
 
@@ -3112,10 +3115,11 @@ void WidgetGl::displayViewsGrid ()
     size_t h = height ();
     glDisable (GL_DEPTH_TEST);
     glColor (Qt::black);
-    if (m_settings->IsReflectedHalfView ())	
+    if (m_settings->IsSplitHalfView ())	
 	glLineWidth (3);
     glBegin (GL_LINES);
-    switch (m_settings->GetViewCount ())
+    ViewCount::Enum viewCount = m_settings->GetGlCount ();
+    switch (viewCount)
     {
     case ViewCount::TWO:
     {
@@ -3289,7 +3293,7 @@ void WidgetGl::valueChangedT1sKernelIntervalPerPixel (
 template<typename T>
 void WidgetGl::SetOneOrTwoViews (T* t, void (T::*f) (ViewNumber::Enum))
 {
-    if (m_settings->IsReflectedHalfView ())
+    if (m_settings->IsSplitHalfView ())
     {
 	CALL_MEMBER_FN (*t, f) (ViewNumber::VIEW0);
 	CALL_MEMBER_FN (*t, f) (ViewNumber::VIEW1);
@@ -3311,18 +3315,24 @@ void WidgetGl::UpdateAverage (
 
 void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
 {
-    makeCurrent ();
-    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
-    for (size_t i = 0; i < vn.size (); ++i)
+    if (m_settings->GetGlCount () == 0)
+	setVisible (false);
+    else
     {
-	ViewNumber::Enum viewNumber = vn[i];
-	ViewSettings& vs = GetViewSettings (viewNumber);
-	ViewType::Enum newViewType = vs.GetViewType ();
-	if (oldViewType == newViewType)
-	    continue;
-	GetViewAverage (viewNumber).AverageRelease ();
-	GetViewAverage (viewNumber).AverageInitStep ();
-	compile (viewNumber);
+	makeCurrent ();
+	vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
+	for (size_t i = 0; i < vn.size (); ++i)
+	{
+	    ViewNumber::Enum viewNumber = vn[i];
+	    ViewSettings& vs = GetViewSettings (viewNumber);
+	    ViewType::Enum newViewType = vs.GetViewType ();
+	    if (oldViewType == newViewType)
+		continue;
+	    GetViewAverage (viewNumber).AverageRelease ();
+	    GetViewAverage (viewNumber).AverageInitStep ();
+	    compile (viewNumber);
+	}
+    	setVisible (true);
     }
     update ();
 }

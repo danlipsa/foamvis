@@ -104,22 +104,28 @@ public:
     {
 	return m_viewNumber;
     }
+
+    //////////////////
+    // Split half view
     vector<ViewNumber::Enum> GetConnectedViewNumbers (
 	ViewNumber::Enum viewNumber) const;
-    bool IsReflectedHalfView () const
-    {
-	return m_reflectedHalfView;
-    }
-    void SetReflectedHalfView (bool reflectedHalfView,
-			       const Simulation& simulation, float xOverY);
-    G3D::Vector2 CalculateScaleCenter (
-	ViewNumber::Enum viewNumber, const G3D::Rect2D& rect) const;
-
 
     vector<ViewNumber::Enum> GetConnectedViewNumbers () const
     {
 	return GetConnectedViewNumbers (GetViewNumber ());
     }
+
+    bool IsSplitHalfView () const
+    {
+	return m_splitHalfView;
+    }
+    void SetSplitHalfView (bool reflectedHalfView,
+			   const Simulation& simulation, float xOverY);
+    G3D::Vector2 CalculateScaleCenter (
+	ViewNumber::Enum viewNumber, const G3D::Rect2D& rect) const;
+    ViewType::Enum SetConnectedViewType (ViewType::Enum viewType);
+
+
 
 
     void SetViewNumber (ViewNumber::Enum viewNumber);
@@ -160,7 +166,18 @@ public:
     {
 	return m_viewCount;
     }
-    ViewCount::Enum GetVtkCount () const;
+
+    ///////////////////
+    // VTK and GL views
+    bool IsVtkView (ViewNumber::Enum viewNumber) const;
+    bool IsGlView (ViewNumber::Enum viewNumber) const
+    {
+	return ! IsVtkView (viewNumber);
+    }
+    ViewCount::Enum GetVtkCount (vector<ViewNumber::Enum>* mapping) const;
+    ViewCount::Enum GetGlCount (vector<ViewNumber::Enum>* mapping = 0) const;
+
+
 
     void SetViewCount (ViewCount::Enum viewCount)
     {
@@ -291,7 +308,7 @@ private:
     bool m_objectVelocityShown;
     bool m_centerPathTubeUsed;
     bool m_centerPathLineUsed;
-    bool m_reflectedHalfView;
+    bool m_splitHalfView;
 };
 
 

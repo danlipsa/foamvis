@@ -292,22 +292,7 @@ public:
     void SetContextScaleRatio (double contextScaleRatio)
     {
 	m_contextScaleRatio = contextScaleRatio;
-    }
-
-
-    ///////////
-    // Viewport
-    //
-    const G3D::Rect2D& GetViewport () const
-    {
-	return m_viewport;
-    }
-
-    void SetViewport (const G3D::Rect2D& v)
-    {
-	m_viewport = v;
-    }
-    
+    }    
 
     /////////
     // Lights
@@ -636,7 +621,6 @@ private:
     G3D::Matrix3 m_rotationFocus;
     G3D::Vector3 m_rotationCenter;
     RotationCenterType m_rotationCenterType;
-    G3D::Rect2D m_viewport;
     double m_scaleRatio;
     double m_gridScaleRatio;
     double m_contextScaleRatio;
