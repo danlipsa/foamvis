@@ -639,15 +639,6 @@ const Simulation& SimulationGroup::GetSimulation(
 	    settings.GetViewSettings (viewNumber).GetSimulationIndex ());
 }
 
-G3D::AABox SimulationGroup::CalculateCenteredViewingVolume (
-    const Settings& settings,
-    ViewNumber::Enum viewNumber, float xOverY,
-    ViewingVolumeOperation::Enum enclose) const
-{
-    return settings.CalculateCenteredViewingVolume (
-	viewNumber, GetSimulation (settings, viewNumber), xOverY,
-	enclose);    
-}
 
 const Simulation& SimulationGroup::GetSimulation(const Settings& settings) const
 {

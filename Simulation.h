@@ -313,11 +313,6 @@ public:
     }
     string ToString () const;
     float GetBubbleSize () const;    
-    G3D::AABox CalculateCenteredViewingVolume (
-	const Settings& settings,
-	ViewNumber::Enum viewNumber, float xOverY,
-	ViewingVolumeOperation::Enum enclose = 
-	ViewingVolumeOperation::ENCLOSE2D) const;
 
 
 private:

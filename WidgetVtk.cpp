@@ -311,9 +311,10 @@ void WidgetVtk::AddView (
     ViewPipeline& pipeline = m_pipeline[viewNumber];
     float w = width ();
     float h = height ();
-
+    vector<ViewNumber::Enum> mapping;
+    ViewCount::Enum viewCount = m_settings->GetVtkCount (&mapping);
     G3D::AABox vv = m_settings->CalculateViewingVolume (
-	viewNumber, simulation, w / h);
+	mapping[viewNumber], viewCount, simulation, w, h);
     G3D::AABox bb = simulation.GetBoundingBox ();
     average->AverageInitStep ();
     int direction = 0;
@@ -322,8 +323,6 @@ void WidgetVtk::AddView (
     pipeline.UpdateOpacity (m_settings->GetContextAlpha ());
     pipeline.UpdateThreshold (interval);
     pipeline.UpdateColorTransferFunction (colorTransferFunction, scalarName);
-    vector<ViewNumber::Enum> mapping;
-    ViewCount::Enum viewCount = m_settings->GetVtkCount (&mapping);
     G3D::Rect2D vr = m_settings->GetViewRect (w, h, mapping[viewNumber],
 					      viewCount);
     G3D::Rect2D viewRect = G3D::Rect2D::xyxy (vr.x0 () / w, vr.y0 () / h,

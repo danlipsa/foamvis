@@ -67,7 +67,7 @@ const size_t Settings::QUADRIC_SLICES = 8;
 const size_t Settings::QUADRIC_STACKS = 1;
 
 
-Settings::Settings (const Simulation& simulation, float xOverY, 
+Settings::Settings (const Simulation& simulation, float w, float h,
 		    bool t1sShiftLower) :
     m_contextAlpha (CONTEXT_ALPHA.first),
     m_edgeRadius (0),
@@ -90,7 +90,7 @@ Settings::Settings (const Simulation& simulation, float xOverY,
     m_centerPathLineUsed (false),
     m_splitHalfView (false)
 {
-    initViewSettings (simulation, xOverY, t1sShiftLower);
+    initViewSettings (simulation, w, h, t1sShiftLower);
     initEndTranslationColor ();
 }
 
@@ -135,15 +135,17 @@ void Settings::initEndTranslationColor ()
 }
 
 void Settings::initViewSettings (
-    const Simulation& simulation, float xOverY, bool t1sShiftLower)
+    const Simulation& simulation, float w, float h, bool t1sShiftLower)
 {
     ViewNumber::Enum viewNumber (ViewNumber::VIEW0);
+    ViewCount::Enum viewCount = ViewCount::FromSizeT (m_viewSettings.size ());
     BOOST_FOREACH (boost::shared_ptr<ViewSettings>& vs, m_viewSettings)
     {
 	vs = boost::make_shared <ViewSettings> ();
 	vs->SetViewType (ViewType::FACES);
 	G3D::Vector3 center = CalculateViewingVolume (
-	    viewNumber, simulation, xOverY,
+	    viewNumber, viewCount, 
+	    simulation, w, h,
 	    ViewingVolumeOperation::DONT_ENCLOSE2D).center ();
 	vs->SetSimulation (0, simulation, center, t1sShiftLower);
 	if (simulation.Is3D ())
@@ -164,7 +166,7 @@ void Settings::initViewSettings (
 	}
 	vs->CalculateCameraDistance (
 	    CalculateCenteredViewingVolume (
-		viewNumber, simulation, xOverY,
+		viewNumber, viewCount, simulation, w / h,
 		ViewingVolumeOperation::DONT_ENCLOSE2D));
 	viewNumber = ViewNumber::Enum (viewNumber + 1);
     }
@@ -343,21 +345,23 @@ pair<size_t, ViewNumber::Enum> Settings::LinkedTimeMaxInterval () const
 }
 
 G3D::AABox Settings::CalculateCenteredViewingVolume (
-    ViewNumber::Enum viewNumber, const Simulation& simulation, 
-    float xOverYWindow, ViewingVolumeOperation::Enum enclose) const
+    ViewNumber::Enum viewNumber, ViewCount::Enum viewCount, 
+    const Simulation& simulation, 
+    float w, float h, ViewingVolumeOperation::Enum enclose) const
 {
-    G3D::AABox box = CalculateViewingVolume (viewNumber, simulation,
-					     xOverYWindow, enclose);
+    G3D::AABox box = CalculateViewingVolume (viewNumber, viewCount, simulation,
+					     w, h, enclose);
     return box - box.center ();
 }
 
 G3D::AABox Settings::CalculateEyeViewingVolume (
-    ViewNumber::Enum viewNumber, const Simulation& simulation, 
-    float xOverYWindow, ViewingVolumeOperation::Enum enclose) const
+    ViewNumber::Enum viewNumber, ViewCount::Enum viewCount, 
+    const Simulation& simulation, 
+    float w, float h, ViewingVolumeOperation::Enum enclose) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    G3D::AABox vv = CalculateViewingVolume (viewNumber, simulation, 
-					    xOverYWindow, enclose);
+    G3D::AABox vv = CalculateViewingVolume (viewNumber, viewCount, simulation, 
+					    w, h, enclose);
     vv = vv - vv.center ();
     G3D::Vector3 translation (vs.GetCameraDistance () * G3D::Vector3::unitZ ());
     G3D::AABox result = vv - translation;
@@ -367,11 +371,12 @@ G3D::AABox Settings::CalculateEyeViewingVolume (
 
 
 G3D::AABox Settings::CalculateViewingVolume (
-    ViewNumber::Enum viewNumber, const Simulation& simulation, 
-    float xOverYWindow, ViewingVolumeOperation::Enum enclose) const
+    ViewNumber::Enum viewNumber, ViewCount::Enum viewCount, 
+    const Simulation& simulation, 
+    float w, float h, ViewingVolumeOperation::Enum enclose) const
 {    
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    float xOverY = GetXOverY (xOverYWindow, viewNumber);
+    float xOverY = getXOverY (w, h, viewNumber, viewCount);
     G3D::AABox bb = simulation.GetBoundingBox ();
     G3D::AABox vv = AdjustXOverYRatio (EncloseRotation (bb), xOverY);
     if (! simulation.Is2D ())
@@ -381,18 +386,6 @@ G3D::AABox Settings::CalculateViewingVolume (
     if (enclose == ViewingVolumeOperation::ENCLOSE2D)
 	vv = EncloseRotation2D (vv);
     return vv;
-}
-
-float Settings::GetXOverY (float xOverY, ViewNumber::Enum viewNumber) const
-{
-    (void)viewNumber;
-    float v[] = { 
-	xOverY, xOverY,     // ONE
-	xOverY/2, 2*xOverY, // TWO (HORIZONTAL, VERTICAL)
-	xOverY/3, 3*xOverY, // THREE (HORIZONTAL, VERTICAL)
-	xOverY, xOverY      // FOUR
-    };
-    return v[(GetViewCount () - 1) * 2 + GetViewLayout ()];
 }
 
 bool Settings::IsVtkView (ViewNumber::Enum viewNumber) const
@@ -451,11 +444,22 @@ ViewType::Enum Settings::SetConnectedViewType (ViewType::Enum viewType)
 }
 
 
+float Settings::getXOverY (float w, float h, ViewNumber::Enum viewNumber, 
+			   ViewCount::Enum viewCount) const
+{
+    G3D::Rect2D rect = GetViewRect (w, h, viewNumber, viewCount);
+    return rect.width () / rect.height ();
+}
+
+
+
 G3D::Rect2D Settings::GetViewRect (
     float w, float h,
     ViewNumber::Enum viewNumber, ViewCount::Enum viewCount) const
 {
     using G3D::Rect2D;
+    RuntimeAssert (viewNumber != ViewNumber::COUNT,
+		   "Invalid view number ViewNumber::COUNT");
     switch (viewCount)
     {
     case ViewCount::ZERO:
@@ -551,20 +555,20 @@ vector<ViewNumber::Enum> Settings::GetConnectedViewNumbers (
 }
 
 void Settings::SetSplitHalfView (bool reflectedHalfView, 
-				     const Simulation& simulation, float xOverY)
+				 const Simulation& simulation, float w, float h)
 {
     m_splitHalfView = reflectedHalfView;
-    setScaleCenter (ViewNumber::VIEW0, simulation, xOverY);
-    setScaleCenter (ViewNumber::VIEW1, simulation, xOverY);
+    setScaleCenter (ViewNumber::VIEW0, simulation, w, h);
+    setScaleCenter (ViewNumber::VIEW1, simulation, w, h);
 }
 
 void Settings::setScaleCenter (
-    ViewNumber::Enum viewNumber, const Simulation& simulation, float xOverY)
+    ViewNumber::Enum viewNumber, const Simulation& simulation, float w, float h)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::Rect2D rect = 
 	toRect2D (CalculateViewingVolume (
-		      viewNumber, simulation, xOverY,
+		      viewNumber, ViewCount::TWO, simulation, w, h,
 		      ViewingVolumeOperation::DONT_ENCLOSE2D));
     G3D::Vector2 newCenter = CalculateScaleCenter (viewNumber, rect);
     vs.SetScaleCenter (newCenter);

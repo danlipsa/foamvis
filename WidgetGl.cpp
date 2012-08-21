@@ -681,28 +681,34 @@ G3D::Vector3 WidgetGl::calculateViewingVolumeScaledExtent (
 G3D::AABox WidgetGl::calculateEyeViewingVolume (
     ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose) const
 {
+    
+    vector<ViewNumber::Enum> mapping;
+    ViewCount::Enum viewCount = m_settings->GetGlCount (&mapping);
     return m_settings->CalculateEyeViewingVolume (
-	viewNumber, GetSimulation (viewNumber), GetXOverY (),
-	enclose);
+	mapping[viewNumber], viewCount, 
+	GetSimulation (viewNumber), width (), height (), enclose);
 }
 
 
 G3D::AABox WidgetGl::CalculateViewingVolume (
     ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose) const
 {    
+    vector<ViewNumber::Enum> mapping;
+    ViewCount::Enum viewCount = m_settings->GetGlCount (&mapping);
     return m_settings->CalculateViewingVolume (
-	viewNumber, GetSimulation (viewNumber), GetXOverY (), enclose);
+	mapping[viewNumber], viewCount, 
+	GetSimulation (viewNumber), width (), height (), enclose);
 }
 
 G3D::AABox WidgetGl::CalculateCenteredViewingVolume (
     ViewNumber::Enum viewNumber) const
 {
+    vector<ViewNumber::Enum> mapping;
+    ViewCount::Enum viewCount = m_settings->GetGlCount (&mapping);
     return m_settings->CalculateCenteredViewingVolume (
-	viewNumber, GetSimulation (viewNumber), GetXOverY (),
-	ViewingVolumeOperation::DONT_ENCLOSE2D);
+	mapping[viewNumber], viewCount, GetSimulation (viewNumber), width (),
+	height (), ViewingVolumeOperation::DONT_ENCLOSE2D);
 }
-
-
 
 G3D::Vector3 WidgetGl::getEyeTransform (ViewNumber::Enum viewNumber) const
 {
@@ -800,10 +806,7 @@ void WidgetGl::ProjectionTransform (
 
 void WidgetGl::viewportTransform (ViewNumber::Enum viewNumber) const
 {
-    vector<ViewNumber::Enum> mapping;
-    ViewCount::Enum glViewCount = m_settings->GetGlCount (&mapping);
-    G3D::Rect2D viewRect = m_settings->GetViewRect (
-	width (), height (), mapping[viewNumber], glViewCount);
+    G3D::Rect2D viewRect = GetViewRect (viewNumber);
     glViewport (viewRect);
     //cdbg << viewRect << endl;
 }
@@ -817,22 +820,19 @@ G3D::Rect2D WidgetGl::GetViewRect (ViewNumber::Enum viewNumber) const
 }
 
 
-float WidgetGl::GetXOverY () const
-{
-    return float (width ()) / height ();    
-}
-
-
 void WidgetGl::setView (const G3D::Vector2& clickedPoint)
 {
     for (int i = 0; i < m_settings->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	G3D::Rect2D viewRect = GetViewRect (viewNumber);
-	if (viewRect.contains (clickedPoint))
+	if (m_settings->IsGlView (viewNumber))
 	{
-	    m_settings->SetViewNumber (viewNumber);
-	    break;
+	    G3D::Rect2D viewRect = GetViewRect (viewNumber);
+	    if (viewRect.contains (clickedPoint))
+	    {
+		m_settings->SetViewNumber (viewNumber);
+		break;
+	    }
 	}
     }
 }
@@ -1130,7 +1130,8 @@ void WidgetGl::resizeGL(int w, int h)
     for (int i = 0; i < m_settings->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	GetViewAverage (viewNumber).AverageInitStep ();
+	if (m_settings->IsGlView (viewNumber))
+	    GetViewAverage (viewNumber).AverageInitStep ();
     }
     WarnOnOpenGLError ("resizeGl");
 }
@@ -3324,13 +3325,16 @@ void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
 	for (size_t i = 0; i < vn.size (); ++i)
 	{
 	    ViewNumber::Enum viewNumber = vn[i];
-	    ViewSettings& vs = GetViewSettings (viewNumber);
-	    ViewType::Enum newViewType = vs.GetViewType ();
-	    if (oldViewType == newViewType)
-		continue;
-	    GetViewAverage (viewNumber).AverageRelease ();
-	    GetViewAverage (viewNumber).AverageInitStep ();
-	    compile (viewNumber);
+	    if (m_settings->IsGlView (viewNumber))
+	    {
+		ViewSettings& vs = GetViewSettings (viewNumber);
+		ViewType::Enum newViewType = vs.GetViewType ();
+		if (oldViewType == newViewType)
+		    continue;
+		GetViewAverage (viewNumber).AverageRelease ();
+		GetViewAverage (viewNumber).AverageInitStep ();
+		compile (viewNumber);
+	    }
 	}
     	setVisible (true);
     }
@@ -3944,9 +3948,7 @@ void WidgetGl::CurrentIndexChangedSimulation (int i)
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (i);
-    G3D::Vector3 center = m_settings->CalculateViewingVolume (
-	viewNumber, simulation, GetXOverY (),
-	ViewingVolumeOperation::DONT_ENCLOSE2D).center ();
+    G3D::Vector3 center = CalculateViewingVolume (viewNumber).center ();
     vs.SetSimulation (i, simulation, center, vs.T1sShiftLower ());
     m_viewAverage[viewNumber]->SetSimulation (simulation);
     update ();

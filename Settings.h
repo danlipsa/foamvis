@@ -21,7 +21,8 @@ public:
 	Vector3int16Hash> EndLocationColor;
 
 public:
-    Settings (const Simulation& simulation, float xOverY, bool t1sShiftLower);
+    Settings (const Simulation& simulation, float w, float h, 
+	      bool t1sShiftLower);
     float GetContextAlpha () const
     {
 	return m_contextAlpha;
@@ -120,7 +121,7 @@ public:
 	return m_splitHalfView;
     }
     void SetSplitHalfView (bool reflectedHalfView,
-			   const Simulation& simulation, float xOverY);
+			   const Simulation& simulation, float w, float h);
     G3D::Vector2 CalculateScaleCenter (
 	ViewNumber::Enum viewNumber, const G3D::Rect2D& rect) const;
     ViewType::Enum SetConnectedViewType (ViewType::Enum viewType);
@@ -225,18 +226,20 @@ public:
     float LinkedTimeStepStretch (size_t max,
 				 ViewNumber::Enum viewNumber) const;
     pair<size_t, ViewNumber::Enum> LinkedTimeMaxInterval () const;
-    float GetXOverY (float xOverYWindow, ViewNumber::Enum viewNumber) const;
     G3D::AABox CalculateViewingVolume (
-	ViewNumber::Enum viewNumber, const Simulation& simulation, float xOverY,
-	ViewingVolumeOperation::Enum enclose = 
+	ViewNumber::Enum viewNumber, ViewCount::Enum viewCount, 
+	const Simulation& simulation, 
+	float w, float h, ViewingVolumeOperation::Enum enclose = 
 	ViewingVolumeOperation::ENCLOSE2D) const;
     G3D::AABox CalculateCenteredViewingVolume (
-	ViewNumber::Enum viewNumber, const Simulation& simulation, float xOverY,
-	ViewingVolumeOperation::Enum enclose = 
+	ViewNumber::Enum viewNumber, ViewCount::Enum viewCount, 
+	const Simulation& simulation, 
+	float w, float h, ViewingVolumeOperation::Enum enclose = 
 	ViewingVolumeOperation::ENCLOSE2D) const;
     G3D::AABox CalculateEyeViewingVolume (
-	ViewNumber::Enum viewNumber, const Simulation& simulation, 
-	float xOverYWindow, ViewingVolumeOperation::Enum enclose = 
+	ViewNumber::Enum viewNumber, ViewCount::Enum viewCount, 
+	const Simulation& simulation, 
+	float w, float h, ViewingVolumeOperation::Enum enclose = 
 	ViewingVolumeOperation::ENCLOSE2D) const;
     G3D::Rect2D GetViewRect (float w, float h,
 			     ViewNumber::Enum viewNumber, 
@@ -263,10 +266,12 @@ public:
     const static size_t QUADRIC_STACKS;
 
 private:
+    float getXOverY (float w, float h, ViewNumber::Enum viewNumber, 
+		     ViewCount::Enum viewCount) const;
     void setScaleCenter (ViewNumber::Enum viewNumber, 
-			 const Simulation& simulation, float xOverY);
+			 const Simulation& simulation, float w, float h);
     void initEndTranslationColor ();
-    void initViewSettings (const Simulation& simulation, float xOverY, 
+    void initViewSettings (const Simulation& simulation, float w, float h,
 			   bool t1sShiftLower);
     void checkLinkedTimesValid (size_t timeBegin, size_t timeEnd) const;
     void checkLinkedTimesValid () const;

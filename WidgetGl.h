@@ -222,7 +222,6 @@ public:
     {
 	return GetViewSettings (GetViewNumber ());
     }
-    float GetXOverY () const;
     void CompileUpdate ()
     {
 	CompileUpdate (GetViewNumber ());

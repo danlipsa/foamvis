@@ -84,7 +84,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     setupUi (this);
     const Simulation& simulation = simulationGroup.GetSimulation (0);
     m_settings.reset (new Settings (simulation, 
-				    widgetGl->GetXOverY (),
+				    widgetGl->width (), widgetGl->height (),
 				    simulation.GetT1sShift ()));
     setupHistograms ();
     connectSignals ();
@@ -1180,7 +1180,8 @@ void MainWindow::CurrentIndexChangedViewLayout (int index)
 
 void MainWindow::CurrentIndexChangedViewCount (int index)
 {
-    m_settings->SetViewCount (ViewCount::Enum (index + 1));
+    ViewCount::Enum viewCount = ViewCount::FromSizeT (index + 1);
+    m_settings->SetViewCount (viewCount);
     m_settings->SetViewNumber (ViewNumber::VIEW0);
     for (int i = 0; i < m_settings->GetViewCount (); ++i)
     {
@@ -1195,7 +1196,6 @@ void MainWindow::CurrentIndexChangedViewCount (int index)
 
     boost::array<QWidget*, 2> widgetsViewLayout = 
 	{{labelViewLayout, comboBoxViewLayout}};
-    ViewCount::Enum viewCount = ViewCount::Enum (index);
     if (viewCount == ViewCount::TWO || viewCount == ViewCount::THREE)
 	::setVisible (widgetsViewLayout, true);
     else
@@ -1538,7 +1538,8 @@ void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)
     checkBoxTitleShown->setChecked (false);
     m_settings->SetSplitHalfView (
 	reflectedHalfView, 
-	m_simulationGroup.GetSimulation (*m_settings), widgetGl->GetXOverY ());
+	m_simulationGroup.GetSimulation (*m_settings), 
+	widgetGl->width (), widgetGl->height ());
 }
 
 void MainWindow::ToggledForceDifference (bool forceDifference)
