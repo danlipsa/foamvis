@@ -151,7 +151,6 @@ WidgetGl::WidgetGl(QWidget *parent)
       m_t1sShown (false),
       m_t1sSize (1.0),
       m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
-      m_titleShown (false),
       m_averageAroundMarked (true),
       m_viewFocusShown (true),
       m_contextBoxShown (true),
@@ -689,6 +688,14 @@ G3D::AABox WidgetGl::calculateEyeViewingVolume (
 	GetSimulation (viewNumber), width (), height (), enclose);
 }
 
+G3D::Rect2D WidgetGl::GetViewRect (ViewNumber::Enum viewNumber) const
+{
+    vector<ViewNumber::Enum> mapping;
+    ViewCount::Enum glViewCount = m_settings->GetGlCount (&mapping);
+    return m_settings->GetViewRect (width (), height (), mapping[viewNumber],
+				    glViewCount);
+}
+
 
 G3D::AABox WidgetGl::CalculateViewingVolume (
     ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose) const
@@ -775,6 +782,17 @@ void WidgetGl::ModelViewTransform (ViewNumber::Enum viewNumber,
     transformFoamAverageAround (viewNumber, timeStep);
 }
 
+void WidgetGl::ForAllViews (boost::function <void (ViewNumber::Enum)> f)
+{
+    for (int i = 0; i < m_settings->GetViewCount (); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
+	if (m_settings->IsGlView (viewNumber))
+	    f (viewNumber);
+    }
+}
+
+
 boost::array<GLdouble,16>* WidgetGl::GetModelViewMatrix (
     boost::array<GLdouble, 16>* mv,
     ViewNumber::Enum viewNumber, 
@@ -811,31 +829,19 @@ void WidgetGl::viewportTransform (ViewNumber::Enum viewNumber) const
     //cdbg << viewRect << endl;
 }
 
-G3D::Rect2D WidgetGl::GetViewRect (ViewNumber::Enum viewNumber) const
-{
-    vector<ViewNumber::Enum> mapping;
-    ViewCount::Enum glViewCount = m_settings->GetGlCount (&mapping);
-    return m_settings->GetViewRect (width (), height (), mapping[viewNumber],
-				    glViewCount);
-}
-
-
 void WidgetGl::setView (const G3D::Vector2& clickedPoint)
 {
-    for (int i = 0; i < m_settings->GetViewCount (); ++i)
-    {
-	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	if (m_settings->IsGlView (viewNumber))
-	{
-	    G3D::Rect2D viewRect = GetViewRect (viewNumber);
-	    if (viewRect.contains (clickedPoint))
-	    {
-		m_settings->SetViewNumber (viewNumber);
-		break;
-	    }
-	}
-    }
+    ForAllViews (boost::bind (&WidgetGl::setView, this, _1, clickedPoint));
 }
+void WidgetGl::setView (ViewNumber::Enum viewNumber, 
+			const G3D::Vector2& clickedPoint)
+{
+    G3D::Rect2D viewRect = GetViewRect (viewNumber);
+    if (viewRect.contains (clickedPoint))
+	m_settings->SetViewNumber (viewNumber);
+}
+
+
 
 void WidgetGl::LinkedTimeBegin ()
 {
@@ -1119,7 +1125,6 @@ void WidgetGl::paintGL ()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     displayViews ();
-    displayViewsGrid ();	
     Q_EMIT PaintEnd ();
     
 }
@@ -1127,15 +1132,23 @@ void WidgetGl::paintGL ()
 void WidgetGl::resizeGL(int w, int h)
 {
     (void)w;(void)h;
-    for (int i = 0; i < m_settings->GetViewCount (); ++i)
-    {
-	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	if (m_settings->IsGlView (viewNumber))
-	    GetViewAverage (viewNumber).AverageInitStep ();
-    }
+    ForAllViews (boost::bind (&WidgetGl::averageInitStep, this, _1));
     WarnOnOpenGLError ("resizeGl");
 }
+void WidgetGl::averageInitStep (ViewNumber::Enum viewNumber)
+{
+    GetViewAverage (viewNumber).AverageInitStep ();
+}
 
+void WidgetGl::SetViewTypeAndCameraDistance (ViewNumber::Enum viewNumber)
+{
+    ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+    if (vs.GetViewType () == ViewType::COUNT)
+	vs.SetViewType (ViewType::FACES);
+    vs.CalculateCameraDistance (CalculateCenteredViewingVolume (viewNumber));
+    CompileUpdate (viewNumber);
+    setVisible (true);
+}
 
 void WidgetGl::displayViews ()
 {
@@ -1150,12 +1163,8 @@ void WidgetGl::displayViews ()
     case ViewCount::THREE:
     case ViewCount::TWO:
     case ViewCount::ONE:
-	for (int i = 0; i < viewCount; ++i)
-	{
-	    ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
-	    if (m_settings->IsGlView (viewNumber))
-		displayView (viewNumber);
-	}
+	ForAllViews (
+	    boost::bind (&WidgetGl::displayView, this, _1));
 	break;
     }
 }
@@ -3014,16 +3023,11 @@ void WidgetGl::cleanupTransformViewport ()
 
 void WidgetGl::displayViewTitle (ViewNumber::Enum viewNumber)
 {
-    if (! m_titleShown)
+    if (! m_settings->IsTitleShown ())
 	return;
-    ostringstream ostr;
     ViewSettings& vs = GetViewSettings (viewNumber);
-    ostr << "View " << viewNumber << " - "
-	 << ViewType::ToString (vs.GetViewType ()) << " - "
-	 << FaceScalar::ToString (vs.GetBodyOrFaceScalar ()) << " - "
-	 << vs.GetCurrentTime ();    
     displayViewText (viewNumber, GetSimulation (viewNumber).GetName (), 0);
-    displayViewText (viewNumber, ostr.str (), 1);
+    displayViewText (viewNumber, vs.GetTitle (viewNumber), 1);
 }
 
 void WidgetGl::displayViewText (
@@ -3052,7 +3056,7 @@ size_t WidgetGl::GetBodyOrFaceScalar (ViewNumber::Enum viewNumber) const
 void WidgetGl::displayViewFocus (ViewNumber::Enum viewNumber)
 {
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
-    G3D::Vector2 margin (3, 3);
+    G3D::Vector2 margin (1, 1);
     G3D::Rect2D rect = G3D::Rect2D::xyxy(
 	viewRect.x0y0 () + margin, viewRect.x1y1 () - margin);
     glColor (m_settings->GetHighlightColor (viewNumber, HighlightNumber::H0));
@@ -3107,68 +3111,6 @@ void WidgetGl::displayOverlayBar (
     glPopAttrib ();
 }
 
-
-void WidgetGl::displayViewsGrid ()
-{
-    glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
-    initTransformViewport ();
-    size_t w = width ();
-    size_t h = height ();
-    glDisable (GL_DEPTH_TEST);
-    glColor (Qt::black);
-    if (m_settings->IsSplitHalfView ())	
-	glLineWidth (3);
-    glBegin (GL_LINES);
-    ViewCount::Enum viewCount = m_settings->GetGlCount ();
-    switch (viewCount)
-    {
-    case ViewCount::TWO:
-    {
-	if (m_settings->GetViewLayout () == ViewLayout::HORIZONTAL)
-	{
-	    glVertex2s (w/2, 0);
-	    glVertex2s (w/2, h);
-	}
-	else
-	{
-	    glVertex2s (0, h/2);
-	    glVertex2s (w, h/2);
-	}
-	break;
-    }
-    case ViewCount::THREE:
-    {
-	if (m_settings->GetViewLayout () == ViewLayout::HORIZONTAL)
-	{
-	    glVertex2s (w/3, 0);
-	    glVertex2s (w/3, h);
-	    glVertex2s (2*w/3, 0);
-	    glVertex2s (2*w/3, h);
-	}
-	else
-	{
-	    glVertex2s (0, h/3);
-	    glVertex2s (w, h/3);
-	    glVertex2s (0, 2*h/3);
-	    glVertex2s (w, 2*h/3);
-	}
-	break;
-    }
-    case ViewCount::FOUR:
-    {
-	glVertex2s (w/2, 0);
-	glVertex2s (w/2, h);
-	glVertex2s (0, h/2);
-	glVertex2s (w, h/2);	
-	break;
-    }
-    default:
-	break;
-    }
-    glEnd ();
-    cleanupTransformViewport ();
-    glPopAttrib ();
-}
 
 bool WidgetGl::IsTimeDisplacementUsed () const
 {
@@ -3904,12 +3846,6 @@ void WidgetGl::ToggledCenterPathLineUsed (bool checked)
     makeCurrent ();
     m_settings->SetCenterPathLineUsed (checked);
     CompileUpdate ();
-}
-
-void WidgetGl::ToggledTitleShown (bool checked)
-{
-    m_titleShown = checked;
-    update ();
 }
 
 

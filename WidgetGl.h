@@ -239,6 +239,11 @@ public:
     G3D::AABox CalculateCenteredViewingVolume (
 	ViewNumber::Enum viewNumber) const;
     void ButtonClickedViewType (ViewType::Enum oldViewType);
+    /**
+     * Call f until f returns true or you finish all Gl views.
+     */
+    void ForAllViews (boost::function <void (ViewNumber::Enum)> f);
+    void SetViewTypeAndCameraDistance (ViewNumber::Enum viewNumber);
     
 Q_SIGNALS:
     void PaintEnd ();
@@ -293,7 +298,6 @@ public Q_SLOTS:
     void ToggledCenterPathHidden (bool checked);
     void ToggledTorusDomainShown (bool checked);
     void ToggledT1sShown (bool checked);
-    void ToggledTitleShown (bool checked);
     void ToggledT1sShiftLower (bool checked);
     void ToggledTorusOriginalDomainClipped (bool checked);
     void ToggledMissingPressureShown (bool checked);
@@ -490,6 +494,9 @@ private:
     void setLight (int sliderValue, int maximumValue, 
 		   LightType::Enum lightType, ColorNumber::Enum colorNumber);
     void setView (const G3D::Vector2& clickedPoint);
+    void setView (ViewNumber::Enum viewNumber, 
+		  const G3D::Vector2& clickedPoint);
+    void averageInitStep (ViewNumber::Enum viewNumber);
     void selectView (const G3D::Vector2& clickedPoint);
     void displayContextMenuPos (ViewNumber::Enum viewNumber) const;
     void displayBodyCenters (ViewNumber::Enum viewNumber, 
@@ -498,7 +505,6 @@ private:
     void displayFaceCenters (ViewNumber::Enum viewNumber) const;
     void displayViewDecorations (ViewNumber::Enum viewNumber);
     void displayViewFocus (ViewNumber::Enum viewNumber);
-    void displayViewsGrid ();
     void displayTextureColorBar (GLuint texture,
 				 ViewNumber::Enum viewNumber, 
 				 const G3D::Rect2D& barRect);
@@ -772,7 +778,6 @@ private:
     bool m_t1sShown;
     double m_t1sSize;
     size_t m_highlightLineWidth;
-    bool m_titleShown;
     bool m_averageAroundMarked;
     bool m_viewFocusShown;
     bool m_contextBoxShown;

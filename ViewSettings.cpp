@@ -636,3 +636,13 @@ void ViewSettings::ResetHistogramOption (HistogramType::Option option)
     if (HasHistogramOption (option))
 	m_histogramOptions ^= option;
 }
+
+string ViewSettings::GetTitle (ViewNumber::Enum viewNumber) const
+{
+    ostringstream ostr;
+    ostr << "View " << viewNumber << " - "
+	 << ViewType::ToString (GetViewType ()) << " - "
+	 << FaceScalar::ToString (GetBodyOrFaceScalar ()) << " - "
+	 << "Time " << GetCurrentTime ();
+    return ostr.str ();
+}

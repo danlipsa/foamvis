@@ -39,7 +39,13 @@ public:
 		      const SimulationGroup& simulationGroup);
     void UpdateOpacity ();
     void UpdateAverage (const boost::array<int, ViewNumber::COUNT>& direction);
-    void CreateViewPipelines (size_t objects, size_t constraintSurfaces);
+    void CreateViewPipelines (size_t objects, size_t constraintSurfaces, 
+			      size_t fontSize);
+    G3D::AABox CalculateViewingVolume (ViewNumber::Enum viewNumber);
+    G3D::Rect2D GetViewRect (ViewNumber::Enum viewNumber);
+    void UpdateTitle ();
+    void ForAllViews (boost::function <void (ViewNumber::Enum)> f);
+    void UpdateFocus ();
 
 public:
     QSize sizeHint ()
@@ -68,7 +74,7 @@ private:
     {
     public:
 	vtkSmartPointer<vtkRenderer> Init (
-	    size_t objects, size_t constraintSurfaces);
+	    size_t objects, size_t constraintSurfaces, size_t fontSize);
 	void UpdateThreshold (QwtDoubleInterval interval);
 	void UpdateColorTransferFunction (
 	    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
@@ -79,15 +85,30 @@ private:
 	    const ViewSettings& vs, const G3D::AABox& bb, const Foam& foam);
 	void UpdateAverage (
 	    boost::shared_ptr<RegularGridAverage> average, int direction);
+	void UpdateTitle (
+	    bool titleShown,
+	    boost::shared_ptr<RegularGridAverage> average, 
+	    ViewNumber::Enum viewNumber);
+	void UpdateFocus (bool focus);
 
     public:
 	vtkSmartPointer<vtkScalarBarActor> m_scalarBar;
 	vtkSmartPointer<vtkActor> m_averageActor;
 	vtkSmartPointer<vtkThreshold> m_threshold;
+	vtkSmartPointer<vtkTextMapper> m_textMapper;
 	vector<vtkSmartPointer<vtkActor> > m_constraintSurface;
 	vector<vtkSmartPointer<vtkActor> > m_object;
 	vtkSmartPointer<vtkRenderer> m_renderer;
+	vtkSmartPointer<vtkActor2D> m_focusActor;
     };
+
+private:
+    void updateViewAverage (
+	ViewNumber::Enum viewNumber,
+	const boost::array<int, ViewNumber::COUNT>& direction);
+    void updateViewTitle (ViewNumber::Enum viewNumber);
+    void updateViewFocus (ViewNumber::Enum viewNumber);
+    void updateCoords (vtkObject* obj);
 
 private:
     Q_OBJECT
@@ -95,6 +116,9 @@ private:
     boost::array<boost::shared_ptr<RegularGridAverage>,
 		 ViewNumber::COUNT> m_average;
     boost::array<ViewPipeline, ViewNumber::COUNT> m_pipeline;
+    vtkSmartPointer<vtkEventQtSlotConnect> m_connections;
+    int m_fontSize;
+    
 };
 
 

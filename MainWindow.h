@@ -66,6 +66,7 @@ Q_SIGNALS:
 
 
 public Q_SLOTS:
+    void ToggledTitleShown (bool checked);
     void ValueChangedContextAlpha (int sliderValue);
     void ToggledVelocityShown (bool checked);
     void ToggledHistogramGridShown (bool checked);
@@ -154,6 +155,7 @@ private:
 	ViewNumber::Enum viewNumber, int index);
 
 
+    void addVtkView (ViewNumber::Enum viewNumber);
     void update3DAverage ();
     void currentIndexChangedFaceColor (ViewNumber::Enum viewNumber);
     void deformationViewToUI ();

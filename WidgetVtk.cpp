@@ -50,9 +50,14 @@ void SendPaintEnd::Execute (
 // ======================================================================
 
 vtkSmartPointer<vtkRenderer> WidgetVtk::ViewPipeline::Init (
-    size_t objects, size_t constraintSurfaces)
+    size_t objects, size_t constraintSurfaces, size_t fontSize)
 {
     // vtkImageData->vtkThreshold->vtkDatasetMapper->vtkActor->vtkRenderer
+    //                                      vtkScalarBarActor 
+    // 
+    // (foam objects)    vtkPolyData->vtkDatasetMapper->vtkActor
+    // (constraint faces)
+
 
     // threshold
     VTK_CREATE (vtkThreshold, threshold);
@@ -106,8 +111,89 @@ vtkSmartPointer<vtkRenderer> WidgetVtk::ViewPipeline::Init (
 	m_constraintSurface[i] = actor;
 	renderer->AddViewProp (actor);
     }
+
+    // view title
+    VTK_CREATE (vtkTextProperty, singleLineTextProp);
+    singleLineTextProp->SetFontSize (fontSize);
+    singleLineTextProp->SetFontFamilyToArial ();
+    singleLineTextProp->BoldOff ();
+    singleLineTextProp->ItalicOff ();
+    singleLineTextProp->ShadowOff ();
+    
+    VTK_CREATE(vtkTextProperty, multiLineTextProp);
+    multiLineTextProp->ShallowCopy (singleLineTextProp);
+    multiLineTextProp->ShadowOn ();
+    multiLineTextProp->SetLineSpacing (1);
+
+    VTK_CREATE(vtkTextMapper, textMapper);
+    vtkTextProperty* tprop = textMapper->GetTextProperty ();
+    tprop->ShallowCopy (multiLineTextProp);
+    tprop->SetJustificationToCentered ();
+    tprop->SetVerticalJustificationToTop ();
+    tprop->SetColor (0, 0, 0);
+    m_textMapper = textMapper;
+    
+    VTK_CREATE (vtkActor2D, textActor);
+    textActor->SetMapper (textMapper);
+    textActor->GetPositionCoordinate ()->
+	SetCoordinateSystemToNormalizedDisplay ();
+    textActor->GetPositionCoordinate ()->SetValue (0.5, 1);
+    renderer->AddViewProp (textActor);
+
+    // focus rectangle
+    VTK_CREATE(vtkPoints, Pts);
+    Pts->InsertNextPoint (0.0, 0.0, 0.0);
+    Pts->InsertNextPoint (0.0, 1.0, 0.0);
+    Pts->InsertNextPoint (1.0, 1.0, 0.0);
+    Pts->InsertNextPoint (1.0, 0.0, 0.0);
+
+    VTK_CREATE (vtkCellArray, Lines);
+    Lines->InsertNextCell (2);
+    Lines->InsertCellPoint (0);
+    Lines->InsertCellPoint (1);
+    Lines->InsertNextCell (2);
+    Lines->InsertCellPoint (1);
+    Lines->InsertCellPoint (2);
+    Lines->InsertNextCell (2);
+    Lines->InsertCellPoint (2);
+    Lines->InsertCellPoint (3);
+    Lines->InsertNextCell (2);
+    Lines->InsertCellPoint (3);
+    Lines->InsertCellPoint (0);
+
+    VTK_CREATE (vtkPolyData, Grid);
+    Grid->SetPoints (Pts);
+    Grid->SetLines (Lines);
+
+    VTK_CREATE (vtkCoordinate, normCoords);
+    normCoords->SetCoordinateSystemToNormalizedViewport ();
+
+    VTK_CREATE (vtkPolyDataMapper2D, mapper);
+    mapper->SetInput (Grid);
+    mapper->SetTransformCoordinate (normCoords);
+    
+    VTK_CREATE (vtkActor2D, focusActor);
+    focusActor->SetMapper (mapper);
+    focusActor->GetProperty ()->SetColor (0.1, 0.1, 0.1);
+    m_focusActor = focusActor;
+
     return renderer;
 }
+
+void WidgetVtk::ViewPipeline::UpdateTitle (bool titleShown,
+    boost::shared_ptr<RegularGridAverage> average, ViewNumber::Enum viewNumber)
+{
+    const char* title = "";
+    ostringstream ostr;
+    if (titleShown)
+    {	
+	ostr << average->GetSimulation ().GetName () << endl 
+	     << average->GetViewSettings ().GetTitle (viewNumber);
+	title = ostr.str ().c_str ();
+    }
+    m_textMapper->SetInput (title);
+}
+
 
 void WidgetVtk::ViewPipeline::UpdateThreshold (QwtDoubleInterval interval)
 {
@@ -130,6 +216,7 @@ void WidgetVtk::ViewPipeline::UpdateColorTransferFunction (
     }
 }
 
+
 void WidgetVtk::ViewPipeline::PositionScalarBar (G3D::Rect2D position)
 {
     m_scalarBar->SetHeight (position.height ());
@@ -144,6 +231,15 @@ void WidgetVtk::ViewPipeline::UpdateOpacity (float contextAlpha)
 	actor->GetProperty ()->SetOpacity (contextAlpha);
     }
 }
+
+void WidgetVtk::ViewPipeline::UpdateFocus (bool focus)
+{
+    if (focus)
+	m_renderer->AddViewProp (m_focusActor);
+    else
+	m_renderer->RemoveViewProp (m_focusActor);
+}
+
 
 void WidgetVtk::ViewPipeline::UpdateFromOpenGl (
     const ViewSettings& vs, const G3D::AABox& bb, const Foam& foam)
@@ -213,9 +309,29 @@ void WidgetVtk::ViewPipeline::UpdateAverage (
 // ======================================================================
 
 WidgetVtk::WidgetVtk (QWidget* parent) :
-    QVTKWidget (parent)
+    QVTKWidget (parent),
+    m_fontSize (10)
 {
     setVisible (false);
+
+    VTK_CREATE (vtkEventQtSlotConnect, Connections);
+    m_connections = Connections;
+
+    Connections->Connect(GetRenderWindow()->GetInteractor(),
+			 vtkCommand::MouseMoveEvent,
+			 this,
+			 SLOT(updateCoords(vtkObject*)));
+}
+
+void WidgetVtk::updateCoords (vtkObject* obj)
+{
+    // get interactor
+    vtkRenderWindowInteractor* iren = 
+	vtkRenderWindowInteractor::SafeDownCast(obj);
+    // get event position
+    int event_pos[2];
+    iren->GetEventPosition(event_pos);
+
 }
 
 void WidgetVtk::CreateAverage (boost::shared_ptr<Settings> settings,
@@ -231,12 +347,13 @@ void WidgetVtk::CreateAverage (boost::shared_ptr<Settings> settings,
     }
 }
 
-void WidgetVtk::CreateViewPipelines (size_t objects, size_t constraintSurfaces)
+void WidgetVtk::CreateViewPipelines (
+    size_t objects, size_t constraintSurfaces, size_t fontSize)
 {
     vtkRenderWindow* renWin = GetRenderWindow ();
 
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
-	m_pipeline[i].Init (objects, constraintSurfaces);
+	m_pipeline[i].Init (objects, constraintSurfaces, fontSize);
 
     vtkSmartPointer<SendPaintEnd> sendPaint (new SendPaintEnd (this));
     renWin->AddObserver (vtkCommand::EndEvent, sendPaint);
@@ -261,19 +378,21 @@ void WidgetVtk::resizeEvent (QResizeEvent * event)
 {
     QVTKWidget::resizeEvent (event);
     (void) event;
-    float w = width ();
-    float h = height ();
     for (int i = 0; i < m_settings->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
-	G3D::Rect2D viewRect = m_settings->GetViewRect (w, h, viewNumber);
-	G3D::Rect2D viewColorBarRect = Settings::GetViewColorBarRect (viewRect);
-	G3D::Rect2D position = G3D::Rect2D::xywh (
-	    (viewColorBarRect.x0 () - viewRect.x0 ())/ viewRect.width (),
-	    (viewColorBarRect.y0 () - viewRect.y0 ())/ viewRect.height (),
-	    viewColorBarRect.width () / viewRect.width () * 5,
-	    viewColorBarRect.height () / viewRect.height () * 1.2);	
-	m_pipeline[viewNumber].PositionScalarBar (position);
+	if (m_settings->IsVtkView (viewNumber))
+	{
+	    G3D::Rect2D viewRect = GetViewRect (viewNumber);
+	    G3D::Rect2D viewColorBarRect = 
+		Settings::GetViewColorBarRect (viewRect);
+	    G3D::Rect2D position = G3D::Rect2D::xywh (
+		(viewColorBarRect.x0 () - viewRect.x0 ())/ viewRect.width (),
+		(viewColorBarRect.y0 () - viewRect.y0 ())/ viewRect.height (),
+		viewColorBarRect.width () / viewRect.width () * 5,
+		viewColorBarRect.height () / viewRect.height () * 1.2);	
+	    m_pipeline[viewNumber].PositionScalarBar (position);
+	}
     }
 }
 
@@ -309,12 +428,7 @@ void WidgetVtk::AddView (
     const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
     const Foam& foam = m_average[viewNumber]->GetFoam ();
     ViewPipeline& pipeline = m_pipeline[viewNumber];
-    float w = width ();
-    float h = height ();
-    vector<ViewNumber::Enum> mapping;
-    ViewCount::Enum viewCount = m_settings->GetVtkCount (&mapping);
-    G3D::AABox vv = m_settings->CalculateViewingVolume (
-	mapping[viewNumber], viewCount, simulation, w, h);
+    G3D::AABox vv = CalculateViewingVolume (viewNumber);
     G3D::AABox bb = simulation.GetBoundingBox ();
     average->AverageInitStep ();
     int direction = 0;
@@ -323,8 +437,12 @@ void WidgetVtk::AddView (
     pipeline.UpdateOpacity (m_settings->GetContextAlpha ());
     pipeline.UpdateThreshold (interval);
     pipeline.UpdateColorTransferFunction (colorTransferFunction, scalarName);
-    G3D::Rect2D vr = m_settings->GetViewRect (w, h, mapping[viewNumber],
-					      viewCount);
+    pipeline.UpdateTitle (m_settings->IsTitleShown (), average, viewNumber);
+    pipeline.UpdateFocus (m_settings->GetViewNumber () == viewNumber);
+
+    float w = width ();
+    float h = height ();
+    G3D::Rect2D vr = GetViewRect (viewNumber);
     G3D::Rect2D viewRect = G3D::Rect2D::xyxy (vr.x0 () / w, vr.y0 () / h,
 					      vr.x1 () / w, vr.y1 () / h);
     renderWindow->AddRenderer(pipeline.m_renderer);
@@ -339,11 +457,73 @@ void WidgetVtk::AddView (
 void WidgetVtk::UpdateAverage (
     const boost::array<int, ViewNumber::COUNT>& direction)
 {
+    ForAllViews (
+	boost::bind (&WidgetVtk::updateViewAverage, this, _1, direction));
+}
+void WidgetVtk::updateViewAverage (
+    ViewNumber::Enum viewNumber,
+    const boost::array<int, ViewNumber::COUNT>& direction)
+{
+    ViewPipeline& pipeline = m_pipeline[viewNumber];
+    boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
+    pipeline.UpdateAverage (average, direction[viewNumber]);
+}
+
+
+void WidgetVtk::UpdateTitle ()
+{
+    ForAllViews (
+	boost::bind (&WidgetVtk::updateViewTitle, this, _1));
+    update ();
+}
+void WidgetVtk::updateViewTitle (ViewNumber::Enum viewNumber)
+{
+    bool titleShown = m_settings->IsTitleShown ();
+    ViewPipeline& pipeline = m_pipeline[viewNumber];
+    boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
+    pipeline.UpdateTitle (titleShown, average, viewNumber);
+}
+
+
+void WidgetVtk::UpdateFocus ()
+{
+    ForAllViews (
+	boost::bind (&WidgetVtk::updateViewFocus, this, _1));
+    update ();
+}
+void WidgetVtk::updateViewFocus (ViewNumber::Enum viewNumber)
+{
+    bool focus = m_settings->GetViewNumber () == viewNumber;
+    ViewPipeline& pipeline = m_pipeline[viewNumber];
+    pipeline.UpdateFocus (focus);
+}
+
+
+
+void WidgetVtk::ForAllViews (boost::function <void (ViewNumber::Enum)> f)
+{
     for (int i = 0; i < m_settings->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
-	ViewPipeline& pipeline = m_pipeline[viewNumber];
-	boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
-	pipeline.UpdateAverage (average, direction[i]);
-    }    
+	if (m_settings->IsVtkView (viewNumber))
+	    f (viewNumber);
+    }
+}
+
+G3D::AABox WidgetVtk::CalculateViewingVolume (ViewNumber::Enum viewNumber)
+{
+    const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
+    vector<ViewNumber::Enum> mapping;
+    ViewCount::Enum viewCount = m_settings->GetVtkCount (&mapping);
+    G3D::AABox vv = m_settings->CalculateViewingVolume (
+	mapping[viewNumber], viewCount, simulation, width (), height ());
+    return vv;
+}
+
+G3D::Rect2D WidgetVtk::GetViewRect (ViewNumber::Enum viewNumber)
+{
+    vector<ViewNumber::Enum> mapping;
+    ViewCount::Enum viewCount = m_settings->GetVtkCount (&mapping);
+    return m_settings->GetViewRect (
+	width (), height (), mapping[viewNumber], viewCount);
 }

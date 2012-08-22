@@ -590,7 +590,7 @@ public:
     {
 	m_forceTorqueLineWidth = value;
     }
-
+    string GetTitle (ViewNumber::Enum viewNumber) const;
     
 private:
     static G3D::Matrix3 getRotation2DTimeDisplacement ();

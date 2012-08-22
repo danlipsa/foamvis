@@ -2484,7 +2484,6 @@
     <slot>CurrentIndexChangedViewLayout(int)</slot>
     <slot>ValueChangedT1Size(int)</slot>
     <slot>ToggledZeroedPressureShown(bool)</slot>
-    <slot>ToggledTitleShown(bool)</slot>
     <slot>ToggledBodyStationaryMarked(bool)</slot>
     <slot>ToggledLineCenterPathUsed(bool)</slot>
     <slot>ToggledBodyCenter(bool)</slot>
@@ -3987,7 +3986,7 @@
   <connection>
    <sender>checkBoxTitleShown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>MainWindow</receiver>
    <slot>ToggledTitleShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">

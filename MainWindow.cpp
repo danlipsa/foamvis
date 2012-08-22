@@ -93,12 +93,17 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     boost::shared_ptr<Application> app = Application::Get ();
     widgetGl->Init (m_settings, &simulationGroup);
     widgetGl->SetStatus (labelStatusBar);
+
+    QFont defaultFont = app->font ();
+    spinBoxFontSize->setValue (defaultFont.pointSize ());
+
     if (DATA_PROPERTIES.Is3D ())
     {
 	widgetVtk->CreateAverage (m_settings, simulationGroup);
 	const Foam& foam = simulationGroup.GetSimulation (0).GetFoam (0);
 	widgetVtk->CreateViewPipelines (
-	    foam.GetObjects ().size (), foam.GetConstraintFaces ().size ());
+	    foam.GetObjects ().size (), foam.GetConstraintFaces ().size (), 
+	    defaultFont.pointSize ());
     }
     setupColorBarModels ();
     setupViews ();
@@ -115,8 +120,6 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     }
     setWindowTitle (QString (title.c_str ()));
 
-    QFont defaultFont = app->font ();
-    spinBoxFontSize->setValue (defaultFont.pointSize ());
     spinBoxHistogramHeight->setMaximum (500);
     spinBoxHistogramHeight->setValue (m_histogram[0]->sizeHint ().height ());
 
@@ -693,34 +696,34 @@ void MainWindow::update3DAverage ()
     if (DATA_PROPERTIES.Is2D ())
 	return;
     widgetVtk->RemoveViews ();
-    for (int i = 0; i < m_settings->GetViewCount (); ++i)
-    {
-	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
-	const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
-	if (vs.GetViewType () == ViewType::AVERAGE)
-	{
-	    const BodySelector& bodySelector = vs.GetBodySelector ();
-	    QwtDoubleInterval interval;
-	    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction = 
-		getColorBarModel (viewNumber)->GetColorTransferFunction ();
-	    if (bodySelector.GetType () == BodySelectorType::PROPERTY_VALUE)
-	    {
-		const vector<QwtDoubleInterval>& v = 
-		    static_cast<const PropertyValueBodySelector&> (bodySelector).
-		    GetIntervals ();
-		interval = v[0];
-	    }
-	    else
-	    {
-		double range[2];
-		colorTransferFunction->GetRange (range);
-		interval.setMinValue (range[0]);
-		interval.setMaxValue (range[1]);
-	    }
-	    widgetVtk->AddView (viewNumber, colorTransferFunction, interval);
-	}
-    }
+    widgetVtk->ForAllViews (
+	boost::bind (&MainWindow::addVtkView, this, _1));
 }
+
+void MainWindow::addVtkView (ViewNumber::Enum viewNumber)
+{
+    const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+    const BodySelector& bodySelector = vs.GetBodySelector ();
+    QwtDoubleInterval interval;
+    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction = 
+	getColorBarModel (viewNumber)->GetColorTransferFunction ();
+    if (bodySelector.GetType () == BodySelectorType::PROPERTY_VALUE)
+    {
+	const vector<QwtDoubleInterval>& v = 
+	    static_cast<const PropertyValueBodySelector&> (bodySelector).
+	    GetIntervals ();
+	interval = v[0];
+    }
+    else
+    {
+	double range[2];
+	colorTransferFunction->GetRange (range);
+	interval.setMinValue (range[0]);
+	interval.setMaxValue (range[1]);
+    }
+    widgetVtk->AddView (viewNumber, colorTransferFunction, interval);
+}
+
 
 void MainWindow::updateHistogram (HistogramSelection histogramSelection, 
 				  MaxValueOperation maxValueOperation)
@@ -1183,16 +1186,8 @@ void MainWindow::CurrentIndexChangedViewCount (int index)
     ViewCount::Enum viewCount = ViewCount::FromSizeT (index + 1);
     m_settings->SetViewCount (viewCount);
     m_settings->SetViewNumber (ViewNumber::VIEW0);
-    for (int i = 0; i < m_settings->GetViewCount (); ++i)
-    {
-	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
-	if (vs.GetViewType () == ViewType::COUNT)
-	    vs.SetViewType (ViewType::FACES);
-	vs.CalculateCameraDistance (
-	    widgetGl->CalculateCenteredViewingVolume (viewNumber));
-	widgetGl->CompileUpdate (viewNumber);
-    }
+    widgetGl->ForAllViews (
+	boost::bind (&WidgetGl::SetViewTypeAndCameraDistance, widgetGl, _1));
 
     boost::array<QWidget*, 2> widgetsViewLayout = 
 	{{labelViewLayout, comboBoxViewLayout}};
@@ -1542,6 +1537,14 @@ void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)
 	widgetGl->width (), widgetGl->height ());
 }
 
+void MainWindow::ToggledTitleShown (bool checked)
+{
+    m_settings->SetTitleShown (checked);
+    widgetGl->update ();
+    widgetVtk->UpdateTitle ();
+}
+
+
 void MainWindow::ToggledForceDifference (bool forceDifference)
 {
     const ViewSettings& vs = widgetGl->GetViewSettings ();
@@ -1699,6 +1702,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 	m_histogram[prevViewNumber]->DisplayFocus (false);
 	m_histogram[viewNumber]->DisplayFocus (true);
     }
+    widgetVtk->UpdateFocus ();
 
     SetCheckedNoSignals (buttonGroupViewType, viewType, true);    
     setStackedWidget (viewType);

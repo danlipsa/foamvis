@@ -88,7 +88,8 @@ Settings::Settings (const Simulation& simulation, float w, float h,
     m_objectVelocityShown (false),
     m_centerPathTubeUsed (true),
     m_centerPathLineUsed (false),
-    m_splitHalfView (false)
+    m_splitHalfView (false),
+    m_titleShown (false)
 {
     initViewSettings (simulation, w, h, t1sShiftLower);
     initEndTranslationColor ();

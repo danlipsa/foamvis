@@ -256,6 +256,15 @@ public:
     }
     static G3D::Rect2D GetViewColorBarRect (const G3D::Rect2D& viewRect);
     static G3D::Rect2D GetViewOverlayBarRect (const G3D::Rect2D& viewRect);
+    bool IsTitleShown () const
+    {
+	return m_titleShown;
+    }
+    void SetTitleShown (bool shown)
+    {
+	m_titleShown = shown;
+    }
+
 
 Q_SIGNALS:
     void ViewChanged (ViewNumber::Enum prevViewNumber);
@@ -314,6 +323,7 @@ private:
     bool m_centerPathTubeUsed;
     bool m_centerPathLineUsed;
     bool m_splitHalfView;
+    bool m_titleShown;
 };
 
 
