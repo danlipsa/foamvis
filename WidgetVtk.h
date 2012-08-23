@@ -70,7 +70,7 @@ Q_SIGNALS:
     void PaintEnd ();
 
 public Q_SLOTS:
-    void updateCoords (vtkObject* obj);
+    void updateCurrentView (vtkObject* obj);
 
 private:
     struct ViewPipeline

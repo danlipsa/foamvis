@@ -321,10 +321,10 @@ WidgetVtk::WidgetVtk (QWidget* parent) :
     Connections->Connect(GetRenderWindow()->GetInteractor(),
 			 vtkCommand::LeftButtonPressEvent,
 			 this,
-			 SLOT(updateCoords(vtkObject*)));
+			 SLOT(updateCurrentView(vtkObject*)));
 }
 
-void WidgetVtk::updateCoords (vtkObject* obj)
+void WidgetVtk::updateCurrentView (vtkObject* obj)
 {
     // get interactor
     vtkRenderWindowInteractor* iren = 
