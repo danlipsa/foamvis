@@ -1703,6 +1703,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 	m_histogram[viewNumber]->DisplayFocus (true);
     }
     widgetVtk->UpdateFocus ();
+    widgetGl->update ();
 
     SetCheckedNoSignals (buttonGroupViewType, viewType, true);    
     setStackedWidget (viewType);

@@ -310,6 +310,7 @@ void WidgetVtk::ViewPipeline::UpdateAverage (
 
 WidgetVtk::WidgetVtk (QWidget* parent) :
     QVTKWidget (parent),
+    WidgetDisplay (this, &Settings::IsVtkView, &Settings::GetVtkCount),
     m_fontSize (10)
 {
     setVisible (false);
@@ -318,7 +319,7 @@ WidgetVtk::WidgetVtk (QWidget* parent) :
     m_connections = Connections;
 
     Connections->Connect(GetRenderWindow()->GetInteractor(),
-			 vtkCommand::MouseMoveEvent,
+			 vtkCommand::LeftButtonPressEvent,
 			 this,
 			 SLOT(updateCoords(vtkObject*)));
 }
@@ -329,15 +330,16 @@ void WidgetVtk::updateCoords (vtkObject* obj)
     vtkRenderWindowInteractor* iren = 
 	vtkRenderWindowInteractor::SafeDownCast(obj);
     // get event position
-    int event_pos[2];
-    iren->GetEventPosition(event_pos);
-
+    int eventPos[2];
+    iren->GetEventPosition(eventPos);
+    G3D::Vector2 pos(eventPos[0], eventPos[1]);
+    setView (pos);
 }
 
 void WidgetVtk::CreateAverage (boost::shared_ptr<Settings> settings,
 			       const SimulationGroup& simulationGroup)    
 {
-    m_settings = settings;
+    SetSettings (settings);
     for (size_t i = 0; i < m_average.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
@@ -361,7 +363,7 @@ void WidgetVtk::CreateViewPipelines (
 
 void WidgetVtk::UpdateThreshold (QwtDoubleInterval interval)
 {
-    m_pipeline[ m_settings->GetViewNumber ()].UpdateThreshold (interval);
+    m_pipeline[ GetSettings ()->GetViewNumber ()].UpdateThreshold (interval);
     update ();
 }
 
@@ -369,7 +371,7 @@ void WidgetVtk::UpdateColorTransferFunction (
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction, 
     const char* name)
 {
-    m_pipeline[m_settings->GetViewNumber ()].UpdateColorTransferFunction (
+    m_pipeline[GetSettings ()->GetViewNumber ()].UpdateColorTransferFunction (
 	colorTransferFunction, name);
     update ();
 }
@@ -378,10 +380,10 @@ void WidgetVtk::resizeEvent (QResizeEvent * event)
 {
     QVTKWidget::resizeEvent (event);
     (void) event;
-    for (int i = 0; i < m_settings->GetViewCount (); ++i)
+    for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
-	if (m_settings->IsVtkView (viewNumber))
+	if (GetSettings ()->IsVtkView (viewNumber))
 	{
 	    G3D::Rect2D viewRect = GetViewRect (viewNumber);
 	    G3D::Rect2D viewColorBarRect = 
@@ -399,10 +401,11 @@ void WidgetVtk::resizeEvent (QResizeEvent * event)
 
 void WidgetVtk::UpdateOpacity ()
 {
-    for (int i = 0; i < m_settings->GetViewCount (); ++i)
+    for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
-	m_pipeline[viewNumber].UpdateOpacity (m_settings->GetContextAlpha ());
+	m_pipeline[viewNumber].UpdateOpacity (
+	    GetSettings ()->GetContextAlpha ());
     }
     update ();
 }
@@ -423,7 +426,7 @@ void WidgetVtk::AddView (
 {
     vtkSmartPointer<vtkRenderWindow> renderWindow = GetRenderWindow ();
     boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
-    const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
     const char* scalarName = FaceScalar::ToString (vs.GetBodyOrFaceScalar ());
     const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
     const Foam& foam = m_average[viewNumber]->GetFoam ();
@@ -434,11 +437,11 @@ void WidgetVtk::AddView (
     int direction = 0;
     pipeline.UpdateAverage (average, direction);
     pipeline.UpdateFromOpenGl (vs, bb, foam);
-    pipeline.UpdateOpacity (m_settings->GetContextAlpha ());
+    pipeline.UpdateOpacity (GetSettings ()->GetContextAlpha ());
     pipeline.UpdateThreshold (interval);
     pipeline.UpdateColorTransferFunction (colorTransferFunction, scalarName);
-    pipeline.UpdateTitle (m_settings->IsTitleShown (), average, viewNumber);
-    pipeline.UpdateFocus (m_settings->GetViewNumber () == viewNumber);
+    pipeline.UpdateTitle (GetSettings ()->IsTitleShown (), average, viewNumber);
+    pipeline.UpdateFocus (GetSettings ()->GetViewNumber () == viewNumber);
 
     float w = width ();
     float h = height ();
@@ -478,7 +481,7 @@ void WidgetVtk::UpdateTitle ()
 }
 void WidgetVtk::updateViewTitle (ViewNumber::Enum viewNumber)
 {
-    bool titleShown = m_settings->IsTitleShown ();
+    bool titleShown = GetSettings ()->IsTitleShown ();
     ViewPipeline& pipeline = m_pipeline[viewNumber];
     boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
     pipeline.UpdateTitle (titleShown, average, viewNumber);
@@ -493,37 +496,14 @@ void WidgetVtk::UpdateFocus ()
 }
 void WidgetVtk::updateViewFocus (ViewNumber::Enum viewNumber)
 {
-    bool focus = m_settings->GetViewNumber () == viewNumber;
+    bool focus = GetSettings ()->GetViewNumber () == viewNumber;
     ViewPipeline& pipeline = m_pipeline[viewNumber];
     pipeline.UpdateFocus (focus);
 }
 
-
-
-void WidgetVtk::ForAllViews (boost::function <void (ViewNumber::Enum)> f)
+// Overrides
+////////////
+const Simulation& WidgetVtk::GetSimulation (ViewNumber::Enum viewNumber) const
 {
-    for (int i = 0; i < m_settings->GetViewCount (); ++i)
-    {
-	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
-	if (m_settings->IsVtkView (viewNumber))
-	    f (viewNumber);
-    }
-}
-
-G3D::AABox WidgetVtk::CalculateViewingVolume (ViewNumber::Enum viewNumber)
-{
-    const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
-    vector<ViewNumber::Enum> mapping;
-    ViewCount::Enum viewCount = m_settings->GetVtkCount (&mapping);
-    G3D::AABox vv = m_settings->CalculateViewingVolume (
-	mapping[viewNumber], viewCount, simulation, width (), height ());
-    return vv;
-}
-
-G3D::Rect2D WidgetVtk::GetViewRect (ViewNumber::Enum viewNumber)
-{
-    vector<ViewNumber::Enum> mapping;
-    ViewCount::Enum viewCount = m_settings->GetVtkCount (&mapping);
-    return m_settings->GetViewRect (
-	width (), height (), mapping[viewNumber], viewCount);
+    return m_average[viewNumber]->GetSimulation ();
 }

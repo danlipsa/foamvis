@@ -183,18 +183,19 @@ template<typename T> void setPointerValue (T* p, T value)
 string ChangeExtension (const string& path, const char* ext);
 string NameFromPath (const string& path);
 
+// Defines
+//======================================================================
+#define VTK_CREATE(type, name) \
+    vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define CALL_MEMBER(object,ptrToMember)  ((object).*(ptrToMember))
 
 
 // Other
 // ======================================================================
-
-#define VTK_CREATE(type, name) \
-    vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
 const static size_t HISTOGRAM_INTERVALS = 256;
 const static size_t INVALID_INDEX = numeric_limits<size_t>::max ();
 
-#define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))
+
 
 QString ReadShader (const QString& resourceUrl);
 boost::shared_ptr<QGLShader> CreateShader (const QString& resourceUrl,

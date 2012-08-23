@@ -230,17 +230,17 @@ public:
 	ViewNumber::Enum viewNumber, ViewCount::Enum viewCount, 
 	const Simulation& simulation, 
 	float w, float h, ViewingVolumeOperation::Enum enclose = 
-	ViewingVolumeOperation::ENCLOSE2D) const;
+	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     G3D::AABox CalculateCenteredViewingVolume (
 	ViewNumber::Enum viewNumber, ViewCount::Enum viewCount, 
 	const Simulation& simulation, 
 	float w, float h, ViewingVolumeOperation::Enum enclose = 
-	ViewingVolumeOperation::ENCLOSE2D) const;
+	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     G3D::AABox CalculateEyeViewingVolume (
 	ViewNumber::Enum viewNumber, ViewCount::Enum viewCount, 
 	const Simulation& simulation, 
 	float w, float h, ViewingVolumeOperation::Enum enclose = 
-	ViewingVolumeOperation::ENCLOSE2D) const;
+	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     G3D::Rect2D GetViewRect (float w, float h,
 			     ViewNumber::Enum viewNumber, 
 			     ViewCount::Enum viewCount) const;

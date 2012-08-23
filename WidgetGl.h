@@ -9,6 +9,7 @@
 
 #include "Hashes.h"
 #include "Enums.h"
+#include "WidgetDisplay.h"
 
 class Body;
 class BodyAlongTime;
@@ -34,7 +35,7 @@ class AllBodySelector;
 /**
  * Widget for displaying foam bubbles using OpenGL
  */
-class WidgetGl : public QGLWidget, public QGLFunctions
+class WidgetGl : public QGLWidget, public QGLFunctions, public WidgetDisplay
 {
 public:
     /**
@@ -64,15 +65,10 @@ public:
     }
     void Init (boost::shared_ptr<Settings> settings,
 	       SimulationGroup* dataAlongTime);
-    boost::shared_ptr<Settings> GetSettings () const
-    {
-	return m_settings;
-    }
     /**
      * Gets the data displayed by the WidgetGl
      */
     const Simulation& GetSimulation (size_t index) const;
-    const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
     const Simulation& GetSimulation () const;
 
     size_t GetHighlightLineWidth () const
@@ -157,12 +153,6 @@ public:
 
     size_t GetBodyOrFaceScalar (ViewNumber::Enum viewNumber) const;
 
-    G3D::Rect2D GetViewRect (ViewNumber::Enum viewNumber) const;
-    G3D::Rect2D GetViewRect () const
-    {
-	return GetViewRect (GetViewNumber ());
-    }
-
     void SetStatus (QLabel* labelStatusBar)
     {
 	m_labelStatusBar = labelStatusBar;
@@ -183,10 +173,6 @@ public:
     float GetBubbleSize (ViewNumber::Enum viewNumber) const;
     float GetDeformationSizeInitialRatio (ViewNumber::Enum viewNumber) const;
     float GetVelocitySizeInitialRatio (ViewNumber::Enum viewNumber) const;
-    G3D::AABox CalculateViewingVolume (
-	ViewNumber::Enum viewNumber, 
-	ViewingVolumeOperation::Enum enclose  = 
-	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     void DisplayT1Quad (ViewNumber::Enum view, 
 			size_t timeStep, size_t t1Index) const;
     pair<float, float> GetRange (ViewNumber::Enum viewNumber) const;
@@ -208,8 +194,6 @@ public:
     void SetForceDifferenceShown (bool forceDifference);
     template<typename T>
     void SetOneOrTwoViews (T* t,void (T::*f) (ViewNumber::Enum));
-    ViewNumber::Enum GetViewNumber () const;
-    ViewSettings& GetViewSettings (ViewNumber::Enum viewNumber) const;
     ViewAverage& GetViewAverage (ViewNumber::Enum viewNumber) const
     {
 	return *m_viewAverage[viewNumber];
@@ -217,10 +201,6 @@ public:
     ViewAverage& GetViewAverage () const
     {
 	return *m_viewAverage[GetViewNumber ()];
-    }
-    ViewSettings& GetViewSettings () const
-    {
-	return GetViewSettings (GetViewNumber ());
     }
     void CompileUpdate ()
     {
@@ -239,11 +219,9 @@ public:
     G3D::AABox CalculateCenteredViewingVolume (
 	ViewNumber::Enum viewNumber) const;
     void ButtonClickedViewType (ViewType::Enum oldViewType);
-    /**
-     * Call f until f returns true or you finish all Gl views.
-     */
-    void ForAllViews (boost::function <void (ViewNumber::Enum)> f);
     void SetViewTypeAndCameraDistance (ViewNumber::Enum viewNumber);
+
+    virtual const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
     
 Q_SIGNALS:
     void PaintEnd ();
@@ -493,9 +471,6 @@ private:
     void viewportTransform (ViewNumber::Enum viewNumber) const;
     void setLight (int sliderValue, int maximumValue, 
 		   LightType::Enum lightType, ColorNumber::Enum colorNumber);
-    void setView (const G3D::Vector2& clickedPoint);
-    void setView (ViewNumber::Enum viewNumber, 
-		  const G3D::Vector2& clickedPoint);
     void averageInitStep (ViewNumber::Enum viewNumber);
     void selectView (const G3D::Vector2& clickedPoint);
     void displayContextMenuPos (ViewNumber::Enum viewNumber) const;
@@ -685,7 +660,6 @@ private:
 
 private:
     Q_OBJECT
-    boost::shared_ptr<Settings> m_settings;
 
     /**
      * What do we display

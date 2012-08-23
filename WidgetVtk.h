@@ -10,6 +10,7 @@
 #define __WIDGETVTK_H__
 
 #include "Enums.h"
+#include "WidgetDisplay.h"
 
 class Foam;
 class SendPaintEnd;
@@ -19,7 +20,7 @@ class RegularGridAverage;
 class ViewSettings;
 class Foam;
 
-class WidgetVtk : public QVTKWidget
+class WidgetVtk : public QVTKWidget, public WidgetDisplay
 {
     friend class SendPaintEnd;
     
@@ -41,11 +42,10 @@ public:
     void UpdateAverage (const boost::array<int, ViewNumber::COUNT>& direction);
     void CreateViewPipelines (size_t objects, size_t constraintSurfaces, 
 			      size_t fontSize);
-    G3D::AABox CalculateViewingVolume (ViewNumber::Enum viewNumber);
-    G3D::Rect2D GetViewRect (ViewNumber::Enum viewNumber);
     void UpdateTitle ();
-    void ForAllViews (boost::function <void (ViewNumber::Enum)> f);
     void UpdateFocus ();
+    
+    virtual const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
 
 public:
     QSize sizeHint ()
@@ -69,6 +69,9 @@ protected:
 Q_SIGNALS:
     void PaintEnd ();
 
+public Q_SLOTS:
+    void updateCoords (vtkObject* obj);
+
 private:
     struct ViewPipeline
     {
@@ -86,8 +89,7 @@ private:
 	void UpdateAverage (
 	    boost::shared_ptr<RegularGridAverage> average, int direction);
 	void UpdateTitle (
-	    bool titleShown,
-	    boost::shared_ptr<RegularGridAverage> average, 
+	    bool titleShown, boost::shared_ptr<RegularGridAverage> average, 
 	    ViewNumber::Enum viewNumber);
 	void UpdateFocus (bool focus);
 
@@ -108,11 +110,9 @@ private:
 	const boost::array<int, ViewNumber::COUNT>& direction);
     void updateViewTitle (ViewNumber::Enum viewNumber);
     void updateViewFocus (ViewNumber::Enum viewNumber);
-    void updateCoords (vtkObject* obj);
 
 private:
     Q_OBJECT
-    boost::shared_ptr<Settings> m_settings;
     boost::array<boost::shared_ptr<RegularGridAverage>,
 		 ViewNumber::COUNT> m_average;
     boost::array<ViewPipeline, ViewNumber::COUNT> m_pipeline;

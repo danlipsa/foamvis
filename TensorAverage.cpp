@@ -189,11 +189,11 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
     float p = GetOnePixelInObjectSpace ();
     *onePixelInObjectSpace = p * scaleRatio;
     *lineWidth = *onePixelInObjectSpace * 
-	CALL_MEMBER_FN (vs, m_lineWidthRatio) ();
+	CALL_MEMBER (vs, m_lineWidthRatio) ();
 
     *sizeRatio = 
-	CALL_MEMBER_FN (widgetGl, m_sizeInitialRatio) (this->GetViewNumber ()) * 
-	gridScaleRatio * CALL_MEMBER_FN (vs, m_sizeRatio) ();
+	CALL_MEMBER (widgetGl, m_sizeInitialRatio) (this->GetViewNumber ()) * 
+	gridScaleRatio * CALL_MEMBER (vs, m_sizeRatio) ();
     *enclosingRect = toRect2D (
 	widgetGl.CalculateViewingVolume (
 	    this->GetViewNumber (), 
