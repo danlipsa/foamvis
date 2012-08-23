@@ -134,6 +134,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
 void MainWindow::setupHistograms ()
 {
     QSignalMapper* mapper = new QSignalMapper (this);
+    QLayout* layout = new QHBoxLayout ();
     for (size_t i = 0; i < m_histogram.size (); ++i)
     {
 	m_histogram[i] = new AttributeHistogram (histogramContainer);
@@ -144,51 +145,18 @@ void MainWindow::setupHistograms ()
 	    mapper, 
 	    SLOT (map ()));
 	mapper->setMapping (m_histogram[i], i);
+	layout->addWidget (m_histogram[i]);
     }
     connect (
 	mapper,
 	SIGNAL (mapped (int)),
 	this, 
 	SLOT (SelectionChangedHistogram (int)));
-    updateHistogramLayout ();
-}
 
-void MainWindow::updateHistogramLayout ()
-{
-    RemoveLayout (histogramContainer);
-    QLayout* layout;
-
-    // determine new layout
-    ViewCount::Enum viewCount = m_settings->GetViewCount ();
-    switch (viewCount)
-    {
-    case ViewCount::ZERO:
-    case ViewCount::COUNT:
-	RuntimeAssert (false, "Invalid view count:", viewCount);
-	break;
-    case ViewCount::ONE:
-	layout = new QVBoxLayout ();
-	break;
-    case ViewCount::TWO:
-    case ViewCount::THREE:
-	if (m_settings->GetViewLayout () == ViewLayout::HORIZONTAL)
-	    layout = new QHBoxLayout ();
-	else
-	    layout = new QVBoxLayout ();
-	break;
-    case ViewCount::FOUR:
-	layout = new QFormLayout ();
-	break;
-    }
-
-    // add new layout
-    for (int i = 0; i < viewCount; ++i)
-	layout->addWidget (m_histogram[i]);
     layout->setContentsMargins (0, 0, 0, 0);
     histogramContainer->setLayout (layout);
     histogramContainer->updateGeometry ();
 }
-
 
 void MainWindow::configureInterface ()
 {
@@ -1176,7 +1144,6 @@ void MainWindow::CurrentIndexChangedViewLayout (int index)
 {
     m_settings->SetViewLayout (ViewLayout::Enum (index));
     widgetGl->update ();
-    updateHistogramLayout ();
     widgetVtk->update ();
     update3DAverage ();
 }
@@ -1198,7 +1165,6 @@ void MainWindow::CurrentIndexChangedViewCount (int index)
     checkBoxTitleShown->setChecked (viewCount != ViewCount::ONE);
     forAllShownHistograms (boost::bind (&MainWindow::hideHistogram, this, _1), 
 			   viewCount);
-    updateHistogramLayout ();
     update3DAverage ();
 }
 

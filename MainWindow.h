@@ -145,7 +145,6 @@ private:
     void updateHistogram (HistogramSelection histogramSelection,
 			  MaxValueOperation maxValueOperation,
 			  ViewNumber::Enum viewNumber);
-    void updateHistogramLayout ();
     void setupHistograms ();
     void forAllShownHistograms (
 	boost::function <void (ViewNumber::Enum)> f, size_t start = 0);
