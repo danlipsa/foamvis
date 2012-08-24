@@ -92,7 +92,6 @@ public Q_SLOTS:
      * Copy status from WidgetGl to the UI controls
      */
     void CurrentIndexChangedSelectedLight (int i);
-    void CurrentIndexChangedWindowSize (int i);
     void CurrentIndexChangedViewCount (int index);
     void CurrentIndexChangedViewLayout (int index);
     void CurrentIndexChangedWindowLayout (int index);

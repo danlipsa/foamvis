@@ -133,13 +133,13 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     ValueChangedSliderTimeSteps (0);
     ButtonClickedViewType (ViewType::FACES);
     CurrentIndexChangedViewCount (0); //ViewCount::ONE
+    widgetSave->updateGeometry ();
 }
 
 
 void MainWindow::configureInterface ()
 {
     tabWidget->setCurrentWidget (tabTimeStep);
-    comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);
     horizontalSliderForceTorqueSize->setValue (49);
     horizontalSliderTorqueDistance->setValue (49);
     comboBoxColor->setCurrentIndex (BodyScalar::PRESSURE);
@@ -1131,6 +1131,7 @@ void MainWindow::CurrentIndexChangedWindowLayout (int index)
     else
 	layout = new QVBoxLayout ();
     layout->setSpacing (0);
+    layout->setContentsMargins (0, 0, 0, 0);
 
     // add new layout    
     boost::array<QWidget*, 2> widgets = {{widgetGl, widgetVtk}};
@@ -1425,20 +1426,6 @@ void MainWindow::CurrentIndexChangedStatisticsType (int value)
     }
     Q_EMIT ColorBarModelChanged (widgetGl->GetViewNumber (), 
 				 getColorBarModel ());
-}
-
-void MainWindow::CurrentIndexChangedWindowSize (int value)
-{
-    WindowSize::Enum windowSize = WindowSize::Enum (value);
-    switch (windowSize)
-    {
-    case WindowSize::WINDOW_720x480:
-	resize (720, 480);
-	break;
-    case WindowSize::GL_720x480:
-	resize (1062, 612);
-	break;
-    }
 }
 
 void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)

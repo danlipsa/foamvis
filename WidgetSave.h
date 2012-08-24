@@ -23,7 +23,8 @@ public Q_SLOTS:
      */
     void ToggledSaveMovie (bool checked);
     void SaveFrame ();
-
+    virtual QSize sizeHint () const;
+    virtual QSize minimumSizeHint () const;
 
 protected:
     void paintEvent ( QPaintEvent * event );
