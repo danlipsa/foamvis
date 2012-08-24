@@ -101,9 +101,9 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     QFont defaultFont = app->font ();
     spinBoxFontSize->setValue (defaultFont.pointSize ());
 
+    widgetVtk->CreateAverage (m_settings, simulationGroup);
     if (DATA_PROPERTIES.Is3D ())
     {
-	widgetVtk->CreateAverage (m_settings, simulationGroup);
 	const Foam& foam = simulationGroup.GetSimulation (0).GetFoam (0);
 	widgetVtk->CreateViewPipelines (
 	    foam.GetObjects ().size (), foam.GetConstraintFaces ().size (), 
