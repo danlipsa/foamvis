@@ -131,7 +131,7 @@ const GLfloat WidgetGl::HIGHLIGHT_LINE_WIDTH = 2.0;
 
 WidgetGl::WidgetGl(QWidget *parent)
     : QGLWidget(parent),
-      WidgetDisplay (this, &Settings::IsGlView, &Settings::GetGlCount),
+      WidgetBase (this, &Settings::IsGlView, &Settings::GetGlCount),
       m_torusDomainShown (false),
       m_torusOriginalDomainClipped (false),
       m_interactionMode (InteractionMode::ROTATE),
@@ -153,7 +153,6 @@ WidgetGl::WidgetGl(QWidget *parent)
       m_t1sSize (1.0),
       m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
       m_averageAroundMarked (true),
-      m_viewFocusShown (true),
       m_contextBoxShown (true),
       m_showType (SHOW_NOTHING)
 {
@@ -2946,7 +2945,8 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
 		viewNumber, Settings::GetViewOverlayBarRect (viewRect));
     }
     displayViewTitle (viewNumber);
-    if (viewNumber == GetViewNumber () && m_viewFocusShown &&
+    if (viewNumber == GetViewNumber () && 
+	GetSettings ()->IsViewFocusShown () &&
 	GetSettings ()->GetViewCount () != ViewCount::ONE)
 	displayViewFocus (viewNumber);
     cleanupTransformViewport ();
@@ -3638,12 +3638,6 @@ void WidgetGl::ToggledBoundingBoxBody (bool checked)
 void WidgetGl::ToggledAverageAroundMarked (bool checked)
 {
     m_averageAroundMarked = checked;
-    update ();
-}
-
-void WidgetGl::ToggledViewFocusShown (bool checked)
-{
-    m_viewFocusShown = checked;
     update ();
 }
 

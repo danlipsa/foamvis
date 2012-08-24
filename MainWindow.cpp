@@ -73,8 +73,6 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     m_playReverse (false),
     m_simulationGroup (simulationGroup)
 {
-    fill (m_histogram.begin (), m_histogram.end (), (AttributeHistogram*)0);
-
     // for anti-aliased lines
     QGLFormat format = QGLFormat::defaultFormat ();
     format.setSampleBuffers (true);
@@ -86,7 +84,13 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     m_settings.reset (new Settings (simulation, 
 				    widgetGl->width (), widgetGl->height (),
 				    simulation.GetT1sShift ()));
-    setupHistograms ();
+    widgetHistogram->Init (&simulationGroup);
+    connect (
+	widgetHistogram,
+	SIGNAL (SelectionChanged (int)),
+	this, 
+	SLOT (SelectionChangedHistogram (int)));
+    
     connectSignals ();
     setupButtonGroups ();
 
@@ -121,7 +125,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     setWindowTitle (QString (title.c_str ()));
 
     spinBoxHistogramHeight->setMaximum (500);
-    spinBoxHistogramHeight->setValue (m_histogram[0]->sizeHint ().height ());
+    spinBoxHistogramHeight->setValue (widgetHistogram->GetHeight ());
 
     m_timer->setInterval (20);
     //initTranslatedBody ();
@@ -131,32 +135,6 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     CurrentIndexChangedViewCount (0); //ViewCount::ONE
 }
 
-void MainWindow::setupHistograms ()
-{
-    QSignalMapper* mapper = new QSignalMapper (this);
-    QLayout* layout = new QHBoxLayout ();
-    for (size_t i = 0; i < m_histogram.size (); ++i)
-    {
-	m_histogram[i] = new AttributeHistogram (histogramContainer);
-	m_histogram[i]->setHidden (true);
-	connect (
-	    m_histogram[i], 
-	    SIGNAL (SelectionChanged ()),
-	    mapper, 
-	    SLOT (map ()));
-	mapper->setMapping (m_histogram[i], i);
-	layout->addWidget (m_histogram[i]);
-    }
-    connect (
-	mapper,
-	SIGNAL (mapped (int)),
-	this, 
-	SLOT (SelectionChangedHistogram (int)));
-
-    layout->setContentsMargins (0, 0, 0, 0);
-    histogramContainer->setLayout (layout);
-    histogramContainer->updateGeometry ();
-}
 
 void MainWindow::configureInterface ()
 {
@@ -263,11 +241,11 @@ void MainWindow::connectSignals ()
 	     this, SLOT (TimeoutTimer ()));
     
     connect (widgetGl, SIGNAL (PaintEnd ()),
-	     widgetDisplay, SLOT (SaveFrame ()), 
+	     widgetSave, SLOT (SaveFrame ()), 
 	     Qt::QueuedConnection);
 
     connect (widgetVtk, SIGNAL (PaintEnd ()),
-	     widgetDisplay, SLOT (SaveFrame ()), 
+	     widgetSave, SLOT (SaveFrame ()), 
 	     Qt::QueuedConnection);
     
     // BodyOrFaceScalarChanged: 
@@ -693,59 +671,6 @@ void MainWindow::addVtkView (ViewNumber::Enum viewNumber)
 }
 
 
-void MainWindow::updateHistogram (HistogramSelection histogramSelection, 
-				  MaxValueOperation maxValueOperation)
-{
-    updateHistogram (histogramSelection, maxValueOperation, 
-		     m_settings->GetViewNumber ());
-}
-
-
-
-void MainWindow::updateHistogram (HistogramSelection histogramSelection, 
-				  MaxValueOperation maxValueOperation, 
-				  ViewNumber::Enum viewNumber)
-{
-    const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
-    m_histogram[viewNumber]->setVisible (vs.IsHistogramShown ());
-    bool colorMapped = vs.HasHistogramOption (HistogramType::COLOR_MAPPED);
-    m_histogram[viewNumber]->SetColorCoded (colorMapped);
-    if (colorMapped)
-	m_histogram[viewNumber]->SetColorTransferFunction (
-	    getColorBarModel (viewNumber));
-    if (m_settings->GetViewCount () != ViewCount::ONE)
-	m_histogram[viewNumber]->DisplayFocus (
-	    viewNumber == m_settings->GetViewNumber ());
-
-    BodyScalar::Enum property = BodyScalar::FromSizeT (
-	vs.GetBodyOrFaceScalar ());
-    const Simulation& simulation = m_simulationGroup.GetSimulation (
-	*m_settings, viewNumber);
-    double maxYValue = 0;
-    QwtIntervalData intervalData;
-    if (vs.HasHistogramOption (HistogramType::ALL_TIME_STEPS_SHOWN))
-    {
-	const HistogramStatistics& allTimestepsHistogram = 
-	    simulation.GetHistogram (property);
-	intervalData = allTimestepsHistogram.ToQwtIntervalData ();
-	maxYValue = allTimestepsHistogram.GetMaxCountPerBin ();
-    }
-    else
-    {
-	intervalData = simulation.GetFoam (widgetGl->GetCurrentTime ()).
-	    GetHistogram (property).ToQwtIntervalData ();
-	if (maxValueOperation == REPLACE_MAX_VALUE)
-	    maxYValue = simulation.GetMaxCountPerBinIndividual (property);
-    }
-    if (maxValueOperation == KEEP_MAX_VALUE)
-	maxYValue = m_histogram[viewNumber]->GetMaxValueAxis ();
-    if (histogramSelection == KEEP_SELECTION)
-	m_histogram[viewNumber]->SetDataKeepBinSelection (
-	    intervalData, maxYValue, BodyScalar::ToString (property));
-    else
-	m_histogram[viewNumber]->SetDataAllBinsSelected (
-	    intervalData, maxYValue, BodyScalar::ToString (property));
-}
 
 void MainWindow::createActions ()
 {
@@ -1080,7 +1005,9 @@ void MainWindow::currentIndexChangedFaceColor (
 	    viewNumber,
 	    m_colorBarModelBodyScalar
 	    [simulationIndex][viewNumber][property], property);
-	updateHistogram (DISCARD_SELECTION, REPLACE_MAX_VALUE);
+	widgetHistogram->Update (getColorBarModel (viewNumber),
+				 WidgetHistogram::DISCARD_SELECTION, 
+				 WidgetHistogram::REPLACE_MAX_VALUE);
     }
 }
 
@@ -1110,31 +1037,8 @@ void MainWindow::setStackedWidget (ViewType::Enum viewType)
     }
 }
 
-void MainWindow::setHistogramSize (ViewNumber::Enum viewNumber, int s)
-{
-    m_histogram[viewNumber]->SetSizeHint (QSize(s, s));
-    m_histogram[viewNumber]->updateGeometry ();
-}
 
 
-void MainWindow::forAllShownHistograms (
-    boost::function <void (ViewNumber::Enum)> f, size_t start)
-{
-    for (size_t i = start; i < ViewNumber::COUNT; ++i)
-    {
-	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
-	const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
-	if (vs.IsHistogramShown ())
-	    f (viewNumber);
-    }
-}
-
-void MainWindow::hideHistogram (ViewNumber::Enum viewNumber)
-{
-    ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
-    vs.SetHistogramShown (false);
-    updateHistogram (KEEP_SELECTION, KEEP_MAX_VALUE, viewNumber);
-}
 
 
 // Slots and methods called by the UI
@@ -1163,14 +1067,14 @@ void MainWindow::CurrentIndexChangedViewCount (int index)
     else
 	::setVisible (widgetsViewLayout, false);
     checkBoxTitleShown->setChecked (viewCount != ViewCount::ONE);
-    forAllShownHistograms (boost::bind (&MainWindow::hideHistogram, this, _1), 
-			   viewCount);
+    widgetHistogram->UpdateHidden ();
     update3DAverage ();
 }
 
+
 void MainWindow::CurrentIndexChangedWindowLayout (int index)
 {
-    RemoveLayout (widgetDisplay);
+    RemoveLayout (widgetContainer);
 
     // determine new layout
     ViewLayout::Enum windowLayout = ViewLayout::Enum (index);
@@ -1182,12 +1086,11 @@ void MainWindow::CurrentIndexChangedWindowLayout (int index)
     layout->setSpacing (0);
 
     // add new layout    
-    boost::array<QWidget*, 3> widgets = {{
-	    widgetGl, widgetVtk, histogramContainer}};
+    boost::array<QWidget*, 2> widgets = {{widgetGl, widgetVtk}};
     for (size_t i = 0; i < widgets.size (); ++i)
 	layout->addWidget (widgets[i]);
-    widgetDisplay->setLayout (layout);
-    widgetDisplay->update ();
+    widgetContainer->setLayout (layout);
+    widgetContainer->update ();
 }
 
 
@@ -1200,6 +1103,19 @@ void MainWindow::ValueChangedContextAlpha (int index)
 		     Settings::CONTEXT_ALPHA));
     widgetGl->CompileUpdate ();
     widgetVtk->UpdateOpacity ();
+}
+
+void MainWindow::ToggledViewFocusShown (bool checked)
+{
+    m_settings->SetViewFocusShown (checked);
+    widgetGl->update ();
+    widgetVtk->UpdateFocus ();
+    widgetHistogram->UpdateFocus ();
+}
+
+void MainWindow::ToggledWindowProportional (bool checked)
+{
+    
 }
 
 void MainWindow::ToggledVelocityShown (bool checked)
@@ -1219,15 +1135,7 @@ void MainWindow::ToggledVelocityShown (bool checked)
 
 void MainWindow::ToggledHistogramGridShown (bool checked)
 {
-    for (size_t i = 0; i < ViewNumber::COUNT; ++i)
-    {
-	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
-	const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
-	if (vs.IsHistogramShown ())
-	{
-	    m_histogram[viewNumber]->SetGridEnabled (checked);
-	}
-    }
+    widgetHistogram->SetGridShown (checked);
 }
 
 void MainWindow::ToggledHistogramShown (bool checked)
@@ -1235,7 +1143,9 @@ void MainWindow::ToggledHistogramShown (bool checked)
     ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
     ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
     vs.SetHistogramShown (checked);
-    updateHistogram (DISCARD_SELECTION, REPLACE_MAX_VALUE);    
+    widgetHistogram->Update (getColorBarModel (viewNumber),
+			     WidgetHistogram::DISCARD_SELECTION, 
+			     WidgetHistogram::REPLACE_MAX_VALUE);    
 }
 
 
@@ -1244,7 +1154,9 @@ void MainWindow::ToggledHistogramColorMapped (bool checked)
     ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
     ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
     vs.SetHistogramOption (HistogramType::COLOR_MAPPED, checked);
-    updateHistogram (KEEP_SELECTION, KEEP_MAX_VALUE);
+    widgetHistogram->Update (getColorBarModel (viewNumber),
+			     WidgetHistogram::KEEP_SELECTION, 
+			     WidgetHistogram::KEEP_MAX_VALUE);
 }
 
 void MainWindow::ToggledHistogramAllTimestepsShown (bool checked)
@@ -1252,14 +1164,16 @@ void MainWindow::ToggledHistogramAllTimestepsShown (bool checked)
     ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
     ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
     vs.SetHistogramOption (HistogramType::ALL_TIME_STEPS_SHOWN, checked);
-    updateHistogram (KEEP_SELECTION, REPLACE_MAX_VALUE);
+    widgetHistogram->Update (getColorBarModel (viewNumber),
+			     WidgetHistogram::KEEP_SELECTION, 
+			     WidgetHistogram::REPLACE_MAX_VALUE);
 }
 
 void MainWindow::ValueChangedHistogramHeight (int s)
 {
-    forAllShownHistograms (
-	boost::bind (&MainWindow::setHistogramSize, this, _1, s));
+    widgetHistogram->SetHeight (s);
 }
+
 
 void MainWindow::ClickedPlay ()
 {
@@ -1308,8 +1222,7 @@ void MainWindow::ValueChangedFontSize (int fontSize)
     QFont defaultFont = app->font ();
     defaultFont.setPointSize (fontSize);
     app->setFont (defaultFont);
-    for (size_t i = 0; i < m_histogram.size (); ++i)
-	m_histogram[i]->SetDefaultFont ();
+    widgetHistogram->SetDefaultFont ();
     m_editColorMap->SetDefaultFont ();
 }
 
@@ -1333,8 +1246,11 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
     ViewType::Enum viewType = vs.GetViewType ();
 
     boost::array<int, ViewNumber::COUNT> direction;
+    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
     m_settings->SetCurrentTime (timeStep, &direction);
-    updateHistogram (KEEP_SELECTION, KEEP_MAX_VALUE);
+    widgetHistogram->Update (getColorBarModel (viewNumber),
+			     WidgetHistogram::KEEP_SELECTION, 
+			     WidgetHistogram::KEEP_MAX_VALUE);
     if (viewType == ViewType::AVERAGE)
     {
 	if (DATA_PROPERTIES.Is3D ())
@@ -1532,7 +1448,8 @@ void MainWindow::SelectionChangedHistogram (int vn)
     ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (vn);
     ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
     vector<QwtDoubleInterval> valueIntervals;
-    m_histogram[viewNumber]->GetSelectedIntervals (&valueIntervals);
+    widgetHistogram->GetHistogram (
+	viewNumber).GetSelectedIntervals (&valueIntervals);
     vector<bool> timeStepSelection;
     const Simulation& simulation = widgetGl->GetSimulation ();
     BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT (
@@ -1541,7 +1458,7 @@ void MainWindow::SelectionChangedHistogram (int vn)
 	bodyScalar, valueIntervals, &timeStepSelection);
     sliderTimeSteps->SetRestrictedTo (timeStepSelection);
     
-    if (m_histogram[viewNumber]->AreAllItemsSelected ())
+    if (widgetHistogram->GetHistogram (viewNumber).AreAllItemsSelected ())
 	vs.SetBodySelector (
 	    AllBodySelector::Get (), BodySelectorType::PROPERTY_VALUE);
     else
@@ -1600,7 +1517,8 @@ void MainWindow::SetHistogramColorBarModel (
     boost::shared_ptr<ColorBarModel> colorBarModel)
 {
     if (colorBarModel)
-	m_histogram[viewNumber]->SetColorTransferFunction (colorBarModel);
+	widgetHistogram->GetHistogram (
+	    viewNumber).SetColorTransferFunction (colorBarModel);
 }
 
 void MainWindow::CurrentIndexChangedInteractionMode (int index)
@@ -1640,21 +1558,13 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
 	comboBoxInteractionMode->setToolTip ("");
 	break;
     }
-    forAllShownHistograms (
-	boost::bind (&MainWindow::currentIndexChangedInteractionModeHistogram, 
-		     this, _1, index));
-}
-
-
-void MainWindow::currentIndexChangedInteractionModeHistogram (
-    ViewNumber::Enum viewNumber, int index)
-{
-    m_histogram[viewNumber]->CurrentIndexChangedInteractionMode (index);
+    widgetHistogram->CurrentIndexChangedInteractionMode (index);
 }
 
 
 void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 {
+    (void)prevViewNumber;
     ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
     const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
@@ -1662,12 +1572,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     size_t simulationIndex = vs.GetSimulationIndex ();
     ViewType::Enum viewType = vs.GetViewType ();
 
-    if (m_settings->GetViewCount () != ViewCount::ONE && 
-	viewNumber != prevViewNumber)
-    {
-	m_histogram[prevViewNumber]->DisplayFocus (false);
-	m_histogram[viewNumber]->DisplayFocus (true);
-    }
+    widgetHistogram->UpdateFocus ();
     widgetVtk->UpdateFocus ();
     widgetGl->update ();
 

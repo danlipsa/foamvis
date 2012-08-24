@@ -19,6 +19,9 @@ class Settings : public QObject
 public:
     typedef boost::unordered_map<G3D::Vector3int16, QColor,
 	Vector3int16Hash> EndLocationColor;
+    typedef bool (Settings::*IsViewType) (
+	ViewNumber::Enum viewNumber) const;
+
 
 public:
     Settings (const Simulation& simulation, float w, float h, 
@@ -171,13 +174,12 @@ public:
     ///////////////////
     // VTK and GL views
     bool IsVtkView (ViewNumber::Enum viewNumber) const;
-    bool IsGlView (ViewNumber::Enum viewNumber) const
-    {
-	return ! IsVtkView (viewNumber);
-    }
+    bool IsGlView (ViewNumber::Enum viewNumber) const;
+    bool IsHistogramView (ViewNumber::Enum viewNumber) const;
+
     ViewCount::Enum GetVtkCount (vector<ViewNumber::Enum>* mapping) const;
     ViewCount::Enum GetGlCount (vector<ViewNumber::Enum>* mapping = 0) const;
-
+    ViewCount::Enum GetHistogramCount (vector<ViewNumber::Enum>* mapping) const;
 
 
     void SetViewCount (ViewCount::Enum viewCount)
@@ -264,6 +266,14 @@ public:
     {
 	m_titleShown = shown;
     }
+    bool IsViewFocusShown () const
+    {
+	return m_viewFocusShown;
+    }
+    void SetViewFocusShown (bool shown)
+    {
+	m_viewFocusShown = shown;
+    }
 
 
 Q_SIGNALS:
@@ -284,6 +294,9 @@ private:
 			   bool t1sShiftLower);
     void checkLinkedTimesValid (size_t timeBegin, size_t timeEnd) const;
     void checkLinkedTimesValid () const;
+    ViewCount::Enum getViewCount (
+	vector<ViewNumber::Enum>* mapping, IsViewType isView) const;
+
 
 private:
     Q_OBJECT
@@ -324,6 +337,7 @@ private:
     bool m_centerPathLineUsed;
     bool m_splitHalfView;
     bool m_titleShown;
+    bool m_viewFocusShown;
 };
 
 

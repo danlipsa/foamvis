@@ -89,7 +89,8 @@ Settings::Settings (const Simulation& simulation, float w, float h,
     m_centerPathTubeUsed (true),
     m_centerPathLineUsed (false),
     m_splitHalfView (false),
-    m_titleShown (false)
+    m_titleShown (false),
+    m_viewFocusShown (true)
 {
     initViewSettings (simulation, w, h, t1sShiftLower);
     initEndTranslationColor ();
@@ -396,39 +397,51 @@ bool Settings::IsVtkView (ViewNumber::Enum viewNumber) const
     return DATA_PROPERTIES.Is3D () && vs.GetViewType () == ViewType::AVERAGE;
 }
 
-ViewCount::Enum Settings::GetVtkCount (vector<ViewNumber::Enum>* mapping) const
+bool Settings::IsGlView (ViewNumber::Enum viewNumber) const
+{
+    return ! IsVtkView (viewNumber);
+}
+
+
+bool Settings::IsHistogramView (ViewNumber::Enum viewNumber) const
+{
+    const ViewSettings& vs = 
+	GetViewSettings (ViewNumber::FromSizeT (viewNumber));
+    return vs.IsHistogramShown ();
+}
+
+
+ViewCount::Enum Settings::getViewCount (
+    vector<ViewNumber::Enum>* mapping, IsViewType isView) const
 {
     ViewCount::Enum viewCount = GetViewCount ();
     mapping->resize (viewCount);
     fill (mapping->begin (), mapping->end (), ViewNumber::COUNT);
-    int vtkCount = 0;
+    int count = 0;
     for (int i = 0; i < viewCount; ++i)
-	if (IsVtkView (ViewNumber::FromSizeT (i)))
+	if (CALL_MEMBER (*this, isView) (ViewNumber::FromSizeT (i)))
 	{
-	    (*mapping)[i] = ViewNumber::FromSizeT (vtkCount);
-	    vtkCount++;
+	    (*mapping)[i] = ViewNumber::FromSizeT (count);
+	    count++;
 	}
-    return ViewCount::FromSizeT (vtkCount);
+    return ViewCount::FromSizeT (count);
+}
+
+
+ViewCount::Enum Settings::GetVtkCount (vector<ViewNumber::Enum>* mapping) const
+{
+    return getViewCount (mapping, &Settings::IsVtkView);
+}
+
+ViewCount::Enum Settings::GetHistogramCount (
+    vector<ViewNumber::Enum>* mapping) const
+{
+    return getViewCount (mapping, &Settings::IsHistogramView);
 }
 
 ViewCount::Enum Settings::GetGlCount (vector<ViewNumber::Enum>* mapping) const
 {
-    vector<ViewNumber::Enum> m;
-    if (mapping == 0)
-	mapping = &m;
-    ViewCount::Enum viewCount = GetVtkCount (mapping);
-    // complement the result
-    viewCount = ViewCount::FromSizeT (GetViewCount () - viewCount);
-    int glViewNumber = 0;
-    for (size_t i = 0; i < mapping->size (); ++i)
-	if ((*mapping)[i] == ViewNumber::COUNT)
-	    (*mapping)[i] = ViewNumber::FromSizeT (glViewNumber++);
-	else
-	    (*mapping)[i] = ViewNumber::COUNT;
-    RuntimeAssert (glViewNumber == viewCount, 
-		   "GetGLCount: counts should be equal:", 
-		   viewCount, glViewNumber);
-    return viewCount;
+    return getViewCount (mapping, &Settings::IsGlView);
 }
 
 ViewType::Enum Settings::SetConnectedViewType (ViewType::Enum viewType)

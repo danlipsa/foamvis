@@ -1,5 +1,5 @@
 /**
- * @file   WidgetDisplay.cpp
+ * @file   WidgetBase.cpp
  * @author Dan R. Lipsa
  * @date 23 August 2012
  * 
@@ -7,13 +7,13 @@
  */
 
 
-#include "WidgetDisplay.h"
+#include "Debug.h"
 #include "Settings.h"
 #include "Utils.h"
+#include "WidgetBase.h"
 
 
-
-void WidgetDisplay::ForAllViews (boost::function <void (ViewNumber::Enum)> f)
+void WidgetBase::ForAllViews (boost::function <void (ViewNumber::Enum)> f)
 {
     for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
     {
@@ -23,7 +23,18 @@ void WidgetDisplay::ForAllViews (boost::function <void (ViewNumber::Enum)> f)
     }
 }
 
-G3D::AABox WidgetDisplay::CalculateViewingVolume (
+void WidgetBase::ForAllHiddenViews (boost::function <void (ViewNumber::Enum)> f)
+{
+    for (int i = GetSettings ()->GetViewCount (); i < ViewNumber::COUNT; ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
+	if (CALL_MEMBER (*GetSettings (), m_isView)(viewNumber))
+	    f (viewNumber);
+    }
+}
+
+
+G3D::AABox WidgetBase::CalculateViewingVolume (
     ViewNumber::Enum viewNumber, 
     ViewingVolumeOperation::Enum enclose) const
 {
@@ -37,7 +48,7 @@ G3D::AABox WidgetDisplay::CalculateViewingVolume (
     return vv;
 }
 
-G3D::Rect2D WidgetDisplay::GetViewRect (ViewNumber::Enum viewNumber) const
+G3D::Rect2D WidgetBase::GetViewRect (ViewNumber::Enum viewNumber) const
 {
     vector<ViewNumber::Enum> mapping;
     ViewCount::Enum viewCount = CALL_MEMBER (
@@ -47,24 +58,25 @@ G3D::Rect2D WidgetDisplay::GetViewRect (ViewNumber::Enum viewNumber) const
 }
 
 
-ViewNumber::Enum WidgetDisplay::GetViewNumber () const
+ViewNumber::Enum WidgetBase::GetViewNumber () const
 {
     return GetSettings ()->GetViewNumber ();
 }
 
-ViewSettings& WidgetDisplay::GetViewSettings (ViewNumber::Enum viewNumber) const
+ViewSettings& WidgetBase::GetViewSettings (ViewNumber::Enum viewNumber) const
 {
     return GetSettings ()->GetViewSettings (viewNumber);
 }
 
-void WidgetDisplay::setView (const G3D::Vector2& clickedPoint)
+void WidgetBase::setView (const G3D::Vector2& clickedPoint)
 {
-    ForAllViews (boost::bind (&WidgetDisplay::setView, this, _1, clickedPoint));
+    ForAllViews (boost::bind (&WidgetBase::setView, this, _1, clickedPoint));
 }
-void WidgetDisplay::setView (ViewNumber::Enum viewNumber, 
+void WidgetBase::setView (ViewNumber::Enum viewNumber, 
 			     const G3D::Vector2& clickedPoint)
 {
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     if (viewRect.contains (clickedPoint))
 	GetSettings ()->SetViewNumber (viewNumber);
 }
+

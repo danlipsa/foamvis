@@ -13,6 +13,7 @@
 class AllBodySelector;
 class BodySelector;
 class ColorBarModel;
+class Foam;
 class WidgetGl;
 class IdBodySelector;
 class PropertyValueBodySelector;

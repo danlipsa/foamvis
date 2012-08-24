@@ -24,17 +24,6 @@ class AttributeHistogram;
 class MainWindow : public QMainWindow, private Ui::MainWindow
 {
 public:
-    enum HistogramSelection
-    {
-	KEEP_SELECTION,
-	DISCARD_SELECTION
-    };
-
-    enum MaxValueOperation
-    {
-	KEEP_MAX_VALUE,
-	REPLACE_MAX_VALUE
-    };
     enum PlayType
     {
 	PLAY_FORWARD,
@@ -66,6 +55,8 @@ Q_SIGNALS:
 
 
 public Q_SLOTS:
+    void ToggledWindowProportional (bool checked);
+    void ToggledViewFocusShown (bool checked);
     void ToggledTitleShown (bool checked);
     void ValueChangedContextAlpha (int sliderValue);
     void ToggledVelocityShown (bool checked);
@@ -140,19 +131,7 @@ private:
     /**
      * Shows a histogram of the current display
      */   
-    void updateHistogram (HistogramSelection histogramSelection,
-			  MaxValueOperation maxValueOperation);
-    void updateHistogram (HistogramSelection histogramSelection,
-			  MaxValueOperation maxValueOperation,
-			  ViewNumber::Enum viewNumber);
-    void setupHistograms ();
-    void forAllShownHistograms (
-	boost::function <void (ViewNumber::Enum)> f, size_t start = 0);
-    void hideHistogram (ViewNumber::Enum viewNumber);
     void setHistogramSize (ViewNumber::Enum viewNumber, int s);
-    void currentIndexChangedInteractionModeHistogram (
-	ViewNumber::Enum viewNumber, int index);
-
 
     void addVtkView (ViewNumber::Enum viewNumber);
     void update3DAverage ();
@@ -266,8 +245,7 @@ private:
     boost::shared_ptr<QAction> m_actionScaleShown;
     boost::shared_ptr<QAction> m_actionSelectShown;
     boost::shared_ptr<QAction> m_actionDeselectShown;
-
-    boost::array<AttributeHistogram*, ViewNumber::COUNT> m_histogram;
+    
     // index order: simulation index, view number, body property
     vector <
 	boost::array<

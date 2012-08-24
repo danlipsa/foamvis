@@ -29,6 +29,7 @@ void AttributeHistogram::DisplayFocus (bool focus)
 	setLineWidth (1);
     else
 	setLineWidth (0);
+    replot ();
 }
 
 void AttributeHistogram::contextMenuEvent(QContextMenuEvent *event)

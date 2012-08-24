@@ -1,13 +1,13 @@
 /**
- * @file   WidgetDisplay.h
+ * @file   WidgetBase.h
  * @author Dan R. Lipsa
  * @date 23 August 2012
  * 
  * 
  */
 
-#ifndef __WIDGET_DISPLAY_H__
-#define __WIDGET_DISPLAY_H__
+#ifndef __WIDGET_BASE_H__
+#define __WIDGET_BASE_H__
 
 #include "Enums.h"
 class Settings;
@@ -17,7 +17,7 @@ class ViewSettings;
 /**
  * Widget for displaying foam bubbles
  */
-class WidgetDisplay
+class WidgetBase
 {
 public:
     typedef bool (Settings::*IsViewType) (
@@ -26,9 +26,9 @@ public:
 	vector<ViewNumber::Enum>* mapping) const;
 
 public:
-    WidgetDisplay (const QWidget* widget,
-		   IsViewType isView,
-		   GetViewCountType getViewCount) :
+    WidgetBase (const QWidget* widget,
+		IsViewType isView,
+		GetViewCountType getViewCount) :
 	m_widget (widget), 
 	m_isView (isView),
 	m_getViewCount (getViewCount)
@@ -36,6 +36,7 @@ public:
     }
 
     void ForAllViews (boost::function <void (ViewNumber::Enum)> f);
+    void ForAllHiddenViews (boost::function <void (ViewNumber::Enum)> f);
     G3D::AABox CalculateViewingVolume (
 	ViewNumber::Enum viewNumber, 
 	ViewingVolumeOperation::Enum enclose  = 
@@ -78,7 +79,7 @@ private:
 };
 
 
-#endif //__WIDGET_DISPLAY_H__
+#endif //__WIDGET_BASE_H__
 
 // Local Variables:
 // mode: c++

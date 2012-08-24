@@ -1,28 +1,28 @@
 /**
- * @file   DisplayWidget.cpp
+ * @file   WidgetSave.cpp
  * @author Dan R. Lipsa
  *
- * Definitions for the DisplayWidget class
+ * Definitions for the WidgetSave class
  */
 
-#include "DisplayWidget.h"
+#include "WidgetSave.h"
 #include "DebugStream.h"
 
 
-DisplayWidget::DisplayWidget (QWidget * parent) : 
+WidgetSave::WidgetSave (QWidget * parent) : 
     QWidget (parent), 
     m_saveMovie(false), 
     m_currentFrame(0)
 {
 }
 
-void DisplayWidget::paintEvent ( QPaintEvent * event )
+void WidgetSave::paintEvent ( QPaintEvent * event )
 {
     static_cast<void> (event);
     SaveFrame ();
 }
 
-void DisplayWidget::SaveFrame ()
+void WidgetSave::SaveFrame ()
 {
     if (m_saveMovie)
     {
@@ -40,7 +40,7 @@ void DisplayWidget::SaveFrame ()
     }    
 }
 
-void DisplayWidget::ToggledSaveMovie (bool checked)
+void WidgetSave::ToggledSaveMovie (bool checked)
 {
     m_saveMovie = checked;
     if (checked)

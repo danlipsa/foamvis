@@ -1,20 +1,20 @@
 /**
- * @file   DisplayWidget.h
+ * @file   WidgetSave.h
  * @author Dan R. Lipsa
  * @date 02 August 2010 
  *
- * Declarations for the DisplayWidget class
+ * Declarations for the WidgetSave class
  */
-#ifndef __DISPLAY_WIDGET_H__
-#define __DISPLAY_WIDGET_H__
+#ifndef __WIDGET_SAVE_H__
+#define __WIDGET_SAVE_H__
 
 /**
  * This window is saved as JPGs as the user interacts with the program.
  */
-class DisplayWidget : public QWidget
+class WidgetSave : public QWidget
 {
 public:
-    DisplayWidget (QWidget * parent = 0);
+    WidgetSave (QWidget * parent = 0);
 
 public Q_SLOTS:
     /**
@@ -40,7 +40,7 @@ private:
     int m_currentFrame;
 };
 
-#endif //__DISPLAY_WIDGET_H__
+#endif //__WIDGET_SAVE_H__
 
 // Local Variables:
 // mode: c++

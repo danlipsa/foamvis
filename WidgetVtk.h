@@ -10,7 +10,7 @@
 #define __WIDGETVTK_H__
 
 #include "Enums.h"
-#include "WidgetDisplay.h"
+#include "WidgetBase.h"
 
 class Foam;
 class SendPaintEnd;
@@ -20,7 +20,7 @@ class RegularGridAverage;
 class ViewSettings;
 class Foam;
 
-class WidgetVtk : public QVTKWidget, public WidgetDisplay
+class WidgetVtk : public QVTKWidget, public WidgetBase
 {
     friend class SendPaintEnd;
     

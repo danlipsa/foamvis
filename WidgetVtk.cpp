@@ -123,7 +123,7 @@ vtkSmartPointer<vtkRenderer> WidgetVtk::ViewPipeline::Init (
     VTK_CREATE(vtkTextProperty, multiLineTextProp);
     multiLineTextProp->ShallowCopy (singleLineTextProp);
     multiLineTextProp->ShadowOn ();
-    multiLineTextProp->SetLineSpacing (1);
+    multiLineTextProp->SetLineSpacing (1.2);
 
     VTK_CREATE(vtkTextMapper, textMapper);
     vtkTextProperty* tprop = textMapper->GetTextProperty ();
@@ -137,7 +137,7 @@ vtkSmartPointer<vtkRenderer> WidgetVtk::ViewPipeline::Init (
     textActor->SetMapper (textMapper);
     textActor->GetPositionCoordinate ()->
 	SetCoordinateSystemToNormalizedDisplay ();
-    textActor->GetPositionCoordinate ()->SetValue (0.5, 1);
+    textActor->GetPositionCoordinate ()->SetValue (0.5, 0.99);
     renderer->AddViewProp (textActor);
 
     // focus rectangle
@@ -310,7 +310,7 @@ void WidgetVtk::ViewPipeline::UpdateAverage (
 
 WidgetVtk::WidgetVtk (QWidget* parent) :
     QVTKWidget (parent),
-    WidgetDisplay (this, &Settings::IsVtkView, &Settings::GetVtkCount),
+    WidgetBase (this, &Settings::IsVtkView, &Settings::GetVtkCount),
     m_fontSize (10)
 {
     setVisible (false);
@@ -352,6 +352,7 @@ void WidgetVtk::CreateAverage (boost::shared_ptr<Settings> settings,
 void WidgetVtk::CreateViewPipelines (
     size_t objects, size_t constraintSurfaces, size_t fontSize)
 {
+    m_fontSize = fontSize + 4;
     vtkRenderWindow* renWin = GetRenderWindow ();
 
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
@@ -496,7 +497,8 @@ void WidgetVtk::UpdateFocus ()
 }
 void WidgetVtk::updateViewFocus (ViewNumber::Enum viewNumber)
 {
-    bool focus = GetSettings ()->GetViewNumber () == viewNumber;
+    bool focus = (GetSettings ()->GetViewNumber () == viewNumber) && 
+	GetSettings ()->IsViewFocusShown ();
     ViewPipeline& pipeline = m_pipeline[viewNumber];
     pipeline.UpdateFocus (focus);
 }

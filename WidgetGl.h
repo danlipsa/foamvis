@@ -9,7 +9,7 @@
 
 #include "Hashes.h"
 #include "Enums.h"
-#include "WidgetDisplay.h"
+#include "WidgetBase.h"
 
 class Body;
 class BodyAlongTime;
@@ -35,7 +35,7 @@ class AllBodySelector;
 /**
  * Widget for displaying foam bubbles using OpenGL
  */
-class WidgetGl : public QGLWidget, public QGLFunctions, public WidgetDisplay
+class WidgetGl : public QGLWidget, public QGLFunctions, public WidgetBase
 {
 public:
     /**
@@ -246,7 +246,6 @@ public Q_SLOTS:
     void ToggledBoundingBoxFoam (bool checked);
     void ToggledBoundingBoxBody (bool checked);
     void ToggledAverageAroundMarked (bool checked);
-    void ToggledViewFocusShown (bool checked);
     /**
      * Shows center paths
      * param checked true for showing the center paths false otherwise
@@ -753,7 +752,6 @@ private:
     double m_t1sSize;
     size_t m_highlightLineWidth;
     bool m_averageAroundMarked;
-    bool m_viewFocusShown;
     bool m_contextBoxShown;
     ShowType m_showType;
     size_t m_showBodyId;

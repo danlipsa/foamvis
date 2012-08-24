@@ -7,11 +7,11 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	Debug.h \
 	DebugStream.h Disk.h ImageBasedAverage.h ForceAverage.h\
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
-	DisplayEdgeFunctors.h DisplayElement.h DisplayWidget.h\
+	DisplayEdgeFunctors.h DisplayElement.h WidgetSave.h\
 	EditColorMap.h Edge.h Element.h ExpressionTree.h \
 	Enums.h Foam.h \
 	DataProperties.h Face.h ForcesOneObject.h\
-	WidgetGl.h WidgetVtk.h WidgetDisplay.h \
+	WidgetBase.h WidgetGl.h WidgetHistogram.h WidgetVtk.h \
 	Hashes.h Histogram.h HistogramItem.h HistogramHeight.h\
 	HistogramStatistics.h Labels.h ListViewChange.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
@@ -35,13 +35,14 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	DebugStream.cpp Disk.cpp DisplayBodyFunctors.cpp \
 	ImageBasedAverage.cpp DisplayFaceFunctors.cpp \
 	DisplayEdgeFunctors.cpp	\
-	DisplayWidget.cpp DisplayVertexFunctors.cpp Edge.cpp \
+	DisplayVertexFunctors.cpp Edge.cpp \
 	HistogramStatistics.cpp\
 	EditColorMap.cpp Element.cpp ExpressionTree.cpp \
 	Enums.cpp Foam.cpp\
 	Face.cpp DataProperties.cpp ForcesOneObject.cpp\
 	ForceAverage.cpp \
-	WidgetGl.cpp WidgetVtk.cpp WidgetDisplay.cpp \
+	WidgetBase.cpp WidgetGl.cpp WidgetHistogram.cpp \
+	WidgetSave.cpp WidgetVtk.cpp \
 	Hashes.cpp Histogram.cpp HistogramItem.cpp \
 	HistogramHeight.cpp main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
