@@ -144,7 +144,7 @@ void MainWindow::configureInterface ()
     horizontalSliderTorqueDistance->setValue (49);
     comboBoxColor->setCurrentIndex (BodyScalar::PRESSURE);
     CurrentIndexChangedInteractionMode (InteractionMode::ROTATE);
-    comboBoxWindowLayout->setCurrentIndex (ViewLayout::VERTICAL);
+    CurrentIndexChangedWindowLayout (ViewLayout::HORIZONTAL);
 }
 
 
@@ -644,6 +644,7 @@ void MainWindow::update3DAverage ()
     widgetVtk->RemoveViews ();
     widgetVtk->ForAllViews (
 	boost::bind (&MainWindow::addVtkView, this, _1));
+    updateStretch ();
 }
 
 void MainWindow::addVtkView (ViewNumber::Enum viewNumber)
@@ -1047,9 +1048,55 @@ void MainWindow::setStackedWidget (ViewType::Enum viewType)
 void MainWindow::CurrentIndexChangedViewLayout (int index)
 {
     m_settings->SetViewLayout (ViewLayout::Enum (index));
+    updateStretch ();
     widgetGl->update ();
     widgetVtk->update ();
     update3DAverage ();
+    comboBoxWindowLayout->setCurrentIndex (index);
+}
+
+void MainWindow::clearStretch (QWidget* widget)
+{
+    QSizePolicy policy = widget->sizePolicy ();
+    policy.setHorizontalStretch (0);
+    policy.setVerticalStretch (0);
+    widget->setSizePolicy (policy);
+}
+
+
+void MainWindow::updateStretch (QWidget* widget, 
+				ViewLayout::Enum layout,
+				size_t value)
+{
+    QSizePolicy policy = widget->sizePolicy ();
+    if (layout == ViewLayout::HORIZONTAL)
+    {
+	policy.setHorizontalStretch (value);
+	policy.setVerticalStretch (0);
+    }
+    else
+    {
+	policy.setHorizontalStretch (0);
+	policy.setVerticalStretch (value);
+    }
+    widget->setSizePolicy (policy);
+}
+
+void MainWindow::updateStretch ()
+{
+    size_t glCount = m_settings->GetGlCount ();
+    size_t vtkCount = m_settings->GetVtkCount ();
+    if (glCount && vtkCount)
+    {
+	ViewLayout::Enum layout = m_settings->GetViewLayout ();
+	updateStretch (widgetGl, layout, glCount);
+	updateStretch (widgetVtk, layout, vtkCount);
+    }
+    else
+    {
+	clearStretch (widgetGl);
+	clearStretch (widgetVtk);
+    }
 }
 
 void MainWindow::CurrentIndexChangedViewCount (int index)
@@ -1111,11 +1158,6 @@ void MainWindow::ToggledViewFocusShown (bool checked)
     widgetGl->update ();
     widgetVtk->UpdateFocus ();
     widgetHistogram->UpdateFocus ();
-}
-
-void MainWindow::ToggledWindowProportional (bool checked)
-{
-    
 }
 
 void MainWindow::ToggledVelocityShown (bool checked)

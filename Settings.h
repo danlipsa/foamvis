@@ -177,9 +177,10 @@ public:
     bool IsGlView (ViewNumber::Enum viewNumber) const;
     bool IsHistogramView (ViewNumber::Enum viewNumber) const;
 
-    ViewCount::Enum GetVtkCount (vector<ViewNumber::Enum>* mapping) const;
+    ViewCount::Enum GetVtkCount (vector<ViewNumber::Enum>* mapping = 0) const;
     ViewCount::Enum GetGlCount (vector<ViewNumber::Enum>* mapping = 0) const;
-    ViewCount::Enum GetHistogramCount (vector<ViewNumber::Enum>* mapping) const;
+    ViewCount::Enum GetHistogramCount (
+	vector<ViewNumber::Enum>* mapping = 0) const;
 
 
     void SetViewCount (ViewCount::Enum viewCount)

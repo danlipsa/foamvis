@@ -16,7 +16,6 @@ class QTimer;
 class Settings;
 class SimulationGroup;
 class WidgetGl;
-class AttributeHistogram;
 
 /**
  * Class that stores the OpenGL, Vtk, Histogram and  UI widgets.
@@ -55,7 +54,6 @@ Q_SIGNALS:
 
 
 public Q_SLOTS:
-    void ToggledWindowProportional (bool checked);
     void ToggledViewFocusShown (bool checked);
     void ToggledTitleShown (bool checked);
     void ValueChangedContextAlpha (int sliderValue);
@@ -128,11 +126,11 @@ public Q_SLOTS:
 	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 private:
-    /**
-     * Shows a histogram of the current display
-     */   
-    void setHistogramSize (ViewNumber::Enum viewNumber, int s);
-
+    static void clearStretch (QWidget* widget);
+    static void updateStretch (QWidget* widget, 
+			       ViewLayout::Enum layout,
+			       size_t value);
+    void updateStretch ();
     void addVtkView (ViewNumber::Enum viewNumber);
     void update3DAverage ();
     void currentIndexChangedFaceColor (ViewNumber::Enum viewNumber);
