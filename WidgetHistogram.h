@@ -33,7 +33,8 @@ public:
 
 public:
     WidgetHistogram (QWidget* parent = 0);
-    void Init (const SimulationGroup* simulationGroup);
+    void Init (boost::shared_ptr<Settings> settings, 
+	       const SimulationGroup* simulationGroup);
     int GetHeight () const;
     void UpdateFocus ();
     void Update (boost::shared_ptr<ColorBarModel> colorBarModel,

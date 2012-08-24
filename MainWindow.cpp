@@ -84,7 +84,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     m_settings.reset (new Settings (simulation, 
 				    widgetGl->width (), widgetGl->height (),
 				    simulation.GetT1sShift ()));
-    widgetHistogram->Init (&simulationGroup);
+    widgetHistogram->Init (m_settings, &simulationGroup);
     connect (
 	widgetHistogram,
 	SIGNAL (SelectionChanged (int)),

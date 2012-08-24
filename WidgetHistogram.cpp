@@ -26,9 +26,11 @@ int WidgetHistogram::GetHeight () const
     return m_histogram[0]->sizeHint ().height ();
 }
 
-void WidgetHistogram::Init (const SimulationGroup* simulationGroup)
-{
+void WidgetHistogram::Init (boost::shared_ptr<Settings> settings, 
+			    const SimulationGroup* simulationGroup)
+{    
     m_simulationGroup = simulationGroup;
+    SetSettings (settings);
     QSignalMapper* mapper = new QSignalMapper (this);
     QLayout* layout = new QHBoxLayout ();
     for (size_t i = 0; i < m_histogram.size (); ++i)
@@ -94,7 +96,6 @@ void WidgetHistogram::Update (boost::shared_ptr<ColorBarModel> colorBarModel,
     m_histogram[viewNumber]->SetColorCoded (colorMapped);
     if (colorMapped)
 	m_histogram[viewNumber]->SetColorTransferFunction (colorBarModel);
-    UpdateFocus ();
 
     BodyScalar::Enum property = BodyScalar::FromSizeT (
 	vs.GetBodyOrFaceScalar ());
@@ -123,6 +124,7 @@ void WidgetHistogram::Update (boost::shared_ptr<ColorBarModel> colorBarModel,
     else
 	m_histogram[viewNumber]->SetDataAllBinsSelected (
 	    intervalData, maxYValue, BodyScalar::ToString (property));
+    UpdateFocus ();
 }
 
 void WidgetHistogram::UpdateHidden ()

@@ -414,6 +414,9 @@ bool Settings::IsHistogramView (ViewNumber::Enum viewNumber) const
 ViewCount::Enum Settings::getViewCount (
     vector<ViewNumber::Enum>* mapping, IsViewType isView) const
 {
+    vector<ViewNumber::Enum> m;
+    if (mapping == 0)
+	mapping = &m;
     ViewCount::Enum viewCount = GetViewCount ();
     mapping->resize (viewCount);
     fill (mapping->begin (), mapping->end (), ViewNumber::COUNT);
