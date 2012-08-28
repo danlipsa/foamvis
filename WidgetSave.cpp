@@ -58,5 +58,5 @@ QSize WidgetSave::sizeHint () const
 
 QSize WidgetSave::minimumSizeHint () const
 {
-    return QSize (720, 480);
+    return sizeHint ();
 }

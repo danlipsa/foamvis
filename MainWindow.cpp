@@ -133,6 +133,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     ValueChangedSliderTimeSteps (0);
     ButtonClickedViewType (ViewType::FACES);
     CurrentIndexChangedViewCount (0); //ViewCount::ONE
+    widgetSave->resize (720, 480);
     widgetSave->updateGeometry ();
 }
 
@@ -1329,8 +1330,6 @@ void MainWindow::ButtonClickedViewType (int vt)
     vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
     ViewType::Enum viewType = ViewType::Enum(vt);
     ViewType::Enum oldViewType = m_settings->SetConnectedViewType (viewType);
-    widgetGl->ButtonClickedViewType (oldViewType);
-    update3DAverage ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -1374,6 +1373,8 @@ void MainWindow::ButtonClickedViewType (int vt)
 	if (oldViewType == ViewType::T1S_PDE)
 	    sliderTimeSteps->setMaximum (simulation.GetTimeSteps () - 1);
     }
+    widgetGl->ButtonClickedViewType (oldViewType);
+    update3DAverage ();
 }
 
 void MainWindow::CurrentIndexChangedSimulation (int simulationIndex)
