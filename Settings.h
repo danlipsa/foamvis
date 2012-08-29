@@ -175,7 +175,7 @@ public:
     // VTK and GL views
     bool IsVtkView (ViewNumber::Enum viewNumber) const;
     bool IsGlView (ViewNumber::Enum viewNumber) const;
-    bool IsHistogramView (ViewNumber::Enum viewNumber) const;
+    bool IsHistogramShown (ViewNumber::Enum viewNumber) const;
 
     ViewCount::Enum GetVtkCount (vector<ViewNumber::Enum>* mapping = 0) const;
     ViewCount::Enum GetGlCount (vector<ViewNumber::Enum>* mapping = 0) const;

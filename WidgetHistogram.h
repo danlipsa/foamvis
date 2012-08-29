@@ -59,6 +59,9 @@ public:
 Q_SIGNALS:
     void SelectionChanged (int viewNumber);
 
+protected:
+    virtual void mousePressEvent(QMouseEvent *event);
+
 private Q_SLOTS:
     void selectionChanged (int viewNumber);
 
@@ -70,6 +73,7 @@ private:
     void setHeight (ViewNumber::Enum viewNumber, int h);
     void setGridShown (ViewNumber::Enum viewNumber, bool shown);
     void setDefaultFont (ViewNumber::Enum viewNumber);
+    void setView (ViewNumber::Enum viewNumber, QWidget* widget);
 
 private:
     Q_OBJECT

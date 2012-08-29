@@ -74,10 +74,10 @@
 #include <GLG3D/GL/glew.h>
 
 // Qt headers
-#include <QApplication>
-#include <QtOpenGL>
-#include <QtConcurrentMap>
-#include <QtDebug>
+#include <QtGui/QApplication>
+#include <QtOpenGL/QtOpenGL>
+#include <QtCore/QtConcurrentMap>
+#include <QtCore/QtDebug>
 
 // Qt3D headers
 #include <Qt3D/qglfunctions.h>

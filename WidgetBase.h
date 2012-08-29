@@ -63,6 +63,7 @@ public:
     }
 
 
+
     virtual const Simulation& GetSimulation (
 	ViewNumber::Enum viewNumber) const = 0;
 

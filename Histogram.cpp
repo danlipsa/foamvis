@@ -193,7 +193,7 @@ void Histogram::setData (
     const vector< pair<size_t, size_t> >* selectedBins)
 {
     m_histogramItem.setData(intervalData, maxValue, selectedBins);
-    setAxisScale(QwtPlot::yLeft, GetMinValueAxis (), maxValue);
+    setAxisScale(QwtPlot::yLeft, GetMinValueYAxis (), maxValue);
     setAxisScale(
 	QwtPlot::xBottom,
 	intervalData.interval (0).minValue (),
@@ -203,7 +203,7 @@ void Histogram::setData (
 void Histogram::SetMaxValueAxis (double maxValueAxis)
 {
     m_histogramItem.setMaxValueAxis (maxValueAxis);
-    setAxisScale(QwtPlot::yLeft, GetMinValueAxis (), maxValueAxis);
+    setAxisScale(QwtPlot::yLeft, GetMinValueYAxis (), maxValueAxis);
 }
 
 void Histogram::SetGridEnabled (bool enabled)
@@ -234,7 +234,7 @@ size_t Histogram::GetMaxValueData () const
 void Histogram::SetLogValueAxis (bool logValueAxis)
 {
     m_histogramItem.setLogValueAxis (logValueAxis);
-    SetMaxValueAxis (GetMaxValueAxis ());
+    SetMaxValueAxis (GetMaxValueYAxis ());
     if (logValueAxis)
 	setAxisScaleEngine (QwtPlot::yLeft, new QwtLog10ScaleEngine);
     else
@@ -258,7 +258,7 @@ void Histogram::SetColorTransferFunction (const QwtDoubleInterval& interval,
 
 void Histogram::HistogramHeightDialog ()
 {
-    m_histogramHeight->SetValue (GetMaxValueAxis ());
+    m_histogramHeight->SetValue (GetMaxValueYAxis ());
     m_histogramHeight->SetMaximumValue (GetMaxValueData ());
     m_histogramHeight->SetLogScale (IsLogValueAxis ());
     if (m_histogramHeight->exec () == QDialog::Accepted)

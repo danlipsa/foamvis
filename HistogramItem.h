@@ -43,8 +43,8 @@ public:
      */
     void getSelectedBins (
 	vector< pair<size_t, size_t> >* intervals, bool selected = true) const;
-    double getMaxValueAxis () const;
-    double getMinValueAxis () const;
+    double getMaxValueYAxis () const;
+    double GetMinValueYAxis () const;
     bool isLogValueAxis () const;
 
 

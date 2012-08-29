@@ -471,6 +471,7 @@ void WidgetVtk::updateViewAverage (
     ViewPipeline& pipeline = m_pipeline[viewNumber];
     boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
     pipeline.UpdateAverage (average, direction[viewNumber]);
+    updateViewTitle (viewNumber);
 }
 
 

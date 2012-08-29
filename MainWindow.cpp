@@ -1188,8 +1188,8 @@ void MainWindow::ToggledHistogramShown (bool checked)
     ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
     vs.SetHistogramShown (checked);
     widgetHistogram->Update (getColorBarModel (viewNumber),
-			     WidgetHistogram::DISCARD_SELECTION, 
-			     WidgetHistogram::REPLACE_MAX_VALUE);    
+			     WidgetHistogram::KEEP_SELECTION, 
+			     WidgetHistogram::KEEP_MAX_VALUE);    
 }
 
 
@@ -1475,6 +1475,7 @@ void MainWindow::ToggledForceDifference (bool forceDifference)
 
 void MainWindow::SelectionChangedHistogram (int vn)
 {
+    cdbg << "SelectionChanged: " << vn << endl;
     ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (vn);
     ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
     vector<QwtDoubleInterval> valueIntervals;

@@ -122,6 +122,13 @@ ostream& operator<< (ostream& ostr, const G3D::Rect2D& box)
     return ostr;
 }
 
+ostream& operator<< (ostream& ostr, const QRect& rect)
+{
+    ostr << rect.topLeft () << ", " << rect.bottomRight ();
+    return ostr;
+}
+
+
 ostream& operator<< (ostream& ostr, const G3D::Plane& plane)
 {
     G3D::Vector3 normal;
@@ -202,6 +209,7 @@ ostream& operator<< (ostream& ostr, const pair<U, V>& p)
 {
     return ostr << "(" << p.first << ", " << p.second << ")";
 }
+
 
 
 // Unit vectors

@@ -37,6 +37,7 @@ ostream& operator<< (ostream& ostr, const G3D::Matrix4& m);
 ostream& operator<< (ostream& ostr, const QColor& color);
 ostream& operator<< (ostream& ostr, const QVector3D& v);
 ostream& operator<< (ostream& ostr, const QPoint& p);
+ostream& operator<< (ostream& ostr, const QRect& r);
 ostream& operator<< (ostream& ostr, const QBox3D& p);
 ostream& operator<< (ostream& ostr, const QwtDoubleInterval& interval);
 ostream& operator<< (ostream& ostr, const vector<bool>& v);

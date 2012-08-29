@@ -73,7 +73,7 @@ void WidgetBase::setView (const G3D::Vector2& clickedPoint)
     ForAllViews (boost::bind (&WidgetBase::setView, this, _1, clickedPoint));
 }
 void WidgetBase::setView (ViewNumber::Enum viewNumber, 
-			     const G3D::Vector2& clickedPoint)
+			  const G3D::Vector2& clickedPoint)
 {
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     if (viewRect.contains (clickedPoint))

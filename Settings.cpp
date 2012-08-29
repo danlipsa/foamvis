@@ -403,7 +403,7 @@ bool Settings::IsGlView (ViewNumber::Enum viewNumber) const
 }
 
 
-bool Settings::IsHistogramView (ViewNumber::Enum viewNumber) const
+bool Settings::IsHistogramShown (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = 
 	GetViewSettings (ViewNumber::FromSizeT (viewNumber));
@@ -439,7 +439,7 @@ ViewCount::Enum Settings::GetVtkCount (vector<ViewNumber::Enum>* mapping) const
 ViewCount::Enum Settings::GetHistogramCount (
     vector<ViewNumber::Enum>* mapping) const
 {
-    return getViewCount (mapping, &Settings::IsHistogramView);
+    return getViewCount (mapping, &Settings::IsHistogramShown);
 }
 
 ViewCount::Enum Settings::GetGlCount (vector<ViewNumber::Enum>* mapping) const

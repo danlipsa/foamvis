@@ -28,14 +28,14 @@ public:
 public:
     Histogram (QWidget* parent = 0);
     bool AreAllItemsSelected () const;
-    double GetMaxValueAxis () const
+    double GetMaxValueYAxis () const
     {
-	return m_histogramItem.getMaxValueAxis ();
+	return m_histogramItem.getMaxValueYAxis ();
     }
     size_t GetMaxValueData () const;
-    double GetMinValueAxis () const
+    double GetMinValueYAxis () const
     {
-	return m_histogramItem.getMinValueAxis ();
+	return m_histogramItem.GetMinValueYAxis ();
     }
     void GetSelectedIntervals(vector<QwtDoubleInterval>* intervals) const;
     void GetSelectedBins (

@@ -341,7 +341,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tabSettings">
         <attribute name="title">
@@ -363,17 +363,17 @@
             <bool>true</bool>
            </property>
            <property name="currentIndex">
-            <number>2</number>
+            <number>4</number>
            </property>
-           <widget class="QWidget" name="tabA_G">
+           <widget class="QWidget" name="tabA_E">
             <attribute name="title">
-             <string>A-G</string>
+             <string>A-E</string>
             </attribute>
             <layout class="QFormLayout" name="formLayout_4">
              <property name="fieldGrowthPolicy">
               <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
              </property>
-             <item row="0" column="0">
+             <item row="1" column="0">
               <widget class="QCheckBox" name="checkBoxAverageAroundMarked">
                <property name="text">
                 <string>Average around</string>
@@ -383,35 +383,35 @@
                </property>
               </widget>
              </item>
-             <item row="0" column="1">
+             <item row="1" column="1">
               <widget class="QCheckBox" name="checkBoxAxes">
                <property name="text">
                 <string>Axes</string>
                </property>
               </widget>
              </item>
-             <item row="1" column="0">
+             <item row="2" column="0">
               <widget class="QCheckBox" name="checkBoxBoundingBoxBody">
                <property name="text">
                 <string>Box body</string>
                </property>
               </widget>
              </item>
-             <item row="1" column="1">
+             <item row="2" column="1">
               <widget class="QCheckBox" name="checkBoxBoundingBoxFoam">
                <property name="text">
                 <string>Box foam</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="0">
+             <item row="3" column="0">
               <widget class="QCheckBox" name="checkBoxBoundingBoxSimulation">
                <property name="text">
                 <string>Box simulation</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="1">
+             <item row="3" column="1">
               <widget class="QCheckBox" name="checkBoxBoundingBoxContext">
                <property name="text">
                 <string>Box context</string>
@@ -421,35 +421,35 @@
                </property>
               </widget>
              </item>
-             <item row="3" column="0">
+             <item row="4" column="0">
               <widget class="QCheckBox" name="checkBoxBoundingBoxTorusDomain">
                <property name="text">
                 <string>Box torus domain</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="1">
+             <item row="4" column="1">
               <widget class="QCheckBox" name="checkBoxBodyNeighbors">
                <property name="text">
                 <string>Body neighbors</string>
                </property>
               </widget>
              </item>
-             <item row="4" column="0">
+             <item row="5" column="0">
               <widget class="QCheckBox" name="checkBoxCenterBody">
                <property name="text">
                 <string>Center body</string>
                </property>
               </widget>
              </item>
-             <item row="4" column="1">
+             <item row="5" column="1">
               <widget class="QCheckBox" name="checkBoxCenterFace">
                <property name="text">
                 <string>Center face</string>
                </property>
               </widget>
              </item>
-             <item row="6" column="0">
+             <item row="7" column="0">
               <widget class="QCheckBox" name="checkBoxConstraints">
                <property name="text">
                 <string>Constraints</string>
@@ -459,12 +459,171 @@
                </property>
               </widget>
              </item>
-             <item row="6" column="1">
+             <item row="7" column="1">
               <widget class="QCheckBox" name="checkBoxConstraintPoints">
                <property name="text">
                 <string>Constraint points</string>
                </property>
               </widget>
+             </item>
+             <item row="8" column="0">
+              <widget class="QLabel" name="label_18">
+               <property name="text">
+                <string>Context alpha</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="1">
+              <widget class="QSlider" name="horizontalSliderContextAlpha">
+               <property name="maximum">
+                <number>99</number>
+               </property>
+               <property name="pageStep">
+                <number>10</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="tickPosition">
+                <enum>QSlider::TicksAbove</enum>
+               </property>
+               <property name="tickInterval">
+                <number>10</number>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="0">
+              <widget class="QLabel" name="label_17">
+               <property name="text">
+                <string>Edge radius</string>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="1">
+              <widget class="QSlider" name="horizontalSliderEdgesRadius">
+               <property name="maximum">
+                <number>99</number>
+               </property>
+               <property name="pageStep">
+                <number>10</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="tickPosition">
+                <enum>QSlider::TicksAbove</enum>
+               </property>
+               <property name="tickInterval">
+                <number>10</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="tabF_Z">
+            <attribute name="title">
+             <string>F-Z</string>
+            </attribute>
+            <layout class="QFormLayout" name="formLayout_17">
+             <item row="2" column="0">
+              <widget class="QCheckBox" name="checkBoxMissingPressureShown">
+               <property name="text">
+                <string>Missing pressure</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QCheckBox" name="checkBoxMissingVolumeShown">
+               <property name="text">
+                <string>Missing volume</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QCheckBox" name="checkBoxObjectVelocity">
+               <property name="text">
+                <string>Object velocity</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QCheckBox" name="checkBoxStandaloneElementsShown">
+               <property name="text">
+                <string>Standalone</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QCheckBox" name="checkBoxSelectionContextShown">
+               <property name="text">
+                <string>Selection context</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QCheckBox" name="checkBoxEdgesTessellation">
+               <property name="text">
+                <string>Tessellation edges</string>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QCheckBox" name="checkBoxTitleShown">
+               <property name="text">
+                <string>Title</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_25">
+               <property name="text">
+                <string>Highlight line</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QSlider" name="horizontalSlider">
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>9</number>
+               </property>
+               <property name="value">
+                <number>2</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_10">
+               <property name="text">
+                <string>Font</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QSpinBox" name="spinBoxFontSize"/>
              </item>
             </layout>
            </widget>
@@ -480,7 +639,14 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="0">
+             <item row="3" column="0">
+              <widget class="QCheckBox" name="checkBoxHistogramColorMapped">
+               <property name="text">
+                <string>Color mapped</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
               <widget class="QCheckBox" name="checkBoxHistogramGridShown">
                <property name="text">
                 <string>Grid</string>
@@ -491,18 +657,21 @@
               </widget>
              </item>
              <item row="2" column="0">
-              <widget class="QCheckBox" name="checkBoxHistogramColorMapped">
-               <property name="text">
-                <string>Color mapped</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
               <widget class="QCheckBox" name="checkBoxHistogramAllTimestepsShown">
                <property name="text">
                 <string>All timesteps shown</string>
                </property>
               </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="label_23">
+               <property name="text">
+                <string>Height</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QSpinBox" name="spinBoxHistogramHeight"/>
              </item>
             </layout>
            </widget>
@@ -861,185 +1030,6 @@
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="tabM_Z">
-            <attribute name="title">
-             <string>M-Z</string>
-            </attribute>
-            <layout class="QFormLayout" name="formLayout_17">
-             <item row="0" column="0">
-              <widget class="QCheckBox" name="checkBoxMissingPressureShown">
-               <property name="text">
-                <string>Missing pressure</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QCheckBox" name="checkBoxMissingVolumeShown">
-               <property name="text">
-                <string>Missing volume</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QCheckBox" name="checkBoxObjectVelocity">
-               <property name="text">
-                <string>Object velocity</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QCheckBox" name="checkBoxStandaloneElementsShown">
-               <property name="text">
-                <string>Standalone</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QCheckBox" name="checkBoxSelectionContextShown">
-               <property name="text">
-                <string>Selection context</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QCheckBox" name="checkBoxEdgesTessellation">
-               <property name="text">
-                <string>Tessellation edges</string>
-               </property>
-               <property name="checked">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QCheckBox" name="checkBoxTitleShown">
-               <property name="text">
-                <string>Title</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="tabSize">
-            <attribute name="title">
-             <string>Size</string>
-            </attribute>
-            <layout class="QFormLayout" name="formLayout_9">
-             <property name="fieldGrowthPolicy">
-              <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-             </property>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_10">
-               <property name="text">
-                <string>Font</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QSpinBox" name="spinBoxFontSize"/>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="label_23">
-               <property name="text">
-                <string>Histogram height</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QSpinBox" name="spinBoxHistogramHeight"/>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="label_17">
-               <property name="text">
-                <string>Edge radius</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QSlider" name="horizontalSliderEdgesRadius">
-               <property name="maximum">
-                <number>99</number>
-               </property>
-               <property name="pageStep">
-                <number>10</number>
-               </property>
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="tickPosition">
-                <enum>QSlider::TicksAbove</enum>
-               </property>
-               <property name="tickInterval">
-                <number>10</number>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="label_18">
-               <property name="text">
-                <string>Context alpha</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QSlider" name="horizontalSliderContextAlpha">
-               <property name="maximum">
-                <number>99</number>
-               </property>
-               <property name="pageStep">
-                <number>10</number>
-               </property>
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="tickPosition">
-                <enum>QSlider::TicksAbove</enum>
-               </property>
-               <property name="tickInterval">
-                <number>10</number>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
-              <widget class="QLabel" name="label_25">
-               <property name="text">
-                <string>Highlight line</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="1">
-              <widget class="QSlider" name="horizontalSlider">
-               <property name="minimum">
-                <number>1</number>
-               </property>
-               <property name="maximum">
-                <number>9</number>
-               </property>
-               <property name="value">
-                <number>2</number>
-               </property>
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
            <widget class="QWidget" name="tabTime">
             <attribute name="title">
              <string>Time</string>
@@ -1187,58 +1177,6 @@
                 </size>
                </property>
               </spacer>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="tabNoise">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <attribute name="title">
-             <string>Noise</string>
-            </attribute>
-            <layout class="QFormLayout" name="formLayout_11">
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_21">
-               <property name="text">
-                <string>Start</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QSlider" name="horizontalSliderNoiseStart">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="label_34">
-               <property name="text">
-                <string>Frequency</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QSlider" name="horizontalSliderNoiseFrequency">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="label_20">
-               <property name="text">
-                <string>Amplitude</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QSlider" name="horizontalSliderNoiseAmplitude">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
              </item>
             </layout>
            </widget>
@@ -3498,6 +3436,22 @@
    </hints>
   </connection>
   <connection>
+   <sender>horizontalSliderContextAlpha</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ValueChangedContextAlpha(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1020</x>
+     <y>388</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>424</x>
+     <y>503</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>checkBoxCenterBody</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
@@ -3546,22 +3500,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxSelectionContextShown</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledSelectionContextShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>867</x>
-     <y>345</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>457</x>
-     <y>510</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>horizontalSliderEdgesRadius</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
@@ -3578,18 +3516,34 @@
    </hints>
   </connection>
   <connection>
-   <sender>horizontalSliderContextAlpha</sender>
+   <sender>checkBoxSelectionContextShown</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledSelectionContextShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>867</x>
+     <y>345</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>457</x>
+     <y>510</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderAngleOfView</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ValueChangedContextAlpha(int)</slot>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedAngleOfView(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>1020</x>
-     <y>388</y>
+     <y>417</y>
     </hint>
     <hint type="destinationlabel">
-     <x>424</x>
-     <y>503</y>
+     <x>420</x>
+     <y>326</y>
     </hint>
    </hints>
   </connection>
@@ -3626,18 +3580,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>horizontalSliderAngleOfView</sender>
-   <signal>valueChanged(int)</signal>
+   <sender>checkBoxLightPositionShown</sender>
+   <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ValueChangedAngleOfView(int)</slot>
+   <slot>ToggledLightNumberShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>1020</x>
-     <y>417</y>
+     <y>350</y>
     </hint>
     <hint type="destinationlabel">
-     <x>420</x>
-     <y>326</y>
+     <x>424</x>
+     <y>436</y>
     </hint>
    </hints>
   </connection>
@@ -3658,18 +3612,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxLightPositionShown</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledLightNumberShown(bool)</slot>
+   <sender>spinBoxFontSize</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ValueChangedFontSize(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>1020</x>
-     <y>350</y>
+     <y>296</y>
     </hint>
     <hint type="destinationlabel">
-     <x>424</x>
-     <y>436</y>
+     <x>868</x>
+     <y>349</y>
     </hint>
    </hints>
   </connection>
@@ -3686,22 +3640,6 @@
     <hint type="destinationlabel">
      <x>457</x>
      <y>510</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxFontSize</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ValueChangedFontSize(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1020</x>
-     <y>296</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>868</x>
-     <y>349</y>
     </hint>
    </hints>
   </connection>
@@ -3818,6 +3756,22 @@
    </hints>
   </connection>
   <connection>
+   <sender>horizontalSliderLightAmbientBlue</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedLightAmbientBlue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>849</x>
+     <y>443</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>440</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>horizontalSliderLightDiffuseRed</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
@@ -3846,22 +3800,6 @@
     <hint type="destinationlabel">
      <x>509</x>
      <y>417</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSliderLightAmbientBlue</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedLightAmbientBlue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>849</x>
-     <y>443</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>440</y>
     </hint>
    </hints>
   </connection>
@@ -3946,22 +3884,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>comboBoxViewCount</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>CurrentIndexChangedViewCount(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1020</x>
-     <y>355</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>874</x>
-     <y>294</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>comboBoxViewLayout</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -3974,6 +3896,22 @@
     <hint type="destinationlabel">
      <x>509</x>
      <y>286</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxViewCount</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>CurrentIndexChangedViewCount(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1020</x>
+     <y>355</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>874</x>
+     <y>294</y>
     </hint>
    </hints>
   </connection>
@@ -3994,22 +3932,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxTitleShown</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledTitleShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>790</x>
-     <y>372</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>361</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkBoxAverageAroundMarked</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
@@ -4022,6 +3944,22 @@
     <hint type="destinationlabel">
      <x>509</x>
      <y>459</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxTitleShown</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledTitleShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>790</x>
+     <y>372</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>361</y>
     </hint>
    </hints>
   </connection>
@@ -4122,22 +4060,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxConstraints</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledConstraintsShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>832</x>
-     <y>432</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>602</x>
-     <y>418</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkBoxConstraintPoints</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
@@ -4154,18 +4076,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxReflectedHalfView</sender>
+   <sender>checkBoxConstraints</sender>
    <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledReflectedHalfView(bool)</slot>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledConstraintsShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>817</x>
-     <y>476</y>
+     <x>832</x>
+     <y>432</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1036</x>
-     <y>327</y>
+     <x>602</x>
+     <y>418</y>
     </hint>
    </hints>
   </connection>
@@ -4186,50 +4108,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>horizontalSliderNoiseStart</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedNoiseStart(int)</slot>
+   <sender>checkBoxReflectedHalfView</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledReflectedHalfView(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1020</x>
-     <y>289</y>
+     <x>817</x>
+     <y>476</y>
     </hint>
     <hint type="destinationlabel">
-     <x>625</x>
-     <y>271</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSliderNoiseAmplitude</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedNoiseAmplitude(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1020</x>
-     <y>314</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>642</x>
-     <y>292</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSliderNoiseFrequency</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedNoiseFrequency(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1020</x>
-     <y>339</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>633</x>
-     <y>348</y>
+     <x>1036</x>
+     <y>327</y>
     </hint>
    </hints>
   </connection>
@@ -4250,22 +4140,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxBoundingBoxFoam</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledBoundingBoxFoam(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1020</x>
-     <y>318</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>635</x>
-     <y>350</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkBoxHistogramAllTimestepsShown</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -4282,18 +4156,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxHistogramShown</sender>
+   <sender>checkBoxBoundingBoxFoam</sender>
    <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledHistogramShown(bool)</slot>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledBoundingBoxFoam(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>805</x>
-     <y>291</y>
+     <x>1020</x>
+     <y>318</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1039</x>
-     <y>479</y>
+     <x>635</x>
+     <y>350</y>
     </hint>
    </hints>
   </connection>
@@ -4310,6 +4184,22 @@
     <hint type="destinationlabel">
      <x>1040</x>
      <y>508</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxHistogramShown</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledHistogramShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>805</x>
+     <y>291</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1039</x>
+     <y>479</y>
     </hint>
    </hints>
   </connection>
