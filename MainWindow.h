@@ -129,6 +129,9 @@ private:
     static void updateStretch (QWidget* widget, 
 			       ViewLayout::Enum layout,
 			       size_t value);
+    void updateSliderTimeSteps (
+        ViewNumber::Enum viewNumber,
+        const vector<QwtDoubleInterval>& valueIntervals);
     void updateStretch ();
     void addVtkView (ViewNumber::Enum viewNumber);
     void update3DAverage ();

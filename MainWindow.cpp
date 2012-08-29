@@ -1473,21 +1473,32 @@ void MainWindow::ToggledForceDifference (bool forceDifference)
     widgetGl->SetForceDifferenceShown (forceDifference);
 }
 
-void MainWindow::SelectionChangedHistogram (int vn)
+void MainWindow::updateSliderTimeSteps (
+    ViewNumber::Enum viewNumber,
+    const vector<QwtDoubleInterval>& valueIntervals)
 {
-    cdbg << "SelectionChanged: " << vn << endl;
-    ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (vn);
-    ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
-    vector<QwtDoubleInterval> valueIntervals;
-    widgetHistogram->GetHistogram (
-	viewNumber).GetSelectedIntervals (&valueIntervals);
     vector<bool> timeStepSelection;
-    const Simulation& simulation = widgetGl->GetSimulation ();
+    const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+    const Simulation& simulation = m_simulationGroup.GetSimulation (*m_settings);
     BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT (
-	vs.GetBodyOrFaceScalar ());
+        vs.GetBodyOrFaceScalar ());
     simulation.GetTimeStepSelection (
 	bodyScalar, valueIntervals, &timeStepSelection);
     sliderTimeSteps->SetRestrictedTo (timeStepSelection);
+    
+}
+
+void MainWindow::SelectionChangedHistogram (int vn)
+{
+    ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (vn);
+    ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+    BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT (
+        vs.GetBodyOrFaceScalar ());
+
+    vector<QwtDoubleInterval> valueIntervals;
+    widgetHistogram->GetHistogram (
+	viewNumber).GetSelectedIntervals (&valueIntervals);
+    updateSliderTimeSteps (viewNumber, valueIntervals);
     
     if (widgetHistogram->GetHistogram (viewNumber).AreAllItemsSelected ())
 	vs.SetBodySelector (
@@ -1692,4 +1703,16 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 
     updateLightControls (vs, selectedLight);
     updateButtons ();
+
+    const AttributeHistogram& histogram = 
+        widgetHistogram->GetHistogram (viewNumber);
+    if (histogram.GetMaxValueYAxis () == 0)
+        sliderTimeSteps->SetFullRange ();
+    else
+    {
+        vector<QwtDoubleInterval> valueIntervals;
+        widgetHistogram->GetHistogram (
+            viewNumber).GetSelectedIntervals (&valueIntervals);
+        updateSliderTimeSteps (viewNumber, valueIntervals);
+    }
 }
