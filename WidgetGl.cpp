@@ -3990,11 +3990,6 @@ void WidgetGl::ClickedEnd ()
     update ();
 }
 
-void WidgetGl::ValueChangedAverageTimeWindow (int timeSteps)
-{
-    makeCurrent ();
-    GetViewAverage ().AverageSetTimeWindow (timeSteps);
-}
 
 void WidgetGl::ValueChangedT1sTimeWindow (int timeSteps)
 {

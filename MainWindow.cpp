@@ -1332,7 +1332,12 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 
 void MainWindow::ValueChangedAverageTimeWindow (int timeSteps)
 {
-    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
+    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
+    if (DATA_PROPERTIES.Is2D ())
+        widgetGl->GetViewAverage (viewNumber).AverageSetTimeWindow (timeSteps);
+    else
+        widgetVtk->GetScalarAverage (
+            viewNumber).AverageSetTimeWindow (timeSteps);
     ostringstream ostr;
     ostr << timeSteps * m_settings->LinkedTimeStepStretch (viewNumber);
     labelAverageLinkedTimeWindow->setText (ostr.str ().c_str ());

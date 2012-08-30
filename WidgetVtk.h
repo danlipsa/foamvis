@@ -60,8 +60,7 @@ public:
     {
 	return QSize (128, 128);
     }
-    const RegularGridAverage& GetScalarAverage (
-	ViewNumber::Enum viewNumber) const
+    RegularGridAverage& GetScalarAverage (ViewNumber::Enum viewNumber)
     {
 	return *m_average[viewNumber];
     }

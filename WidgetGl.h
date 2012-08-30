@@ -320,7 +320,6 @@ public Q_SLOTS:
     void ValueChangedLightSpecularGreen (int sliderValue);
     void ValueChangedLightSpecularBlue (int sliderValue);
 
-    void ValueChangedAverageTimeWindow (int timeSteps);
     void ValueChangedT1sTimeWindow (int timeSteps);
     void ValueChangedTimeDisplacement (int timeDisplacement);
     void ValueChangedT1Size (int index);

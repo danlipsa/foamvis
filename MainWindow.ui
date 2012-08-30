@@ -2429,7 +2429,6 @@
     <slot>ToggledForcePressureShown(bool)</slot>
     <slot>ToggledForceNetworkShown(bool)</slot>
     <slot>ToggledForceResultShown(bool)</slot>
-    <slot>ValueChangedAverageTimeWindow(int)</slot>
     <slot>ToggledAverageAroundBody(bool)</slot>
     <slot>ToggledMissingVolumeShown(bool)</slot>
     <slot>ToggledMissingPressureShown(bool)</slot>
@@ -2744,22 +2743,6 @@
     <hint type="destinationlabel">
      <x>874</x>
      <y>406</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxAverageTimeWindow</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedAverageTimeWindow(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>838</x>
-     <y>315</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>429</y>
     </hint>
    </hints>
   </connection>
