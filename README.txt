@@ -257,15 +257,8 @@ On Linux, run:
 'glxinfo' to check capabilities of the drivers and
 'lspci | grep VGA' to see the what graphics card you have in your system
 
-
-
 Compile
 =======
-Mac OS X Snow Leopard
----------------------
-Install XCode 3.2.6 (search for 'Xcode snow leopard')
-
-
 Linux
 -----
 Install using your system installation utility (yum, yast2, ...)
@@ -366,6 +359,10 @@ Then execute '. .bash_profile'. Make sure the path is set correctly:
 Development only:
 cp $VTK_BINARY_DIR/bin/libQVTKWidgetPlugin.so $QTDIR/plugins/designer
 
+
+Mac OS X Snow Leopard
+---------------------
+Install XCode 3.2.6 (search for 'Xcode snow leopard')
 
 
 Windows - not up to date.

@@ -57,7 +57,6 @@ G3D::Rect2D WidgetBase::GetViewRect (ViewNumber::Enum viewNumber) const
 	m_widget->width (), m_widget->height (), mapping[viewNumber], viewCount);
 }
 
-
 ViewNumber::Enum WidgetBase::GetViewNumber () const
 {
     return GetSettings ()->GetViewNumber ();

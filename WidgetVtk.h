@@ -66,6 +66,13 @@ public:
 	return *m_average[viewNumber];
     }
 
+    G3D::Rect2D GetNormalizedViewRect (ViewNumber::Enum viewNumber) const;
+    G3D::Rect2D GetNormalizedViewRect () const
+    {
+        return GetNormalizedViewRect (GetViewNumber ());
+    }
+
+
 protected:
     virtual void resizeEvent (QResizeEvent * event);
 
@@ -92,7 +99,8 @@ private:
 	void UpdateAverage (
 	    boost::shared_ptr<RegularGridAverage> average, int direction);
 	void UpdateTitle (
-	    bool titleShown, boost::shared_ptr<RegularGridAverage> average, 
+	    bool titleShown, const G3D::Vector2& postion,
+            boost::shared_ptr<RegularGridAverage> average, 
 	    ViewNumber::Enum viewNumber);
 	void UpdateFocus (bool focus);
 
@@ -100,7 +108,7 @@ private:
 	vtkSmartPointer<vtkScalarBarActor> m_scalarBar;
 	vtkSmartPointer<vtkActor> m_averageActor;
 	vtkSmartPointer<vtkThreshold> m_threshold;
-	vtkSmartPointer<vtkTextMapper> m_textMapper;
+	vtkSmartPointer<vtkActor2D> m_textActor;
 	vector<vtkSmartPointer<vtkActor> > m_constraintSurface;
 	vector<vtkSmartPointer<vtkActor> > m_object;
 	vtkSmartPointer<vtkRenderer> m_renderer;

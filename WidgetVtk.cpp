@@ -131,14 +131,13 @@ vtkSmartPointer<vtkRenderer> WidgetVtk::ViewPipeline::Init (
     tprop->SetJustificationToCentered ();
     tprop->SetVerticalJustificationToTop ();
     tprop->SetColor (0, 0, 0);
-    m_textMapper = textMapper;
     
     VTK_CREATE (vtkActor2D, textActor);
     textActor->SetMapper (textMapper);
     textActor->GetPositionCoordinate ()->
 	SetCoordinateSystemToNormalizedDisplay ();
-    textActor->GetPositionCoordinate ()->SetValue (0.5, 0.99);
     renderer->AddViewProp (textActor);
+    m_textActor = textActor;
 
     // focus rectangle
     VTK_CREATE(vtkPoints, Pts);
@@ -180,7 +179,8 @@ vtkSmartPointer<vtkRenderer> WidgetVtk::ViewPipeline::Init (
     return renderer;
 }
 
-void WidgetVtk::ViewPipeline::UpdateTitle (bool titleShown,
+void WidgetVtk::ViewPipeline::UpdateTitle (
+    bool titleShown, const G3D::Vector2& position,
     boost::shared_ptr<RegularGridAverage> average, ViewNumber::Enum viewNumber)
 {
     string title ("");
@@ -191,7 +191,9 @@ void WidgetVtk::ViewPipeline::UpdateTitle (bool titleShown,
 	     << average->GetViewSettings ().GetTitle (viewNumber);
 	title = ostr.str ();
     }
-    m_textMapper->SetInput (title.c_str ());
+    vtkTextMapper::SafeDownCast (m_textActor->GetMapper ())->SetInput (
+        title.c_str ());
+    m_textActor->GetPositionCoordinate ()->SetValue (position.x, position.y);
 }
 
 
@@ -441,17 +443,15 @@ void WidgetVtk::AddView (
     pipeline.UpdateOpacity (GetSettings ()->GetContextAlpha ());
     pipeline.UpdateThreshold (interval);
     pipeline.UpdateColorTransferFunction (colorTransferFunction, scalarName);
-    pipeline.UpdateTitle (GetSettings ()->IsTitleShown (), average, viewNumber);
     pipeline.UpdateFocus (GetSettings ()->GetViewNumber () == viewNumber);
 
-    float w = width ();
-    float h = height ();
-    G3D::Rect2D vr = GetViewRect (viewNumber);
-    G3D::Rect2D viewRect = G3D::Rect2D::xyxy (vr.x0 () / w, vr.y0 () / h,
-					      vr.x1 () / w, vr.y1 () / h);
+    G3D::Rect2D viewRect = GetNormalizedViewRect (viewNumber);
+    G3D::Vector2 position = G3D::Vector2 (viewRect.center ().x, viewRect.y1 ());
     renderWindow->AddRenderer(pipeline.m_renderer);
     pipeline.m_renderer->SetViewport (viewRect.x0 (), viewRect.y0 (),
 				      viewRect.x1 (), viewRect.y1 ());
+    pipeline.UpdateTitle (GetSettings ()->IsTitleShown (), 
+                          position, average, viewNumber);
     resizeEvent (0);
     pipeline.m_renderer->ResetCamera ();
     setVisible (true);
@@ -485,8 +485,12 @@ void WidgetVtk::updateViewTitle (ViewNumber::Enum viewNumber)
 {
     bool titleShown = GetSettings ()->IsTitleShown ();
     ViewPipeline& pipeline = m_pipeline[viewNumber];
+    G3D::Rect2D viewRect = GetNormalizedViewRect (viewNumber);
+    G3D::Vector2 position = G3D::Vector2 (
+        viewRect.center ().x, 
+        viewRect.y1 () * .98);
     boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
-    pipeline.UpdateTitle (titleShown, average, viewNumber);
+    pipeline.UpdateTitle (titleShown, position, average, viewNumber);
 }
 
 
@@ -503,6 +507,17 @@ void WidgetVtk::updateViewFocus (ViewNumber::Enum viewNumber)
     ViewPipeline& pipeline = m_pipeline[viewNumber];
     pipeline.UpdateFocus (focus);
 }
+
+G3D::Rect2D WidgetVtk::GetNormalizedViewRect (ViewNumber::Enum viewNumber) const
+{
+    float w = width ();
+    float h = height ();
+    G3D::Rect2D vr = GetViewRect (viewNumber);
+    G3D::Rect2D viewRect = G3D::Rect2D::xyxy (vr.x0 () / w, vr.y0 () / h,
+					      vr.x1 () / w, vr.y1 () / h);    
+    return viewRect;
+}
+
 
 // Overrides
 ////////////

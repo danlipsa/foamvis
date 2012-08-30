@@ -332,7 +332,7 @@ const char* ViewType::ToString (ViewType::Enum t)
     case CENTER_PATHS:
 	return "Center paths";
     case AVERAGE:
-	return "Faces statistics";
+	return "Average";
     case T1S_PDE:
 	return "T1s PDE";
     default:
