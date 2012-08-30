@@ -1052,7 +1052,6 @@ void MainWindow::setStackedWidget (ViewType::Enum viewType)
 
 void MainWindow::SelectionChangedSettings (ViewNumber::Enum viewNumber)
 {
-    cdbg << "SelectionChangedSettings" << endl;
     widgetHistogram->UpdateSelection (viewNumber);
 }
 

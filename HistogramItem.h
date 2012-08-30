@@ -37,12 +37,6 @@ public:
         const QwtScaleMap &yMap, const QRect &) const;
     QColor focusColor () const;
     const QwtLinearColorMap& getColorMap () const;
-    void getSelectedIntervals (vector<QwtDoubleInterval>* intervals) const;
-    /**
-     * Gets the bins that have selection 'selected'.
-     */
-    void getSelectedBins (
-	vector< pair<size_t, size_t> >* intervals, bool selected = true) const;
     double getMaxValueYAxis () const;
     double GetMinValueYAxis () const;
     bool isLogValueAxis () const;
@@ -61,14 +55,24 @@ public:
     void setHistogramAttribute (HistogramAttribute, bool on = true);
     void setColorCoded (bool enable);
     void setColorMap (const QwtLinearColorMap& colorMap);
-    void setAllItemsSelection (bool selected);
-    void setSelected (bool selected, size_t begin, size_t end);
-    void setSelectedBins (
-	const vector< pair<size_t, size_t> >& intervals);
     void setLogValueAxis (bool logValueAxis);
     bool testHistogramAttribute (HistogramAttribute) const;
 
-
+    /**
+     * @{
+     * @name Selection
+     */
+    void getSelectedIntervals (vector<QwtDoubleInterval>* intervals) const;
+    /**
+     * Gets the bins that have selection 'selected'.
+     */
+    void getSelectedBins (
+	vector< pair<size_t, size_t> >* intervals, bool selected = true) const;
+    void setAllItemsSelected (bool selected);
+    void setSelected (bool selected, size_t begin, size_t end);
+    void setSelectedBins (
+	const vector< pair<size_t, size_t> >& intervals);
+    // @}
 
 private:
     QColor getBarColor (size_t i) const;

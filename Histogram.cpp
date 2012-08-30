@@ -115,7 +115,7 @@ void Histogram::PolygonSelected (const QwtPolygon& poly)
 
 void Histogram::SetAllItemsSelection (bool selected)
 {
-    m_histogramItem.setAllItemsSelection (selected);
+    m_histogramItem.setAllItemsSelected (selected);
     Q_EMIT SelectionChanged ();
 }
 
@@ -174,6 +174,7 @@ void Histogram::SetDataAllBinsSelected (
 void Histogram::SetSelectedBinsNoSignal (
     const vector< pair<size_t, size_t> >& bins)
 {
+    m_histogramItem.setAllItemsSelected (false);
     m_histogramItem.setSelectedBins (bins);
     replot ();
 }

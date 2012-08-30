@@ -97,7 +97,7 @@ double HistogramItem::getMaxValueYAxis () const
     return d_data->maxValueAxis;
 }
 
-void HistogramItem::setAllItemsSelection (bool selected)
+void HistogramItem::setAllItemsSelected (bool selected)
 {
     d_data->selected.fill (selected);
     itemChanged ();
