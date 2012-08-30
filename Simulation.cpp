@@ -129,6 +129,7 @@ const vector<G3D::Vector3> Simulation::NO_T1S;
 Simulation::Simulation () :
     m_histogram (
         BodyScalar::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
+    m_adjustPressure (false),
     m_t1sShift (0),
     m_useOriginal (false),
     m_rotation2D (0),

@@ -1,27 +1,5 @@
 #include "HistogramItem.h"
 
-class binToInterval
-{
-public:
-    binToInterval (const QwtIntervalData& intervalData)
-	: m_intervalData (intervalData)
-    {
-    }
-
-    QwtDoubleInterval operator () (const pair<size_t, size_t>& binRange)
-    {
-	QwtDoubleInterval interval (
-	    m_intervalData.interval (binRange.first).minValue (),
-	    m_intervalData.interval (binRange.second - 1).maxValue (),
-	    (m_intervalData.size () == binRange.second) ?
-	    QwtDoubleInterval::IncludeBorders : 
-	    QwtDoubleInterval::ExcludeMaximum);
-	return interval;
-    }
-
-private:
-    const QwtIntervalData& m_intervalData;
-};
 
 const double HistogramItem::logScaleZero = 0.9;
 
@@ -307,13 +285,13 @@ void HistogramItem::drawBar(
     QPainter *painter, const QColor& color, 
     const QRect& rect, bool outOfBounds) const
 {
-    const size_t outOfBoundsTop = 5;
     const QRect r = rect.normalized();
     painter->setBrush(color);    
     painter->setPen(Qt::NoPen);
     QwtPainter::drawRect(painter, r.x(), r.y(), r.width(), r.height());
     if (outOfBounds)
     {
+        const size_t outOfBoundsTop = 5;
 	painter->setBrush(d_data->outOfBoundsColor);    
 	painter->setPen(QPen(Qt::black));
 	QwtPainter::drawRect(painter, r.x(), r.y(),
@@ -343,6 +321,28 @@ void HistogramItem::getSelectedBins (
 	    pair<size_t, size_t> (beginRegion, iData.size ()));
 }
 
+class binToInterval
+{
+public:
+    binToInterval (const QwtIntervalData& intervalData)
+	: m_intervalData (intervalData)
+    {
+    }
+
+    QwtDoubleInterval operator () (const pair<size_t, size_t>& binRange)
+    {
+	QwtDoubleInterval interval (
+	    m_intervalData.interval (binRange.first).minValue (),
+	    m_intervalData.interval (binRange.second - 1).maxValue (),
+	    (m_intervalData.size () == binRange.second) ?
+	    QwtDoubleInterval::IncludeBorders : 
+	    QwtDoubleInterval::ExcludeMaximum);
+	return interval;
+    }
+
+private:
+    const QwtIntervalData& m_intervalData;
+};
 void HistogramItem::getSelectedIntervals (
     vector<QwtDoubleInterval>* intervals) const
 {
@@ -353,6 +353,8 @@ void HistogramItem::getSelectedIntervals (
     std::transform (bins.begin (), bins.end (), intervals->begin (),
 		    binToInterval (iData));
 }
+
+
 
 void HistogramItem::setSelectedBins (
     const vector< pair<size_t, size_t> >& intervals)

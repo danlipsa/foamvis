@@ -87,7 +87,7 @@ bool ProcessBodyTorus::pop (AdjacentOrientedFace* adjacentOrientedFace,
 			    AdjacentOrientedFace* nextAdjacentOrientedFace)
 {
 
-    while (m_queue.size () > 0)
+    while (! m_queue.empty ())
     {
 	vector<AdjacentOrientedFace> possibilities;
 	AdjacentOrientedFace aof = m_queue.front ();
@@ -123,7 +123,7 @@ void ProcessBodyTorus::restrictFacesAroundAnEdge (
 	<< " possibilities ----------    " << "aof: " << aof << endl;);
 
     for (AdjacentOrientedFaces::const_iterator it = aofs.begin ();
-	 it != aofs.end (); it++)
+	 it != aofs.end (); ++it)
     {
 	const AdjacentOrientedFace& nextAof = *it;
 	    __LOG__ (

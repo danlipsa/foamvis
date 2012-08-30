@@ -55,10 +55,6 @@ public:
      * Gets the prefered size
      */
     QSize sizeHint() ;
-    /**
-     * Sets the data displayed by the WidgetGl
-     * @param dataAlongTime data displayed by the WidgetGl
-     */
     const SimulationGroup& GetSimulationGroup () const
     {
 	return *m_simulationGroup;
@@ -207,7 +203,7 @@ public:
 	CompileUpdate (GetViewNumber ());
     }
     void CompileUpdate (ViewNumber::Enum viewNumber);
-    void UpdateAverage (const boost::array<int, ViewNumber::COUNT>& direction);
+    void UpdateAverage (ViewNumber::Enum viewNumber, int direction);
     GLuint GetColorBarTexture (ViewNumber::Enum viewNumber) const
     {
 	return m_colorBarTexture[viewNumber];

@@ -3,7 +3,6 @@
  * @author Dan R. Lipsa
  * @date 17 July 2012
  *
- * Settings applying to all the views
  */
 #ifndef __SETTINGS_H__
 #define __SETTINGS_H__
@@ -14,6 +13,9 @@
 class ViewSettings;
 class Simulation;
 
+/**
+ * Settings that apply to all the views
+ */
 class Settings : public QObject
 {
 public:
@@ -26,6 +28,130 @@ public:
 public:
     Settings (const Simulation& simulation, float w, float h, 
 	      bool t1sShiftLower);
+
+    /**
+     * @{
+     * @name SplitHalf view
+     */
+    vector<ViewNumber::Enum> GetSplitHalfViewNumbers (
+	ViewNumber::Enum viewNumber) const;
+    vector<ViewNumber::Enum> GetSplitHalfViewNumbers () const
+    {
+	return GetSplitHalfViewNumbers (GetViewNumber ());
+    }
+    bool IsSplitHalfView () const
+    {
+	return m_splitHalfView;
+    }
+    void SetSplitHalfView (bool splitHalfView,
+			   const Simulation& simulation, float w, float h);
+    G3D::Vector2 CalculateScaleCenter (
+	ViewNumber::Enum viewNumber, const G3D::Rect2D& rect) const;
+    ViewType::Enum SetSplitHalfViewType (ViewType::Enum viewType);
+    //@}
+
+
+    /**
+     * @{
+     * @name Views
+     */
+    ViewCount::Enum GetViewCount () const
+    {
+	return m_viewCount;
+    }
+    void SetViewCount (ViewCount::Enum viewCount)
+    {
+	m_viewCount = viewCount;
+    }
+    void SetViewNumber (ViewNumber::Enum viewNumber);
+    ViewNumber::Enum GetViewNumber () const
+    {
+	return m_viewNumber;
+    }
+    ViewSettings& GetViewSettings (ViewNumber::Enum viewNumber) const
+    {
+	return *m_viewSettings[viewNumber];
+    }
+    ViewSettings& GetViewSettings () const
+    {
+	return GetViewSettings (GetViewNumber ());
+    }
+    size_t GetViewSettingsSize ()
+    {
+	return m_viewSettings.size ();
+    }
+    ViewLayout::Enum GetViewLayout () const
+    {
+	return m_viewLayout;
+    }
+    void SetViewLayout (ViewLayout::Enum viewLayout)
+    {
+	m_viewLayout = viewLayout;
+    }
+    // @}
+
+    /**
+     * @{
+     * @name Time
+     */
+    size_t GetCurrentTime (ViewNumber::Enum viewNumber) const;
+    size_t GetCurrentTime () const
+    {
+	return GetCurrentTime (GetViewNumber ());
+    }
+    void SetCurrentTime (
+	size_t time, 
+	boost::array<int, ViewNumber::COUNT>* direction = 0, 
+	bool setLastStep = false);
+    size_t GetTimeSteps (ViewNumber::Enum viewNumber) const;
+    // @}
+
+    /**
+     * @{
+     * @name LinkedTime
+     */
+    void LinkedTimeBegin ();
+    void LinkedTimeEnd ();
+    void SetTimeLinkage (TimeLinkage::Enum timeLinkage);
+    TimeLinkage::Enum GetTimeLinkage () const
+    {
+	return m_timeLinkage;
+    }
+    size_t GetLinkedTime () const
+    {
+	return m_linkedTime;
+    }
+    float LinkedTimeStepStretch (ViewNumber::Enum viewNumber) const;
+    float LinkedTimeStepStretch (size_t max,
+				 ViewNumber::Enum viewNumber) const;
+    pair<size_t, ViewNumber::Enum> LinkedTimeMaxInterval () const;
+    
+    vector<ViewNumber::Enum> GetLinkedTimeViewNumbers (
+	ViewNumber::Enum viewNumber) const;
+    vector<ViewNumber::Enum> GetLinkedTimeViewNumbers () const
+    {
+	return GetLinkedTimeViewNumbers (GetViewNumber ());
+    }
+    // @}
+
+
+    /**
+     * @{
+     * @name Gl, Vtk, and Histogram views
+     */
+    bool IsVtkView (ViewNumber::Enum viewNumber) const;
+    bool IsGlView (ViewNumber::Enum viewNumber) const;
+    bool IsHistogramShown (ViewNumber::Enum viewNumber) const;
+    ViewCount::Enum GetVtkCount (vector<ViewNumber::Enum>* mapping = 0) const;
+    ViewCount::Enum GetGlCount (vector<ViewNumber::Enum>* mapping = 0) const;
+    ViewCount::Enum GetHistogramCount (
+	vector<ViewNumber::Enum>* mapping = 0) const;
+    // @}
+
+    /**
+     * @{
+     * @name Various
+     */
     float GetContextAlpha () const
     {
 	return m_contextAlpha;
@@ -103,98 +229,6 @@ public:
     QColor GetHighlightColor (ViewNumber::Enum viewNumber, 
 			      HighlightNumber::Enum highlight) const;
 
-
-    ViewNumber::Enum GetViewNumber () const
-    {
-	return m_viewNumber;
-    }
-
-    //////////////////
-    // Split half view
-    vector<ViewNumber::Enum> GetConnectedViewNumbers (
-	ViewNumber::Enum viewNumber) const;
-
-    vector<ViewNumber::Enum> GetConnectedViewNumbers () const
-    {
-	return GetConnectedViewNumbers (GetViewNumber ());
-    }
-
-    bool IsSplitHalfView () const
-    {
-	return m_splitHalfView;
-    }
-    void SetSplitHalfView (bool reflectedHalfView,
-			   const Simulation& simulation, float w, float h);
-    G3D::Vector2 CalculateScaleCenter (
-	ViewNumber::Enum viewNumber, const G3D::Rect2D& rect) const;
-    ViewType::Enum SetConnectedViewType (ViewType::Enum viewType);
-
-
-
-
-    void SetViewNumber (ViewNumber::Enum viewNumber);
-    ViewSettings& GetViewSettings (ViewNumber::Enum viewNumber) const
-    {
-	return *m_viewSettings[viewNumber];
-    }
-    ViewSettings& GetViewSettings () const
-    {
-	return GetViewSettings (GetViewNumber ());
-    }
-    size_t GetViewSettingsSize ()
-    {
-	return m_viewSettings.size ();
-    }
-    size_t GetCurrentTime () const
-    {
-	return GetCurrentTime (GetViewNumber ());
-    }
-    void SetCurrentTime (
-	size_t time, 
-	boost::array<int, ViewNumber::COUNT>* direction = 0, 
-	bool setLastStep = false);
-    size_t GetCurrentTime (ViewNumber::Enum viewNumber) const;
-    void LinkedTimeBegin ();
-    void LinkedTimeEnd ();
-    void SetTimeLinkage (TimeLinkage::Enum timeLinkage);
-    TimeLinkage::Enum GetTimeLinkage () const
-    {
-	return m_timeLinkage;
-    }
-    size_t GetTimeSteps (ViewNumber::Enum viewNumber) const;
-    size_t GetLinkedTime () const
-    {
-	return m_linkedTime;
-    }
-    ViewCount::Enum GetViewCount () const
-    {
-	return m_viewCount;
-    }
-
-    ///////////////////
-    // VTK and GL views
-    bool IsVtkView (ViewNumber::Enum viewNumber) const;
-    bool IsGlView (ViewNumber::Enum viewNumber) const;
-    bool IsHistogramShown (ViewNumber::Enum viewNumber) const;
-
-    ViewCount::Enum GetVtkCount (vector<ViewNumber::Enum>* mapping = 0) const;
-    ViewCount::Enum GetGlCount (vector<ViewNumber::Enum>* mapping = 0) const;
-    ViewCount::Enum GetHistogramCount (
-	vector<ViewNumber::Enum>* mapping = 0) const;
-
-
-    void SetViewCount (ViewCount::Enum viewCount)
-    {
-	m_viewCount = viewCount;
-    }
-    ViewLayout::Enum GetViewLayout () const
-    {
-	return m_viewLayout;
-    }
-    void SetViewLayout (ViewLayout::Enum viewLayout)
-    {
-	m_viewLayout = viewLayout;
-    }
     bool IsMissingPropertyShown (BodyScalar::Enum bodyProperty) const;
     void SetMissingPressureShown (bool shown)
     {
@@ -225,10 +259,29 @@ public:
 	m_centerPathLineUsed = used;
     }
     QColor GetCenterPathContextColor () const;
-    float LinkedTimeStepStretch (ViewNumber::Enum viewNumber) const;
-    float LinkedTimeStepStretch (size_t max,
-				 ViewNumber::Enum viewNumber) const;
-    pair<size_t, ViewNumber::Enum> LinkedTimeMaxInterval () const;
+    bool IsTitleShown () const
+    {
+	return m_titleShown;
+    }
+    void SetTitleShown (bool shown)
+    {
+	m_titleShown = shown;
+    }
+    bool IsViewFocusShown () const
+    {
+	return m_viewFocusShown;
+    }
+    void SetViewFocusShown (bool shown)
+    {
+	m_viewFocusShown = shown;
+    }
+    // @}
+    
+
+    /**
+     * @{
+     * @name Computation
+     */
     G3D::AABox CalculateViewingVolume (
 	ViewNumber::Enum viewNumber, ViewCount::Enum viewCount, 
 	const Simulation& simulation, 
@@ -259,31 +312,19 @@ public:
     }
     static G3D::Rect2D GetViewColorBarRect (const G3D::Rect2D& viewRect);
     static G3D::Rect2D GetViewOverlayBarRect (const G3D::Rect2D& viewRect);
-    bool IsTitleShown () const
-    {
-	return m_titleShown;
-    }
-    void SetTitleShown (bool shown)
-    {
-	m_titleShown = shown;
-    }
-    bool IsViewFocusShown () const
-    {
-	return m_viewFocusShown;
-    }
-    void SetViewFocusShown (bool shown)
-    {
-	m_viewFocusShown = shown;
-    }
-
+    // @}
 
 Q_SIGNALS:
     void ViewChanged (ViewNumber::Enum prevViewNumber);
+    void SelectionChanged (ViewNumber::Enum viewNumber);
 
 public:
     const static pair<float,float> CONTEXT_ALPHA;
     const static size_t QUADRIC_SLICES;
     const static size_t QUADRIC_STACKS;
+
+private Q_SLOTS:
+    void selectionChanged (int viewNumber);
 
 private:
     float getXOverY (float w, float h, ViewNumber::Enum viewNumber, 

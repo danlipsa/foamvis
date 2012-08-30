@@ -183,15 +183,15 @@ vtkSmartPointer<vtkRenderer> WidgetVtk::ViewPipeline::Init (
 void WidgetVtk::ViewPipeline::UpdateTitle (bool titleShown,
     boost::shared_ptr<RegularGridAverage> average, ViewNumber::Enum viewNumber)
 {
-    const char* title = "";
+    string title ("");
     ostringstream ostr;
     if (titleShown)
     {	
 	ostr << average->GetSimulation ().GetName () << endl 
 	     << average->GetViewSettings ().GetTitle (viewNumber);
-	title = ostr.str ().c_str ();
+	title = ostr.str ();
     }
-    m_textMapper->SetInput (title);
+    m_textMapper->SetInput (title.c_str ());
 }
 
 
@@ -462,9 +462,9 @@ void WidgetVtk::UpdateAverage (
     const boost::array<int, ViewNumber::COUNT>& direction)
 {
     ForAllViews (
-	boost::bind (&WidgetVtk::updateViewAverage, this, _1, direction));
+	boost::bind (&WidgetVtk::UpdateViewAverage, this, _1, direction));
 }
-void WidgetVtk::updateViewAverage (
+void WidgetVtk::UpdateViewAverage (
     ViewNumber::Enum viewNumber,
     const boost::array<int, ViewNumber::COUNT>& direction)
 {

@@ -749,7 +749,7 @@ void Foam::GetFaceSet (FaceSet* faceSet) const
 boost::shared_ptr<Edge> Foam::GetStandardEdge () const
 {
     const Face* f;
-    if (m_bodies.size () == 0)
+    if (m_bodies.empty ())
 	f = m_standaloneFaces[0].get ();
     else
 	f = &GetBody (0).GetFace (0);
@@ -837,7 +837,7 @@ void Foam::SetForcesAllObjects ()
 {
     const vector<ForcesOneObjectNames>& forcesNames = 
 	GetParsingData ().GetForcesNames ();
-    if (forcesNames.size () > 0)
+    if (! forcesNames.empty ())
     {
 	m_forces.resize (forcesNames.size ());
 	for (size_t i = 0; i < forcesNames.size (); ++i)

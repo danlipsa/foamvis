@@ -214,10 +214,6 @@ public:
 
     void operator () (const OrientedEdge& oe);
 
-    /**
-     * Functor that displays an edge
-     * @param e the edge to be displayed
-     */
     void operator() (const boost::shared_ptr<OrientedEdge> oe);
     
     void operator() (const boost::shared_ptr<Edge>  e);
@@ -248,10 +244,6 @@ public:
 
     void operator () (const Edge& edge) const;
 
-    /**
-     * Functor that displays an edge
-     * @param e the edge to be displayed
-     */
     void operator() (const boost::shared_ptr<OrientedEdge> oe) const;
 };
 

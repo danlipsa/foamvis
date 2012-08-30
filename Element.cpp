@@ -172,7 +172,7 @@ bool Element::HasAttribute (size_t i) const
 
 bool Element::HasAttributes () const
 {
-    return m_attributes.size () > 0;
+    return ! m_attributes.empty ();
 }
 
 // Template instantiations

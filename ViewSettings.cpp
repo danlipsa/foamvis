@@ -345,7 +345,7 @@ void ViewSettings::SetBodySelector (
 
 void ViewSettings::UnionBodySelector (const vector<size_t>& bodyIds)
 {
-    if (bodyIds.size () == 0)
+    if (bodyIds.empty ())
 	return;
     switch (m_bodySelector->GetType ())
     {
@@ -381,13 +381,13 @@ void ViewSettings::UnionBodySelector (const vector<size_t>& bodyIds)
 void ViewSettings::DifferenceBodySelector (
     const Foam& foam, const vector<size_t>& bodyIds)
 {
-    if (bodyIds.size () == 0)
+    if (bodyIds.empty ())
 	return;
     switch (m_bodySelector->GetType ())
     {
     case BodySelectorType::ALL:
     {
-	if (bodyIds.size () != 0)
+	if (! bodyIds.empty ())
 	    m_bodySelector = idBodySelectorComplement (foam, bodyIds);
 	break;
     }
@@ -426,6 +426,7 @@ void ViewSettings::CopyTransformation (const ViewSettings& from)
 void ViewSettings::CopySelection (const ViewSettings& other)
 {
     m_bodySelector = other.m_bodySelector->Clone ();
+    Q_EMIT SelectionChanged ();
 }
 
 

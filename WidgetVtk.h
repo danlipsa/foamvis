@@ -40,6 +40,9 @@ public:
 		      const SimulationGroup& simulationGroup);
     void UpdateOpacity ();
     void UpdateAverage (const boost::array<int, ViewNumber::COUNT>& direction);
+    void UpdateViewAverage (
+        ViewNumber::Enum viewNumber,
+        const boost::array<int, ViewNumber::COUNT>& direction);
     void CreateViewPipelines (size_t objects, size_t constraintSurfaces, 
 			      size_t fontSize);
     void UpdateTitle ();
@@ -105,9 +108,6 @@ private:
     };
 
 private:
-    void updateViewAverage (
-	ViewNumber::Enum viewNumber,
-	const boost::array<int, ViewNumber::COUNT>& direction);
     void updateViewTitle (ViewNumber::Enum viewNumber);
     void updateViewFocus (ViewNumber::Enum viewNumber);
 

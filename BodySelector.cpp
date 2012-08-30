@@ -49,6 +49,8 @@ boost::shared_ptr<AllBodySelector> AllBodySelector::SELECTOR =
 // PropertyValueBodySelector
 // ======================================================================
 
+
+
 bool PropertyValueBodySelector::operator () (
     const boost::shared_ptr<Body>& body) const
 {
@@ -80,7 +82,7 @@ boost::shared_ptr<PropertyValueBodySelector> PropertyValueBodySelector::Clone (
     ) const
 {
     boost::shared_ptr<PropertyValueBodySelector> p (
-	new PropertyValueBodySelector (m_property, m_valueIntervals));
+	new PropertyValueBodySelector (m_property, m_valueIntervals, m_bins));
     return p;
 }
 

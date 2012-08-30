@@ -43,6 +43,7 @@ public:
     {
 	m_histogramItem.getSelectedBins (intervals, selected);
     }
+    void SetSelectedBinsNoSignal (const vector< pair<size_t, size_t> >& bins);
     bool IsLogValueAxis () const
     {
 	return m_histogramItem.isLogValueAxis ();

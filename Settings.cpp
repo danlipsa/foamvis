@@ -141,9 +141,16 @@ void Settings::initViewSettings (
 {
     ViewNumber::Enum viewNumber (ViewNumber::VIEW0);
     ViewCount::Enum viewCount = ViewCount::FromSizeT (m_viewSettings.size ());
+    QSignalMapper* mapper = new QSignalMapper (this);
     BOOST_FOREACH (boost::shared_ptr<ViewSettings>& vs, m_viewSettings)
     {
 	vs = boost::make_shared <ViewSettings> ();
+        connect (
+            vs.get (), 
+            SIGNAL (SelectionChanged ()),
+            mapper, 
+            SLOT (map ()));
+        mapper->setMapping (vs.get (), viewNumber);
 	vs->SetViewType (ViewType::FACES);
 	G3D::Vector3 center = CalculateViewingVolume (
 	    viewNumber, viewCount, 
@@ -172,6 +179,16 @@ void Settings::initViewSettings (
 		ViewingVolumeOperation::DONT_ENCLOSE2D));
 	viewNumber = ViewNumber::Enum (viewNumber + 1);
     }
+    connect (
+        mapper,
+        SIGNAL (mapped (int)),
+        this, 
+        SLOT (selectionChanged (int)));
+}
+
+void Settings::selectionChanged (int viewNumber)
+{
+    Q_EMIT SelectionChanged (ViewNumber::FromSizeT (viewNumber));
 }
 
 
@@ -346,6 +363,26 @@ pair<size_t, ViewNumber::Enum> Settings::LinkedTimeMaxInterval () const
     return max;
 }
 
+vector<ViewNumber::Enum> Settings::GetLinkedTimeViewNumbers (
+    ViewNumber::Enum viewNumber) const
+{
+    if (GetTimeLinkage () == TimeLinkage::LINKED)
+    {
+        ViewCount::Enum viewCount = GetViewCount ();
+        vector<ViewNumber::Enum> vn (viewCount);
+        for (int i = 0; i < viewCount; ++i)
+            vn[i] = ViewNumber::FromSizeT (i);
+        return vn;
+    }
+    else
+    {
+        vector<ViewNumber::Enum> vn (1);
+        vn[0] = viewNumber;
+        return vn;
+    }
+}
+
+
 G3D::AABox Settings::CalculateCenteredViewingVolume (
     ViewNumber::Enum viewNumber, ViewCount::Enum viewCount, 
     const Simulation& simulation, 
@@ -447,9 +484,9 @@ ViewCount::Enum Settings::GetGlCount (vector<ViewNumber::Enum>* mapping) const
     return getViewCount (mapping, &Settings::IsGlView);
 }
 
-ViewType::Enum Settings::SetConnectedViewType (ViewType::Enum viewType)
+ViewType::Enum Settings::SetSplitHalfViewType (ViewType::Enum viewType)
 {
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSplitHalfViewNumbers ();
     ViewType::Enum oldViewType = GetViewSettings (vn[0]).GetViewType ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
@@ -553,7 +590,7 @@ G3D::Rect2D Settings::GetViewOverlayBarRect (const G3D::Rect2D& viewRect)
 	10, max (viewRect.height () / 4, 50.0f));
 }
 
-vector<ViewNumber::Enum> Settings::GetConnectedViewNumbers (
+vector<ViewNumber::Enum> Settings::GetSplitHalfViewNumbers (
     ViewNumber::Enum viewNumber) const
 {
     if (m_splitHalfView)

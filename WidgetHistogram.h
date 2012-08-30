@@ -37,6 +37,7 @@ public:
 	       const SimulationGroup* simulationGroup);
     int GetHeight () const;
     void UpdateFocus ();
+    void UpdateSelection (ViewNumber::Enum viewNumber);
     void Update (boost::shared_ptr<ColorBarModel> colorBarModel,
 		 SelectionOperation selectionOperation,
 		 MaxValueOperation maxValueOperation);

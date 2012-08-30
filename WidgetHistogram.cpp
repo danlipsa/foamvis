@@ -6,6 +6,7 @@
  */
 
 #include "AttributeHistogram.h"
+#include "BodySelector.h"
 #include "DebugStream.h"
 #include "Foam.h"
 #include "Settings.h"
@@ -73,6 +74,22 @@ void WidgetHistogram::setView (ViewNumber::Enum viewNumber, QWidget* widget)
 void WidgetHistogram::selectionChanged (int viewNumber)
 {
     Q_EMIT SelectionChanged (viewNumber);
+}
+
+void WidgetHistogram::UpdateSelection (ViewNumber::Enum viewNumber)
+{
+    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    const BodySelector* selector = &vs.GetBodySelector ();
+    if (selector->GetType  () == BodySelectorType::COMPOSITE ||
+        selector->GetType  () == BodySelectorType::PROPERTY_VALUE)
+    {
+        if (selector->GetType () == BodySelectorType::COMPOSITE)
+            selector = static_cast<const CompositeBodySelector*> (selector)
+                ->GetPropertyValueSelector ().get ();
+        const vector<pair<size_t, size_t> >& v = 
+            static_cast<const PropertyValueBodySelector*> (selector)->GetBins ();
+        GetHistogram (viewNumber).SetSelectedBinsNoSignal (v);
+    }
 }
 
 void WidgetHistogram::UpdateFocus ()

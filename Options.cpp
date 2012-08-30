@@ -314,7 +314,7 @@ void CommandLineOptions::read (int argc, char *argv[])
     {
 	getIniOptions (m_iniFileName, &m_names, 
 		       &m_labels, &m_parametersArray);	
-	if (m_simulationNames.size () == 0)
+	if (m_simulationNames.empty ())
 	    getSelectedIndexesFromDialog (
 		m_iniFileName, m_names, m_labels,
 		&m_simulationIndexes, &m_filter);
@@ -368,6 +368,7 @@ po::options_description CommandLineOptions::getDescription (
 CommonOptions::CommonOptions () :
     m_ticksForTimeStep (1),
     m_reflectionAxis (numeric_limits<size_t>::max ()),
+    m_resolution (0),
     m_rotation2D (0),
     m_commonOptions (
 	getCommonAndHiddenOptions (

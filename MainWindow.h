@@ -54,6 +54,7 @@ Q_SIGNALS:
 
 
 public Q_SLOTS:
+    void SelectionChangedSettings (ViewNumber::Enum viewNumber);
     void ToggledViewFocusShown (bool checked);
     void ToggledTitleShown (bool checked);
     void ValueChangedContextAlpha (int sliderValue);

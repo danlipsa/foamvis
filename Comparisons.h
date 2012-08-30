@@ -140,11 +140,6 @@ public:
     typedef const G3D::Vector3& (G3D::AABox::*BoxCorner) () const;
     typedef boost::function<G3D::AABox (const BBObject& object)> GetAABox;
 
-    /**
-     * Constructor
-     * @param axis along which axis to compare
-     * @param corner which corner of the AABox to compare
-     */
     BBObjectLessThanAlong (G3D::Vector3::Axis axis, BoxCorner corner,
 			   GetAABox getAABox) : 
 	m_axis (axis), m_corner(corner), m_getAABox (getAABox)

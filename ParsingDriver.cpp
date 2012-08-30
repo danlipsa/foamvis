@@ -11,7 +11,9 @@
 
 
 ParsingDriver::ParsingDriver ()
-  : m_debugScanning (false), m_debugParsing (false)
+  : m_debugScanning (false), 
+    m_scanner (0),
+    m_debugParsing (false)
 {
 }
 

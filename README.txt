@@ -418,6 +418,11 @@ gprof -pFoamAlongTime.cpp -qFoamAlongTime.cpp ./foam > gprof.txt
 Generate a call graph image
 cat gprof.txt | gprof2dot.py | dot -Tpng -o gprof.png
 
+Static checks (cppcheck)
+========================
+cppcheck-gui will use the project file foamvis.cppcheck and 
+
+
 Debug memory leaks, ... (valgrind)
 ==================================
 valgrind --suppressions=valgrind-supressions.txt --leak-check=yes

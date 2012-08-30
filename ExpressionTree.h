@@ -143,11 +143,6 @@ private:
 class ExpressionTreeArrayElement : public ExpressionTree
 {
 public:
-    /**
-     * Constructs a variable node
-     * @param name the name of the variable
-     * @param parsingData data which allows us to get the value of a variable.
-     */
     ExpressionTreeArrayElement (ParsingData& parsingData, 
 				const char* name, const vector<size_t>& index) :
 

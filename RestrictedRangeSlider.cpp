@@ -143,7 +143,7 @@ void RestrictedRangeSlider::SetRestrictedTo (
     for (size_t i = 0; i < selectedIntervals.size (); ++i)
 	if (selectedIntervals[i])
 	    m_toOriginalRange.push_back (i);
-    if (m_toOriginalRange.size () == 0)
+    if (m_toOriginalRange.empty ())
     {
 	m_state = EMPTY_RANGE;
     }

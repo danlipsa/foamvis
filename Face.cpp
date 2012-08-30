@@ -71,7 +71,9 @@ private:
 // Methods
 // ======================================================================
 Face::Face (const boost::shared_ptr<Edge>& edge, size_t id) :
-    Element (id, ElementStatus::ORIGINAL)
+    Element (id, ElementStatus::ORIGINAL),
+    m_perimeter (0),
+    m_area (0)
 {
     m_orientedEdges.push_back (boost::make_shared<OrientedEdge> (edge, false));
 }
@@ -80,8 +82,11 @@ Face::Face (const Face& original) :
     Element (original),
     m_adjacentBodies (original.m_adjacentBodies),
     m_normal (original.m_normal),
-    m_center (original.m_center)
+    m_center (original.m_center),
+    m_perimeter (original.m_perimeter),
+    m_area (original.m_area)
 {
+    m_orientedFace.reset ();
     BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, original.m_orientedEdges)
 	m_orientedEdges.push_back (boost::make_shared<OrientedEdge> (*oe));
 }
@@ -89,7 +94,9 @@ Face::Face (const Face& original) :
 Face::Face (const vector<int>& edgeIndexes,
 	    const vector<boost::shared_ptr<Edge> >& edges, 
 	    size_t id, ElementStatus::Enum duplicateStatus) :
-    Element (id, duplicateStatus)
+    Element (id, duplicateStatus),
+    m_perimeter (0),
+    m_area (0)
 {
     m_adjacentBodies.reserve (2);
     m_orientedEdges.resize (edgeIndexes.size ());

@@ -19,7 +19,10 @@ class IdBodySelector;
 class PropertyValueBodySelector;
 class Simulation;
 
-class ViewSettings
+/**
+ * Settings that apply to one view
+ */
+class ViewSettings : public QObject
 {
 public:
     enum RotationCenterType
@@ -33,9 +36,10 @@ public:
     ViewSettings ();
     ~ViewSettings ();
 
-    ///////////////////////////////////
-    // scalar, view and statistics type
-    //
+    /**
+     * @{
+     * @name Type
+     */
     ViewType::Enum GetViewType () const
     {
 	return m_viewType;
@@ -62,10 +66,12 @@ public:
     {
 	m_statisticsType = statisticsType;
     }
+    // @}
 
-    ///////////
-    // Overlays
-    //
+    /**
+     * @{
+     * @name Overlays
+     */
     void SetForceNetworkShown (bool value)
     {
 	m_forceNetworkShown = value;
@@ -144,10 +150,12 @@ public:
     {
 	return m_velocityShown;
     }
+    // @}
 
-    ///////////
-    // ColorBar
-    //
+    /**
+     * @{
+     * @name ColorBar
+     */
     boost::shared_ptr<ColorBarModel> GetColorBarModel () const
     {
 	return m_colorBarModel;
@@ -165,11 +173,12 @@ public:
 	m_colorBarModel.reset ();
     }
     void CopyColorBar (const ViewSettings& from);
+    // @}
 
-
-    ///////////////////
-    // Transforms Focus
-
+    /**
+     * @{
+     * @name Transforms focus
+     */
     // rotation
     const G3D::Matrix3& GetRotation () const
     {
@@ -250,11 +259,12 @@ public:
     void CalculateCameraDistance (const G3D::AABox& centeredViewingVolume);
 
     void CopyTransformation (const ViewSettings& from);
+    // @}
 
-
-    //////////////////
-    // Transforms grid
-    //
+    /**
+     * @{
+     * @name Transforms grid
+     */
     double GetGridScaleRatio () const
     {
 	return m_gridScaleRatio;
@@ -272,10 +282,12 @@ public:
     {
 	m_gridTranslation = gridTranslation;
     }
+    // @}
 
-    ///////////////
-    // Context view
-    //
+    /**
+     * @{
+     * @name Context view
+     */
     void SetContextView (bool contextView)
     {
 	m_contextView = contextView;
@@ -294,10 +306,12 @@ public:
     {
 	m_contextScaleRatio = contextScaleRatio;
     }    
+    // @}
 
-    /////////
-    // Lights
-    //
+    /**
+     * @{
+     * @name Lights
+     */
     bool IsLightingEnabled () const
     {
 	return m_lightingEnabled;
@@ -366,12 +380,13 @@ public:
     {
 	m_rotationLight[i] = rl;
     }
+    // @}
 
 
-
-    /////////////////
-    // Average around
-    //
+    /**
+     * @{
+     * @name Average around
+     */
     bool IsAverageAround () const
     {
 	return m_averageAround;
@@ -422,7 +437,7 @@ public:
     void SetAverageAroundPositions (const Simulation& simulation,
 				    size_t bodyId, size_t secondBodyId);
     void RotateAndTranslateAverageAround (size_t timeStep, int direction) const;
-
+    // @}
 
     // ContextDisplay
     void AddContextDisplayBody (size_t bodyId)
@@ -438,10 +453,12 @@ public:
     {
 	return m_contextBody.size ();
     }
+    // @}
     
-    /////////////////
-    // Body selection
-    //
+    /**
+     * @{
+     * @name Body selection
+     */
     const BodySelector& GetBodySelector () const
     {
 	return *m_bodySelector;
@@ -467,9 +484,12 @@ public:
     {
 	m_selectionContextShown = shown;
     }
-
-    ////////////
-    // Histogram
+    // @}
+    
+    /**
+     * @{
+     * @name Histogram
+     */
     bool IsHistogramShown () const
     {
 	return m_histogramShown;
@@ -481,47 +501,25 @@ public:
     bool HasHistogramOption (HistogramType::Option option) const;
     void SetHistogramOption (HistogramType::Option option, bool on = true);
     void ResetHistogramOption (HistogramType::Option option);
+    // @}
 
-    bool IsCenterPathHidden () const
-    {
-	return m_centerPathHidden;
-    }
-    void SetCenterPathHidden (bool centerPathHidden)
-    {
-	m_centerPathHidden = centerPathHidden;
-    }
-
-    size_t GetSimulationIndex () const
-    {
-	return m_simulationIndex;
-    }
-
+    /**
+     * @{
+     * @name Time and LinkedTime
+     */
     size_t GetCurrentTime () const
     {
 	return m_currentTime;
     }    
-
-
-    // Return positive if time has moved forward or negative otherwise
+    
+    /**
+     * @return positive if time has moved forward or negative otherwise
+     */
     int SetCurrentTime (size_t time);
     size_t GetTimeSteps () const
     {
 	return m_timeSteps;
     }
-    bool T1sShiftLower () const
-    {
-	return m_t1sShiftLower;
-    }
-    void SetT1sShiftLower (bool t1sShiftLower)
-    {
-	m_t1sShiftLower = t1sShiftLower;
-    }
-
-    float AngleDisplay (float angle) const;
-
-    void SetSimulation (int i, const Simulation& simulation,
-			G3D::Vector3 viewingVolumeCenter,
-			bool t1sShiftLower);
     void SetLinkedTimeBegin (size_t begin)
     {
 	m_syncViewTimeBegin = begin;
@@ -542,6 +540,41 @@ public:
     {
 	return m_syncViewTimeEnd - m_syncViewTimeBegin + 1;
     }
+    // @}
+
+
+    /**
+     * @{
+     * @name Various
+     */
+    bool IsCenterPathHidden () const
+    {
+	return m_centerPathHidden;
+    }
+    void SetCenterPathHidden (bool centerPathHidden)
+    {
+	m_centerPathHidden = centerPathHidden;
+    }
+
+    size_t GetSimulationIndex () const
+    {
+	return m_simulationIndex;
+    }
+
+    bool T1sShiftLower () const
+    {
+	return m_t1sShiftLower;
+    }
+    void SetT1sShiftLower (bool t1sShiftLower)
+    {
+	m_t1sShiftLower = t1sShiftLower;
+    }
+
+    float AngleDisplay (float angle) const;
+
+    void SetSimulation (int i, const Simulation& simulation,
+			G3D::Vector3 viewingVolumeCenter,
+			bool t1sShiftLower);
     float GetDeformationSize () const
     {
 	return m_deformationSize;
@@ -592,7 +625,11 @@ public:
 	m_forceTorqueLineWidth = value;
     }
     string GetTitle (ViewNumber::Enum viewNumber) const;
-    
+    //@}
+
+Q_SIGNALS:
+    void SelectionChanged ();
+
 private:
     static G3D::Matrix3 getRotation2DTimeDisplacement ();
     static G3D::Matrix3 getRotation2DRight90 ();
@@ -614,6 +651,7 @@ private:
     }
 
 private:
+    Q_OBJECT
     ViewType::Enum m_viewType;
     size_t m_bodyOrFaceScalar;
     StatisticsType::Enum m_statisticsType;

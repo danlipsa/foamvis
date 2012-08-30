@@ -171,6 +171,13 @@ void Histogram::SetDataAllBinsSelected (
     Q_EMIT SelectionChanged ();
 }
 
+void Histogram::SetSelectedBinsNoSignal (
+    const vector< pair<size_t, size_t> >& bins)
+{
+    m_histogramItem.setSelectedBins (bins);
+    replot ();
+}
+
 
 void Histogram::SetDataKeepBinSelection (
     const QwtIntervalData& intervalData, double maxValue, const char* axisTitle)

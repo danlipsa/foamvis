@@ -180,13 +180,8 @@ public:
     void CalculateDeformationTensor (const OOBox& originalDomain);
     G3D::Matrix3 GetDeformationTensor (
 	const G3D::Matrix3& additionalRotation) const;
-    void GetDeformationTensor (float value[6], 
-			       const G3D::Matrix3& additionalRotation) const
-    {
-	G3D::Matrix3 m = GetDeformationTensor (additionalRotation);
-	memcpy (value, m, sizeof (value));
-    }
-
+    void GetDeformationTensor (float* value, 
+			       const G3D::Matrix3& additionalRotation) const;
 
     float GetDeformationEigenScalar () const;
     /**

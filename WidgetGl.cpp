@@ -499,7 +499,7 @@ void WidgetGl::setSimulationGroup (SimulationGroup* simulationGroup)
 {
     m_simulationGroup = simulationGroup;
     Foam::Bodies bodies = GetSimulation ().GetFoam (0).GetBodies ();
-    if (bodies.size () != 0)
+    if (! bodies.empty ())
     {
 	size_t maxIndex = bodies.size () - 1;
 	m_selectBodiesByIdList->SetMinBodyId (bodies[0]->GetId ());
@@ -527,7 +527,7 @@ void WidgetGl::Init (
 float WidgetGl::GetBubbleSize (ViewNumber::Enum defaultViewNumber) const
 {    
     vector<ViewNumber::Enum> vn = 
-	GetSettings ()->GetConnectedViewNumbers (defaultViewNumber);
+	GetSettings ()->GetSplitHalfViewNumbers (defaultViewNumber);
     float size = GetSimulation (vn[0]).GetBubbleSize ();
     for (size_t i = 1; i < vn.size (); ++i)
     {
@@ -855,7 +855,7 @@ void WidgetGl::SelectThisBodyOnly ()
     vector<size_t> bodyIds;
     ViewSettings& vs = GetViewSettings ();
     brushedBodies (m_contextMenuPosScreen, &bodyIds);
-    if (bodyIds.size () > 0)
+    if (! bodyIds.empty ())
     {
 	vs.SetBodySelector (
 	    boost::shared_ptr<IdBodySelector> (new IdBodySelector ()));
@@ -950,7 +950,7 @@ string WidgetGl::infoSelectedBody () const
     ostringstream ostr;
     vector< boost::shared_ptr<Body> > bodies;
     brushedBodies (m_contextMenuPosScreen, &bodies);
-    if (bodies.size () == 0)
+    if (bodies.empty ())
 	ostr << "No bodies focused.";
     else
 	ostr << bodies[0]->ToString ();
@@ -1360,7 +1360,7 @@ G3D::Vector3 WidgetGl::brushedFace (const OrientedFace** of) const
     vector< boost::shared_ptr<Body> > bodies;
     G3D::Vector3 op = brushedBodies (m_contextMenuPosScreen, &bodies);
     //cdbg << "point=" << op << endl;
-    if (bodies.size () == 0)
+    if (bodies.empty ())
 	*of = 0;
     else
     {
@@ -1642,7 +1642,7 @@ void WidgetGl::AverageAroundBody ()
     ViewSettings& vs = GetViewSettings ();
     vector< boost::shared_ptr<Body> > bodies;
     brushedBodies (m_contextMenuPosScreen, &bodies);
-    if (bodies.size () != 0)
+    if (! bodies.empty ())
     {
 	boost::shared_ptr<Body> body = bodies[0];
 	const Simulation& simulation = GetSimulation ();
@@ -1670,7 +1670,7 @@ void WidgetGl::AverageAroundSecondBody ()
     vector< boost::shared_ptr<Body> > bodies;
     brushedBodies (m_contextMenuPosScreen, &bodies);
     string message;
-    if (bodies.size () != 0)
+    if (! bodies.empty ())
     {
 	const Simulation& simulation = GetSimulation ();
 	size_t secondBodyId = bodies[0]->GetId ();
@@ -2766,14 +2766,16 @@ size_t WidgetGl::GetCurrentTime (ViewNumber::Enum viewNumber) const
 
 pair<size_t, ViewNumber::Enum> WidgetGl::LinkedTimeMaxSteps () const
 {
-    pair<size_t, ViewNumber::Enum> maxInterval = GetSettings ()->LinkedTimeMaxInterval ();    
+    pair<size_t, ViewNumber::Enum> maxInterval = 
+        GetSettings ()->LinkedTimeMaxInterval ();    
     pair<size_t, ViewNumber::Enum> max (0, ViewNumber::COUNT);
     for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	size_t maxStep = 
 	    (GetTimeSteps (viewNumber) - 1) *
-	    GetSettings ()->LinkedTimeStepStretch (maxInterval.first, viewNumber);
+	    GetSettings ()->LinkedTimeStepStretch (
+                maxInterval.first, viewNumber);
 	if (max.first < maxStep)
 	{
 	    max.first = maxStep;
@@ -3199,13 +3201,10 @@ void WidgetGl::SetOneOrTwoViews (T* t, void (T::*f) (ViewNumber::Enum))
     update ();
 }
 
-
-void WidgetGl::UpdateAverage (
-    const boost::array<int, ViewNumber::COUNT>& direction)
+void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
 {
-    for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
-	if (direction[i] != 0)
-	    m_viewAverage[i]->AverageStep (direction[i]);
+    if (direction != 0)
+        m_viewAverage[viewNumber]->AverageStep (direction);
 }
 
 
@@ -3216,7 +3215,7 @@ void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
     else
     {
 	makeCurrent ();
-	vector<ViewNumber::Enum> vn = GetSettings ()->GetConnectedViewNumbers ();
+	vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
 	for (size_t i = 0; i < vn.size (); ++i)
 	{
 	    ViewNumber::Enum viewNumber = vn[i];
@@ -3275,7 +3274,7 @@ void WidgetGl::mousePressEvent(QMouseEvent *event)
 void WidgetGl::mouseMoveEvent(QMouseEvent *event)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3343,7 +3342,7 @@ void WidgetGl::ResetTransformAll ()
 void WidgetGl::ResetTransformFocus ()
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3363,7 +3362,7 @@ void WidgetGl::ResetTransformFocus ()
 void WidgetGl::ResetTransformContext ()
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3381,7 +3380,7 @@ void WidgetGl::ResetTransformContext ()
 void WidgetGl::ResetTransformGrid ()
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3395,7 +3394,7 @@ void WidgetGl::ResetTransformGrid ()
 void WidgetGl::ResetTransformLight ()
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3413,7 +3412,7 @@ void WidgetGl::RotationCenterBody ()
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     brushedBodies (m_contextMenuPosScreen, &bodies);
-    if (bodies.size () > 0)
+    if (! bodies.empty ())
     {
 	vs.SetRotationCenter (bodies[0]->GetCenter ());
 	vs.SetRotationCenterType (ViewSettings::ROTATION_CENTER_BODY);
@@ -3440,11 +3439,13 @@ void WidgetGl::CopyTransformationFrom (int viewNumber)
     update ();
 }
 
-void WidgetGl::CopySelectionFrom (int viewNumber)
+void WidgetGl::CopySelectionFrom (int fromViewNumber)
 {
     makeCurrent ();
-    GetViewSettings ().CopySelection (
-	GetViewSettings (ViewNumber::Enum (viewNumber)));
+    ViewNumber::Enum toViewNumber = GetViewNumber ();
+    GetViewSettings (toViewNumber).CopySelection (
+	GetViewSettings (ViewNumber::Enum (fromViewNumber)));
+    CompileUpdate (toViewNumber);
 }
 
 void WidgetGl::CopyColorBarFrom (int other)
@@ -3470,7 +3471,7 @@ void WidgetGl::ToggledDirectionalLightEnabled (bool checked)
 void WidgetGl::ToggledDeformationShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3483,7 +3484,7 @@ void WidgetGl::ToggledDeformationShown (bool checked)
 void WidgetGl::ToggledDeformationShownGrid (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3497,7 +3498,7 @@ void WidgetGl::ToggledDeformationShownGrid (bool checked)
 void WidgetGl::ToggledVelocityShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3510,7 +3511,7 @@ void WidgetGl::ToggledVelocityShown (bool checked)
 void WidgetGl::ToggledVelocityGridShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3523,7 +3524,7 @@ void WidgetGl::ToggledVelocityGridShown (bool checked)
 void WidgetGl::ToggledVelocityClampingShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3537,7 +3538,7 @@ void WidgetGl::ToggledVelocityClampingShown (bool checked)
 void WidgetGl::ToggledDeformationGridCellCenterShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3551,7 +3552,7 @@ void WidgetGl::ToggledDeformationGridCellCenterShown (bool checked)
 void WidgetGl::ToggledVelocityGridCellCenterShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3565,7 +3566,7 @@ void WidgetGl::ToggledVelocityGridCellCenterShown (bool checked)
 void WidgetGl::ToggledVelocitySameSize (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
 	GetViewAverage (vn[i]).GetVelocityAverage ().SetSameSize (checked);
     update ();    
@@ -3574,7 +3575,7 @@ void WidgetGl::ToggledVelocitySameSize (bool checked)
 void WidgetGl::ToggledVelocityColorMapped (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
 	GetViewAverage (vn[i]).GetVelocityAverage ().SetColorMapped (checked);
     update ();    
@@ -4215,6 +4216,8 @@ void WidgetGl::ValueChangedAngleOfView (int angleOfView)
 
 // Template instantiations
 // ======================================================================
+/// @cond
 template
 void WidgetGl::SetOneOrTwoViews<MainWindow> (
     MainWindow* t, void (MainWindow::*f) (ViewNumber::Enum));
+/// @endcond

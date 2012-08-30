@@ -120,6 +120,8 @@ Body::Body(
 Body::Body (boost::shared_ptr<Face> face, size_t id) :
     Element (id, ElementStatus::ORIGINAL),
     m_hasFreeFace (false),
+    m_area (0),
+    m_growthRate (0),
     m_deformationSimple (0),
     m_pressureDeduced (false),
     m_targetVolumeDeduced (false),
@@ -379,6 +381,15 @@ G3D::Matrix3 Body::GetDeformationTensor (
     return r * l * r.transpose ();
 }
 
+void Body::GetDeformationTensor (float* value, 
+                                 const G3D::Matrix3& additionalRotation) const
+{
+    G3D::Matrix3 m = GetDeformationTensor (additionalRotation);
+    for (size_t i = 0; i < BodyAttribute::TENSOR_NUMBER_OF_COMPONENTS; ++i)
+        value[i] = m[i / 3][i % 3];
+}
+
+
 float Body::GetDeformationEigenScalar () const
 {
     size_t maxIndex = 0;
@@ -629,3 +640,4 @@ vtkSmartPointer<vtkPolyData> Body::GetPolyData () const
 {
     return OrientedFace::GetPolyData (GetOrientedFaces ());
 }
+

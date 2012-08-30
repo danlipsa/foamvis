@@ -84,6 +84,10 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     m_settings.reset (new Settings (simulation, 
 				    widgetGl->width (), widgetGl->height (),
 				    simulation.GetT1sShift ()));
+    connect (m_settings.get (),
+             SIGNAL (SelectionChanged (ViewNumber::Enum)),
+             this,
+             SLOT (SelectionChangedSettings (ViewNumber::Enum)));
     widgetHistogram->Init (m_settings, &simulationGroup);
     connect (
 	widgetHistogram,
@@ -1046,6 +1050,12 @@ void MainWindow::setStackedWidget (ViewType::Enum viewType)
 // Slots and methods called by the UI
 // ==================================
 
+void MainWindow::SelectionChangedSettings (ViewNumber::Enum viewNumber)
+{
+    cdbg << "SelectionChangedSettings" << endl;
+    widgetHistogram->UpdateSelection (viewNumber);
+}
+
 void MainWindow::CurrentIndexChangedViewLayout (int index)
 {
     m_settings->SetViewLayout (ViewLayout::Enum (index));
@@ -1164,7 +1174,7 @@ void MainWindow::ToggledViewFocusShown (bool checked)
 
 void MainWindow::ToggledVelocityShown (bool checked)
 {
-    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -1273,7 +1283,7 @@ void MainWindow::ValueChangedFontSize (int fontSize)
 void MainWindow::ValueChangedT1sKernelSigma (int index)
 {
     (void)index;
-    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -1286,34 +1296,39 @@ void MainWindow::ValueChangedT1sKernelSigma (int index)
 
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
-    ViewSettings& vs = m_settings->GetViewSettings ();
-    ViewType::Enum viewType = vs.GetViewType ();
-
+    vector<ViewNumber::Enum> vn = m_settings->GetLinkedTimeViewNumbers ();
     boost::array<int, ViewNumber::COUNT> direction;
-    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
+
     m_settings->SetCurrentTime (timeStep, &direction);
-    widgetHistogram->Update (getColorBarModel (viewNumber),
-			     WidgetHistogram::KEEP_SELECTION, 
-			     WidgetHistogram::KEEP_MAX_VALUE);
-    if (viewType == ViewType::AVERAGE)
+    for (size_t i = 0; i < vn.size (); ++i)
     {
-	if (DATA_PROPERTIES.Is3D ())
-	{
-	    widgetVtk->UpdateAverage (direction);
-	    widgetVtk->update ();
-	}
-	else
-	    widgetGl->UpdateAverage (direction);
+        ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
+        ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+        ViewType::Enum viewType = vs.GetViewType ();
+        
+        widgetHistogram->Update (getColorBarModel (viewNumber),
+                                 WidgetHistogram::KEEP_SELECTION, 
+                                 WidgetHistogram::KEEP_MAX_VALUE);
+        if (viewType == ViewType::AVERAGE)
+        {
+            if (DATA_PROPERTIES.Is3D ())
+                widgetVtk->UpdateViewAverage (viewNumber, direction);
+            else
+                widgetGl->UpdateAverage (viewNumber, direction[viewNumber]);
+        }
+        widgetGl->CompileUpdate (viewNumber);
+
+        if (m_debugTranslatedBody)
+        {
+            const Foam& foam = 
+                m_simulationGroup.GetSimulation (
+                    vs.GetSimulationIndex ()).GetFoam (0);
+            m_currentTranslatedBody = 
+                const_cast<Foam&> (foam).GetBodies ().begin ();
+        }
     }
-    if (m_debugTranslatedBody)
-    {
-	const Foam& foam = 
-	    m_simulationGroup.GetSimulation (
-		vs.GetSimulationIndex ()).GetFoam (0);
-	m_currentTranslatedBody = const_cast<Foam&> (foam).GetBodies ().begin ();
-    }
+    widgetVtk->update ();
     updateButtons ();
-    widgetGl->CompileUpdate ();
 }
 
 void MainWindow::ValueChangedAverageTimeWindow (int timeSteps)
@@ -1327,9 +1342,9 @@ void MainWindow::ValueChangedAverageTimeWindow (int timeSteps)
 
 void MainWindow::ButtonClickedViewType (int vt)
 {
-    vector<ViewNumber::Enum> vn = m_settings->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetSplitHalfViewNumbers ();
     ViewType::Enum viewType = ViewType::Enum(vt);
-    ViewType::Enum oldViewType = m_settings->SetConnectedViewType (viewType);
+    ViewType::Enum oldViewType = m_settings->SetSplitHalfViewType (viewType);
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -1496,8 +1511,11 @@ void MainWindow::SelectionChangedHistogram (int vn)
         vs.GetBodyOrFaceScalar ());
 
     vector<QwtDoubleInterval> valueIntervals;
+    vector<pair<size_t, size_t> > bins;
     widgetHistogram->GetHistogram (
 	viewNumber).GetSelectedIntervals (&valueIntervals);
+    widgetHistogram->GetHistogram (
+	viewNumber).GetSelectedBins (&bins);
     updateSliderTimeSteps (viewNumber, valueIntervals);
     
     if (widgetHistogram->GetHistogram (viewNumber).AreAllItemsSelected ())
@@ -1506,12 +1524,13 @@ void MainWindow::SelectionChangedHistogram (int vn)
     else
 	vs.SetBodySelector (
 	    boost::shared_ptr<PropertyValueBodySelector> (
-		new PropertyValueBodySelector (bodyScalar, valueIntervals)));
+		new PropertyValueBodySelector (
+                    bodyScalar, valueIntervals, bins)));
     widgetGl->CompileUpdate (viewNumber);
     if (DATA_PROPERTIES.Is3D ())
     {
 	QwtDoubleInterval interval;
-	if (valueIntervals.size () == 0)
+	if (valueIntervals.empty ())
 	    interval = QwtDoubleInterval (0, -1);
 	else
 	    interval = valueIntervals[0];
