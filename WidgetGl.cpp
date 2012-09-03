@@ -134,7 +134,6 @@ WidgetGl::WidgetGl(QWidget *parent)
       WidgetBase (this, &Settings::IsGlView, &Settings::GetGlCount),
       m_torusDomainShown (false),
       m_torusOriginalDomainClipped (false),
-      m_interactionMode (InteractionMode::ROTATE),
       m_interactionObject (InteractionObject::FOCUS),
       m_simulationGroup (0), 
       m_edgesShown (true),
@@ -445,30 +444,6 @@ void WidgetGl::createActions ()
 	     SLOT (CopyColorBarFrom (int)));
 }
 
-void WidgetGl::initCopy (
-    boost::array<boost::shared_ptr<QAction>, 
-    ViewNumber::COUNT>& actionCopyTransformation,
-    boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation)
-{
-    signalMapperCopyTransformation.reset (new QSignalMapper (this));
-    for (size_t i = 0; i < ViewNumber::COUNT; ++i)
-    {
-	ostringstream ostr;
-	ostr << "View " << i;
-	QString text (ostr.str ().c_str ());
-	actionCopyTransformation[i] = boost::make_shared<QAction> (
-	    text, this);
-	actionCopyTransformation[i]->setStatusTip(text);
-	connect(actionCopyTransformation[i].get (), 
-		SIGNAL(triggered()),
-		signalMapperCopyTransformation.get (), 
-		SLOT(map ()));
-	signalMapperCopyTransformation->setMapping (
-	    actionCopyTransformation[i].get (), i);
-    }
-}
-
-
 void WidgetGl::initDisplayView ()
 {
     // WARNING: This has to be in the same order as ViewType::Enum
@@ -517,8 +492,9 @@ void WidgetGl::Init (
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	m_viewAverage[i].reset (
-	    new ViewAverage (viewNumber,
-			     *this, GetSettings ()->GetViewSettings (viewNumber)));
+	    new ViewAverage (
+                viewNumber,
+                *this, GetSettings ()->GetViewSettings (viewNumber)));
 	m_viewAverage[i]->SetSimulation (simulationGroup->GetSimulation (0));
     }
     update ();
@@ -1594,7 +1570,7 @@ string WidgetGl::getInteractionLabel ()
 {
     ostringstream ostr;
     const ViewSettings& vs = GetViewSettings ();
-    switch (m_interactionMode)
+    switch (GetSettings ()->GetInteractionMode ())
     {
     case InteractionMode::ROTATE:
 	ostr << "Rotate: " << 
@@ -2275,7 +2251,7 @@ void WidgetGl::displayEdgesTorusLines () const
 
 void WidgetGl::displayRotationCenter (ViewNumber::Enum viewNumber) const
 {
-    if (m_interactionMode == InteractionMode::ROTATE)
+    if (GetSettings ()->GetInteractionMode () == InteractionMode::ROTATE)
     {
 	const ViewSettings& vs = GetViewSettings (viewNumber);
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
@@ -2723,41 +2699,6 @@ void WidgetGl::setLight (int sliderValue, int maximumValue,
     update ();
 }
 
-ColorBarType::Enum WidgetGl::GetColorBarType () const
-{
-    return GetColorBarType (GetViewNumber ());
-}
-
-ColorBarType::Enum WidgetGl::GetColorBarType (ViewNumber::Enum viewNumber) const
-{
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    ViewType::Enum viewType = vs.GetViewType ();
-    size_t property = vs.GetBodyOrFaceScalar ();
-    StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
-    return WidgetGl::GetColorBarType (viewType, property, statisticsType);
-}
-
-
-ColorBarType::Enum WidgetGl::GetColorBarType (
-    ViewType::Enum viewType, size_t property, 
-    StatisticsType::Enum statisticsType)
-{
-    switch (viewType)
-    {
-    case ViewType::T1S_PDE:
-	return ColorBarType::T1S_PDE;
-    case ViewType::AVERAGE:
-	if (statisticsType == StatisticsType::COUNT)
-	    return ColorBarType::STATISTICS_COUNT;
-    case ViewType::FACES:
-	if (property == FaceScalar::DMP_COLOR)
-	    return ColorBarType::NONE;
-    case ViewType::CENTER_PATHS:
-	return ColorBarType::PROPERTY;
-    default:
-	return ColorBarType::NONE;
-    }
-}
 
 size_t WidgetGl::GetCurrentTime (ViewNumber::Enum viewNumber) const
 {
@@ -2814,28 +2755,8 @@ void WidgetGl::contextMenuEventOverlayBar (QMenu* menu) const
 
 void WidgetGl::contextMenuEventColorBar (QMenu* menu) const
 {
-    const ViewSettings& vs = GetViewSettings ();
     menu->addAction (m_actionColorBarClampClear.get ());
-    bool actions = false;
-    QMenu* menuCopy = menu->addMenu ("Copy");
-    if (GetSettings ()->GetViewCount () > 1)
-    {
-	size_t currentProperty = vs.GetBodyOrFaceScalar ();
-	for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
-	{
-	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	    const ViewSettings& otherVs = GetViewSettings (viewNumber);
-	    if (viewNumber == GetViewNumber () ||
-		GetColorBarType (GetViewNumber ()) != GetColorBarType (viewNumber) ||
-		currentProperty != otherVs.GetBodyOrFaceScalar () ||
-		vs.GetSimulationIndex () != otherVs.GetSimulationIndex ())
-		continue;
-	    menuCopy->addAction (m_actionCopyColorMap[i].get ());
-	    actions = true;
-	}
-    }
-    if (! actions)
-	menuCopy->setDisabled (true);
+    addCopyCompatibleMenu (menu, "Copy", &m_actionCopyColorMap[0]);
     menu->addAction (m_actionEditColorMap.get ());
 }
 
@@ -2858,21 +2779,9 @@ void WidgetGl::contextMenuEventView (QMenu* menu) const
 	menuContext->addAction (m_actionContextDisplayBody.get ());
 	menuContext->addAction (m_actionContextDisplayReset.get ());
     }
-    if (GetSettings ()->GetViewCount () > 1)
-    {
-	QMenu* menuCopy = menu->addMenu ("Copy");
-	QMenu* menuTransformation = menuCopy->addMenu ("Transformation");
-	QMenu* menuSelection = menuCopy->addMenu ("Selection");
-	for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
-	{
-	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	    if (viewNumber == GetViewNumber ())
-		continue;
-	    menuTransformation->addAction (
-		m_actionCopyTransformation[i].get ());
-	    menuSelection->addAction (m_actionCopySelection[i].get ());
-	}
-    }
+    QMenu* menuCopy = menu->addMenu ("Copy");
+    addCopyMenu (menuCopy, "Transformation", &m_actionCopyTransformation[0]);
+    addCopyCompatibleMenu (menuCopy, "Selection", &m_actionCopySelection[0]);
     {
 	QMenu* menuInfo = menu->addMenu ("Info");
 	menuInfo->addAction (m_actionInfoPoint.get ());
@@ -2925,7 +2834,7 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
 	glDisable (GL_LIGHTING);
     glDisable (GL_DEPTH_TEST);
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
-    if (GetColorBarType (viewNumber) != ColorBarType::NONE)
+    if (GetSettings ()->GetColorBarType (viewNumber) != ColorBarType::NONE)
     {
 	G3D::Rect2D viewColorBarRect = Settings::GetViewColorBarRect (viewRect);
 	/*
@@ -3255,7 +3164,7 @@ void WidgetGl::mousePressEvent(QMouseEvent *event)
     setView (p);
     if (event->button () != Qt::LeftButton)
 	return;
-    switch (m_interactionMode)
+    switch (GetSettings ()->GetInteractionMode ())
     {
     case InteractionMode::SELECT:
 	select (event->pos ());
@@ -3278,7 +3187,7 @@ void WidgetGl::mouseMoveEvent(QMouseEvent *event)
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
-	switch (m_interactionMode)
+	switch (GetSettings ()->GetInteractionMode ())
 	{
 	case InteractionMode::ROTATE:
 	    mouseMoveRotate (event, viewNumber);
@@ -3433,7 +3342,6 @@ void WidgetGl::RotationCenterFoam ()
 
 void WidgetGl::CopyTransformationFrom (int viewNumber)
 {
-    makeCurrent ();
     GetViewSettings ().CopyTransformation (
 	GetViewSettings (ViewNumber::Enum (viewNumber)));
     update ();
@@ -3844,12 +3752,6 @@ void WidgetGl::CurrentIndexChangedSimulation (int i)
     G3D::Vector3 center = CalculateViewingVolume (viewNumber).center ();
     vs.SetSimulation (i, simulation, center, vs.T1sShiftLower ());
     m_viewAverage[viewNumber]->SetSimulation (simulation);
-    update ();
-}
-
-void WidgetGl::CurrentIndexChangedInteractionMode (int index)
-{
-    m_interactionMode = InteractionMode::Enum(index);
     update ();
 }
 

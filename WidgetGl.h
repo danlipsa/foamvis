@@ -181,11 +181,6 @@ public:
     {
 	return GetRangeT1sPDE (GetViewNumber ());
     }
-    static ColorBarType::Enum GetColorBarType (
-	ViewType::Enum viewType, size_t property, 
-	StatisticsType::Enum statisticsType);
-    ColorBarType::Enum GetColorBarType (ViewNumber::Enum viewNumber) const;
-    ColorBarType::Enum GetColorBarType () const;
     pair<size_t, ViewNumber::Enum> LinkedTimeMaxSteps () const;
     void SetForceDifferenceShown (bool forceDifference);
     template<typename T>
@@ -296,7 +291,6 @@ public Q_SLOTS:
     void SetOverlayBarModel (ViewNumber::Enum viewNumber, 
 			     boost::shared_ptr<ColorBarModel> colorBarModel);
     void CurrentIndexChangedSimulation (int index);
-    void CurrentIndexChangedInteractionMode (int index);
     void CurrentIndexChangedStatisticsType (int index);
     void CurrentIndexChangedAxesOrder (int index);
     void CurrentIndexChangedSelectedLight (int selectedLight);
@@ -627,10 +621,6 @@ private:
     void displayStatus ();
     void transformFoamAverageAround (
 	ViewNumber::Enum viewNumber, size_t timeStep) const;
-    void initCopy (
-	boost::array<boost::shared_ptr<QAction>, 
-	ViewNumber::COUNT>& actionCopyTransformation,
-	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation);
     string infoSelectedBody () const;
     string infoSelectedBodies () const;
     void initList ();
@@ -660,7 +650,6 @@ private:
      */
     bool m_torusDomainShown;
     bool m_torusOriginalDomainClipped;
-    InteractionMode::Enum m_interactionMode;
     InteractionObject::Enum m_interactionObject;
 
     /**
@@ -731,9 +720,6 @@ private:
     boost::shared_ptr<QAction> m_actionEditOverlayMap;
     boost::shared_ptr<QAction> m_actionOverlayBarClampClear;
     boost::shared_ptr<QAction> m_actionOverlayBarClampHighMinimum;
-    boost::array<boost::shared_ptr<QAction>, 
-		 ViewNumber::COUNT> m_actionCopyTransformation;
-    boost::shared_ptr<QSignalMapper> m_signalMapperCopyTransformation;
     boost::array<boost::shared_ptr<QAction>, 
 		 ViewNumber::COUNT> m_actionCopySelection;
     boost::shared_ptr<QSignalMapper> m_signalMapperCopySelection;

@@ -506,7 +506,6 @@ struct ColorBarType
 	T1S_PDE,
 	NONE
     };
-
 };
 
 struct TimeLinkage

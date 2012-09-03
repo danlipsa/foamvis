@@ -90,7 +90,8 @@ Settings::Settings (const Simulation& simulation, float w, float h,
     m_centerPathLineUsed (false),
     m_splitHalfView (false),
     m_titleShown (false),
-    m_viewFocusShown (true)
+    m_viewFocusShown (true),
+    m_interactionMode (InteractionMode::ROTATE)
 {
     initViewSettings (simulation, w, h, t1sShiftLower);
     initEndTranslationColor ();
@@ -141,16 +142,16 @@ void Settings::initViewSettings (
 {
     ViewNumber::Enum viewNumber (ViewNumber::VIEW0);
     ViewCount::Enum viewCount = ViewCount::FromSizeT (m_viewSettings.size ());
-    QSignalMapper* mapper = new QSignalMapper (this);
+    m_signalMapperSelectionChanged.reset (new QSignalMapper (this));
     BOOST_FOREACH (boost::shared_ptr<ViewSettings>& vs, m_viewSettings)
     {
 	vs = boost::make_shared <ViewSettings> ();
         connect (
             vs.get (), 
             SIGNAL (SelectionChanged ()),
-            mapper, 
+            m_signalMapperSelectionChanged.get (), 
             SLOT (map ()));
-        mapper->setMapping (vs.get (), viewNumber);
+        m_signalMapperSelectionChanged->setMapping (vs.get (), viewNumber);
 	vs->SetViewType (ViewType::FACES);
 	G3D::Vector3 center = CalculateViewingVolume (
 	    viewNumber, viewCount, 
@@ -180,7 +181,7 @@ void Settings::initViewSettings (
 	viewNumber = ViewNumber::Enum (viewNumber + 1);
     }
     connect (
-        mapper,
+        m_signalMapperSelectionChanged.get (),
         SIGNAL (mapped (int)),
         this, 
         SLOT (selectionChanged (int)));
@@ -637,4 +638,14 @@ G3D::Vector2 Settings::CalculateScaleCenter (
 	return (rect.x0y0 () + rect.x1y0 ()) / 2;
     else
 	return (rect.x0y1 () + rect.x1y1 ()) / 2;
+}
+
+ColorBarType::Enum Settings::GetColorBarType () const
+{
+    return GetColorBarType (GetViewNumber ());
+}
+
+ColorBarType::Enum Settings::GetColorBarType (ViewNumber::Enum viewNumber) const
+{
+    return GetViewSettings (viewNumber).GetColorBarType ();
 }

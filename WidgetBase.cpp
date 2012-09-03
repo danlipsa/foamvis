@@ -10,6 +10,7 @@
 #include "Debug.h"
 #include "Settings.h"
 #include "Utils.h"
+#include "ViewSettings.h"
 #include "WidgetBase.h"
 
 
@@ -79,3 +80,70 @@ void WidgetBase::setView (ViewNumber::Enum viewNumber,
 	GetSettings ()->SetViewNumber (viewNumber);
 }
 
+void WidgetBase::addCopyMenu (
+    QMenu* menu, const char* nameOp, 
+    const boost::shared_ptr<QAction>* actionCopyOp) const
+{
+    if (GetSettings ()->GetViewCount () > 1)
+    {
+	QMenu* menuOp = menu->addMenu (nameOp);
+	for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
+	{
+	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	    if (viewNumber == GetViewNumber ())
+		continue;
+	    menuOp->addAction (actionCopyOp[i].get ());
+	}
+    }
+}
+
+void WidgetBase::addCopyCompatibleMenu (
+    QMenu* menu, const char* nameOp, 
+    const boost::shared_ptr<QAction>* actionCopyOp) const
+{
+    size_t viewCount = GetSettings ()->GetViewCount ();
+    bool actions = false;
+    QMenu* menuOp = menu->addMenu (nameOp);
+    if (viewCount > 1)
+    {
+        const ViewSettings& vs = GetSettings ()->GetViewSettings ();
+	size_t currentProperty = vs.GetBodyOrFaceScalar ();
+	for (size_t i = 0; i < viewCount; ++i)
+	{
+	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	    const ViewSettings& otherVs = GetViewSettings (viewNumber);
+	    if (viewNumber == GetViewNumber () ||
+		GetSettings ()->GetColorBarType (
+                    GetViewNumber ()) != 
+                GetSettings ()->GetColorBarType (viewNumber) ||
+		currentProperty != otherVs.GetBodyOrFaceScalar () ||
+		vs.GetSimulationIndex () != otherVs.GetSimulationIndex ())
+		continue;
+	    menuOp->addAction (actionCopyOp[i].get ());
+	    actions = true;
+	}
+    }
+    if (! actions)
+	menuOp->setDisabled (true);    
+}
+
+void WidgetBase::initCopy (
+    boost::array<boost::shared_ptr<QAction>, ViewNumber::COUNT>& actionCopyOp,
+    boost::shared_ptr<QSignalMapper>& signalMapperCopyOp)
+{
+    signalMapperCopyOp.reset (new QSignalMapper (m_widget));
+    for (size_t i = 0; i < ViewNumber::COUNT; ++i)
+    {
+	ostringstream ostr;
+	ostr << "View " << i;
+	QString text (ostr.str ().c_str ());
+	actionCopyOp[i] = boost::make_shared<QAction> (text, m_widget);
+	actionCopyOp[i]->setStatusTip(text);
+	m_widget->connect (actionCopyOp[i].get (), 
+                           SIGNAL(triggered()),
+                           signalMapperCopyOp.get (), 
+                           SLOT(map ()));
+	signalMapperCopyOp->setMapping (
+	    actionCopyOp[i].get (), i);
+    }
+}

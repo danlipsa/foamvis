@@ -923,7 +923,7 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
     ViewType::Enum viewType, size_t property, 
     StatisticsType::Enum statisticsType) const
 {
-    ColorBarType::Enum colorBarType = WidgetGl::GetColorBarType (
+    ColorBarType::Enum colorBarType = ViewSettings::GetColorBarType (
 	viewType, property, statisticsType);
     switch (colorBarType)
     {
@@ -1565,7 +1565,7 @@ void MainWindow::ShowEditOverlayMap ()
 void MainWindow::ShowEditColorMap ()
 {
     HistogramInfo p = getHistogramInfo (
-	widgetGl->GetColorBarType (), widgetGl->GetBodyOrFaceScalar ());
+	m_settings->GetColorBarType (), widgetGl->GetBodyOrFaceScalar ());
     m_editColorMap->SetData (
 	p.first, p.second, *getColorBarModel (),
 	checkBoxHistogramGridShown->isChecked ());
@@ -1588,6 +1588,7 @@ void MainWindow::SetHistogramColorBarModel (
 
 void MainWindow::CurrentIndexChangedInteractionMode (int index)
 {
+    m_settings->SetInteractionMode (InteractionMode::Enum(index));
     InteractionMode::Enum im = InteractionMode::Enum(index);
     radioButtonInteractionLight->setDisabled (true);
     radioButtonInteractionContext->setDisabled (true);
@@ -1624,6 +1625,7 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
 	break;
     }
     widgetHistogram->CurrentIndexChangedInteractionMode (index);
+    widgetGl->update ();
 }
 
 

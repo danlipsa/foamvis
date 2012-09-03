@@ -647,3 +647,35 @@ string ViewSettings::GetTitle (ViewNumber::Enum viewNumber) const
 	 << "Time " << GetCurrentTime ();
     return ostr.str ();
 }
+
+
+
+
+ColorBarType::Enum ViewSettings::GetColorBarType () const
+{
+    ViewType::Enum viewType = GetViewType ();
+    size_t property = GetBodyOrFaceScalar ();
+    StatisticsType::Enum statisticsType = GetStatisticsType ();
+    return GetColorBarType (viewType, property, statisticsType);
+}
+
+ColorBarType::Enum ViewSettings::GetColorBarType (
+    ViewType::Enum viewType, size_t property,
+    StatisticsType::Enum statisticsType)
+{
+    switch (viewType)
+    {
+    case ViewType::T1S_PDE:
+	return ColorBarType::T1S_PDE;
+    case ViewType::AVERAGE:
+	if (statisticsType == StatisticsType::COUNT)
+	    return ColorBarType::STATISTICS_COUNT;
+    case ViewType::FACES:
+	if (property == FaceScalar::DMP_COLOR)
+	    return ColorBarType::NONE;
+    case ViewType::CENTER_PATHS:
+	return ColorBarType::PROPERTY;
+    default:
+	return ColorBarType::NONE;
+    }
+}

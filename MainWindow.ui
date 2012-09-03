@@ -2353,7 +2353,6 @@
     <slot>ToggledTorusOriginalDomainClipped(bool)</slot>
     <slot>ToggledBoundingBox(bool)</slot>
     <slot>ValueChangedAngleOfView(int)</slot>
-    <slot>CurrentIndexChangedInteractionMode(int)</slot>
     <slot>ToggledShowBoundingBox(bool)</slot>
     <slot>ToggledEdgesShown(bool)</slot>
     <slot>ValueChangedBlend(int)</slot>
@@ -2583,22 +2582,6 @@
     <hint type="destinationlabel">
      <x>343</x>
      <y>324</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBoxInteractionMode</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>CurrentIndexChangedInteractionMode(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1033</x>
-     <y>59</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>420</x>
-     <y>154</y>
     </hint>
    </hints>
   </connection>

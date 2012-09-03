@@ -116,6 +116,7 @@
 #include <QVTKWidget.h>
 #include <QVTKApplication.h>
 #include <QVTKInteractor.h>
+#include <vtkCallbackCommand.h>
 #include <vtkCamera.h>
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
@@ -129,7 +130,9 @@
 #include <vtkIndent.h>
 #include <vtkInteractorStyle.h>
 #include <vtkLight.h>
+#include <vtkMath.h>
 #include <vtkMatrix4x4.h>
+#include <vtkObjectFactory.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkPolyDataMapper2D.h>
 #include <vtkPointData.h>

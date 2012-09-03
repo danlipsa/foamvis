@@ -71,15 +71,16 @@ public:
         return GetNormalizedViewRect (GetViewNumber ());
     }
 
-
-protected:
-    virtual void resizeEvent (QResizeEvent * event);
-
 Q_SIGNALS:
     void PaintEnd ();
 
 public Q_SLOTS:
-    void updateCurrentView (vtkObject* obj);
+    void CopyTransformationFrom (int viewNumber);
+
+protected:
+    virtual void resizeEvent (QResizeEvent * event);
+    virtual void mousePressEvent (QMouseEvent *event);
+    virtual void contextMenuEvent (QContextMenuEvent *);
 
 private:
     struct ViewPipeline
@@ -123,7 +124,6 @@ private:
     boost::array<boost::shared_ptr<RegularGridAverage>,
 		 ViewNumber::COUNT> m_average;
     boost::array<ViewPipeline, ViewNumber::COUNT> m_pipeline;
-    vtkSmartPointer<vtkEventQtSlotConnect> m_connections;
     int m_fontSize;
     
 };

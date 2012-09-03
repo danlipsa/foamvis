@@ -10,6 +10,7 @@
 #include "BodySelector.h"
 #include "DebugStream.h"
 #include "Foam.h"
+#include "FoamvisInteractorStyle.h"
 #include "OpenGLUtils.h"
 #include "RegularGridAverage.h"
 #include "Settings.h"
@@ -317,31 +318,25 @@ WidgetVtk::WidgetVtk (QWidget* parent) :
 {
     setVisible (false);
 
-    VTK_CREATE (vtkEventQtSlotConnect, Connections);
-    m_connections = Connections;
-
-    Connections->Connect(GetRenderWindow()->GetInteractor(),
-			 vtkCommand::LeftButtonPressEvent,
-			 this,
-			 SLOT(updateCurrentView(vtkObject*)));
-}
-
-void WidgetVtk::updateCurrentView (vtkObject* obj)
-{
-    // get interactor
-    vtkRenderWindowInteractor* iren = 
-	vtkRenderWindowInteractor::SafeDownCast(obj);
-    // get event position
-    int eventPos[2];
-    iren->GetEventPosition(eventPos);
-    G3D::Vector2 pos(eventPos[0], eventPos[1]);
-    setView (pos);
+    initCopy (m_actionCopyTransformation, m_signalMapperCopyTransformation);
+    connect (m_signalMapperCopyTransformation.get (),
+	     SIGNAL (mapped (int)),
+	     this,
+	     SLOT (CopyTransformationFrom (int)));
 }
 
 void WidgetVtk::CreateAverage (boost::shared_ptr<Settings> settings,
 			       const SimulationGroup& simulationGroup)    
 {
     SetSettings (settings);
+    // interactor style
+    VTK_CREATE (FoamvisInteractorStyle, interactorStyle);
+    interactorStyle->SetInteractionModeQuery (
+        boost::bind (&Settings::GetInteractionMode, GetSettings ()));
+    
+    QVTKInteractor *iren = GetInteractor();
+    iren->SetInteractorStyle (interactorStyle);
+    
     for (size_t i = 0; i < m_average.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
@@ -378,29 +373,6 @@ void WidgetVtk::UpdateColorTransferFunction (
 	colorTransferFunction, name);
     update ();
 }
-
-void WidgetVtk::resizeEvent (QResizeEvent * event)
-{
-    QVTKWidget::resizeEvent (event);
-    (void) event;
-    for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
-    {
-	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
-	if (GetSettings ()->IsVtkView (viewNumber))
-	{
-	    G3D::Rect2D viewRect = GetViewRect (viewNumber);
-	    G3D::Rect2D viewColorBarRect = 
-		Settings::GetViewColorBarRect (viewRect);
-	    G3D::Rect2D position = G3D::Rect2D::xywh (
-		(viewColorBarRect.x0 () - viewRect.x0 ())/ viewRect.width (),
-		(viewColorBarRect.y0 () - viewRect.y0 ())/ viewRect.height (),
-		viewColorBarRect.width () / viewRect.width () * 5,
-		viewColorBarRect.height () / viewRect.height () * 1.2);	
-	    m_pipeline[viewNumber].PositionScalarBar (position);
-	}
-    }
-}
-
 
 void WidgetVtk::UpdateOpacity ()
 {
@@ -521,7 +493,51 @@ G3D::Rect2D WidgetVtk::GetNormalizedViewRect (ViewNumber::Enum viewNumber) const
 
 // Overrides
 ////////////
+void WidgetVtk::mousePressEvent (QMouseEvent *event)
+{
+    QVTKWidget::mousePressEvent (event);
+    G3D::Vector2 p = QtToOpenGl (event->pos (), height ());
+    setView (p);
+}
+
+void WidgetVtk::contextMenuEvent (QContextMenuEvent *event)
+{
+    QVTKWidget::contextMenuEvent (event);
+    QMenu menu (this);
+    addCopyMenu (&menu, "Copy Transformation", &m_actionCopyTransformation[0]);
+    menu.exec (event->globalPos());
+}
+
+void WidgetVtk::resizeEvent (QResizeEvent * event)
+{
+    QVTKWidget::resizeEvent (event);
+    (void) event;
+    for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
+	if (GetSettings ()->IsVtkView (viewNumber))
+	{
+	    G3D::Rect2D viewRect = GetViewRect (viewNumber);
+	    G3D::Rect2D viewColorBarRect = 
+		Settings::GetViewColorBarRect (viewRect);
+	    G3D::Rect2D position = G3D::Rect2D::xywh (
+		(viewColorBarRect.x0 () - viewRect.x0 ())/ viewRect.width (),
+		(viewColorBarRect.y0 () - viewRect.y0 ())/ viewRect.height (),
+		viewColorBarRect.width () / viewRect.width () * 5,
+		viewColorBarRect.height () / viewRect.height () * 1.2);	
+	    m_pipeline[viewNumber].PositionScalarBar (position);
+	}
+    }
+}
+
 const Simulation& WidgetVtk::GetSimulation (ViewNumber::Enum viewNumber) const
 {
     return m_average[viewNumber]->GetSimulation ();
+}
+
+void WidgetVtk::CopyTransformationFrom (int viewNumber)
+{
+    GetViewSettings ().CopyTransformation (
+	GetViewSettings (ViewNumber::Enum (viewNumber)));
+    update ();
 }

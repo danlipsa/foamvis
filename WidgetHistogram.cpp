@@ -33,7 +33,7 @@ void WidgetHistogram::Init (boost::shared_ptr<Settings> settings,
 {    
     m_simulationGroup = simulationGroup;
     SetSettings (settings);
-    QSignalMapper* mapper = new QSignalMapper (this);
+    m_signalMapperSelectionChanged.reset (new QSignalMapper (this));
     QLayout* layout = new QHBoxLayout ();
     for (size_t i = 0; i < m_histogram.size (); ++i)
     {
@@ -42,13 +42,13 @@ void WidgetHistogram::Init (boost::shared_ptr<Settings> settings,
         connect (
             m_histogram[i], 
             SIGNAL (SelectionChanged ()),
-            mapper, 
+            m_signalMapperSelectionChanged.get (), 
             SLOT (map ()));
-        mapper->setMapping (m_histogram[i], i);
+        m_signalMapperSelectionChanged->setMapping (m_histogram[i], i);
         layout->addWidget (m_histogram[i]);
     }
     connect (
-        mapper,
+        m_signalMapperSelectionChanged.get (),
         SIGNAL (mapped (int)),
         this, 
         SLOT (selectionChanged (int)));

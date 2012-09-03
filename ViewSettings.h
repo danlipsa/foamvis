@@ -66,6 +66,10 @@ public:
     {
 	m_statisticsType = statisticsType;
     }
+    ColorBarType::Enum GetColorBarType () const;    
+    static ColorBarType::Enum GetColorBarType (
+        ViewType::Enum viewType, size_t property,
+        StatisticsType::Enum statisticsType);
     // @}
 
     /**

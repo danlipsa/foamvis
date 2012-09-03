@@ -80,6 +80,7 @@ private:
     Q_OBJECT
     boost::array<AttributeHistogram*, ViewNumber::COUNT> m_histogram;    
     const SimulationGroup* m_simulationGroup;
+    boost::shared_ptr<QSignalMapper> m_signalMapperSelectionChanged;
 };
 
 

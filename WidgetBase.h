@@ -26,7 +26,7 @@ public:
 	vector<ViewNumber::Enum>* mapping) const;
 
 public:
-    WidgetBase (const QWidget* widget,
+    WidgetBase (QWidget* widget,
 		IsViewType isView,
 		GetViewCountType getViewCount) :
 	m_widget (widget), 
@@ -62,8 +62,6 @@ public:
 	return GetViewSettings (GetViewNumber ());
     }
 
-
-
     virtual const Simulation& GetSimulation (
 	ViewNumber::Enum viewNumber) const = 0;
 
@@ -71,10 +69,25 @@ protected:
     void setView (const G3D::Vector2& clickedPoint);
     void setView (ViewNumber::Enum viewNumber, 
 		  const G3D::Vector2& clickedPoint);
+    void addCopyMenu (
+        QMenu* menuCopy, const char* nameOp, 
+        const boost::shared_ptr<QAction>* actionCopyOp) const;
+    void addCopyCompatibleMenu (
+        QMenu* menuCopy, const char* nameOp, 
+        const boost::shared_ptr<QAction>* actionCopyOp) const;
+    void initCopy (
+	boost::array<boost::shared_ptr<QAction>, 
+	ViewNumber::COUNT>& actionCopyTransformation,
+	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation);
+
+protected:
+    boost::array<boost::shared_ptr<QAction>, 
+		 ViewNumber::COUNT> m_actionCopyTransformation;
+    boost::shared_ptr<QSignalMapper> m_signalMapperCopyTransformation;
 
 private:
     boost::shared_ptr<Settings> m_settings;
-    const QWidget* m_widget;
+    QWidget* m_widget;
     IsViewType m_isView;
     GetViewCountType m_getViewCount;
 };

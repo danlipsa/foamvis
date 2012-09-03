@@ -88,6 +88,8 @@ public:
     {
 	m_viewLayout = viewLayout;
     }
+    ColorBarType::Enum GetColorBarType (ViewNumber::Enum viewNumber) const;
+    ColorBarType::Enum GetColorBarType () const;
     // @}
 
     /**
@@ -152,6 +154,14 @@ public:
      * @{
      * @name Various
      */
+    InteractionMode::Enum GetInteractionMode () const
+    {
+        return m_interactionMode;
+    }
+    void SetInteractionMode (InteractionMode::Enum mode)
+    {
+        m_interactionMode = mode;
+    }
     float GetContextAlpha () const
     {
 	return m_contextAlpha;
@@ -380,6 +390,8 @@ private:
     bool m_splitHalfView;
     bool m_titleShown;
     bool m_viewFocusShown;
+    boost::shared_ptr<QSignalMapper> m_signalMapperSelectionChanged;    
+    InteractionMode::Enum m_interactionMode;
 };
 
 
