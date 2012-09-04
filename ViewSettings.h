@@ -473,10 +473,7 @@ public:
     void SetBodySelector (boost::shared_ptr<AllBodySelector> selector, 
 			  BodySelectorType::Enum type);
     void UnionBodySelector (const vector<size_t>& bodyIds);
-    void UnionBodySelector (size_t bodyId)
-    {
-	UnionBodySelector (vector<size_t> (1, bodyId));
-    }
+    void UnionBodySelector (size_t bodyId);
     void DifferenceBodySelector (const Foam& foam, 
 				 const vector<size_t>& bodyIds);
     void CopySelection (const ViewSettings& other);

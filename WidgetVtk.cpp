@@ -8,7 +8,6 @@
 
 #include "Average3dPipeline.h"
 #include "Body.h"
-#include "BodySelector.h"
 #include "DebugStream.h"
 #include "Foam.h"
 #include "FoamvisInteractorStyle.h"

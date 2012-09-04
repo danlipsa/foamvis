@@ -185,7 +185,8 @@ void Average3dPipeline::UpdateColorTransferFunction (
     if (m_averageActor != 0)
     {
 	m_scalarBar->SetLookupTable (colorTransferFunction);
-	m_scalarBar->SetTitle (name);
+        (void)name;
+	//m_scalarBar->SetTitle (name);
 	m_averageActor->GetMapper ()->SetLookupTable (colorTransferFunction);
     }
 }
@@ -216,16 +217,16 @@ void Average3dPipeline::UpdateFocus (bool focus)
 
 
 void Average3dPipeline::CopyTransformationFromView (
-    const ViewSettings& vs, const G3D::AABox& bb, const Foam& foam)
+    const ViewSettings& vs, const G3D::AABox& simulationBb, const Foam& foam)
 {
-    G3D::Vector3 center = bb.center ();
-    G3D::Vector3 rotationCenter = vs.GetRotationCenter ();
-    G3D::Vector3 position = center + G3D::Vector3 (0, 0, 1);
-    G3D::Vector3 up = G3D::Vector3 (0, 1, 0);
     G3D::Matrix3 cameraRotationAxes = 
 	vs.GetRotationForAxesOrder (foam).inverse ();
     G3D::Matrix3 cameraRotation = vs.GetRotation ().inverse ();
     
+    G3D::Vector3 center = simulationBb.center ();
+    G3D::Vector3 rotationCenter = vs.GetRotationCenter ();
+    G3D::Vector3 position = center + G3D::Vector3 (0, 0, 1);
+    G3D::Vector3 up = G3D::Vector3 (0, 1, 0);
     // apply the rotations from ModelViewTransform in reverse order
     position = cameraRotation * (position - rotationCenter) + rotationCenter;
     up = cameraRotation * up;

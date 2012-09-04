@@ -343,6 +343,11 @@ void ViewSettings::SetBodySelector (
     }
 }
 
+void ViewSettings::UnionBodySelector (size_t bodyId)
+{
+    UnionBodySelector (vector<size_t> (1, bodyId));
+}
+
 void ViewSettings::UnionBodySelector (const vector<size_t>& bodyIds)
 {
     if (bodyIds.empty ())

@@ -805,7 +805,6 @@ void WidgetGl::SelectAll ()
 	SetBodySelector (AllBodySelector::Get (), BodySelectorType::ID);
     CompileUpdate ();
     m_selectBodiesByIdList->ClearEditIds ();
-    update ();
 }
 
 void WidgetGl::DeselectAll ()
@@ -828,15 +827,25 @@ void WidgetGl::SelectBodiesByIdList ()
 
 void WidgetGl::SelectThisBodyOnly ()
 {
+    makeCurrent ();
     vector<size_t> bodyIds;
-    ViewSettings& vs = GetViewSettings ();
     brushedBodies (m_contextMenuPosScreen, &bodyIds);
     if (! bodyIds.empty ())
     {
+        ViewSettings& vs = GetViewSettings ();
 	vs.SetBodySelector (
 	    boost::shared_ptr<IdBodySelector> (new IdBodySelector ()));
 	vs.UnionBodySelector (bodyIds[0]);
+        CompileUpdate ();
     }
+}
+
+void WidgetGl::deselect (const QPoint& position)
+{
+    vector<size_t> bodyIds;
+    brushedBodies (position, &bodyIds);
+    GetViewSettings ().DifferenceBodySelector (
+	GetSimulation ().GetFoam (GetCurrentTime ()), bodyIds);
     CompileUpdate ();
 }
 
@@ -891,6 +900,7 @@ void WidgetGl::InfoFace ()
 
 void WidgetGl::InfoBody ()
 {
+    makeCurrent ();
     Info msgBox (this, "Info");
     string message = infoSelectedBody ();
     msgBox.setText (message.c_str ());
@@ -899,6 +909,7 @@ void WidgetGl::InfoBody ()
 
 void WidgetGl::InfoSelectedBodies ()
 {
+    makeCurrent ();
     Info msgBox (this, "Info");
     const BodySelector& bodySelector = GetViewSettings ().GetBodySelector ();
     string message;
@@ -921,7 +932,7 @@ void WidgetGl::InfoSelectedBodies ()
 }
 
 
-string WidgetGl::infoSelectedBody () const
+string WidgetGl::infoSelectedBody ()
 {
     ostringstream ostr;
     vector< boost::shared_ptr<Body> > bodies;
@@ -933,7 +944,7 @@ string WidgetGl::infoSelectedBody () const
     return ostr.str ();
 }
 
-string WidgetGl::infoSelectedBodies () const
+string WidgetGl::infoSelectedBodies ()
 {
     ostringstream ostr;
     const BodySelector& bodySelector = GetViewSettings ().GetBodySelector ();
@@ -1302,7 +1313,7 @@ void WidgetGl::scaleContext (
 }
 
 G3D::Vector3 WidgetGl::brushedBodies (
-    const QPoint& position, vector<size_t>* bodies, bool selected) const
+    const QPoint& position, vector<size_t>* bodies, bool selected)
 {
     vector< boost::shared_ptr<Body> > b;
     G3D::Vector3 op = brushedBodies (position, &b, selected);
@@ -1314,8 +1325,9 @@ G3D::Vector3 WidgetGl::brushedBodies (
 
 G3D::Vector3 WidgetGl::brushedBodies (
     const QPoint& position, 
-    vector< boost::shared_ptr<Body> >* bodies, bool selected) const
+    vector< boost::shared_ptr<Body> >* bodies, bool selected)
 {
+    makeCurrent ();
     const BodySelector& selector = GetViewSettings ().GetBodySelector ();
     G3D::Vector3 op = toObjectTransform (position);
     const Foam& foam = GetSimulation ().GetFoam (GetCurrentTime ());
@@ -1331,7 +1343,7 @@ G3D::Vector3 WidgetGl::brushedBodies (
     return op;
 }
 
-G3D::Vector3 WidgetGl::brushedFace (const OrientedFace** of) const
+G3D::Vector3 WidgetGl::brushedFace (const OrientedFace** of)
 {
     vector< boost::shared_ptr<Body> > bodies;
     G3D::Vector3 op = brushedBodies (m_contextMenuPosScreen, &bodies);
@@ -1360,7 +1372,7 @@ G3D::Vector3 WidgetGl::brushedFace (const OrientedFace** of) const
     return op;
 }
 
-OrientedEdge WidgetGl::brushedEdge () const
+OrientedEdge WidgetGl::brushedEdge ()
 {
     const OrientedFace* of = 0;
     G3D::Vector3 op = brushedFace (&of);
@@ -1714,15 +1726,6 @@ void WidgetGl::select (const QPoint& position)
     vector<size_t> bodyIds;
     brushedBodies (position, &bodyIds, false);
     GetViewSettings ().UnionBodySelector (bodyIds);
-    CompileUpdate ();
-}
-
-void WidgetGl::deselect (const QPoint& position)
-{
-    vector<size_t> bodyIds;
-    brushedBodies (position, &bodyIds);
-    GetViewSettings ().DifferenceBodySelector (
-	GetSimulation ().GetFoam (0), bodyIds);
     CompileUpdate ();
 }
 

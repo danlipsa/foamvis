@@ -599,13 +599,12 @@ private:
     void select (const QPoint& position);
     void deselect (const QPoint& position);
     G3D::Vector3 brushedBodies (
-	const QPoint& position, vector<size_t>* bodies, 
-	bool selected = true) const;
+	const QPoint& position, vector<size_t>* bodies, bool selected = true);
     G3D::Vector3 brushedBodies (
 	const QPoint& position, 
-	vector< boost::shared_ptr<Body> >* bodies, bool selected = true) const;
-    G3D::Vector3 brushedFace (const OrientedFace** of) const;
-    OrientedEdge brushedEdge () const;
+	vector< boost::shared_ptr<Body> >* bodies, bool selected = true);
+    OrientedEdge brushedEdge ();
+    G3D::Vector3 brushedFace (const OrientedFace** of);
     void brushedFace (const QPoint& position, vector<size_t>* bodies) const;
     G3D::Vector3 toObjectTransform (const QPoint& position) const;
     G3D::Vector3 toObjectTransform (const QPoint& position, 
@@ -621,8 +620,8 @@ private:
     void displayStatus ();
     void transformFoamAverageAround (
 	ViewNumber::Enum viewNumber, size_t timeStep) const;
-    string infoSelectedBody () const;
-    string infoSelectedBodies () const;
+    string infoSelectedBody ();
+    string infoSelectedBodies ();
     void initList ();
     void initList (boost::array<GLuint, ViewNumber::COUNT>* list);
     void initTexture ();
