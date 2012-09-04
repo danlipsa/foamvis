@@ -109,7 +109,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     if (DATA_PROPERTIES.Is3D ())
     {
 	const Foam& foam = simulationGroup.GetSimulation (0).GetFoam (0);
-	widgetVtk->CreateViewPipelines (
+	widgetVtk->CreateAverage3dPipeline (
 	    foam.GetObjects ().size (), foam.GetConstraintFaces ().size (), 
 	    defaultFont.pointSize ());
     }

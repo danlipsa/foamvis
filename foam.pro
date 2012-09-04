@@ -1,7 +1,7 @@
 HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h Average.h AverageInterface.h\
-	AverageShaders.h Body.h BrowseSimulations.h\
+	AverageShaders.h Average3dPipeline.h Body.h BrowseSimulations.h\
 	BodyAlongTime.h AdjacentBody.h BodySelector.h \
 	ConstraintEdge.h ColorBarModel.h Comparisons.h\
 	Debug.h \
@@ -29,8 +29,8 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 SOURCES += Application.cpp ApproximationEdge.cpp\
 	Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	AttributeHistogram.cpp Average.cpp AverageShaders.cpp \
-	Body.cpp BodyAlongTime.cpp AdjacentBody.cpp BodySelector.cpp\
-	BrowseSimulations.cpp \
+	Body.cpp BodyAlongTime.cpp AdjacentBody.cpp Average3dPipeline.cpp \
+	BodySelector.cpp BrowseSimulations.cpp \
 	ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
 	DebugStream.cpp Disk.cpp DisplayBodyFunctors.cpp \
 	ImageBasedAverage.cpp DisplayFaceFunctors.cpp \

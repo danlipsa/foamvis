@@ -19,6 +19,7 @@ class SimulationGroup;
 class RegularGridAverage;
 class ViewSettings;
 class Foam;
+class Average3dPipeline;
 
 class WidgetVtk : public QVTKWidget, public WidgetBase
 {
@@ -30,7 +31,7 @@ public:
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
 	const char* name);
     void UpdateThreshold (QwtDoubleInterval interval);
-    void UpdateFromOpenGl (vtkSmartPointer<vtkMatrix4x4> modelView);
+    void UpdateTransformation (ViewNumber::Enum viewNumber);
     void RemoveViews ();
     void AddView (
 	ViewNumber::Enum viewNumber,
@@ -43,8 +44,8 @@ public:
     void UpdateViewAverage (
         ViewNumber::Enum viewNumber,
         const boost::array<int, ViewNumber::COUNT>& direction);
-    void CreateViewPipelines (size_t objects, size_t constraintSurfaces, 
-			      size_t fontSize);
+    void CreateAverage3dPipeline (size_t objects, size_t constraintSurfaces, 
+                                  size_t fontSize);
     void UpdateTitle ();
     void UpdateFocus ();
     
@@ -83,39 +84,6 @@ protected:
     virtual void contextMenuEvent (QContextMenuEvent *);
 
 private:
-    struct ViewPipeline
-    {
-    public:
-	vtkSmartPointer<vtkRenderer> Init (
-	    size_t objects, size_t constraintSurfaces, size_t fontSize);
-	void UpdateThreshold (QwtDoubleInterval interval);
-	void UpdateColorTransferFunction (
-	    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
-	    const char* name);
-	void PositionScalarBar (G3D::Rect2D position);
-	void UpdateOpacity (float contextAlpha);
-	void UpdateFromOpenGl (
-	    const ViewSettings& vs, const G3D::AABox& bb, const Foam& foam);
-	void UpdateAverage (
-	    boost::shared_ptr<RegularGridAverage> average, int direction);
-	void UpdateTitle (
-	    bool titleShown, const G3D::Vector2& postion,
-            boost::shared_ptr<RegularGridAverage> average, 
-	    ViewNumber::Enum viewNumber);
-	void UpdateFocus (bool focus);
-
-    public:
-	vtkSmartPointer<vtkScalarBarActor> m_scalarBar;
-	vtkSmartPointer<vtkActor> m_averageActor;
-	vtkSmartPointer<vtkThreshold> m_threshold;
-	vtkSmartPointer<vtkActor2D> m_textActor;
-	vector<vtkSmartPointer<vtkActor> > m_constraintSurface;
-	vector<vtkSmartPointer<vtkActor> > m_object;
-	vtkSmartPointer<vtkRenderer> m_renderer;
-	vtkSmartPointer<vtkActor2D> m_focusActor;
-    };
-
-private:
     void updateViewTitle (ViewNumber::Enum viewNumber);
     void updateViewFocus (ViewNumber::Enum viewNumber);
 
@@ -123,7 +91,8 @@ private:
     Q_OBJECT
     boost::array<boost::shared_ptr<RegularGridAverage>,
 		 ViewNumber::COUNT> m_average;
-    boost::array<ViewPipeline, ViewNumber::COUNT> m_pipeline;
+    boost::array<boost::shared_ptr<Average3dPipeline>, 
+                 ViewNumber::COUNT> m_pipeline;
     int m_fontSize;
     
 };
