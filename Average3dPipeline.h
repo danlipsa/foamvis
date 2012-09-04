@@ -26,7 +26,7 @@ public:
         const char* name);
     void PositionScalarBar (G3D::Rect2D position);
     void UpdateOpacity (float contextAlpha);
-    void UpdateTransformation (
+    void CopyTransformationFromView (
         const ViewSettings& vs, const G3D::AABox& bb, const Foam& foam);
     void UpdateAverage (
         boost::shared_ptr<RegularGridAverage> average, int direction);

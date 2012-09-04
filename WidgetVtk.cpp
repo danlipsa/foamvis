@@ -26,8 +26,6 @@
 // Private Classes/Functions
 // ======================================================================
 
-
-
 class SendPaintEnd : public vtkCommand
 {
 public:
@@ -76,8 +74,8 @@ void WidgetVtk::CreateAverage (boost::shared_ptr<Settings> settings,
     interactorStyle->SetInteractionModeQuery (
         boost::bind (&Settings::GetInteractionMode, GetSettings ()));
     
-    QVTKInteractor *iren = GetInteractor();
-    iren->SetInteractorStyle (interactorStyle);
+    QVTKInteractor *interactor = GetInteractor();
+    interactor->SetInteractorStyle (interactorStyle);
     
     for (size_t i = 0; i < m_average.size (); ++i)
     {
@@ -156,14 +154,15 @@ void WidgetVtk::AddView (
     average->AverageInitStep ();
     int direction = 0;
     pipeline.UpdateAverage (average, direction);
-    pipeline.UpdateTransformation (vs, bb, foam);
+    pipeline.CopyTransformationFromView (vs, bb, foam);
     pipeline.UpdateOpacity (GetSettings ()->GetContextAlpha ());
     pipeline.UpdateThreshold (interval);
     pipeline.UpdateColorTransferFunction (colorTransferFunction, scalarName);
     pipeline.UpdateFocus (GetSettings ()->GetViewNumber () == viewNumber);
 
     G3D::Rect2D viewRect = GetNormalizedViewRect (viewNumber);
-    G3D::Vector2 position = G3D::Vector2 (viewRect.center ().x, viewRect.y1 ());
+    G3D::Vector2 position = G3D::Vector2 (
+        viewRect.center ().x, viewRect.y1 () * 0.99);
     renderWindow->AddRenderer(pipeline.GetRenderer ());
     pipeline.GetRenderer ()->SetViewport (viewRect.x0 (), viewRect.y0 (),
 				      viewRect.x1 (), viewRect.y1 ());
@@ -181,7 +180,7 @@ void WidgetVtk::UpdateTransformation (ViewNumber::Enum viewNumber)
     G3D::AABox bb = simulation.GetBoundingBox ();
     const Foam& foam = m_average[viewNumber]->GetFoam ();
     Average3dPipeline& pipeline = *m_pipeline[viewNumber];
-    pipeline.UpdateTransformation (vs, bb, foam);
+    pipeline.CopyTransformationFromView (vs, bb, foam);
 }
 
 

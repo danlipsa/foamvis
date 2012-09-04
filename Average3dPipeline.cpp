@@ -20,6 +20,9 @@
 #define __LOG__(code)
 
 
+// Methods Average3dPipeline
+// ======================================================================
+
 Average3dPipeline::Average3dPipeline (
     size_t objects, size_t constraintSurfaces, size_t fontSize)
 {
@@ -106,7 +109,7 @@ Average3dPipeline::Average3dPipeline (
     VTK_CREATE (vtkActor2D, textActor);
     textActor->SetMapper (textMapper);
     textActor->GetPositionCoordinate ()->
-	SetCoordinateSystemToNormalizedDisplay ();
+        SetCoordinateSystemToNormalizedDisplay ();
     renderer->AddViewProp (textActor);
     m_textActor = textActor;
 
@@ -212,7 +215,7 @@ void Average3dPipeline::UpdateFocus (bool focus)
 }
 
 
-void Average3dPipeline::UpdateTransformation (
+void Average3dPipeline::CopyTransformationFromView (
     const ViewSettings& vs, const G3D::AABox& bb, const Foam& foam)
 {
     G3D::Vector3 center = bb.center ();
@@ -239,6 +242,9 @@ void Average3dPipeline::UpdateTransformation (
 
     m_renderer->ResetCamera ();
 }
+
+
+
 
 void Average3dPipeline::UpdateAverage (
     boost::shared_ptr<RegularGridAverage> average, int direction)

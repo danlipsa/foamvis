@@ -129,6 +129,7 @@
 #include <vtkImageData.h>
 #include <vtkIndent.h>
 #include <vtkInteractorStyle.h>
+#include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkLight.h>
 #include <vtkMath.h>
 #include <vtkMatrix4x4.h>
@@ -149,8 +150,6 @@
 #include <vtkTextMapper.h>
 #include <vtkTextProperty.h>
 #include <vtkTetra.h>
-#include <vtkTDxInteractorStyleCamera.h>
-#include <vtkTDxInteractorStyleSettings.h>
 #include <vtkThreshold.h>
 #include <vtkTriangle.h>
 #include <vtkUnstructuredGrid.h>

@@ -10,7 +10,7 @@
 #ifndef __FOAMVIS_INTRACTOR_STYLE_H
 #define __FOAMVIS_INTRACTOR_STYLE_H
 
-#include "vtkInteractorStyleTrackballCamera.h"
+
 #include "Enums.h"
 
 class VTK_RENDERING_EXPORT FoamvisInteractorStyle : 
