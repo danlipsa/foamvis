@@ -31,7 +31,12 @@ public:
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
 	const char* name);
     void UpdateThreshold (QwtDoubleInterval interval);
-    void UpdateTransformation (ViewNumber::Enum viewNumber);
+    void ViewToVtk (ViewNumber::Enum viewNumber);
+    void VtkToView (ViewNumber::Enum viewNumber);
+    void VtkToView ()
+    {
+        VtkToView (GetViewNumber ());
+    }
     void RemoveViews ();
     void AddView (
 	ViewNumber::Enum viewNumber,
@@ -72,11 +77,13 @@ public:
         return GetNormalizedViewRect (GetViewNumber ());
     }
 
+    void SendPaintEnd ();
+
 Q_SIGNALS:
     void PaintEnd ();
 
 public Q_SLOTS:
-    void CopyTransformationFrom (int viewNumber);
+    void CopyTransformFrom (int fromViewNumber);
 
 protected:
     virtual void resizeEvent (QResizeEvent * event);

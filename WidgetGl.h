@@ -224,23 +224,12 @@ Q_SIGNALS:
 	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 public Q_SLOTS:
-    void ButtonClickedTimeLinkage (int id);
-    void ButtonClickedInteractionObject (int id);
-    void ClickedEnd ();
-
-    /*
-     * Global options
-     */
     void ToggledStandaloneElementsShown (bool checked);
     void ToggledAxesShown (bool checked);
     void ToggledBoundingBoxSimulation (bool checked);
     void ToggledBoundingBoxFoam (bool checked);
     void ToggledBoundingBoxBody (bool checked);
     void ToggledAverageAroundMarked (bool checked);
-    /**
-     * Shows center paths
-     * param checked true for showing the center paths false otherwise
-     */
     void ToggledConstraintsShown (bool checked);
     void ToggledConstraintPointsShown (bool checked);
     void ToggledCenterPathBodyShown (bool checked);
@@ -258,7 +247,6 @@ public Q_SLOTS:
     void ToggledBodyNeighborsShown (bool checked);
     void ToggledFaceCenterShown (bool checked);
     void ToggledEdgesTessellationShown (bool checked);
-
     void ToggledEdgesShown (bool checked);
     void ToggledLightNumberShown (bool checked);
     void ToggledLightEnabled (bool checked);
@@ -281,7 +269,11 @@ public Q_SLOTS:
     void ToggledVelocitySameSize (bool checked);
     void ToggledVelocityColorMapped (bool checked);
     void ToggledContextBoxShown (bool checked);
-
+    void ToggledT1sKernelTextureSizeShown (bool checked);
+    void ToggledAverageAroundAllowRotation (bool checked);
+    void ButtonClickedTimeLinkage (int id);
+    void ButtonClickedInteractionObject (int id);
+    void ClickedEnd ();
     void SetBodyOrFaceScalar (
 	ViewNumber::Enum viewNumber,
 	boost::shared_ptr<ColorBarModel> colorBarModel,
@@ -320,7 +312,6 @@ public Q_SLOTS:
     void ValueChangedT1sKernelIntervalPerPixel (int index);
     void ValueChangedT1sKernelSigma (int index);
     void ValueChangedT1sKernelTextureSize (int index);
-    void ToggledT1sKernelTextureSizeShown (bool checked);
     void ValueChangedDeformationSizeExp (int index);
     void ValueChangedDeformationLineWidthExp (int index);
     void ValueChangedVelocityLineWidthExp (int index);
@@ -347,7 +338,6 @@ public Q_SLOTS:
     void AverageAroundReset ();
     void ContextDisplayBody ();
     void ContextDisplayReset ();
-    void ToggledAverageAroundAllowRotation (bool checked);
     void InfoPoint ();
     void InfoEdge ();
     void InfoFace ();

@@ -25,10 +25,10 @@
 // Private Classes/Functions
 // ======================================================================
 
-class SendPaintEnd : public vtkCommand
+class RenderWindowPaintEnd : public vtkCommand
 {
 public:
-    SendPaintEnd (WidgetVtk* widgetVtk) :
+    RenderWindowPaintEnd (WidgetVtk* widgetVtk) :
 	m_widgetVtk (widgetVtk)
     {
     }
@@ -38,12 +38,12 @@ private:
 };
 
 
-void SendPaintEnd::Execute (
+void RenderWindowPaintEnd::Execute (
     vtkObject *caller, unsigned long eventId, void *callData)
 {
-    (void) caller;(void)callData;
-    if (eventId == vtkCommand::EndEvent)
-	Q_EMIT m_widgetVtk->PaintEnd ();
+    (void) caller;(void)callData;(void)eventId;
+    m_widgetVtk->VtkToView ();
+    m_widgetVtk->SendPaintEnd ();
 }
 
 
@@ -61,7 +61,12 @@ WidgetVtk::WidgetVtk (QWidget* parent) :
     connect (m_signalMapperCopyTransformation.get (),
 	     SIGNAL (mapped (int)),
 	     this,
-	     SLOT (CopyTransformationFrom (int)));
+	     SLOT (CopyTransformFrom (int)));
+}
+
+void WidgetVtk::SendPaintEnd ()
+{
+    Q_EMIT PaintEnd ();
 }
 
 void WidgetVtk::CreateAverage (boost::shared_ptr<Settings> settings,
@@ -97,7 +102,8 @@ void WidgetVtk::CreateAverage3dPipeline (
                                  objects, constraintSurfaces, fontSize));
     }
 
-    vtkSmartPointer<SendPaintEnd> sendPaint (new SendPaintEnd (this));
+    vtkSmartPointer<RenderWindowPaintEnd> sendPaint (
+        new RenderWindowPaintEnd (this));
     renWin->AddObserver (vtkCommand::EndEvent, sendPaint);
 }
 
@@ -153,7 +159,7 @@ void WidgetVtk::AddView (
     average->AverageInitStep ();
     int direction = 0;
     pipeline.UpdateAverage (average, direction);
-    pipeline.CopyTransformationFromView (vs, bb, foam);
+    pipeline.ViewToVtk (vs, bb, foam);
     pipeline.UpdateOpacity (GetSettings ()->GetContextAlpha ());
     pipeline.UpdateThreshold (interval);
     pipeline.UpdateColorTransferFunction (colorTransferFunction, scalarName);
@@ -172,16 +178,23 @@ void WidgetVtk::AddView (
     setVisible (true);
 }
 
-void WidgetVtk::UpdateTransformation (ViewNumber::Enum viewNumber)
+void WidgetVtk::ViewToVtk (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
     const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
     G3D::AABox bb = simulation.GetBoundingBox ();
     const Foam& foam = m_average[viewNumber]->GetFoam ();
     Average3dPipeline& pipeline = *m_pipeline[viewNumber];
-    pipeline.CopyTransformationFromView (vs, bb, foam);
+    pipeline.ViewToVtk (vs, bb, foam);
 }
 
+void WidgetVtk::VtkToView (ViewNumber::Enum viewNumber)
+{
+    ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    const Foam& foam = m_average[viewNumber]->GetFoam ();
+    Average3dPipeline& pipeline = *m_pipeline[viewNumber];
+    pipeline.VtkToView (vs, foam);
+}
 
 
 void WidgetVtk::UpdateAverage (
@@ -244,6 +257,19 @@ G3D::Rect2D WidgetVtk::GetNormalizedViewRect (ViewNumber::Enum viewNumber) const
     return viewRect;
 }
 
+const Simulation& WidgetVtk::GetSimulation (ViewNumber::Enum viewNumber) const
+{
+    return m_average[viewNumber]->GetSimulation ();
+}
+
+void WidgetVtk::CopyTransformFrom (int fromViewNumber)
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    GetViewSettings (viewNumber).CopyTransformation (
+	GetViewSettings (ViewNumber::Enum (fromViewNumber)));
+    ViewToVtk (viewNumber);
+}
+
 
 // Overrides
 ////////////
@@ -284,16 +310,4 @@ void WidgetVtk::resizeEvent (QResizeEvent * event)
     }
 }
 
-const Simulation& WidgetVtk::GetSimulation (ViewNumber::Enum viewNumber) const
-{
-    return m_average[viewNumber]->GetSimulation ();
-}
-
-void WidgetVtk::CopyTransformationFrom (int fromViewNumber)
-{
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    GetViewSettings (viewNumber).CopyTransformation (
-	GetViewSettings (ViewNumber::Enum (fromViewNumber)));
-    UpdateTransformation (viewNumber);
-}
 

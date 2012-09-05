@@ -216,22 +216,25 @@ void Average3dPipeline::UpdateFocus (bool focus)
 }
 
 
-void Average3dPipeline::CopyTransformationFromView (
+void Average3dPipeline::ViewToVtk (
     const ViewSettings& vs, const G3D::AABox& simulationBb, const Foam& foam)
 {
     G3D::Matrix3 cameraRotationAxes = 
-	vs.GetRotationForAxesOrder (foam).inverse ();
+        vs.GetRotationForAxesOrder (foam).inverse ();
     G3D::Matrix3 cameraRotation = vs.GetRotation ().inverse ();
-    
+    cdbg << "ViewToVtk" << endl;
+    cdbg << cameraRotation << endl;
+
     G3D::Vector3 center = simulationBb.center ();
     G3D::Vector3 rotationCenter = vs.GetRotationCenter ();
     G3D::Vector3 position = center + G3D::Vector3 (0, 0, 1);
     G3D::Vector3 up = G3D::Vector3 (0, 1, 0);
     // apply the rotations from ModelViewTransform in reverse order
+    // rotation around the rotationCenter
     position = cameraRotation * (position - rotationCenter) + rotationCenter;
     up = cameraRotation * up;
     center = cameraRotation * (center - rotationCenter) + rotationCenter;
-
+    // rotation around center
     position = cameraRotationAxes * (position - center) + center;
     up = cameraRotationAxes * up ;
 
@@ -244,7 +247,34 @@ void Average3dPipeline::CopyTransformationFromView (
     m_renderer->ResetCamera ();
 }
 
+void Average3dPipeline::VtkToView (ViewSettings& vs, const Foam& foam)
+{
+    cdbg << "VtkToView" << endl;
+    vtkCamera* camera = m_renderer->GetActiveCamera ();
+    double center[3];
+    double position[3];
+    double viewUp[3];
+    camera->GetFocalPoint (center);
+    camera->GetPosition (position);
+    camera->GetViewUp (viewUp);
 
+    G3D::Vector3 one (viewUp[0], viewUp[1], viewUp[2]); // x
+    G3D::Vector3 two = G3D::Vector3 (position[0] - center[0], // y
+                                     position[1] - center[1],
+                                     position[2] - center[2]).unit ();
+    G3D::Vector3 three = one * two; // z
+    
+    G3D::Matrix3 rCamera = MatrixFromColumns (one, two, three);
+    rCamera = rCamera * MatrixFromColumns (G3D::Vector3 (0, 1, 0),
+                                           G3D::Vector3 (0, 0, -1),
+                                           G3D::Vector3 (-1, 0, 0)).inverse ();
+    cdbg << rCamera << endl;
+    G3D::Matrix3 rObject = rCamera.inverse ();
+    rObject = rObject * vs.GetRotationForAxesOrder (foam).inverse ();
+    cdbg << rObject << endl;
+    cdbg << vs.GetRotation () << endl << endl;
+    //vs.SetRotation (rObject);
+}
 
 
 void Average3dPipeline::UpdateAverage (

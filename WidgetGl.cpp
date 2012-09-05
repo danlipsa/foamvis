@@ -771,74 +771,6 @@ void WidgetGl::viewportTransform (ViewNumber::Enum viewNumber) const
     //cdbg << viewRect << endl;
 }
 
-void WidgetGl::LinkedTimeBegin ()
-{
-    try
-    {
-	GetSettings ()->LinkedTimeBegin ();
-    }
-    catch (exception& e)
-    {
-	QMessageBox msgBox (this);
-	msgBox.setText(e.what ());
-	msgBox.exec();	
-    }
-}
-
-void WidgetGl::LinkedTimeEnd ()
-{
-    try
-    {
-	GetSettings ()->LinkedTimeEnd ();
-    }
-    catch (exception& e)
-    {
-	QMessageBox msgBox (this);
-	msgBox.setText(e.what ());
-	msgBox.exec();	
-    }
-}
-
-void WidgetGl::SelectAll ()
-{
-    GetViewSettings ().
-	SetBodySelector (AllBodySelector::Get (), BodySelectorType::ID);
-    CompileUpdate ();
-    m_selectBodiesByIdList->ClearEditIds ();
-}
-
-void WidgetGl::DeselectAll ()
-{
-    GetViewSettings ().SetBodySelector (
-	boost::shared_ptr<IdBodySelector> (new IdBodySelector ()));
-    CompileUpdate ();
-}
-
-void WidgetGl::SelectBodiesByIdList ()
-{
-    if (m_selectBodiesByIdList->exec () == QDialog::Accepted)
-    {
-	GetViewSettings ().SetBodySelector (
-	    boost::shared_ptr<IdBodySelector> (
-		new IdBodySelector (m_selectBodiesByIdList->GetIds ())));
-	CompileUpdate ();
-    }
-}
-
-void WidgetGl::SelectThisBodyOnly ()
-{
-    makeCurrent ();
-    vector<size_t> bodyIds;
-    brushedBodies (m_contextMenuPosScreen, &bodyIds);
-    if (! bodyIds.empty ())
-    {
-        ViewSettings& vs = GetViewSettings ();
-	vs.SetBodySelector (
-	    boost::shared_ptr<IdBodySelector> (new IdBodySelector ()));
-	vs.UnionBodySelector (bodyIds[0]);
-        CompileUpdate ();
-    }
-}
 
 void WidgetGl::deselect (const QPoint& position)
 {
@@ -848,89 +780,6 @@ void WidgetGl::deselect (const QPoint& position)
 	GetSimulation ().GetFoam (GetCurrentTime ()), bodyIds);
     CompileUpdate ();
 }
-
-
-void WidgetGl::InfoFoam ()
-{
-    string message = GetSimulation ().ToHtml ();
-    QMessageBox msgBox (this);
-    msgBox.setText(message.c_str ());
-    msgBox.exec();
-}
-
-void WidgetGl::InfoPoint ()
-{
-    QMessageBox msgBox (this);
-    ostringstream ostr;
-    ostr << "Point: " << m_contextMenuPosObject;
-    msgBox.setText(ostr.str ().c_str ());
-    msgBox.exec();
-}
-
-void WidgetGl::InfoEdge ()
-{
-    Info msgBox (this, "Info");
-    ostringstream ostr;
-    OrientedEdge oe = brushedEdge ();
-    if (! oe.GetEdge ())
-	ostr << "No body focused.";
-    else
-	ostr << oe;
-    msgBox.setText(ostr.str ().c_str ());
-    msgBox.exec();
-}
-
-
-void WidgetGl::InfoFace ()
-{
-    Info msgBox (this, "Info");
-    ostringstream ostr;
-    const OrientedFace* of = 0;
-    brushedFace (&of);
-    if (of == 0)
-	ostr << "No face focused.";
-    else
-    {
-	const Foam& foam = GetSimulation ().GetFoam (GetCurrentTime ());
-	ostr << of->ToString (&foam.GetAttributesInfoElements ().GetInfoFace ());
-    }
-    msgBox.setText(ostr.str ().c_str ());
-    msgBox.exec();
-}
-
-void WidgetGl::InfoBody ()
-{
-    makeCurrent ();
-    Info msgBox (this, "Info");
-    string message = infoSelectedBody ();
-    msgBox.setText (message.c_str ());
-    msgBox.exec();
-}
-
-void WidgetGl::InfoSelectedBodies ()
-{
-    makeCurrent ();
-    Info msgBox (this, "Info");
-    const BodySelector& bodySelector = GetViewSettings ().GetBodySelector ();
-    string message;
-    switch (bodySelector.GetType ())
-    {
-    case BodySelectorType::ALL:
-	message = "All bodies selected.";
-	break;
-	
-    case BodySelectorType::ID:
-	message = infoSelectedBodies ();
-	break;
-
-    default:
-	break;
-    }
-
-    msgBox.setText (message.c_str ());
-    msgBox.exec();
-}
-
 
 string WidgetGl::infoSelectedBody ()
 {
@@ -971,66 +820,6 @@ string WidgetGl::infoSelectedBodies ()
     return ostr.str ();
 }
 
-void WidgetGl::InfoOpenGL ()
-{
-    ostringstream ostr;
-    printOpenGLInfo (ostr);
-    Info openGLInfo (this, "OpenGL Info", ostr.str ().c_str ());
-    openGLInfo.exec ();
-}
-
-void WidgetGl::ShowNeighbors ()
-{
-    m_showType = SHOW_NEIGHBORS;
-    vector<size_t> bodies;
-    brushedBodies (m_contextMenuPosScreen, &bodies);
-    m_showBodyId = bodies[0];
-    update ();
-}
-
-void WidgetGl::ShowDeformation ()
-{
-    m_showType = SHOW_DEFORMATION_TENSOR;
-    vector<size_t> bodies;
-    brushedBodies (m_contextMenuPosScreen, &bodies);
-    m_showBodyId = bodies[0];
-    update ();
-}
-
-void WidgetGl::ShowVelocity ()
-{
-    m_showType = SHOW_VELOCITY;
-    vector<size_t> bodies;
-    brushedBodies (m_contextMenuPosScreen, &bodies);
-    m_showBodyId = bodies[0];
-    update ();
-}
-
-
-void WidgetGl::ShowReset ()
-{
-    m_showType = SHOW_NOTHING;
-    update ();
-}
-
-void WidgetGl::ColorBarClampClear ()
-{
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    boost::shared_ptr<ColorBarModel> colorBarModel = vs.GetColorBarModel ();
-    colorBarModel->SetClampClear ();
-    Q_EMIT ColorBarModelChanged (viewNumber, colorBarModel);
-}
-
-void WidgetGl::OverlayBarClampClear ()
-{
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    boost::shared_ptr<ColorBarModel> colorBarModel = 
-	vs.GetOverlayBarModel ();
-    colorBarModel->SetClampClear ();
-    Q_EMIT OverlayBarModelChanged (viewNumber, colorBarModel);
-}
 
 
 // Uses antialiased points and lines
@@ -1327,7 +1116,6 @@ G3D::Vector3 WidgetGl::brushedBodies (
     const QPoint& position, 
     vector< boost::shared_ptr<Body> >* bodies, bool selected)
 {
-    makeCurrent ();
     const BodySelector& selector = GetViewSettings ().GetBodySelector ();
     G3D::Vector3 op = toObjectTransform (position);
     const Foam& foam = GetSimulation ().GetFoam (GetCurrentTime ());
@@ -1625,101 +1413,6 @@ void WidgetGl::displayStatus ()
 }
 
 
-void WidgetGl::AverageAroundBody ()
-{
-    ViewSettings& vs = GetViewSettings ();
-    vector< boost::shared_ptr<Body> > bodies;
-    brushedBodies (m_contextMenuPosScreen, &bodies);
-    if (! bodies.empty ())
-    {
-	boost::shared_ptr<Body> body = bodies[0];
-	const Simulation& simulation = GetSimulation ();
-	size_t bodyId = body->GetId ();
-	vs.SetAverageAroundBodyId (bodyId);
-	vs.SetAverageAroundSecondBodyId (INVALID_INDEX);
-	vs.SetAverageAround (true);
-	if (body->IsObject () && simulation.GetDmpObjectInfo ().RotationUsed ())
-	    vs.SetAverageAroundPositions (simulation);
-	else
-	    vs.SetAverageAroundPositions (simulation, bodyId);
-	CompileUpdate ();
-    }
-    else
-    {
-	QMessageBox msgBox (this);
-	msgBox.setText("No body selected");
-	msgBox.exec();
-    }
-}
-
-void WidgetGl::AverageAroundSecondBody ()
-{
-    ViewSettings& vs = GetViewSettings ();
-    vector< boost::shared_ptr<Body> > bodies;
-    brushedBodies (m_contextMenuPosScreen, &bodies);
-    string message;
-    if (! bodies.empty ())
-    {
-	const Simulation& simulation = GetSimulation ();
-	size_t secondBodyId = bodies[0]->GetId ();
-	size_t bodyId = vs.GetAverageAroundBodyId ();
-	if (bodyId != INVALID_INDEX)
-	{
-	    if (bodyId == secondBodyId)
-		message = "\"Average around > Second body\" needs to "
-		    "be different than \"Average around > Body\"";
-	    else
-	    {
-		vs.SetAverageAroundSecondBodyId (secondBodyId);
-		vs.SetAverageAround (true);
-		vs.SetAverageAroundPositions (simulation, bodyId, secondBodyId);
-		vs.SetDifferenceBodyId (secondBodyId);
-		CompileUpdate ();
-		return;
-	    }
-	}
-	else
-	    message = "Select \"Average around > Body\" first";
-    }
-    else
-	message = "No body selected";
-    QMessageBox msgBox (this);
-    msgBox.setText(message.c_str ());
-    msgBox.exec();
-}
-
-
-void WidgetGl::AverageAroundReset ()
-{
-    ViewSettings& vs = GetViewSettings ();
-    vs.SetAverageAround (false);
-    vs.SetAverageAroundBodyId (INVALID_INDEX);
-    vs.SetAverageAroundSecondBodyId (INVALID_INDEX);
-    CompileUpdate ();
-}
-
-void WidgetGl::ContextDisplayBody ()
-{
-    ViewSettings& vs = GetViewSettings ();
-    vector<size_t> bodies;
-    brushedBodies (m_contextMenuPosScreen, &bodies);
-    vs.AddContextDisplayBody (bodies[0]);
-    update ();
-}
-
-void WidgetGl::ContextDisplayReset ()
-{
-    ViewSettings& vs = GetViewSettings ();
-    vs.ContextDisplayReset ();
-    update ();
-}
-
-void WidgetGl::ToggledAverageAroundAllowRotation (bool checked)
-{
-    ViewSettings& vs = GetViewSettings ();
-    vs.SetAverageAroundRotationShown (checked);
-    update ();
-}
 
 void WidgetGl::select (const QPoint& position)
 {
@@ -2113,7 +1806,8 @@ void WidgetGl::displayT1sDot (
 		  GL_CURRENT_BIT | GL_POLYGON_BIT);
     glDisable (GL_DEPTH_TEST);
     glPointSize (m_t1sSize);
-    glColor (GetSettings ()->GetHighlightColor (viewNumber, HighlightNumber::H0));
+    glColor (GetSettings ()->GetHighlightColor (
+                 viewNumber, HighlightNumber::H0));
     glBegin (GL_POINTS);
     BOOST_FOREACH (const G3D::Vector3 t1Pos, 
 		   GetSimulation (viewNumber).GetT1s (timeStep, 
@@ -2610,13 +2304,6 @@ void WidgetGl::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
     glPopAttrib ();
 }
 
-
-void WidgetGl::CompileUpdate (ViewNumber::Enum viewNumber)
-{
-    makeCurrent ();
-    compile (viewNumber);
-    update ();
-}
 
 void WidgetGl::compile (ViewNumber::Enum viewNumber) const
 {
@@ -3119,14 +2806,47 @@ void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
         m_viewAverage[viewNumber]->AverageStep (direction);
 }
 
+void WidgetGl::setTexture (
+    boost::shared_ptr<ColorBarModel> colorBarModel, GLuint texture)
+{
+    if (colorBarModel)
+    {
+	const QImage image = colorBarModel->GetImage ();
+	glBindTexture (GL_TEXTURE_1D, texture);
+	glTexImage1D (GL_TEXTURE_1D, 0, GL_RGB, image.width (),
+		      0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
+    }
+}
+
+
+// Overrides
+////////////
+
+const Simulation& WidgetGl::GetSimulation (ViewNumber::Enum viewNumber) const
+{
+    return GetSimulation (
+	GetViewSettings (viewNumber).GetSimulationIndex ());
+}
+
+
+// Slots and methods called by the UI
+// ==================================
+
+void WidgetGl::CompileUpdate (ViewNumber::Enum viewNumber)
+{
+    makeCurrent ();
+    compile (viewNumber);
+    update ();
+}
+
 
 void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
 {
+    makeCurrent ();
     if (GetSettings ()->GetGlCount () == 0)
 	setVisible (false);
     else
     {
-	makeCurrent ();
 	vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
 	for (size_t i = 0; i < vn.size (); ++i)
 	{
@@ -3147,18 +2867,317 @@ void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
     update ();
 }
 
-// Overrides
-////////////
-
-const Simulation& WidgetGl::GetSimulation (ViewNumber::Enum viewNumber) const
+void WidgetGl::AverageAroundBody ()
 {
-    return GetSimulation (
-	GetViewSettings (viewNumber).GetSimulationIndex ());
+    makeCurrent ();
+    ViewSettings& vs = GetViewSettings ();
+    vector< boost::shared_ptr<Body> > bodies;
+    brushedBodies (m_contextMenuPosScreen, &bodies);
+    if (! bodies.empty ())
+    {
+	boost::shared_ptr<Body> body = bodies[0];
+	const Simulation& simulation = GetSimulation ();
+	size_t bodyId = body->GetId ();
+	vs.SetAverageAroundBodyId (bodyId);
+	vs.SetAverageAroundSecondBodyId (INVALID_INDEX);
+	vs.SetAverageAround (true);
+	if (body->IsObject () && simulation.GetDmpObjectInfo ().RotationUsed ())
+	    vs.SetAverageAroundPositions (simulation);
+	else
+	    vs.SetAverageAroundPositions (simulation, bodyId);
+	CompileUpdate ();
+    }
+    else
+    {
+	QMessageBox msgBox (this);
+	msgBox.setText("No body selected");
+	msgBox.exec();
+    }
+}
+
+void WidgetGl::AverageAroundSecondBody ()
+{
+    makeCurrent ();
+    ViewSettings& vs = GetViewSettings ();
+    vector< boost::shared_ptr<Body> > bodies;
+    brushedBodies (m_contextMenuPosScreen, &bodies);
+    string message;
+    if (! bodies.empty ())
+    {
+	const Simulation& simulation = GetSimulation ();
+	size_t secondBodyId = bodies[0]->GetId ();
+	size_t bodyId = vs.GetAverageAroundBodyId ();
+	if (bodyId != INVALID_INDEX)
+	{
+	    if (bodyId == secondBodyId)
+		message = "\"Average around > Second body\" needs to "
+		    "be different than \"Average around > Body\"";
+	    else
+	    {
+		vs.SetAverageAroundSecondBodyId (secondBodyId);
+		vs.SetAverageAround (true);
+		vs.SetAverageAroundPositions (simulation, bodyId, secondBodyId);
+		vs.SetDifferenceBodyId (secondBodyId);
+		CompileUpdate ();
+		return;
+	    }
+	}
+	else
+	    message = "Select \"Average around > Body\" first";
+    }
+    else
+	message = "No body selected";
+    QMessageBox msgBox (this);
+    msgBox.setText(message.c_str ());
+    msgBox.exec();
 }
 
 
-// Slots and methods called by the UI
-// ==================================
+void WidgetGl::AverageAroundReset ()
+{
+    makeCurrent ();
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetAverageAround (false);
+    vs.SetAverageAroundBodyId (INVALID_INDEX);
+    vs.SetAverageAroundSecondBodyId (INVALID_INDEX);
+    CompileUpdate ();
+}
+
+void WidgetGl::ContextDisplayBody ()
+{
+    makeCurrent ();
+    ViewSettings& vs = GetViewSettings ();
+    vector<size_t> bodies;
+    brushedBodies (m_contextMenuPosScreen, &bodies);
+    vs.AddContextDisplayBody (bodies[0]);
+    update ();
+}
+
+void WidgetGl::ContextDisplayReset ()
+{
+    makeCurrent ();
+    ViewSettings& vs = GetViewSettings ();
+    vs.ContextDisplayReset ();
+    update ();
+}
+
+void WidgetGl::ToggledAverageAroundAllowRotation (bool checked)
+{
+    makeCurrent ();
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetAverageAroundRotationShown (checked);
+    update ();
+}
+
+
+void WidgetGl::InfoFoam ()
+{
+    makeCurrent ();
+    string message = GetSimulation ().ToHtml ();
+    QMessageBox msgBox (this);
+    msgBox.setText(message.c_str ());
+    msgBox.exec();
+}
+
+void WidgetGl::InfoPoint ()
+{
+    makeCurrent ();
+    QMessageBox msgBox (this);
+    ostringstream ostr;
+    ostr << "Point: " << m_contextMenuPosObject;
+    msgBox.setText(ostr.str ().c_str ());
+    msgBox.exec();
+}
+
+void WidgetGl::InfoEdge ()
+{
+    makeCurrent ();
+    Info msgBox (this, "Info");
+    ostringstream ostr;
+    OrientedEdge oe = brushedEdge ();
+    if (! oe.GetEdge ())
+	ostr << "No body focused.";
+    else
+	ostr << oe;
+    msgBox.setText(ostr.str ().c_str ());
+    msgBox.exec();
+}
+
+
+void WidgetGl::InfoFace ()
+{
+    makeCurrent ();
+    Info msgBox (this, "Info");
+    ostringstream ostr;
+    const OrientedFace* of = 0;
+    brushedFace (&of);
+    if (of == 0)
+	ostr << "No face focused.";
+    else
+    {
+	const Foam& foam = GetSimulation ().GetFoam (GetCurrentTime ());
+	ostr << of->ToString (&foam.GetAttributesInfoElements ().GetInfoFace ());
+    }
+    msgBox.setText(ostr.str ().c_str ());
+    msgBox.exec();
+}
+
+void WidgetGl::InfoBody ()
+{
+    makeCurrent ();
+    Info msgBox (this, "Info");
+    string message = infoSelectedBody ();
+    msgBox.setText (message.c_str ());
+    msgBox.exec();
+}
+
+void WidgetGl::InfoSelectedBodies ()
+{
+    makeCurrent ();
+    Info msgBox (this, "Info");
+    const BodySelector& bodySelector = GetViewSettings ().GetBodySelector ();
+    string message;
+    switch (bodySelector.GetType ())
+    {
+    case BodySelectorType::ALL:
+	message = "All bodies selected.";
+	break;
+	
+    case BodySelectorType::ID:
+	message = infoSelectedBodies ();
+	break;
+
+    default:
+	break;
+    }
+
+    msgBox.setText (message.c_str ());
+    msgBox.exec();
+}
+
+void WidgetGl::InfoOpenGL ()
+{
+    makeCurrent ();
+    ostringstream ostr;
+    printOpenGLInfo (ostr);
+    Info openGLInfo (this, "OpenGL Info", ostr.str ().c_str ());
+    openGLInfo.exec ();
+}
+
+void WidgetGl::ShowNeighbors ()
+{
+    makeCurrent ();
+    m_showType = SHOW_NEIGHBORS;
+    vector<size_t> bodies;
+    brushedBodies (m_contextMenuPosScreen, &bodies);
+    m_showBodyId = bodies[0];
+    update ();
+}
+
+void WidgetGl::ShowDeformation ()
+{
+    makeCurrent ();
+    m_showType = SHOW_DEFORMATION_TENSOR;
+    vector<size_t> bodies;
+    brushedBodies (m_contextMenuPosScreen, &bodies);
+    m_showBodyId = bodies[0];
+    update ();
+}
+
+void WidgetGl::ShowVelocity ()
+{
+    makeCurrent ();
+    m_showType = SHOW_VELOCITY;
+    vector<size_t> bodies;
+    brushedBodies (m_contextMenuPosScreen, &bodies);
+    m_showBodyId = bodies[0];
+    update ();
+}
+
+
+void WidgetGl::ShowReset ()
+{
+    makeCurrent ();
+    m_showType = SHOW_NOTHING;
+    update ();
+}
+
+
+void WidgetGl::LinkedTimeBegin ()
+{
+    makeCurrent ();
+    try
+    {
+	GetSettings ()->LinkedTimeBegin ();
+    }
+    catch (exception& e)
+    {
+	QMessageBox msgBox (this);
+	msgBox.setText(e.what ());
+	msgBox.exec();	
+    }
+}
+
+void WidgetGl::LinkedTimeEnd ()
+{
+    makeCurrent ();
+    try
+    {
+	GetSettings ()->LinkedTimeEnd ();
+    }
+    catch (exception& e)
+    {
+	QMessageBox msgBox (this);
+	msgBox.setText(e.what ());
+	msgBox.exec();	
+    }
+}
+
+void WidgetGl::SelectAll ()
+{
+    makeCurrent ();
+    GetViewSettings ().
+	SetBodySelector (AllBodySelector::Get (), BodySelectorType::ID);
+    CompileUpdate ();
+    m_selectBodiesByIdList->ClearEditIds ();
+}
+
+void WidgetGl::DeselectAll ()
+{
+    makeCurrent ();
+    GetViewSettings ().SetBodySelector (
+	boost::shared_ptr<IdBodySelector> (new IdBodySelector ()));
+    CompileUpdate ();
+}
+
+void WidgetGl::SelectBodiesByIdList ()
+{
+    makeCurrent ();
+    if (m_selectBodiesByIdList->exec () == QDialog::Accepted)
+    {
+	GetViewSettings ().SetBodySelector (
+	    boost::shared_ptr<IdBodySelector> (
+		new IdBodySelector (m_selectBodiesByIdList->GetIds ())));
+	CompileUpdate ();
+    }
+}
+
+
+void WidgetGl::SelectThisBodyOnly ()
+{
+    makeCurrent ();
+    vector<size_t> bodyIds;
+    brushedBodies (m_contextMenuPosScreen, &bodyIds);
+    if (! bodyIds.empty ())
+    {
+        ViewSettings& vs = GetViewSettings ();
+	vs.SetBodySelector (
+	    boost::shared_ptr<IdBodySelector> (new IdBodySelector ()));
+	vs.UnionBodySelector (bodyIds[0]);
+        CompileUpdate ();
+    }
+}
+
 
 void WidgetGl::mousePressEvent(QMouseEvent *event)
 {
@@ -3223,7 +3242,6 @@ void WidgetGl::mouseMoveEvent(QMouseEvent *event)
 
 void WidgetGl::contextMenuEvent (QContextMenuEvent *event)
 {
-    // make sure you act on the current window's context
     makeCurrent ();
     m_contextMenuPosScreen = event->pos ();
     m_contextMenuPosObject = toObjectTransform (m_contextMenuPosScreen);
@@ -3345,6 +3363,7 @@ void WidgetGl::RotationCenterFoam ()
 
 void WidgetGl::CopyTransformationFrom (int viewNumber)
 {
+    makeCurrent ();
     GetViewSettings ().CopyTransformation (
 	GetViewSettings (ViewNumber::Enum (viewNumber)));
     update ();
@@ -3368,6 +3387,28 @@ void WidgetGl::CopyColorBarFrom (int other)
     vs.CopyColorBar (otherVs);
     Q_EMIT ColorBarModelChanged (viewNumber, vs.GetColorBarModel ());
 }
+
+void WidgetGl::ColorBarClampClear ()
+{
+    makeCurrent ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    boost::shared_ptr<ColorBarModel> colorBarModel = vs.GetColorBarModel ();
+    colorBarModel->SetClampClear ();
+    Q_EMIT ColorBarModelChanged (viewNumber, colorBarModel);
+}
+
+void WidgetGl::OverlayBarClampClear ()
+{
+    makeCurrent ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    boost::shared_ptr<ColorBarModel> colorBarModel = 
+	vs.GetOverlayBarModel ();
+    colorBarModel->SetClampClear ();
+    Q_EMIT OverlayBarModelChanged (viewNumber, colorBarModel);
+}
+
 
 
 void WidgetGl::ToggledDirectionalLightEnabled (bool checked)
@@ -3494,18 +3535,21 @@ void WidgetGl::ToggledVelocityColorMapped (bool checked)
 
 void WidgetGl::ToggledMissingPressureShown (bool checked)
 {
+    makeCurrent ();
     GetSettings ()->SetMissingPressureShown (checked);
     update ();
 }
 
 void WidgetGl::ToggledMissingVolumeShown (bool checked)
 {
+    makeCurrent ();
     GetSettings ()->SetMissingVolumeShown (checked);
     update ();
 }
 
 void WidgetGl::ToggledObjectVelocityShown (bool checked)
 {
+    makeCurrent ();
     GetSettings ()->SetObjectVelocityShown (checked);
     update ();
 }
@@ -3530,18 +3574,21 @@ void WidgetGl::ToggledLightEnabled (bool checked)
 
 void WidgetGl::ToggledBoundingBoxSimulation (bool checked)
 {
+    makeCurrent ();
     m_boundingBoxSimulationShown = checked;
     update ();
 }
 
 void WidgetGl::ToggledBoundingBoxFoam (bool checked)
 {
+    makeCurrent ();
     m_boundingBoxFoamShown = checked;
     update ();
 }
 
 void WidgetGl::ToggledBoundingBoxBody (bool checked)
 {
+    makeCurrent ();
     m_boundingBoxBodyShown = checked;
     update ();
 }
@@ -3549,6 +3596,7 @@ void WidgetGl::ToggledBoundingBoxBody (bool checked)
 
 void WidgetGl::ToggledAverageAroundMarked (bool checked)
 {
+    makeCurrent ();
     m_averageAroundMarked = checked;
     update ();
 }
@@ -3564,6 +3612,7 @@ void WidgetGl::ToggledContextView (bool checked)
 
 void WidgetGl::ToggledContextBoxShown (bool checked)
 {
+    makeCurrent ();
     m_contextBoxShown = checked;
     update ();
 }
@@ -3613,30 +3662,35 @@ void WidgetGl::ToggledTorqueResultShown (bool checked)
 
 void WidgetGl::ToggledAxesShown (bool checked)
 {
+    makeCurrent ();
     m_axesShown = checked;
     update ();
 }
 
 void WidgetGl::ToggledStandaloneElementsShown (bool checked)
 {
+    makeCurrent ();
     m_standaloneElementsShown = checked;
     CompileUpdate ();
 }
 
 void WidgetGl::ToggledConstraintsShown (bool checked)
 {
+    makeCurrent ();
     GetSettings ()->SetConstraintsShown (checked);
     update ();
 }
 
 void WidgetGl::ToggledConstraintPointsShown (bool checked)
 {
+    makeCurrent ();
     GetSettings ()->SetConstraintPointsShown (checked);
     update ();
 }
 
 void WidgetGl::ToggledCenterPathBodyShown (bool checked)
 {
+    makeCurrent ();
     m_centerPathBodyShown = checked;
     update ();
 }
@@ -3665,12 +3719,14 @@ void WidgetGl::ButtonClickedTimeLinkage (int id)
 
 void WidgetGl::ToggledBodyCenterShown (bool checked)
 {
+    makeCurrent ();
     m_bodyCenterShown = checked;
     update ();
 }
 
 void WidgetGl::ToggledBodyNeighborsShown (bool checked)
 {
+    makeCurrent ();
     m_bodyNeighborsShown = checked;
     update ();
 }
@@ -3678,6 +3734,7 @@ void WidgetGl::ToggledBodyNeighborsShown (bool checked)
 
 void WidgetGl::ToggledFaceCenterShown (bool checked)
 {
+    makeCurrent ();
     m_faceCenterShown = checked;
     update ();
 }
@@ -3685,12 +3742,14 @@ void WidgetGl::ToggledFaceCenterShown (bool checked)
 
 void WidgetGl::ToggledEdgesShown (bool checked)
 {
+    makeCurrent ();
     m_edgesShown = checked;
     CompileUpdate ();
 }
 
 void WidgetGl::ToggledEdgesTessellationShown (bool checked)
 {
+    makeCurrent ();
     GetSettings ()->SetEdgesTessellationShown (checked);
     update ();
 }
@@ -3698,6 +3757,7 @@ void WidgetGl::ToggledEdgesTessellationShown (bool checked)
 
 void WidgetGl::ToggledTorusDomainShown (bool checked)
 {
+    makeCurrent ();
     m_torusDomainShown = checked;
     update ();
 }
@@ -3719,12 +3779,14 @@ void WidgetGl::ToggledCenterPathLineUsed (bool checked)
 
 void WidgetGl::ToggledTorusOriginalDomainClipped (bool checked)
 {
+    makeCurrent ();
     m_torusOriginalDomainClipped = checked;
     update ();
 }
 
 void WidgetGl::ToggledT1sShown (bool checked)
 {
+    makeCurrent ();
     m_t1sShown = checked;
     CompileUpdate ();
 }
@@ -3760,7 +3822,9 @@ void WidgetGl::CurrentIndexChangedSimulation (int i)
 
 void WidgetGl::ButtonClickedInteractionObject (int index)
 {
+    makeCurrent ();
     m_interactionObject = InteractionObject::Enum (index);
+    update ();
 }
 
 
@@ -3775,6 +3839,7 @@ void WidgetGl::CurrentIndexChangedAxesOrder (int index)
 {
     makeCurrent ();
     GetViewSettings ().SetAxesOrder (AxesOrder::Enum(index));
+    update ();
 }
 
 // @todo add a color bar model for BodyScalar::None
@@ -3795,19 +3860,6 @@ void WidgetGl::SetBodyOrFaceScalar (
 	vs.ResetColorBarModel ();
     CompileUpdate ();
 }
-
-void WidgetGl::setTexture (
-    boost::shared_ptr<ColorBarModel> colorBarModel, GLuint texture)
-{
-    if (colorBarModel)
-    {
-	const QImage image = colorBarModel->GetImage ();
-	glBindTexture (GL_TEXTURE_1D, texture);
-	glTexImage1D (GL_TEXTURE_1D, 0, GL_RGB, image.width (),
-		      0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
-    }
-}
-
 
 void WidgetGl::SetColorBarModel (ViewNumber::Enum viewNumber, 
 				 boost::shared_ptr<ColorBarModel> colorBarModel)
@@ -4024,6 +4076,7 @@ void WidgetGl::ValueChangedVelocityLineWidthExp (int index)
 
 void WidgetGl::ValueChangedHighlightLineWidth (int newWidth)
 {
+    makeCurrent ();
     m_highlightLineWidth = newWidth;
     update ();
 }
@@ -4032,7 +4085,8 @@ void WidgetGl::ValueChangedEdgesRadius (int sliderValue)
 {
     makeCurrent ();
     size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
-    GetSettings ()->SetEdgeRadiusRatio (static_cast<double>(sliderValue) / maximum);
+    GetSettings ()->SetEdgeRadiusRatio (
+        static_cast<double>(sliderValue) / maximum);
     GetSettings ()->SetEdgeArrow (GetOnePixelInObjectSpace ());
     CompileUpdate ();
 }
@@ -4111,7 +4165,6 @@ void WidgetGl::ValueChangedAngleOfView (int angleOfView)
     vs.CalculateCameraDistance (CalculateCenteredViewingVolume (viewNumber));
     update ();
 }
-
 
 
 // Template instantiations
