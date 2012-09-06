@@ -707,8 +707,8 @@ void WidgetGl::ModelViewTransform (ViewNumber::Enum viewNumber,
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
-    G3D::Vector3 center = simulation.GetBoundingBox ().center ();
-    const Foam& foam = simulation.GetFoam (0);
+    const Foam& foam = simulation.GetFoam (timeStep);
+    G3D::Vector3 center = foam.GetBoundingBox ().center ();
 
     glLoadIdentity ();
     if (simulation.Is2D ())

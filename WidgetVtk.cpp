@@ -151,15 +151,13 @@ void WidgetVtk::AddView (
     boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
     const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
     const char* scalarName = FaceScalar::ToString (vs.GetBodyOrFaceScalar ());
-    const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
     const Foam& foam = m_average[viewNumber]->GetFoam ();
     Average3dPipeline& pipeline = *m_pipeline[viewNumber];
     G3D::AABox vv = CalculateViewingVolume (viewNumber);
-    G3D::AABox bb = simulation.GetBoundingBox ();
     average->AverageInitStep ();
     int direction = 0;
     pipeline.UpdateAverage (average, direction);
-    pipeline.ViewToVtk (vs, bb, foam);
+    pipeline.ViewToVtk (vs, foam);
     pipeline.UpdateOpacity (GetSettings ()->GetContextAlpha ());
     pipeline.UpdateThreshold (interval);
     pipeline.UpdateColorTransferFunction (colorTransferFunction, scalarName);
@@ -181,11 +179,9 @@ void WidgetVtk::AddView (
 void WidgetVtk::ViewToVtk (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
-    const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
-    G3D::AABox bb = simulation.GetBoundingBox ();
     const Foam& foam = m_average[viewNumber]->GetFoam ();
     Average3dPipeline& pipeline = *m_pipeline[viewNumber];
-    pipeline.ViewToVtk (vs, bb, foam);
+    pipeline.ViewToVtk (vs, foam);
 }
 
 void WidgetVtk::VtkToView (ViewNumber::Enum viewNumber)

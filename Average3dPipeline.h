@@ -26,9 +26,7 @@ public:
         const char* name);
     void PositionScalarBar (G3D::Rect2D position);
     void UpdateOpacity (float contextAlpha);
-    void ViewToVtk (
-        const ViewSettings& vs, const G3D::AABox& simulationBb, 
-        const Foam& foam);
+    void ViewToVtk (const ViewSettings& vs, const Foam& foam);
     void VtkToView (ViewSettings& vs, const Foam& foam);
 
     void UpdateAverage (
