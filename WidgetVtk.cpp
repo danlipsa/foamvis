@@ -186,10 +186,13 @@ void WidgetVtk::ViewToVtk (ViewNumber::Enum viewNumber)
 
 void WidgetVtk::VtkToView (ViewNumber::Enum viewNumber)
 {
-    ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
-    const Foam& foam = m_average[viewNumber]->GetFoam ();
-    Average3dPipeline& pipeline = *m_pipeline[viewNumber];
-    pipeline.VtkToView (vs, foam);
+    if (GetSettings ()->IsVtkView (viewNumber))
+    {
+        ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+        const Foam& foam = m_average[viewNumber]->GetFoam ();
+        Average3dPipeline& pipeline = *m_pipeline[viewNumber];
+        pipeline.VtkToView (vs, foam);
+    }
 }
 
 

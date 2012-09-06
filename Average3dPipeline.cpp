@@ -262,12 +262,17 @@ void Average3dPipeline::VtkToView (ViewSettings& vs, const Foam& foam)
                                      position[2] - center[2]).unit ();
     G3D::Vector3 three = one.cross (two);
     G3D::Matrix3 m = MatrixFromColumns (one, two, three);
-    G3D::Matrix3 mi = MatrixFromColumns (G3D::Vector3 (0, 1, 0),
-                                         G3D::Vector3 (0, 0, 1),
-                                         G3D::Vector3 (1, 0, 0));
+    G3D::Matrix3 mInitial = MatrixFromColumns (G3D::Vector3 (0, 1, 0),
+                                               G3D::Vector3 (0, 0, 1),
+                                               G3D::Vector3 (1, 0, 0));
     G3D::Matrix3 cRAm = vs.GetRotationForAxesOrder (foam);
-    G3D::Matrix3 rCamera =  cRAm * m * mi.inverse ();
+    G3D::Matrix3 rCamera =  cRAm * m * mInitial.inverse ();
     vs.SetRotation (rCamera.inverse ());
+    if (vs.GetRotationCenterType () != ViewSettings::ROTATION_CENTER_FOAM)
+    {
+        vs.SetRotationCenterType (ViewSettings::ROTATION_CENTER_FOAM);
+        vs.SetRotationCenter (foam.GetBoundingBox ().center ());
+    }
 }
 
 
