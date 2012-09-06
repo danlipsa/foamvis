@@ -147,6 +147,7 @@ void MainWindow::configureInterface ()
     tabWidget->setCurrentWidget (tabTimeStep);
     horizontalSliderForceTorqueSize->setValue (49);
     horizontalSliderTorqueDistance->setValue (49);
+    horizontalSliderT1Size->setValue (10);
     comboBoxColor->setCurrentIndex (BodyScalar::PRESSURE);
     CurrentIndexChangedInteractionMode (InteractionMode::ROTATE);
     CurrentIndexChangedWindowLayout (ViewLayout::HORIZONTAL);
@@ -603,7 +604,7 @@ void MainWindow::translatedBodyStep ()
 	{
 	    cdbg << "End body translation" << endl;
 	}
-	widgetGl->update ();
+	widgetGl->CompileUpdate ();
     }
 }
 
@@ -634,7 +635,7 @@ void MainWindow::processBodyTorusStep ()
 		    widgetGl->GetSimulation ().GetFoam (0).GetBodies ().size ();
 	    }
 	}
-	widgetGl->update ();
+	widgetGl->CompileUpdate ();
     }
     catch (const exception& e)
     {
@@ -1059,7 +1060,7 @@ void MainWindow::CurrentIndexChangedViewLayout (int index)
 {
     m_settings->SetViewLayout (ViewLayout::Enum (index));
     updateStretch ();
-    widgetGl->update ();
+    widgetGl->CompileUpdate ();
     widgetVtk->update ();
     update3DAverage ();
     comboBoxWindowLayout->setCurrentIndex (index);
@@ -1166,7 +1167,7 @@ void MainWindow::ValueChangedContextAlpha (int index)
 void MainWindow::ToggledViewFocusShown (bool checked)
 {
     m_settings->SetViewFocusShown (checked);
-    widgetGl->update ();
+    widgetGl->CompileUpdate ();
     widgetVtk->UpdateFocus ();
     widgetHistogram->UpdateFocus ();
 }
@@ -1471,7 +1472,7 @@ void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)
 void MainWindow::ToggledTitleShown (bool checked)
 {
     m_settings->SetTitleShown (checked);
-    widgetGl->update ();
+    widgetGl->CompileUpdate ();
     widgetVtk->UpdateTitle ();
 }
 
@@ -1625,7 +1626,7 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
 	break;
     }
     widgetHistogram->CurrentIndexChangedInteractionMode (index);
-    widgetGl->update ();
+    widgetGl->CompileUpdate ();
 }
 
 
@@ -1641,7 +1642,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 
     widgetHistogram->UpdateFocus ();
     widgetVtk->UpdateFocus ();
-    widgetGl->update ();
+    widgetGl->CompileUpdate ();
 
     SetCheckedNoSignals (buttonGroupViewType, viewType, true);    
     setStackedWidget (viewType);

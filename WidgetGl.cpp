@@ -708,7 +708,7 @@ void WidgetGl::ModelViewTransform (ViewNumber::Enum viewNumber,
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
     const Foam& foam = simulation.GetFoam (timeStep);
-    G3D::Vector3 center = foam.GetBoundingBox ().center ();
+    G3D::Vector3 center = simulation.GetBoundingBox ().center ();
 
     glLoadIdentity ();
     if (simulation.Is2D ())
@@ -2864,7 +2864,7 @@ void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
 	}
     	setVisible (true);
     }
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::AverageAroundBody ()
@@ -2950,7 +2950,7 @@ void WidgetGl::ContextDisplayBody ()
     vector<size_t> bodies;
     brushedBodies (m_contextMenuPosScreen, &bodies);
     vs.AddContextDisplayBody (bodies[0]);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ContextDisplayReset ()
@@ -2958,7 +2958,7 @@ void WidgetGl::ContextDisplayReset ()
     makeCurrent ();
     ViewSettings& vs = GetViewSettings ();
     vs.ContextDisplayReset ();
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledAverageAroundAllowRotation (bool checked)
@@ -2966,7 +2966,7 @@ void WidgetGl::ToggledAverageAroundAllowRotation (bool checked)
     makeCurrent ();
     ViewSettings& vs = GetViewSettings ();
     vs.SetAverageAroundRotationShown (checked);
-    update ();
+    CompileUpdate ();
 }
 
 
@@ -3071,7 +3071,7 @@ void WidgetGl::ShowNeighbors ()
     vector<size_t> bodies;
     brushedBodies (m_contextMenuPosScreen, &bodies);
     m_showBodyId = bodies[0];
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ShowDeformation ()
@@ -3081,7 +3081,7 @@ void WidgetGl::ShowDeformation ()
     vector<size_t> bodies;
     brushedBodies (m_contextMenuPosScreen, &bodies);
     m_showBodyId = bodies[0];
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ShowVelocity ()
@@ -3091,7 +3091,7 @@ void WidgetGl::ShowVelocity ()
     vector<size_t> bodies;
     brushedBodies (m_contextMenuPosScreen, &bodies);
     m_showBodyId = bodies[0];
-    update ();
+    CompileUpdate ();
 }
 
 
@@ -3099,7 +3099,7 @@ void WidgetGl::ShowReset ()
 {
     makeCurrent ();
     m_showType = SHOW_NOTHING;
-    update ();
+    CompileUpdate ();
 }
 
 
@@ -3197,7 +3197,7 @@ void WidgetGl::mousePressEvent(QMouseEvent *event)
     default:
 	break;
     }
-    update ();
+    CompileUpdate ();
     m_lastPos = event->pos();
 }
 
@@ -3237,7 +3237,7 @@ void WidgetGl::mouseMoveEvent(QMouseEvent *event)
 	}
     }
     m_lastPos = event->pos();
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::contextMenuEvent (QContextMenuEvent *event)
@@ -3286,7 +3286,7 @@ void WidgetGl::ResetTransformFocus ()
 	glLoadIdentity ();
 	GetViewAverage (viewNumber).AverageInitStep ();
     }
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ResetTransformContext ()
@@ -3303,7 +3303,7 @@ void WidgetGl::ResetTransformContext ()
 	glMatrixMode (GL_MODELVIEW);
 	glLoadIdentity ();
     }
-    update ();
+    CompileUpdate ();
 
 }
 
@@ -3318,7 +3318,7 @@ void WidgetGl::ResetTransformGrid ()
 	vs.SetGridScaleRatio (1);
 	vs.SetGridTranslation (G3D::Vector3::zero ());
     }
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ResetTransformLight ()
@@ -3332,7 +3332,7 @@ void WidgetGl::ResetTransformLight ()
 	LightNumber::Enum lightNumber = vs.GetSelectedLight ();
 	vs.SetInitialLightParameters (lightNumber);
     }
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::RotationCenterBody ()
@@ -3366,7 +3366,7 @@ void WidgetGl::CopyTransformationFrom (int viewNumber)
     makeCurrent ();
     GetViewSettings ().CopyTransformation (
 	GetViewSettings (ViewNumber::Enum (viewNumber)));
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::CopySelectionFrom (int fromViewNumber)
@@ -3417,7 +3417,7 @@ void WidgetGl::ToggledDirectionalLightEnabled (bool checked)
     ViewSettings& vs = GetViewSettings ();
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     vs.SetDirectionalLightEnabled (selectedLight, checked);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledDeformationShown (bool checked)
@@ -3430,7 +3430,7 @@ void WidgetGl::ToggledDeformationShown (bool checked)
 	ViewSettings& vs = GetViewSettings (viewNumber);
 	vs.SetDeformationTensorShown (checked);
     }
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledDeformationShownGrid (bool checked)
@@ -3444,7 +3444,7 @@ void WidgetGl::ToggledDeformationShownGrid (bool checked)
 	    GetViewAverage (viewNumber).GetDeformationAverage ();
 	ta.SetGridShown (checked);
     }
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledVelocityShown (bool checked)
@@ -3457,7 +3457,7 @@ void WidgetGl::ToggledVelocityShown (bool checked)
 	ViewSettings& vs = GetViewSettings (viewNumber);
 	vs.SetVelocityShown (checked);
     }
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledVelocityGridShown (bool checked)
@@ -3470,7 +3470,7 @@ void WidgetGl::ToggledVelocityGridShown (bool checked)
 	VectorAverage& va = GetViewAverage (viewNumber).GetVelocityAverage ();
 	va.SetGridShown (checked);
     }
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledVelocityClampingShown (bool checked)
@@ -3483,7 +3483,7 @@ void WidgetGl::ToggledVelocityClampingShown (bool checked)
 	VectorAverage& va = GetViewAverage (viewNumber).GetVelocityAverage ();
 	va.SetClampingShown (checked);
     }
-    update ();
+    CompileUpdate ();
 }
 
 
@@ -3498,7 +3498,7 @@ void WidgetGl::ToggledDeformationGridCellCenterShown (bool checked)
 	    GetViewAverage (viewNumber).GetDeformationAverage ();
 	ta.SetGridCellCenterShown (checked);
     }
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledVelocityGridCellCenterShown (bool checked)
@@ -3512,7 +3512,7 @@ void WidgetGl::ToggledVelocityGridCellCenterShown (bool checked)
 	    GetViewAverage (viewNumber).GetVelocityAverage ();
 	ta.SetGridCellCenterShown (checked);
     }
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledVelocitySameSize (bool checked)
@@ -3521,7 +3521,7 @@ void WidgetGl::ToggledVelocitySameSize (bool checked)
     vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
 	GetViewAverage (vn[i]).GetVelocityAverage ().SetSameSize (checked);
-    update ();    
+    CompileUpdate ();    
 }
 
 void WidgetGl::ToggledVelocityColorMapped (bool checked)
@@ -3530,28 +3530,28 @@ void WidgetGl::ToggledVelocityColorMapped (bool checked)
     vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
 	GetViewAverage (vn[i]).GetVelocityAverage ().SetColorMapped (checked);
-    update ();    
+    CompileUpdate ();    
 }
 
 void WidgetGl::ToggledMissingPressureShown (bool checked)
 {
     makeCurrent ();
     GetSettings ()->SetMissingPressureShown (checked);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledMissingVolumeShown (bool checked)
 {
     makeCurrent ();
     GetSettings ()->SetMissingVolumeShown (checked);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledObjectVelocityShown (bool checked)
 {
     makeCurrent ();
     GetSettings ()->SetObjectVelocityShown (checked);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledLightNumberShown (bool checked)
@@ -3559,7 +3559,7 @@ void WidgetGl::ToggledLightNumberShown (bool checked)
     makeCurrent ();
     ViewSettings& vs = GetViewSettings ();
     vs.SetLightPositionShown (vs.GetSelectedLight (), checked);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledLightEnabled (bool checked)
@@ -3568,7 +3568,7 @@ void WidgetGl::ToggledLightEnabled (bool checked)
     ViewSettings& vs = GetViewSettings ();
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     vs.SetLightEnabled (selectedLight, checked);
-    update ();
+    CompileUpdate ();
 }
 
 
@@ -3576,21 +3576,21 @@ void WidgetGl::ToggledBoundingBoxSimulation (bool checked)
 {
     makeCurrent ();
     m_boundingBoxSimulationShown = checked;
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledBoundingBoxFoam (bool checked)
 {
     makeCurrent ();
     m_boundingBoxFoamShown = checked;
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledBoundingBoxBody (bool checked)
 {
     makeCurrent ();
     m_boundingBoxBodyShown = checked;
-    update ();
+    CompileUpdate ();
 }
 
 
@@ -3598,7 +3598,7 @@ void WidgetGl::ToggledAverageAroundMarked (bool checked)
 {
     makeCurrent ();
     m_averageAroundMarked = checked;
-    update ();
+    CompileUpdate ();
 }
 
 
@@ -3607,56 +3607,56 @@ void WidgetGl::ToggledContextView (bool checked)
     makeCurrent ();
     ViewSettings& vs = GetViewSettings ();
     vs.SetContextView (checked);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledContextBoxShown (bool checked)
 {
     makeCurrent ();
     m_contextBoxShown = checked;
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledForceNetworkShown (bool checked)
 {
     makeCurrent ();
     GetViewSettings ().SetForceNetworkShown (checked);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledForcePressureShown (bool checked)
 {
     makeCurrent ();
     GetViewSettings ().SetForcePressureShown (checked);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledForceResultShown (bool checked)
 {
     makeCurrent ();
     GetViewSettings ().SetForceResultShown (checked);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledTorqueNetworkShown (bool checked)
 {
     makeCurrent ();
     GetViewSettings ().SetTorqueNetworkShown (checked);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledTorquePressureShown (bool checked)
 {
     makeCurrent ();
     GetViewSettings ().SetTorquePressureShown (checked);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledTorqueResultShown (bool checked)
 {
     makeCurrent ();
     GetViewSettings ().SetTorqueResultShown (checked);
-    update ();
+    CompileUpdate ();
 }
 
 
@@ -3664,7 +3664,7 @@ void WidgetGl::ToggledAxesShown (bool checked)
 {
     makeCurrent ();
     m_axesShown = checked;
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledStandaloneElementsShown (bool checked)
@@ -3678,21 +3678,21 @@ void WidgetGl::ToggledConstraintsShown (bool checked)
 {
     makeCurrent ();
     GetSettings ()->SetConstraintsShown (checked);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledConstraintPointsShown (bool checked)
 {
     makeCurrent ();
     GetSettings ()->SetConstraintPointsShown (checked);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledCenterPathBodyShown (bool checked)
 {
     makeCurrent ();
     m_centerPathBodyShown = checked;
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledSelectionContextShown (bool checked)
@@ -3714,21 +3714,21 @@ void WidgetGl::ButtonClickedTimeLinkage (int id)
 {
     makeCurrent ();
     GetSettings ()->SetTimeLinkage (TimeLinkage::Enum (id));
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledBodyCenterShown (bool checked)
 {
     makeCurrent ();
     m_bodyCenterShown = checked;
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledBodyNeighborsShown (bool checked)
 {
     makeCurrent ();
     m_bodyNeighborsShown = checked;
-    update ();
+    CompileUpdate ();
 }
 
 
@@ -3736,7 +3736,7 @@ void WidgetGl::ToggledFaceCenterShown (bool checked)
 {
     makeCurrent ();
     m_faceCenterShown = checked;
-    update ();
+    CompileUpdate ();
 }
 
 
@@ -3751,7 +3751,7 @@ void WidgetGl::ToggledEdgesTessellationShown (bool checked)
 {
     makeCurrent ();
     GetSettings ()->SetEdgesTessellationShown (checked);
-    update ();
+    CompileUpdate ();
 }
 
 
@@ -3759,7 +3759,7 @@ void WidgetGl::ToggledTorusDomainShown (bool checked)
 {
     makeCurrent ();
     m_torusDomainShown = checked;
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledCenterPathTubeUsed (bool checked)
@@ -3781,7 +3781,7 @@ void WidgetGl::ToggledTorusOriginalDomainClipped (bool checked)
 {
     makeCurrent ();
     m_torusOriginalDomainClipped = checked;
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledT1sShown (bool checked)
@@ -3797,7 +3797,7 @@ void WidgetGl::ToggledT1sShiftLower (bool checked)
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetT1sShiftLower (checked);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::CurrentIndexChangedSelectedLight (int selectedLight)
@@ -3805,7 +3805,7 @@ void WidgetGl::CurrentIndexChangedSelectedLight (int selectedLight)
     makeCurrent ();
     ViewSettings& vs = GetViewSettings ();
     vs.SetSelectedLight (LightNumber::Enum (selectedLight));
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::CurrentIndexChangedSimulation (int i)
@@ -3817,14 +3817,14 @@ void WidgetGl::CurrentIndexChangedSimulation (int i)
     G3D::Vector3 center = CalculateViewingVolume (viewNumber).center ();
     vs.SetSimulation (i, simulation, center, vs.T1sShiftLower ());
     m_viewAverage[viewNumber]->SetSimulation (simulation);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ButtonClickedInteractionObject (int index)
 {
     makeCurrent ();
     m_interactionObject = InteractionObject::Enum (index);
-    update ();
+    CompileUpdate ();
 }
 
 
@@ -3832,14 +3832,14 @@ void WidgetGl::CurrentIndexChangedStatisticsType (int index)
 {
     makeCurrent ();
     GetViewSettings ().SetStatisticsType (StatisticsType::Enum(index));
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::CurrentIndexChangedAxesOrder (int index)
 {
     makeCurrent ();
     GetViewSettings ().SetAxesOrder (AxesOrder::Enum(index));
-    update ();
+    CompileUpdate ();
 }
 
 // @todo add a color bar model for BodyScalar::None
@@ -3867,7 +3867,7 @@ void WidgetGl::SetColorBarModel (ViewNumber::Enum viewNumber,
     makeCurrent ();
     GetViewSettings (viewNumber).SetColorBarModel (colorBarModel);
     setTexture (colorBarModel, m_colorBarTexture[viewNumber]);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::SetOverlayBarModel (
@@ -3878,7 +3878,7 @@ void WidgetGl::SetOverlayBarModel (
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetOverlayBarModel (overlayBarModel);
     setTexture (overlayBarModel, m_overlayBarTexture[viewNumber]);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ValueChangedNoiseStart (int index)
@@ -3895,7 +3895,7 @@ void WidgetGl::ValueChangedNoiseStart (int index)
 	GetViewAverage (viewNumber).GetDeformationAverage ().
 	    SetNoiseStart (noiseStart);
     }
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ValueChangedNoiseAmplitude (int index)
@@ -3912,7 +3912,7 @@ void WidgetGl::ValueChangedNoiseAmplitude (int index)
 	GetViewAverage (viewNumber).GetDeformationAverage ().
 	    SetNoiseAmplitude (noiseAmplitude);
     }
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ValueChangedNoiseFrequency (int index)
@@ -3929,7 +3929,7 @@ void WidgetGl::ValueChangedNoiseFrequency (int index)
 	GetViewAverage (viewNumber).GetDeformationAverage ().
 	    SetNoiseFrequency (noiseFrequency);
     }
-    update ();
+    CompileUpdate ();
 }
 
 
@@ -3944,7 +3944,7 @@ void WidgetGl::ClickedEnd ()
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
 	if (direction[i] != 0)
 	    m_viewAverage[i]->AverageStep (direction[i]);
-    update ();
+    CompileUpdate ();
 }
 
 
@@ -3971,7 +3971,7 @@ void WidgetGl::ValueChangedT1Size (int index)
     makeCurrent ();
     (void)index;
     m_t1sSize = Index2Value (static_cast<QSlider*> (sender ()), T1S_SIZE);
-    update ();
+    CompileUpdate ();
 }
 
 
@@ -4012,7 +4012,7 @@ void WidgetGl::ValueChangedDeformationSizeExp (int index)
     vs.SetDeformationSize (
 	IndexExponent2Value (
 	    static_cast<QSlider*> (sender ()), TENSOR_SIZE_EXP2));
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ValueChangedDeformationLineWidthExp (int index)
@@ -4023,7 +4023,7 @@ void WidgetGl::ValueChangedDeformationLineWidthExp (int index)
     vs.SetDeformationLineWidth (
 	IndexExponent2Value (
 	    static_cast<QSlider*> (sender ()), TENSOR_LINE_WIDTH_EXP2));
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ValueChangedForceTorqueSize (int index)
@@ -4034,7 +4034,7 @@ void WidgetGl::ValueChangedForceTorqueSize (int index)
     vs.SetForceTorqueSize (
 	IndexExponent2Value (
 	    static_cast<QSlider*> (sender ()), FORCE_SIZE_EXP2));
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ValueChangedTorqueDistance (int index)
@@ -4045,7 +4045,7 @@ void WidgetGl::ValueChangedTorqueDistance (int index)
     vs.SetTorqueDistance (
 	IndexExponent2Value (
 	    static_cast<QSlider*> (sender ()), FORCE_SIZE_EXP2));
-    update ();
+    CompileUpdate ();
 }
 
 
@@ -4058,7 +4058,7 @@ void WidgetGl::ValueChangedForceTorqueLineWidth (int index)
     vs.SetForceTorqueLineWidth (
 	IndexExponent2Value (static_cast<QSlider*> (sender ()),
 			     TENSOR_LINE_WIDTH_EXP2));
-    update ();
+    CompileUpdate ();
 }
 
 
@@ -4070,7 +4070,7 @@ void WidgetGl::ValueChangedVelocityLineWidthExp (int index)
     vs.SetVelocityLineWidth (
 	IndexExponent2Value (static_cast<QSlider*> (sender ()),
 			     TENSOR_LINE_WIDTH_EXP2));
-    update ();
+    CompileUpdate ();
 }
 
 
@@ -4078,7 +4078,7 @@ void WidgetGl::ValueChangedHighlightLineWidth (int newWidth)
 {
     makeCurrent ();
     m_highlightLineWidth = newWidth;
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ValueChangedEdgesRadius (int sliderValue)
@@ -4163,7 +4163,7 @@ void WidgetGl::ValueChangedAngleOfView (int angleOfView)
     ViewSettings& vs = GetViewSettings ();
     vs.SetAngleOfView (angleOfView);
     vs.CalculateCameraDistance (CalculateCenteredViewingVolume (viewNumber));
-    update ();
+    CompileUpdate ();
 }
 
 

@@ -1,6 +1,6 @@
 Release log
 ===========
-0.8.    
+0.8.2552    
 	- parse and process arrays (for 8balls_5)
 	- allow bubbles to appear in the simulation (for allcrypt2) and 
 	  allow bodies without any attributes (for allcrypt2)
@@ -479,3 +479,5 @@ Make sure 'svnversion' reports one version
 make distclean;release.pl;svn commit -m "";
 doxygen
 cd ..;tar czf foam-<version>.tgz foam
+cd xxx-private/src/
+tar czf xxx-ini-<version>.tgz xxx xxx.ini

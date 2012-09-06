@@ -217,13 +217,12 @@ void Average3dPipeline::UpdateFocus (bool focus)
 
 
 void Average3dPipeline::ViewToVtk (
-    const ViewSettings& vs, const Foam& foam)
+    const ViewSettings& vs, G3D::Vector3 center, const Foam& foam)
 {
     G3D::Matrix3 cameraRotationAxes = 
         vs.GetRotationForAxesOrder (foam).inverse ();
     G3D::Matrix3 cameraRotation = vs.GetRotation ().inverse ();
 
-    G3D::Vector3 center = foam.GetBoundingBox ().center ();
     G3D::Vector3 rotationCenter = vs.GetRotationCenter ();
     G3D::Vector3 up = G3D::Vector3 (0, 1, 0);
     G3D::Vector3 position = center + G3D::Vector3 (0, 0, 1);
@@ -246,7 +245,8 @@ void Average3dPipeline::ViewToVtk (
     m_renderer->ResetCamera ();
 }
 
-void Average3dPipeline::VtkToView (ViewSettings& vs, const Foam& foam)
+void Average3dPipeline::VtkToView (
+    ViewSettings& vs, const Foam& foam)
 {
     vtkCamera* camera = m_renderer->GetActiveCamera ();
     double center[3];
@@ -271,7 +271,7 @@ void Average3dPipeline::VtkToView (ViewSettings& vs, const Foam& foam)
     if (vs.GetRotationCenterType () != ViewSettings::ROTATION_CENTER_FOAM)
     {
         vs.SetRotationCenterType (ViewSettings::ROTATION_CENTER_FOAM);
-        vs.SetRotationCenter (foam.GetBoundingBox ().center ());
+        vs.SetRotationCenter (G3D::Vector3 (center[0], center[1], center[2]));
     }
 }
 
