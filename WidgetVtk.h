@@ -93,6 +93,7 @@ protected:
 private:
     void updateViewTitle (ViewNumber::Enum viewNumber);
     void updateViewFocus (ViewNumber::Enum viewNumber);
+    void resizeViewEvent (ViewNumber::Enum viewNumber);
 
 private:
     Q_OBJECT

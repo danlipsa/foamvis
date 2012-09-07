@@ -771,16 +771,6 @@ void WidgetGl::viewportTransform (ViewNumber::Enum viewNumber) const
     //cdbg << viewRect << endl;
 }
 
-
-void WidgetGl::deselect (const QPoint& position)
-{
-    vector<size_t> bodyIds;
-    brushedBodies (position, &bodyIds);
-    GetViewSettings ().DifferenceBodySelector (
-	GetSimulation ().GetFoam (GetCurrentTime ()), bodyIds);
-    CompileUpdate ();
-}
-
 string WidgetGl::infoSelectedBody ()
 {
     ostringstream ostr;
@@ -1421,6 +1411,16 @@ void WidgetGl::select (const QPoint& position)
     GetViewSettings ().UnionBodySelector (bodyIds);
     CompileUpdate ();
 }
+
+void WidgetGl::deselect (const QPoint& position)
+{
+    vector<size_t> bodyIds;
+    brushedBodies (position, &bodyIds);
+    GetViewSettings ().DifferenceBodySelector (
+	GetSimulation ().GetFoam (GetCurrentTime ()), bodyIds);
+    CompileUpdate ();
+}
+
 
 void WidgetGl::mouseMoveRotate (QMouseEvent *event, ViewNumber::Enum viewNumber)
 {
@@ -3071,7 +3071,7 @@ void WidgetGl::ShowNeighbors ()
     vector<size_t> bodies;
     brushedBodies (m_contextMenuPosScreen, &bodies);
     m_showBodyId = bodies[0];
-    CompileUpdate ();
+    update ();
 }
 
 void WidgetGl::ShowDeformation ()
@@ -3197,7 +3197,6 @@ void WidgetGl::mousePressEvent(QMouseEvent *event)
     default:
 	break;
     }
-    CompileUpdate ();
     m_lastPos = event->pos();
 }
 
@@ -3237,7 +3236,7 @@ void WidgetGl::mouseMoveEvent(QMouseEvent *event)
 	}
     }
     m_lastPos = event->pos();
-    CompileUpdate ();
+    update ();
 }
 
 void WidgetGl::contextMenuEvent (QContextMenuEvent *event)

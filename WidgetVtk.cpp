@@ -172,7 +172,6 @@ void WidgetVtk::AddView (
 				      viewRect.x1 (), viewRect.y1 ());
     pipeline.UpdateTitle (GetSettings ()->IsTitleShown (), 
                           position, average, viewNumber);
-    resizeEvent (0);
     pipeline.GetRenderer ()->ResetCamera ();
     setVisible (true);
 }
@@ -188,6 +187,8 @@ void WidgetVtk::ViewToVtk (ViewNumber::Enum viewNumber)
 
 void WidgetVtk::VtkToView (ViewNumber::Enum viewNumber)
 {
+    // This may be called by RenderWindowPaintEnd and may arrive after the 
+    // view was switched to a Gl view
     if (GetSettings ()->IsVtkView (viewNumber))
     {
         ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
@@ -292,23 +293,18 @@ void WidgetVtk::contextMenuEvent (QContextMenuEvent *event)
 void WidgetVtk::resizeEvent (QResizeEvent * event)
 {
     QVTKWidget::resizeEvent (event);
-    (void) event;
-    for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
-    {
-	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
-	if (GetSettings ()->IsVtkView (viewNumber))
-	{
-	    G3D::Rect2D viewRect = GetViewRect (viewNumber);
-	    G3D::Rect2D viewColorBarRect = 
-		Settings::GetViewColorBarRect (viewRect);
-	    G3D::Rect2D position = G3D::Rect2D::xywh (
-		(viewColorBarRect.x0 () - viewRect.x0 ())/ viewRect.width (),
-		(viewColorBarRect.y0 () - viewRect.y0 ())/ viewRect.height (),
-		viewColorBarRect.width () / viewRect.width () * 5,
-		viewColorBarRect.height () / viewRect.height () * 1.2);	
-	    m_pipeline[viewNumber]->PositionScalarBar (position);
-	}
-    }
+    ForAllViews (boost::bind (&WidgetVtk::resizeViewEvent, this, _1));
 }
-
+void WidgetVtk::resizeViewEvent (ViewNumber::Enum viewNumber)
+{
+    G3D::Rect2D viewRect = GetViewRect (viewNumber);
+    G3D::Rect2D viewColorBarRect = Settings::GetViewColorBarRect (viewRect);
+    G3D::Rect2D position = G3D::Rect2D::xywh (
+        (viewColorBarRect.x0 () - viewRect.x0 ())/ viewRect.width (),
+        (viewColorBarRect.y0 () - viewRect.y0 ())/ viewRect.height (),
+        viewColorBarRect.width () / viewRect.width () * 5,
+        viewColorBarRect.height () / viewRect.height () * 1.2);	
+    m_pipeline[viewNumber]->PositionScalarBar (position);
+    m_pipeline[viewNumber]->GetRenderer ()->ResetCamera ();
+}
 

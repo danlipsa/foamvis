@@ -219,11 +219,11 @@ public:
     G3D::Matrix3 GetRotationForAxesOrder (const Foam& foam) const;
 
     // scale
-    double GetScaleRatio () const
+    float GetScaleRatio () const
     {
 	return m_scaleRatio;
     }
-    void SetScaleRatio (double scaleRatio)
+    void SetScaleRatio (float scaleRatio)
     {
 	m_scaleRatio = scaleRatio;
     }
@@ -661,7 +661,7 @@ private:
     G3D::Matrix3 m_rotationFocus;
     G3D::Vector3 m_rotationCenter;
     RotationCenterType m_rotationCenterType;
-    double m_scaleRatio;
+    float m_scaleRatio;
     double m_gridScaleRatio;
     double m_contextScaleRatio;
     G3D::Vector3 m_translation;
