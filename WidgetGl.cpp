@@ -3285,7 +3285,7 @@ void WidgetGl::ResetTransformFocus ()
 	glLoadIdentity ();
 	GetViewAverage (viewNumber).AverageInitStep ();
     }
-    CompileUpdate ();
+    update ();
 }
 
 void WidgetGl::ResetTransformContext ()
@@ -3302,7 +3302,7 @@ void WidgetGl::ResetTransformContext ()
 	glMatrixMode (GL_MODELVIEW);
 	glLoadIdentity ();
     }
-    CompileUpdate ();
+    update ();
 
 }
 
@@ -3317,7 +3317,7 @@ void WidgetGl::ResetTransformGrid ()
 	vs.SetGridScaleRatio (1);
 	vs.SetGridTranslation (G3D::Vector3::zero ());
     }
-    CompileUpdate ();
+    update ();
 }
 
 void WidgetGl::ResetTransformLight ()
@@ -3331,7 +3331,7 @@ void WidgetGl::ResetTransformLight ()
 	LightNumber::Enum lightNumber = vs.GetSelectedLight ();
 	vs.SetInitialLightParameters (lightNumber);
     }
-    CompileUpdate ();
+    update ();
 }
 
 void WidgetGl::RotationCenterBody ()
@@ -3365,7 +3365,7 @@ void WidgetGl::CopyTransformationFrom (int viewNumber)
     makeCurrent ();
     GetViewSettings ().CopyTransformation (
 	GetViewSettings (ViewNumber::Enum (viewNumber)));
-    CompileUpdate ();
+    update ();
 }
 
 void WidgetGl::CopySelectionFrom (int fromViewNumber)
@@ -3416,7 +3416,7 @@ void WidgetGl::ToggledDirectionalLightEnabled (bool checked)
     ViewSettings& vs = GetViewSettings ();
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     vs.SetDirectionalLightEnabled (selectedLight, checked);
-    CompileUpdate ();
+    update ();
 }
 
 void WidgetGl::ToggledDeformationShown (bool checked)
@@ -3443,7 +3443,7 @@ void WidgetGl::ToggledDeformationShownGrid (bool checked)
 	    GetViewAverage (viewNumber).GetDeformationAverage ();
 	ta.SetGridShown (checked);
     }
-    CompileUpdate ();
+    update ();
 }
 
 void WidgetGl::ToggledVelocityShown (bool checked)
@@ -3469,7 +3469,7 @@ void WidgetGl::ToggledVelocityGridShown (bool checked)
 	VectorAverage& va = GetViewAverage (viewNumber).GetVelocityAverage ();
 	va.SetGridShown (checked);
     }
-    CompileUpdate ();
+    update ();
 }
 
 void WidgetGl::ToggledVelocityClampingShown (bool checked)
@@ -3497,7 +3497,7 @@ void WidgetGl::ToggledDeformationGridCellCenterShown (bool checked)
 	    GetViewAverage (viewNumber).GetDeformationAverage ();
 	ta.SetGridCellCenterShown (checked);
     }
-    CompileUpdate ();
+    update ();
 }
 
 void WidgetGl::ToggledVelocityGridCellCenterShown (bool checked)
@@ -3511,7 +3511,7 @@ void WidgetGl::ToggledVelocityGridCellCenterShown (bool checked)
 	    GetViewAverage (viewNumber).GetVelocityAverage ();
 	ta.SetGridCellCenterShown (checked);
     }
-    CompileUpdate ();
+    update ();
 }
 
 void WidgetGl::ToggledVelocitySameSize (bool checked)
@@ -3550,7 +3550,7 @@ void WidgetGl::ToggledObjectVelocityShown (bool checked)
 {
     makeCurrent ();
     GetSettings ()->SetObjectVelocityShown (checked);
-    CompileUpdate ();
+    update ();
 }
 
 void WidgetGl::ToggledLightNumberShown (bool checked)
@@ -3567,7 +3567,7 @@ void WidgetGl::ToggledLightEnabled (bool checked)
     ViewSettings& vs = GetViewSettings ();
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     vs.SetLightEnabled (selectedLight, checked);
-    CompileUpdate ();
+    update ();
 }
 
 

@@ -242,7 +242,6 @@ void Average3dPipeline::ViewToVtk (
     camera->ComputeViewPlaneNormal ();
     camera->SetViewUp (up.x, up.y, up.z);
     m_renderer->ResetCamera ();
-    camera->Zoom (vs.GetScaleRatio ());
 }
 
 void Average3dPipeline::VtkToView (
@@ -268,8 +267,6 @@ void Average3dPipeline::VtkToView (
     G3D::Matrix3 cRAm = vs.GetRotationForAxesOrder (foam);
     G3D::Matrix3 rCamera =  cRAm * m * mInitial.inverse ();
     vs.SetRotation (rCamera.inverse ());
-    float scale = camera->GetViewAngle () / 30;
-    vs.SetScaleRatio (scale);
     if (vs.GetRotationCenterType () != ViewSettings::ROTATION_CENTER_FOAM)
     {
         vs.SetRotationCenterType (ViewSettings::ROTATION_CENTER_FOAM);

@@ -172,7 +172,7 @@ void WidgetVtk::AddView (
 				      viewRect.x1 (), viewRect.y1 ());
     pipeline.UpdateTitle (GetSettings ()->IsTitleShown (), 
                           position, average, viewNumber);
-    pipeline.GetRenderer ()->ResetCamera ();
+    resizeViewEvent (viewNumber);
     setVisible (true);
 }
 
