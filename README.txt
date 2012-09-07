@@ -1,5 +1,8 @@
 Release log
 ===========
+0.8.2553
+        - bug fixes (dataset fluctuates because is centered at foam center 
+          instead of simulation center)
 0.8.2552    
 	- parse and process arrays (for 8balls_5)
 	- allow bubbles to appear in the simulation (for allcrypt2) and 
