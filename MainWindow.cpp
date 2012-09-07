@@ -1472,7 +1472,7 @@ void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)
 void MainWindow::ToggledTitleShown (bool checked)
 {
     m_settings->SetTitleShown (checked);
-    widgetGl->CompileUpdate ();
+    widgetGl->update ();
     widgetVtk->UpdateTitle ();
 }
 
@@ -1626,7 +1626,6 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
 	break;
     }
     widgetHistogram->CurrentIndexChangedInteractionMode (index);
-    widgetGl->CompileUpdate ();
 }
 
 
@@ -1642,7 +1641,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 
     widgetHistogram->UpdateFocus ();
     widgetVtk->UpdateFocus ();
-    widgetGl->CompileUpdate ();
+    widgetGl->update ();
 
     SetCheckedNoSignals (buttonGroupViewType, viewType, true);    
     setStackedWidget (viewType);
