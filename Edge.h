@@ -122,16 +122,6 @@ public:
     bool fuzzyEq (const Edge& other) const;
     bool operator< (const Edge& other) const;
 
-    G3D::Vector3 GetTorusClippedBegin (size_t index) const;
-    G3D::Vector3 GetTorusClippedEnd (size_t index) const;
-    size_t GetTorusClippedSize (const OOBox& periods) const;
-    void CalculateTorusClipped (const OOBox& periods);
-    bool IsClipped () const
-    {
-	ElementStatus::Enum duplicateStatus = GetDuplicateStatus ();
-	return (duplicateStatus != ElementStatus::DUPLICATE);
-    }
-
     bool IsStandalone () const
     {
 	return GetAdjacentOrientedFaces ().size () == 0;
@@ -202,7 +192,6 @@ private:
      * in 3D torus model.
      */
     AdjacentOrientedFaces m_adjacentOrientedFaces;
-    boost::scoped_ptr< vector<G3D::LineSegment> > m_torusClipped;
     Type m_type;
 };
 /**

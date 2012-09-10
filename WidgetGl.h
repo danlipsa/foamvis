@@ -66,6 +66,8 @@ public:
      */
     const Simulation& GetSimulation (size_t index) const;
     const Simulation& GetSimulation () const;
+    virtual const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
+    const Foam& GetFoam () const;
 
     size_t GetHighlightLineWidth () const
     {
@@ -212,7 +214,6 @@ public:
     void ButtonClickedViewType (ViewType::Enum oldViewType);
     void SetViewTypeAndCameraDistance (ViewNumber::Enum viewNumber);
 
-    virtual const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
     
 Q_SIGNALS:
     void PaintEnd ();
@@ -253,10 +254,14 @@ public Q_SLOTS:
     void ToggledLightEnabled (bool checked);
     void ToggledSelectionContextShown (bool checked);
     void ToggledCenterPathHidden (bool checked);
+    void ToggledTorusDomainClipped (bool checked);
     void ToggledTorusDomainShown (bool checked);
+    void ToggledTorusDomainTop (bool checked);
+    void ToggledTorusDomainBottom (bool checked);
+    void ToggledTorusDomainLeft (bool checked);
+    void ToggledTorusDomainRight (bool checked);
     void ToggledT1sShown (bool checked);
     void ToggledT1sShiftLower (bool checked);
-    void ToggledDomainClipped (bool checked);
     void ToggledMissingPressureShown (bool checked);
     void ToggledMissingVolumeShown (bool checked);
     void ToggledObjectVelocityShown (bool checked);
@@ -420,6 +425,8 @@ private:
     typedef void (WidgetGl::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    void setTorusDomainClipPlanes ();
+    void enableTorusDomainClipPlanes (bool enable);
     void setSimulationGroup (SimulationGroup* dataAlongTime);
     void setSimulation (int i, ViewNumber::Enum viewNumber);
     void initTransformViewport ();
@@ -488,6 +495,7 @@ private:
     template<typename displayEdge>
     void displayEdges (ViewNumber::Enum viewNumber) const;
     void displayView (ViewNumber::Enum view);
+    void displayAllViewTransforms (ViewNumber::Enum viewNumber);
     void displayViews ();
     void displayContextBodies (ViewNumber::Enum view) const;
     void displayContextBox (
@@ -639,7 +647,6 @@ private:
      * What do we display
      */
     bool m_torusDomainShown;
-    bool m_domainClipped;
     InteractionObject::Enum m_interactionObject;
 
     /**

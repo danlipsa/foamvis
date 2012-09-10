@@ -29,7 +29,6 @@ Edge::Edge (const boost::shared_ptr<Vertex>& begin,
     Element(id, duplicateStatus),
     m_begin (begin), m_end (end),
     m_endTranslation (endTranslation), 
-    m_torusClipped (0),
     m_type (type)
 {
 }
@@ -37,7 +36,6 @@ Edge::Edge (const boost::shared_ptr<Vertex>& begin,
 Edge::Edge (const boost::shared_ptr<Vertex>& begin, size_t id, Type type) :
     Element (id, ElementStatus::ORIGINAL),
     m_begin (begin),
-    m_torusClipped (0),
     m_type (type)
 {
 }
@@ -47,7 +45,6 @@ Edge::Edge (const Edge& o) :
     m_begin (o.GetBeginPtr ()), m_end (o.GetEndPtr ()),
     m_endTranslation (o.GetEndTranslation ()),
     m_adjacentOrientedFaces (o.m_adjacentOrientedFaces),
-    m_torusClipped (0),
     m_type (o.GetType ())
 {
 }
@@ -85,82 +82,6 @@ bool Edge::fuzzyEq (const Edge& other) const
 {
     return GetId () == other.GetId () &&
 	IsFuzzyZero (GetBeginVector () - other.GetBeginVector ());
-}
-
-
-G3D::Vector3 Edge::GetTorusClippedBegin (size_t index) const
-{
-    if (m_torusClipped == 0)
-    {
-	RuntimeAssert (index == 0, "index should be 0 and is ",
-		       index);
-	return m_begin->GetVector ();
-    }
-    else
-    {
-	size_t n = m_torusClipped->size ();
-	RuntimeAssert (index < n, 
-		       "index should be less than ", n, " and is ", index);
-	return (*m_torusClipped)[index].point (0);
-    }
-}
-
-G3D::Vector3 Edge::GetTorusClippedEnd (size_t index) const
-{
-    if (m_torusClipped == 0)
-    {
-	RuntimeAssert (index == 0, "index should be 0 and is ", index);
-	return m_end->GetVector ();
-    }
-    else
-    {
-	size_t n = m_torusClipped->size ();
-	RuntimeAssert (index < n, 
-		       "index should be less than ", n, " and is ", index);
-	return (*m_torusClipped)[index].point (1);
-    }
-}
-
-
-void Edge::CalculateTorusClipped (const OOBox& periods)
-{
-    using G3D::Vector3int16;using G3D::Vector3;using G3D::LineSegment;
-    Vector3int16 beginLocation = periods.GetLocation (m_begin->GetVector ());
-    Vector3int16 endLocation = periods.GetLocation (m_end->GetVector ());
-    Vector3int16 translation = endLocation - beginLocation;
-    size_t intersectionCount = OOBox::CountIntersections (translation);
-    vector<Vector3> intersections(2);
-    if (intersectionCount == 0)
-    {
-	if (beginLocation == Vector3int16Zero)
-	    return;
-	intersections[0] = m_begin->GetVector ();
-	intersections[1] = m_end->GetVector ();
-    }
-    else
-	intersections = periods.Intersect (
-	    m_begin->GetVector (), m_end->GetVector (), 
-	    beginLocation, endLocation);
-
-    m_torusClipped.reset (new vector<LineSegment> (intersectionCount + 1));
-    for (size_t i = 0; i < intersections.size () - 1; i++)
-    {
-	translation = Vector3int16Zero - periods.GetLocation (
-	    (intersections[i] + intersections[i+1]) / 2);
-	(*m_torusClipped)[i] = LineSegment::fromTwoPoints (
-	    periods.TorusTranslate (intersections[i], translation),
-	    periods.TorusTranslate (intersections[i + 1], translation));
-    }
-}
-
-size_t Edge::GetTorusClippedSize (const OOBox& periods) const
-{
-    using G3D::Vector3int16;
-    Vector3int16 beginLocation = periods.GetLocation (m_begin->GetVector ());
-    Vector3int16 endLocation = periods.GetLocation (m_end->GetVector ());
-    Vector3int16 translation = endLocation - beginLocation;
-    size_t intersectionCount = OOBox::CountIntersections (translation);
-    return intersectionCount + 1;
 }
 
 

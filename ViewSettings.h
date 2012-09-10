@@ -626,6 +626,14 @@ public:
 	m_forceTorqueLineWidth = value;
     }
     string GetTitle (ViewNumber::Enum viewNumber) const;
+    bool DomainClipped () const
+    {
+        return m_domainClipped;
+    }
+    void SetDomainClipped (bool clipped)
+    {
+        m_domainClipped = clipped;
+    }
     //@}
 
 Q_SIGNALS:
@@ -732,6 +740,7 @@ private:
 
     bool m_histogramShown;
     HistogramType::Options m_histogramOptions;
+    bool m_domainClipped;
 };
 
 

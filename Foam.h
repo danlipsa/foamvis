@@ -354,7 +354,6 @@ private:
      * Calculate centers for all bodies.
      */
     void calculateBodiesCenters ();
-    void calculateTorusClipped ();
     /**
      * Calculate faces part of a body, edges part of a face, ...
      */

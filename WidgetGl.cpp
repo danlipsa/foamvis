@@ -47,6 +47,15 @@
 // Private Classes/Functions
 // ======================================================================
 
+const size_t PLANE_COUNT_2D = 4;
+const size_t PLANE_COUNT = 6;
+const boost::array<GLenum, PLANE_COUNT> CLIP_PLANE_NUMBER = {{
+        GL_CLIP_PLANE0, GL_CLIP_PLANE1,
+        GL_CLIP_PLANE2, GL_CLIP_PLANE3, 
+        GL_CLIP_PLANE4, GL_CLIP_PLANE5
+    }};
+
+
 struct FocusContextInfo
 {
     Foam::Bodies::const_iterator m_begin;
@@ -133,7 +142,6 @@ WidgetGl::WidgetGl(QWidget *parent)
     : QGLWidget(parent),
       WidgetBase (this, &Settings::IsGlView, &Settings::GetGlCount),
       m_torusDomainShown (false),
-      m_domainClipped (false),
       m_interactionObject (InteractionObject::FOCUS),
       m_simulationGroup (0), 
       m_edgesShown (true),
@@ -467,6 +475,11 @@ void WidgetGl::initDisplayView ()
 const Simulation& WidgetGl::GetSimulation () const
 {
     return GetSimulation (GetViewNumber ());
+}
+
+const Foam& WidgetGl::GetFoam () const
+{
+    return GetSimulation ().GetFoam (GetCurrentTime ());
 }
 
 const Simulation& WidgetGl::GetSimulation (size_t i) const
@@ -891,14 +904,24 @@ void WidgetGl::displayViews ()
     }
 }
 
+void WidgetGl::displayAllViewTransforms (ViewNumber::Enum viewNumber)
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    enableTorusDomainClipPlanes (vs.DomainClipped ());
+    (this->*(m_display[vs.GetViewType ()])) (viewNumber);
+    enableTorusDomainClipPlanes (false);
+}
+
+
 void WidgetGl::displayView (ViewNumber::Enum viewNumber)
 {
     //QTime t;t.start ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetGlLightParameters (CalculateCenteredViewingVolume (viewNumber));
     allTransform (viewNumber);
+    setTorusDomainClipPlanes ();
     GetSettings ()->SetEdgeArrow (GetOnePixelInObjectSpace ());
-    (this->*(m_display[vs.GetViewType ()])) (viewNumber);
+    displayAllViewTransforms (viewNumber);
     displayViewDecorations (viewNumber);
     displayAxes (viewNumber);
     displayBoundingBox (viewNumber);
@@ -1646,9 +1669,7 @@ void WidgetGl::displayEdgesNormal (ViewNumber::Enum viewNumber) const
     glPushAttrib (GL_ENABLE_BIT);
     if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
-    m_domainClipped ?
-	displayEdges <DisplayEdgeTorusClipped> (viewNumber) :
-	displayEdges <DisplayEdgePropertyColor<> >(viewNumber);
+    displayEdges <DisplayEdgePropertyColor<> >(viewNumber);
     displayDeformation (viewNumber);
     displayAverageAroundBodies (viewNumber);
     glPopAttrib ();
@@ -2824,6 +2845,41 @@ void WidgetGl::setTexture (
     }
 }
 
+void WidgetGl::setTorusDomainClipPlanes ()
+{
+    if (GetSimulation ().IsTorus ())
+    {
+        OOBox domain = GetFoam ().GetTorusDomain ();
+        G3D::Vector3 x = domain.GetX (), y = domain.GetY (), z = domain.GetZ ();
+        G3D::Vector3 zero = G3D::Vector3::zero ();
+        boost::array<boost::array<G3D::Vector3, 3>, PLANE_COUNT> plane = {{
+                {{zero, y, z}},         // left
+                {{x, z + x, y + x}},    // right 
+                {{y, x + y, z + y}},    // top               
+                {{zero, z, x}},         // bottom
+                {{z, y + z, x + z}},    // near
+                {{zero, x, y}}          // far
+            }};
+        size_t pc = DATA_PROPERTIES.Is2D () ? PLANE_COUNT_2D : PLANE_COUNT;
+        for (size_t i = 0; i < pc; ++i)
+        {
+            GLdouble eq[4];
+            G3D::Plane (plane[i][0], plane[i][1], plane[i][2]).getEquation (
+                eq[0], eq[1], eq[2], eq[3]);
+            glClipPlane (CLIP_PLANE_NUMBER[i], eq);
+        }
+    }
+}
+
+void WidgetGl::enableTorusDomainClipPlanes (bool enable)
+{
+    size_t pc = DATA_PROPERTIES.Is2D () ? PLANE_COUNT_2D : PLANE_COUNT;
+    for (size_t i = 0; i < pc; ++i)
+    {
+        enable ? glEnable (CLIP_PLANE_NUMBER[i]) : 
+            glDisable (CLIP_PLANE_NUMBER[i]);
+    } 
+}
 
 // Overrides
 ////////////
@@ -3774,11 +3830,11 @@ void WidgetGl::ToggledCenterPathLineUsed (bool checked)
 }
 
 
-void WidgetGl::ToggledDomainClipped (bool checked)
+void WidgetGl::ToggledTorusDomainClipped (bool checked)
 {
     makeCurrent ();
-    m_domainClipped = checked;
-    CompileUpdate ();
+    GetSettings ()->GetViewSettings ().SetDomainClipped (checked);
+    update ();
 }
 
 void WidgetGl::ToggledTorusDomainShown (bool checked)
@@ -3786,6 +3842,22 @@ void WidgetGl::ToggledTorusDomainShown (bool checked)
     makeCurrent ();
     m_torusDomainShown = checked;
     CompileUpdate ();
+}
+
+void WidgetGl::ToggledTorusDomainTop (bool checked)
+{
+}
+
+void WidgetGl::ToggledTorusDomainBottom (bool checked)
+{
+}
+
+void WidgetGl::ToggledTorusDomainLeft (bool checked)
+{
+}
+
+void WidgetGl::ToggledTorusDomainRight (bool checked)
+{
 }
 
 

@@ -530,11 +530,6 @@ template class DisplayBody<
 	    DisplayEdgePropertyColor<DisplayElement::DISPLAY_TESSELLATION_EDGES> >,
 	SetterTextureCoordinate>, SetterTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceHighlightColor<HighlightNumber::H0,
-	DisplayFaceEdges<DisplayEdgeTorusClipped>,
-	SetterTextureCoordinate>,
-    SetterTextureCoordinate>;
-template class DisplayBody<
     DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceLineStrip, SetterTextureCoordinate>, SetterTextureCoordinate>;
 
 

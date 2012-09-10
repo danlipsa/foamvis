@@ -82,7 +82,8 @@ ViewSettings::ViewSettings () :
     m_torqueDistance (1),
     m_forceTorqueLineWidth (1),
     m_histogramShown (false),
-    m_histogramOptions (HistogramType::UNICOLOR_TIME_STEP)
+    m_histogramOptions (HistogramType::UNICOLOR_TIME_STEP),
+    m_domainClipped (false)
 {    
     setInitialLightParameters ();
     for (size_t i = 0; i < m_averageAroundBodyId.size (); ++i)

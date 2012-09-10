@@ -168,8 +168,8 @@ void MainWindow::configureInterfaceDataDependent (
     {
 	checkBoxBoundingBoxTorusDomain->setDisabled (true);
 	checkBoxDomainClipped->setDisabled (true);
-        checkBoxDomainUp->setDisabled (true);
-        checkBoxDomainDown->setDisabled (true);
+        checkBoxDomainTop->setDisabled (true);
+        checkBoxDomainBottom->setDisabled (true);
         checkBoxDomainLeft->setDisabled (true);
         checkBoxDomainRight->setDisabled (true);
 	radioButtonEdgesTorus->setDisabled (true);
@@ -1656,6 +1656,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     SetCheckedNoSignals (
 	checkBoxHistogramAllTimestepsShown,
 	vs.HasHistogramOption(HistogramType::ALL_TIME_STEPS_SHOWN));
+    SetCheckedNoSignals (checkBoxDomainClipped, vs.DomainClipped ());
 
     SetCurrentIndexNoSignals (comboBoxColor, property);
     SetCurrentIndexNoSignals (comboBoxSimulation, simulationIndex);
@@ -1733,15 +1734,18 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     updateLightControls (vs, selectedLight);
     updateButtons ();
 
-    const AttributeHistogram& histogram = 
-        widgetHistogram->GetHistogram (viewNumber);
-    if (histogram.GetMaxValueYAxis () == 0)
-        sliderTimeSteps->SetFullRange ();
-    else
+    if (m_settings->IsHistogramShown (viewNumber))
     {
-        vector<QwtDoubleInterval> valueIntervals;
-        widgetHistogram->GetHistogram (
-            viewNumber).GetSelectedIntervals (&valueIntervals);
-        updateSliderTimeSteps (viewNumber, valueIntervals);
+        const AttributeHistogram& histogram = 
+            widgetHistogram->GetHistogram (viewNumber);
+        if (histogram.GetMaxValueYAxis () == 0)
+            sliderTimeSteps->SetFullRange ();
+        else
+        {
+            vector<QwtDoubleInterval> valueIntervals;
+            widgetHistogram->GetHistogram (
+                viewNumber).GetSelectedIntervals (&valueIntervals);
+            updateSliderTimeSteps (viewNumber, valueIntervals);
+        }
     }
 }

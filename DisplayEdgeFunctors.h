@@ -268,34 +268,6 @@ private:
 
 
 
-/**
- * Used for displaying edges clipped at the torus original domain boudary.
- * @todo Use circular arcs in this view as well.
- */
-class DisplayEdgeTorusClipped : public DisplayElementFocus
-{
-public:
-    DisplayEdgeTorusClipped (const Settings& settings, const Foam& foam,
-			     FocusContext focus, 
-			     bool useZPos = false, double zPos = 0) : 
-	DisplayElementFocus (settings, foam, focus, useZPos, zPos)
-    {
-    }
-
-    DisplayEdgeTorusClipped (const Settings& settings, const Foam& foam,
-			     FocusContext focus, ViewNumber::Enum viewNumber,
-			     bool useZPos = false, double zPos = 0) : 
-	DisplayElementFocus (settings, foam, focus, useZPos, zPos)
-    {
-	(void)viewNumber;
-    }
-
-    void operator () (const boost::shared_ptr<Edge>& edge) const;
-
-    void operator() (const boost::shared_ptr<OrientedEdge>& oe) const;
-};
-
-
 // Display all edges of a face
 // ======================================================================
 class DisplayFaceLineStrip : public DisplayElementFocus

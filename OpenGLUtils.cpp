@@ -287,11 +287,9 @@ void printOpenGLInfo (ostream& ostr)
 	OpenGLFeature (GL_MAX_COLOR_ATTACHMENTS_EXT, OpenGLFeature::INTEGER,
 		       "GL_MAX_COLOR_ATTACHMENTS_EXT"),
 
-	OpenGLFeature ("--- Vertex Shader ---"),
+	OpenGLFeature ("--- Shaders ---"),
 	OpenGLFeature (GL_MAX_VERTEX_ATTRIBS, OpenGLFeature::INTEGER,
 		       "GL_MAX_VERTEX_ATTRIBS"),
-
-	OpenGLFeature ("--- Geometry Shader ---"),
 	OpenGLFeature (GL_MAX_GEOMETRY_OUTPUT_VERTICES, OpenGLFeature::INTEGER,
 		       "GL_MAX_GEOMETRY_OUTPUT_VERTIES"),
 
@@ -306,10 +304,11 @@ void printOpenGLInfo (ostream& ostr)
         OpenGLFeature (GL_GREEN_BITS, OpenGLFeature::INTEGER, "GREEN_BITS"),
         OpenGLFeature (GL_BLUE_BITS, OpenGLFeature::INTEGER, "BLUE_BITS"),
         OpenGLFeature (GL_ALPHA_BITS, OpenGLFeature::INTEGER, "ALPHA_BITS"),
-
         OpenGLFeature (GL_INDEX_BITS, OpenGLFeature::INTEGER, "INDEX_BITS"),
         OpenGLFeature (GL_DEPTH_BITS, OpenGLFeature::INTEGER, "DEPTH_BITS"),
         OpenGLFeature (GL_STENCIL_BITS, OpenGLFeature::INTEGER, "STENCIL_BITS"),
+        OpenGLFeature (GL_MAX_CLIP_PLANES, OpenGLFeature::INTEGER, 
+                       "MAX_CLIP_PLANES"),
 	
 	OpenGLFeature (GL_STEREO, OpenGLFeature::BOOLEAN, "GL_STEREO"),
 	OpenGLFeature (GL_DOUBLEBUFFER, OpenGLFeature::BOOLEAN,

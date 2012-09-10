@@ -237,17 +237,6 @@ void Foam::calculateBodiesCenters ()
 	      boost::bind(&Body::CalculateCenter, _1));
 }
 
-void Foam::calculateTorusClipped ()
-{
-    const OOBox& periods = GetTorusDomain ();
-    EdgeSet edgeSet;
-    GetEdgeSet (&edgeSet);
-    BOOST_FOREACH (boost::shared_ptr<Edge> e, edgeSet)
-    {
-	if (e->IsClipped ())
-	    e->CalculateTorusClipped (periods);
-    }
-}
 
 void Foam::unwrap (VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
 {
@@ -338,7 +327,6 @@ void Foam::Preprocess ()
     if (IsTorus ())
     {
 	bodiesInsideOriginalDomain (&vertexSet, &edgeSet, &faceSet);
-	calculateTorusClipped ();
     }
     sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);
     setMissingPressureZero ();

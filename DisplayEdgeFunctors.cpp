@@ -267,32 +267,6 @@ void DisplaySegmentArrowQuadric::operator () (
     glPopMatrix ();
 }
 
-// DisplayEdgeTorusClipped
-// ======================================================================
-
-void DisplayEdgeTorusClipped::operator() (
-    const boost::shared_ptr<OrientedEdge>& oe) const
-{
-    operator () (oe->GetEdge ());
-}
-
-
-void DisplayEdgeTorusClipped::operator () (
-    const boost::shared_ptr<Edge>& edge) const
-{
-    const OOBox& periods = m_foam.GetTorusDomain ();
-    if (edge->IsClipped ())
-    {
-	glColor (edge->GetColor (Color::BLACK));
-	glBegin(GL_LINES);
-	for (size_t i = 0; i < edge->GetTorusClippedSize (periods); i++)
-	{
-	    ::glVertex(edge->GetTorusClippedBegin (i));
-	    ::glVertex (edge->GetTorusClippedEnd (i));
-	}
-	glEnd ();
-    }
-}
 
 // DisplayOrientedSegment
 // ======================================================================
@@ -622,5 +596,5 @@ template class DisplayFaceEdges<
     DisplayEdgePropertyColor<DisplayElement::DISPLAY_TESSELLATION_EDGES> >;
 template class DisplayFaceEdges<
     DisplayEdgePropertyColor<DisplayElement::DONT_DISPLAY_TESSELLATION_EDGES> >;
-template class DisplayFaceEdges<DisplayEdgeTorusClipped>;
+
 
