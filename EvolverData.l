@@ -109,7 +109,7 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
 {ID} { /*identifiers*/
     int id = ParsingDriver::GetKeywordId (yytext);
     yylloc->begin.line = yylineno;
-    if (id)
+    if (! yyextra->KeywordsIgnored () && id)
     {
 	if (id == parser::token::READ)
 	    // ignore READ and everything after it.

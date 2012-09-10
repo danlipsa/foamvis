@@ -235,14 +235,6 @@ public:
     void SetFace (size_t i,  vector<int>& edges,
                   vector<NameSemanticValue*>& attributes,
 		  const AttributesInfo& attributesInfo);
-    void SetSpaceSignificant (bool spaceSignificant)
-    {
-	m_spaceSignificant = spaceSignificant;
-    }
-    void SetNewLineSignificant (bool newLineSignificant)
-    {
-	m_newLineSignificant = newLineSignificant;
-    }    
 
     void SetConstraint (size_t i, ExpressionTree* constraint);
     boost::shared_ptr<ExpressionTree> GetConstraint (size_t i) const
@@ -263,6 +255,28 @@ public:
     {
 	return m_forcesNames;
     }
+
+    /**
+     * @{
+     * @name Scanner instructions
+     */
+    void SetSpaceSignificant (bool spaceSignificant)
+    {
+	m_spaceSignificant = spaceSignificant;
+    }
+    void SetNewLineSignificant (bool newLineSignificant)
+    {
+	m_newLineSignificant = newLineSignificant;
+    }    
+    bool KeywordsIgnored () const
+    {
+        return m_keywordsIgnored;
+    }
+    void SetKeywordsIgnored (bool ignored)
+    {
+        m_keywordsIgnored = ignored;
+    }
+    // @}
 
 public:
     string ToString () const;
@@ -322,6 +336,7 @@ private:
     bool m_useOriginal;
     DmpObjectInfo m_dmpObjectInfo;
     vector<ForcesOneObjectNames> m_forcesNames;
+    bool m_keywordsIgnored;
 
 private:
     static const char* IMPLEMENTED_METHODS[];

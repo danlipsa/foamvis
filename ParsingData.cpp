@@ -89,7 +89,8 @@ ParsingData::ParsingData (
     m_parenthesisCount (0),
     m_newLineSignificant (false),
     m_useOriginal (useOriginal),
-    m_dmpObjectInfo (dmpObjectInfo)
+    m_dmpObjectInfo (dmpObjectInfo),
+    m_keywordsIgnored (false)
 {
     m_forcesNames.resize (forcesNames.size ());
     copy (forcesNames.begin (), forcesNames.end (), m_forcesNames.begin ());

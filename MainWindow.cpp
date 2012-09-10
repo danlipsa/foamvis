@@ -167,7 +167,11 @@ void MainWindow::configureInterfaceDataDependent (
     if (! simulation.IsTorus ())
     {
 	checkBoxBoundingBoxTorusDomain->setDisabled (true);
-	checkBoxTorusOriginalDomainWrapInside->setDisabled (true);
+	checkBoxDomainClipped->setDisabled (true);
+        checkBoxDomainUp->setDisabled (true);
+        checkBoxDomainDown->setDisabled (true);
+        checkBoxDomainLeft->setDisabled (true);
+        checkBoxDomainRight->setDisabled (true);
 	radioButtonEdgesTorus->setDisabled (true);
 	radioButtonFaceEdgesTorus->setDisabled (true);
     }
@@ -1023,7 +1027,7 @@ void MainWindow::setStackedWidget (ViewType::Enum viewType)
     // WARNING: Has to match ViewType::Enum order
     QWidget* pages[] = 
 	{
-	    pageEdgesNormal,
+	    pageTimeStepEmpty,
 	    pageTimeStepEmpty,
 	    pageTimeStepEmpty,
 	    pageFacesNormal,

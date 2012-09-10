@@ -222,6 +222,7 @@ Q_SIGNALS:
     void OverlayBarModelChanged (
 	ViewNumber::Enum viewNumber,
 	boost::shared_ptr<ColorBarModel> colorBarModel);
+    void QueuedCompile (int viewNumber);
 
 public Q_SLOTS:
     void ToggledStandaloneElementsShown (bool checked);
@@ -255,7 +256,7 @@ public Q_SLOTS:
     void ToggledTorusDomainShown (bool checked);
     void ToggledT1sShown (bool checked);
     void ToggledT1sShiftLower (bool checked);
-    void ToggledTorusOriginalDomainClipped (bool checked);
+    void ToggledDomainClipped (bool checked);
     void ToggledMissingPressureShown (bool checked);
     void ToggledMissingVolumeShown (bool checked);
     void ToggledObjectVelocityShown (bool checked);
@@ -355,6 +356,7 @@ public Q_SLOTS:
     void CopyTransformationFrom (int viewNumber);
     void CopySelectionFrom (int viewNumber);
     void CopyColorBarFrom (int viewNumber);
+    void Compile (int viewNumber);
 
 public:
     const static  size_t DISPLAY_ALL;
@@ -527,7 +529,6 @@ private:
     void displayT1sDot (ViewNumber::Enum view, size_t timeStep) const;
     void displayCenterPaths (ViewNumber::Enum view) const;
     void compileCenterPaths (ViewNumber::Enum view) const;
-    void compile (ViewNumber::Enum view) const;
 
     void displayBoundingBox (ViewNumber::Enum viewNumber) const;
     void displayFocusBox (ViewNumber::Enum viewNumber) const;
@@ -638,7 +639,7 @@ private:
      * What do we display
      */
     bool m_torusDomainShown;
-    bool m_torusOriginalDomainClipped;
+    bool m_domainClipped;
     InteractionObject::Enum m_interactionObject;
 
     /**

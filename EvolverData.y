@@ -569,7 +569,10 @@ method_global
 
 method_parameters
 : /* empty */
-| SCALAR_INTEGRAND colon_assignment non_const_expr
+| SCALAR_INTEGRAND colon_assignment 
+  {foam->GetParsingData ().SetKeywordsIgnored (true);}
+  non_const_expr
+  {foam->GetParsingData ().SetKeywordsIgnored (false);}
 ;
 
 function_declaration

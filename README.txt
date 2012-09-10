@@ -1,5 +1,9 @@
 Release log
 ===========
+0.8.
+        - bug fix: transformations are slow
+        - allow keywords inside SCALAR_INTEGRANT (for shearv_35)
+        - 
 0.8.2553
         - bug fixes (dataset fluctuates because is centered at foam center 
           instead of simulation center)

@@ -133,7 +133,7 @@ WidgetGl::WidgetGl(QWidget *parent)
     : QGLWidget(parent),
       WidgetBase (this, &Settings::IsGlView, &Settings::GetGlCount),
       m_torusDomainShown (false),
-      m_torusOriginalDomainClipped (false),
+      m_domainClipped (false),
       m_interactionObject (InteractionObject::FOCUS),
       m_simulationGroup (0), 
       m_edgesShown (true),
@@ -161,6 +161,10 @@ WidgetGl::WidgetGl(QWidget *parent)
     initQuadrics ();
     initDisplayView ();
     createActions ();
+    connect (this,
+             SIGNAL (QueuedCompile (int)),
+             this,
+             SLOT (Compile (int)), Qt::QueuedConnection);
 }
 
 
@@ -1642,7 +1646,7 @@ void WidgetGl::displayEdgesNormal (ViewNumber::Enum viewNumber) const
     glPushAttrib (GL_ENABLE_BIT);
     if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
-    m_torusOriginalDomainClipped ?
+    m_domainClipped ?
 	displayEdges <DisplayEdgeTorusClipped> (viewNumber) :
 	displayEdges <DisplayEdgePropertyColor<> >(viewNumber);
     displayDeformation (viewNumber);
@@ -2305,8 +2309,9 @@ void WidgetGl::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
 }
 
 
-void WidgetGl::compile (ViewNumber::Enum viewNumber) const
+void WidgetGl::Compile (int vn)
 {
+    ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (vn);
     const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
     switch (vs.GetViewType ())
     {
@@ -2318,6 +2323,7 @@ void WidgetGl::compile (ViewNumber::Enum viewNumber) const
     default:
 	break;
     }
+    update ();
 }
 
 void WidgetGl::displayCenterPaths (ViewNumber::Enum viewNumber) const
@@ -2834,9 +2840,7 @@ const Simulation& WidgetGl::GetSimulation (ViewNumber::Enum viewNumber) const
 
 void WidgetGl::CompileUpdate (ViewNumber::Enum viewNumber)
 {
-    makeCurrent ();
-    compile (viewNumber);
-    update ();
+    Q_EMIT QueuedCompile (viewNumber);
 }
 
 
@@ -2859,7 +2863,7 @@ void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
 		    continue;
 		GetViewAverage (viewNumber).AverageRelease ();
 		GetViewAverage (viewNumber).AverageInitStep ();
-		compile (viewNumber);
+		CompileUpdate (viewNumber);
 	    }
 	}
     	setVisible (true);
@@ -3754,12 +3758,6 @@ void WidgetGl::ToggledEdgesTessellationShown (bool checked)
 }
 
 
-void WidgetGl::ToggledTorusDomainShown (bool checked)
-{
-    makeCurrent ();
-    m_torusDomainShown = checked;
-    CompileUpdate ();
-}
 
 void WidgetGl::ToggledCenterPathTubeUsed (bool checked)
 {
@@ -3776,12 +3774,20 @@ void WidgetGl::ToggledCenterPathLineUsed (bool checked)
 }
 
 
-void WidgetGl::ToggledTorusOriginalDomainClipped (bool checked)
+void WidgetGl::ToggledDomainClipped (bool checked)
 {
     makeCurrent ();
-    m_torusOriginalDomainClipped = checked;
+    m_domainClipped = checked;
     CompileUpdate ();
 }
+
+void WidgetGl::ToggledTorusDomainShown (bool checked)
+{
+    makeCurrent ();
+    m_torusDomainShown = checked;
+    CompileUpdate ();
+}
+
 
 void WidgetGl::ToggledT1sShown (bool checked)
 {
