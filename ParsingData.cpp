@@ -11,6 +11,7 @@
 #include "Edge.h"
 #include "ExpressionTree.h"
 #include "Face.h"
+#include "Foam.h"
 #include "ParsingData.h"
 #include "QuadraticEdge.h"
 #include "Utils.h"
@@ -129,18 +130,34 @@ ParsingData::ParsingData (
 	AddMethodOrQuantity (method);
 }
 
-double ParsingData::GetVariableValue (const char* id) const
+pair<bool, float> ParsingData::GetVariableValue (const char* name) const
 {
-    Variables::const_iterator it = m_variables.find (id);
-    RuntimeAssert (it != m_variables.end (), "Undeclared variable: ", id);
-    return it->second;
+    Variables::const_iterator it = m_variables.find (name);
+    if (it == m_variables.end ())
+        return pair<bool, float> (false, 0);
+    else 
+        return pair<bool, float> (true, it->second);
 }
 
-double ParsingData::GetArrayValue (const char* name, 
-				   const vector<size_t>& index) const
+pair<bool, ParsingData::ArrayId> ParsingData::GetArrayId (
+    const char* name) const
 {
     Arrays::const_iterator it = m_arrays.find (name);
-    RuntimeAssert (it != m_arrays.end (), "Undeclared array: ", name);
+    return pair<bool, ArrayId> (it != m_arrays.end (), it);
+}
+
+pair<bool, float> ParsingData::GetArrayValue (const char* name, 
+                                              const vector<size_t>& index) const
+{
+    pair<bool, ArrayId> p = GetArrayId (name);
+    if (p.first)
+        return pair<bool, float> (true, GetArrayValue (p.second, index));
+    else
+        return pair<bool, float> (false, 0);
+}
+
+float ParsingData::GetArrayValue (ArrayId it, const vector<size_t>& index) const
+{
     return it->second->Get (index);
 }
 
@@ -148,12 +165,6 @@ double ParsingData::GetArrayValue (const char* name,
 void ParsingData::SetArray (const char* id, AttributeArrayAttribute* array)
 {
     m_arrays[id] = boost::shared_ptr<AttributeArrayAttribute> (array);
-}
-
-bool ParsingData::IsVariableSet (const char* id)
-{
-    Variables::iterator it = m_variables.find (id);
-    return it != m_variables.end ();
 }
 
 ParsingData::UnaryFunction ParsingData::GetUnaryFunction (const char* name)
@@ -243,4 +254,35 @@ void ParsingData::UnsetVariable (const char* name)
     Variables::iterator it = m_variables.find (name);
     if (it != m_variables.end ())
 	m_variables.erase (it);
+}
+
+bool ParsingData::GetT1s (const char* arrayName, const char* countName, 
+                          vector<G3D::Vector3>* t1s) const
+{
+    pair<bool, ArrayId> setId = GetArrayId (arrayName);
+    if (! setId.first)
+        return false;
+    ArrayId id = setId.second;
+    pair<bool, float> c = GetVariableValue (countName);
+    if (! c.first)
+        return false;
+    size_t count = c.second;
+    t1s->resize (count);
+    vector<size_t> index (2);
+    for (size_t i = 0; i < count; ++i)
+    {
+        index[1] = i;
+        index[0] = 0;
+        float x = GetArrayValue (id, index);
+        index[0] = 1;
+        float y = GetArrayValue (id, index);
+        float z = Foam::Z_COORDINATE_2D;
+        if (DATA_PROPERTIES.Is3D ())
+        {
+            index[0] = 2;
+            z = GetArrayValue (id, index);
+        }
+        (*t1s)[i] = G3D::Vector3 (x, y, z);
+    }
+    return true;
 }

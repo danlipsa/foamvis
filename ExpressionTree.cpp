@@ -56,12 +56,12 @@ string ExpressionTreeNumber::ToString () const
 // ======================================================================
 double ExpressionTreeVariable::Value (void) const
 {
-    return m_parsingData.GetVariableValue (m_name);
+    return m_parsingData.GetVariableValue (m_name).second;
 }
 
 ExpressionTree* ExpressionTreeVariable::GetSimplifiedTree () const
 {
-    if (m_parsingData.IsVariableSet (m_name))
+    if (m_parsingData.GetVariableValue (m_name).first)
 	return new ExpressionTreeNumber (m_parsingData, Value ());
     else
 	return new ExpressionTreeVariable (m_parsingData, m_name.c_str ());
@@ -70,7 +70,7 @@ ExpressionTree* ExpressionTreeVariable::GetSimplifiedTree () const
 string ExpressionTreeVariable::ToString () const
 {
     ostringstream ostr;
-    if (m_parsingData.IsVariableSet (m_name))
+    if (m_parsingData.GetVariableValue (m_name).first)
 	ostr << Value ();
     else
 	ostr << m_name;
@@ -81,7 +81,7 @@ string ExpressionTreeVariable::ToString () const
 // ======================================================================
 double ExpressionTreeArrayElement::Value (void) const
 {
-    return m_parsingData.GetArrayValue (m_name, m_index);
+    return m_parsingData.GetArrayValue (m_name, m_index).second;
 }
 
 ExpressionTree* ExpressionTreeArrayElement::GetSimplifiedTree () const

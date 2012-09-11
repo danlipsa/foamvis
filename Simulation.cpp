@@ -182,6 +182,7 @@ void Simulation::Preprocess ()
 {
     cdbg << "Preprocess temporal foam data ..." << endl;
     fixConstraintPoints ();
+    ParseT1s ("t1positions", "num_pops_step");
     boost::array<FoamParamMethod, 9> methods = {{
 	    boost::bind (&Foam::CreateObjectBody, _1, 
 			 GetDmpObjectInfo ().m_constraintIndex),
@@ -505,6 +506,27 @@ size_t Simulation::GetT1sSize () const
     return size;
 }
 
+void Simulation::ParseT1s (const char* arrayName, const char* countName)
+{
+    if (! m_t1s.empty ())
+        return;
+    Foams& foams = GetFoams ();
+    m_t1s.resize (foams.size () - 1);
+    for (size_t i = 1; i < foams.size (); ++i)
+    {
+        boost::shared_ptr<Foam> foam = foams[i];
+        // in the file: first time step is 1 and T1s occur before timeStep
+        // in memory: first time step is 0 and T1s occur after timeStep
+        if (! foam->GetParsingData ().GetT1s (
+                arrayName, countName, &m_t1s[i - 1]))
+        {
+            m_t1s.resize (0);
+            RuntimeAssert (
+                i == 0, "ParseT1s: T1s variables not set at index ", i);
+            return;
+        }
+    }
+}
 
 void Simulation::ParseT1s (
     const string& fileName, size_t ticksForTimeStep, bool t1sShiftLower)

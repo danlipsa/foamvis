@@ -31,6 +31,8 @@ public:
     typedef map<string, 
 		boost::shared_ptr<AttributeArrayAttribute>, 
 		LessThanNoCase> Arrays;
+    typedef Arrays::const_iterator ArrayId;
+
     /**
      * Unary function type
      */
@@ -113,25 +115,25 @@ public:
     {
 	return m_faces[i];
     }
+    
+    pair<bool, ArrayId> GetArrayId (const char* name) const;
+    pair<bool, float> GetArrayValue (const char* name, 
+                                     const vector<size_t>& index) const;
+    pair<bool, float> GetArrayValue (const string& name, 
+                                     const vector<size_t>& index) const
+    {
+        return GetArrayValue (name.c_str (), index);
+    }
+
+    float GetArrayValue (ArrayId it, const vector<size_t>& index) const;
+    
     /**
-     * Retrieves a variable value
-     * @param name variable name
-     * @return variable value
+     * Returns if the variable is set and its value.
      */
-    double GetVariableValue (const char* name) const;
-    double GetVariableValue (const string& name) const
+    pair<bool, float> GetVariableValue (const char* name) const;
+    pair<bool, float> GetVariableValue (const string& name) const
     {
-	return GetVariableValue (name.c_str ());
-    }
-    double GetArrayValue (const char* name,   const vector<size_t>& index) const;
-    double GetArrayValue (const string& name, const vector<size_t>& index) const
-    {
-	return GetArrayValue (name.c_str (), index);
-    }
-    bool IsVariableSet (const char* name);
-    bool IsVariableSet (const string& name)
-    {
-	return IsVariableSet (name.c_str ());
+        return GetVariableValue (name.c_str ());
     }
 
     /**
@@ -255,6 +257,14 @@ public:
     {
 	return m_forcesNames;
     }
+
+    /**
+     * Gets the T1s stored in the DMP between this step and the
+     * previous one. Returns false if the arrayName and countNames
+     * variables are not set, true otherwise.
+     */
+    bool GetT1s (const char* arrayName, const char* countName, 
+                 vector<G3D::Vector3>* t1s) const;
 
     /**
      * @{

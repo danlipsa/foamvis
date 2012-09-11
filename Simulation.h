@@ -194,6 +194,7 @@ public:
      */
     void ParseT1s (
 	const string& fileName, size_t ticksForTimeStep, bool t1sShiftLower);
+    void ParseT1s (const char* arrayName, const char* countName);
     void ParseDMPs (const vector<string>& fileNames,
 		    bool useOriginal,
 		    const DmpObjectInfo& dmpObjectInfo,
