@@ -517,7 +517,17 @@ struct TimeLinkage
     };
 };
 
-
+struct DuplicateDomain
+{
+    enum Enum
+    {
+        LEFT,
+        RIGHT,
+        TOP,
+        BOTTOM,
+        COUNT
+    };
+};
 
 
 #endif //__ENUMS_H__

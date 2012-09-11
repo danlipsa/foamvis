@@ -256,10 +256,6 @@ public Q_SLOTS:
     void ToggledCenterPathHidden (bool checked);
     void ToggledTorusDomainClipped (bool checked);
     void ToggledTorusDomainShown (bool checked);
-    void ToggledTorusDomainTop (bool checked);
-    void ToggledTorusDomainBottom (bool checked);
-    void ToggledTorusDomainLeft (bool checked);
-    void ToggledTorusDomainRight (bool checked);
     void ToggledT1sShown (bool checked);
     void ToggledT1sShiftLower (bool checked);
     void ToggledMissingPressureShown (bool checked);
@@ -279,6 +275,7 @@ public Q_SLOTS:
     void ToggledAverageAroundAllowRotation (bool checked);
     void ButtonClickedTimeLinkage (int id);
     void ButtonClickedInteractionObject (int id);
+    void ButtonClickedDuplicateDomain (int id);
     void ClickedEnd ();
     void SetBodyOrFaceScalar (
 	ViewNumber::Enum viewNumber,
@@ -739,6 +736,7 @@ private:
     boost::array<GLuint, ViewNumber::COUNT> m_listFacesNormal;
     boost::array<GLuint, ViewNumber::COUNT> m_colorBarTexture;
     boost::array<GLuint, ViewNumber::COUNT> m_overlayBarTexture;
+    boost::array<bool, DuplicateDomain::COUNT> m_duplicateDomain;
 };
 
 

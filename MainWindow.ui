@@ -341,7 +341,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tabSettings">
         <attribute name="title">
@@ -363,7 +363,7 @@
             <bool>true</bool>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>5</number>
            </property>
            <widget class="QWidget" name="tabA_D">
             <attribute name="title">
@@ -502,32 +502,44 @@
                </property>
               </widget>
              </item>
-             <item row="10" column="0">
+             <item row="11" column="0">
               <widget class="QCheckBox" name="checkBoxDomainTop">
                <property name="text">
                 <string>Domain top</string>
                </property>
+               <attribute name="buttonGroup">
+                <string>buttonGroupDuplicateDomain</string>
+               </attribute>
               </widget>
              </item>
-             <item row="10" column="1">
+             <item row="11" column="1">
               <widget class="QCheckBox" name="checkBoxDomainBottom">
                <property name="text">
                 <string>Domain bottom</string>
                </property>
+               <attribute name="buttonGroup">
+                <string>buttonGroupDuplicateDomain</string>
+               </attribute>
               </widget>
              </item>
-             <item row="11" column="0">
+             <item row="10" column="0">
               <widget class="QCheckBox" name="checkBoxDomainLeft">
                <property name="text">
                 <string>Domain left</string>
                </property>
+               <attribute name="buttonGroup">
+                <string>buttonGroupDuplicateDomain</string>
+               </attribute>
               </widget>
              </item>
-             <item row="11" column="1">
+             <item row="10" column="1">
               <widget class="QCheckBox" name="checkBoxDomainRight">
                <property name="text">
                 <string>Domain right</string>
                </property>
+               <attribute name="buttonGroup">
+                <string>buttonGroupDuplicateDomain</string>
+               </attribute>
               </widget>
              </item>
             </layout>
@@ -4225,66 +4237,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxDomainTop</sender>
-   <signal>toggled(bool)</signal>
+   <sender>buttonGroupDuplicateDomain</sender>
+   <signal>buttonClicked(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledTorusDomainTop(bool)</slot>
+   <slot>ButtonClickedDuplicateDomain(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>743</x>
-     <y>533</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>646</x>
-     <y>69</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxDomainBottom</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledTorusDomainBotton(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>880</x>
-     <y>536</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>634</x>
-     <y>87</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxDomainLeft</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledTorusDomainLeft(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>774</x>
-     <y>558</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>663</x>
-     <y>101</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxDomainRight</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledTorusDomainRight(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>867</x>
-     <y>564</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>659</x>
-     <y>124</y>
+     <x>339</x>
+     <y>270</y>
     </hint>
    </hints>
   </connection>
@@ -4323,5 +4287,10 @@
   <buttongroup name="buttonGroupInteractionObject"/>
   <buttongroup name="buttonGroupTimeLinkage"/>
   <buttongroup name="buttonGroupViewType"/>
+  <buttongroup name="buttonGroupDuplicateDomain">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
  </buttongroups>
 </ui>

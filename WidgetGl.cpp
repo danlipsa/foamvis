@@ -164,6 +164,7 @@ WidgetGl::WidgetGl(QWidget *parent)
       m_showType (SHOW_NOTHING)
 {
     makeCurrent ();
+    fill (m_duplicateDomain.begin (), m_duplicateDomain.end (), false);
     initList ();
     initTexture ();
     initQuadrics ();
@@ -906,9 +907,31 @@ void WidgetGl::displayViews ()
 
 void WidgetGl::displayAllViewTransforms (ViewNumber::Enum viewNumber)
 {
+    const OOBox& domain = GetSimulation (viewNumber).
+        GetFoam(GetCurrentTime ()).GetTorusDomain ();
+    // WARNING: use the same order as DuplicateDomain::Enum
+    const boost::array<G3D::Vector3, DuplicateDomain::COUNT> 
+        duplicateDomainTranslation = {{
+            - domain.GetX (),
+            domain.GetX (),
+            domain.GetY (),
+            - domain.GetY ()
+        }};
+
     ViewSettings& vs = GetViewSettings (viewNumber);
-    enableTorusDomainClipPlanes (vs.DomainClipped ());
+
+    enableTorusDomainClipPlanes (vs.DomainClipped ());    
     (this->*(m_display[vs.GetViewType ()])) (viewNumber);
+    for (size_t i = 0; i < m_duplicateDomain.size (); ++i)
+    {
+        if (m_duplicateDomain[i])
+        {
+            glPushMatrix ();
+            glTranslate (duplicateDomainTranslation[i]);
+            (this->*(m_display[vs.GetViewType ()])) (viewNumber);
+            glPopMatrix ();
+        }
+    }
     enableTorusDomainClipPlanes (false);
 }
 
@@ -3844,22 +3867,6 @@ void WidgetGl::ToggledTorusDomainShown (bool checked)
     CompileUpdate ();
 }
 
-void WidgetGl::ToggledTorusDomainTop (bool checked)
-{
-}
-
-void WidgetGl::ToggledTorusDomainBottom (bool checked)
-{
-}
-
-void WidgetGl::ToggledTorusDomainLeft (bool checked)
-{
-}
-
-void WidgetGl::ToggledTorusDomainRight (bool checked)
-{
-}
-
 
 void WidgetGl::ToggledT1sShown (bool checked)
 {
@@ -3902,6 +3909,12 @@ void WidgetGl::ButtonClickedInteractionObject (int index)
     makeCurrent ();
     m_interactionObject = InteractionObject::Enum (index);
     CompileUpdate ();
+}
+
+void WidgetGl::ButtonClickedDuplicateDomain (int index)
+{
+    m_duplicateDomain[index] = ! m_duplicateDomain[index];
+    update ();
 }
 
 

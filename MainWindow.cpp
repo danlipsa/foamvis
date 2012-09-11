@@ -496,6 +496,15 @@ void MainWindow::setupButtonGroups ()
     buttonGroupTimeLinkage->setId (
 	radioButtonTimeLinked, TimeLinkage::LINKED);
     buttonGroupTimeLinkage->button (TimeLinkage::LINKED)->setChecked (true);
+
+    buttonGroupDuplicateDomain->setId (
+        checkBoxDomainLeft, DuplicateDomain::LEFT);
+    buttonGroupDuplicateDomain->setId (
+        checkBoxDomainRight, DuplicateDomain::RIGHT);
+    buttonGroupDuplicateDomain->setId (
+        checkBoxDomainTop, DuplicateDomain::TOP);
+    buttonGroupDuplicateDomain->setId (
+        checkBoxDomainBottom, DuplicateDomain::BOTTOM);
 }
 
 void MainWindow::setupSliderData (const Simulation& simulation)
