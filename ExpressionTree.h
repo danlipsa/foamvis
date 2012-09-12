@@ -113,11 +113,7 @@ public:
      * @param name the name of the variable
      * @param parsingData data which allows us to get the value of a variable.
      */
-    ExpressionTreeVariable (ParsingData& parsingData, const char* name) :
-
-	ExpressionTree (parsingData),
-        m_name (name)
-    {}
+    ExpressionTreeVariable (ParsingData& parsingData, const char* name);
     /**
      * Value of the variable
      * @return the value of the variable

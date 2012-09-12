@@ -28,6 +28,7 @@ public:
      * Variable type
      */
     typedef map<string, double, LessThanNoCase> Variables;
+
     typedef map<string, 
 		boost::shared_ptr<AttributeArrayAttribute>, 
 		LessThanNoCase> Arrays;
@@ -119,6 +120,7 @@ public:
      * @param name variable name
      * @return variable value
      */
+    
     double GetVariableValue (const char* name) const;
     pair<bool, double> GetVariableExistsValue (const char* name) const;
     double GetVariableValue (const string& name) const

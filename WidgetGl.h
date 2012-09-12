@@ -223,7 +223,6 @@ Q_SIGNALS:
     void OverlayBarModelChanged (
 	ViewNumber::Enum viewNumber,
 	boost::shared_ptr<ColorBarModel> colorBarModel);
-    void QueuedCompile (int viewNumber);
 
 public Q_SLOTS:
     void ToggledStandaloneElementsShown (bool checked);
@@ -358,7 +357,6 @@ public Q_SLOTS:
     void CopyTransformationFrom (int viewNumber);
     void CopySelectionFrom (int viewNumber);
     void CopyColorBarFrom (int viewNumber);
-    void Compile (int viewNumber);
 
 public:
     const static  size_t DISPLAY_ALL;

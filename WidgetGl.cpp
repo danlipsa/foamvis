@@ -170,10 +170,6 @@ WidgetGl::WidgetGl(QWidget *parent)
     initQuadrics ();
     initDisplayView ();
     createActions ();
-    connect (this,
-             SIGNAL (QueuedCompile (int)),
-             this,
-             SLOT (Compile (int)), Qt::QueuedConnection);
 }
 
 
@@ -2353,23 +2349,6 @@ void WidgetGl::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
 }
 
 
-void WidgetGl::Compile (int vn)
-{
-    ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (vn);
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
-    switch (vs.GetViewType ())
-    {
-    case ViewType::CENTER_PATHS:
-	compileCenterPaths (viewNumber);
-	break;
-    case ViewType::FACES:
-	compileFacesNormal (viewNumber);
-    default:
-	break;
-    }
-    update ();
-}
-
 void WidgetGl::displayCenterPaths (ViewNumber::Enum viewNumber) const
 {
     glCallList (m_listCenterPaths[viewNumber]);
@@ -2919,7 +2898,18 @@ const Simulation& WidgetGl::GetSimulation (ViewNumber::Enum viewNumber) const
 
 void WidgetGl::CompileUpdate (ViewNumber::Enum viewNumber)
 {
-    Q_EMIT QueuedCompile (viewNumber);
+    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    switch (vs.GetViewType ())
+    {
+    case ViewType::CENTER_PATHS:
+	compileCenterPaths (viewNumber);
+	break;
+    case ViewType::FACES:
+	compileFacesNormal (viewNumber);
+    default:
+	break;
+    }
+    update ();
 }
 
 

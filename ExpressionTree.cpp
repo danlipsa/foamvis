@@ -4,6 +4,8 @@
  *
  * Member definitions  for nodes used  in an expression tree  built in
  * the parser
+ * @todo cache an iterator to avoid looking up a name for every access of a 
+ *       variable, array, function and so on.
  */
 #include "DebugStream.h"
 #include "ExpressionTree.h"
@@ -54,6 +56,15 @@ string ExpressionTreeNumber::ToString () const
 
 // ExpressionTreeVariable
 // ======================================================================
+ExpressionTreeVariable::ExpressionTreeVariable (
+    ParsingData& parsingData, const char* name) :
+    
+    ExpressionTree (parsingData),
+    m_name (name)
+{
+}
+
+
 double ExpressionTreeVariable::Value (void) const
 {
     return m_parsingData.GetVariableValue (m_name);
