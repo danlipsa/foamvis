@@ -31,8 +31,7 @@ public:
     typedef map<string, 
 		boost::shared_ptr<AttributeArrayAttribute>, 
 		LessThanNoCase> Arrays;
-    typedef Arrays::const_iterator ArrayId;
-
+    typedef Arrays::const_iterator ArrayIt;
     /**
      * Unary function type
      */
@@ -115,25 +114,30 @@ public:
     {
 	return m_faces[i];
     }
+    /**
+     * Retrieves a variable value
+     * @param name variable name
+     * @return variable value
+     */
+    double GetVariableValue (const char* name) const;
+    pair<bool, double> GetVariableExistsValue (const char* name) const;
+    double GetVariableValue (const string& name) const
+    {
+	return GetVariableValue (name.c_str ());
+    }
+    double GetArrayValue (const char* name,   const vector<size_t>& index) const;
+    pair<bool, ArrayIt> GetArrayIt (const char* name) const;
     
-    pair<bool, ArrayId> GetArrayId (const char* name) const;
-    pair<bool, float> GetArrayValue (const char* name, 
-                                     const vector<size_t>& index) const;
-    pair<bool, float> GetArrayValue (const string& name, 
-                                     const vector<size_t>& index) const
+    double GetArrayValue (const string& name, const vector<size_t>& index) const
     {
         return GetArrayValue (name.c_str (), index);
     }
+    double GetArrayValue (ArrayIt, const vector<size_t>& index) const;
 
-    float GetArrayValue (ArrayId it, const vector<size_t>& index) const;
-    
-    /**
-     * Returns if the variable is set and its value.
-     */
-    pair<bool, float> GetVariableValue (const char* name) const;
-    pair<bool, float> GetVariableValue (const string& name) const
+    bool IsVariableSet (const char* name);
+    bool IsVariableSet (const string& name)
     {
-        return GetVariableValue (name.c_str ());
+	return IsVariableSet (name.c_str ());
     }
 
     /**
