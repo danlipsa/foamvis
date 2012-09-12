@@ -89,8 +89,9 @@ system (touch -t 0001010000 $$PRE_TARGETDEPS)
 CONFIG            += qt precompile_header no_keywords debug_and_release
 CONFIG(debug, debug|release) {
 	TARGET = $$join(TARGET,,,_debug)
-#	QMAKE_CXXFLAGS += -pg
-#	QMAKE_LFLAGS += -pg
+# Profile
+# QMAKE_CXXFLAGS += -pg
+# QMAKE_LFLAGS += -pg
 }
 
 win32 {

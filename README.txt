@@ -3,7 +3,8 @@ Release log
 0.8.
         - bug fix: transformations are slow
         - allow keywords inside SCALAR_INTEGRANT (for shearv_35)
-        - 
+        - implement simple form of view transform
+        - read t1s from the DMP file using t1positions and num_pops_step
 0.8.2553
         - bug fixes (dataset fluctuates because is centered at foam center 
           instead of simulation center)
@@ -401,8 +402,8 @@ Interact with the program
 This will generate a file called 'foamMovie.mp4'
 
 
-Profile
-=======
+Debug - Profile (gprof)
+=======================
 Install: gprof, gprof2dot, graphviz
 
 Add the following options to foam.pro:
@@ -417,33 +418,40 @@ Run the program:
 
 Run gprof on the generated file (gmon.out), eventually selecting some
 files of interest (to profile only functions from those files):
+gprof ./foam_debug > gprof.txt
+or
 gprof -pFoamAlongTime.cpp -qFoamAlongTime.cpp ./foam > gprof.txt
+-p generates a flat profile
+-q generates a call graph
+See gprof.info for information on gprof.txt.
 
-Generate a call graph image
+Generate a call graph image (the call graph might be too big and 
+dot might crash)
 cat gprof.txt | gprof2dot.py | dot -Tpng -o gprof.png
 
-Static checks (cppcheck)
-========================
+Debug - static checks (cppcheck)
+================================
 cppcheck-gui will use the project file foamvis.cppcheck and 
 
 
-Debug memory leaks, ... (valgrind)
-==================================
+Debug - Memory leaks, ... (valgrind)
+====================================
 valgrind --suppressions=valgrind-supressions.txt --leak-check=yes
 ./foam ~/Documents/swansea-phd/foam/coarse100/coarse_01_0100_4309.dmp
 
 You can use the option '--gen-suppressions=yes' to print suppressions
 to be added to 'valgrind-suppressions.txt'.
 
-Debug OpenGL (bugle, gldb-gui)
+Debug - OpenGL (bugle, gldb-gui)
 ==============================
 gldb-gui
 
-Debug the parser or scanner
-===========================
+Debug - Parser, Scanner
+=======================
 ./foam --debug-parsing
 ./foam --debug-scanning
-See EvolverData.output for information about the grammar for the parser.
+See Evolver.y, Evolver.l and EvolverData.output for information on the parser or
+scanner
 
 Prerequisites
 =============

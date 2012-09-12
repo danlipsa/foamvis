@@ -118,6 +118,7 @@ ParsingData::ParsingData (
 	{"cos", cosf},
 	{"sin", sinf},
 	{"asin", asinf},
+        {"acos", acosf},
 	{"abs", doubleAbs}
     };
 

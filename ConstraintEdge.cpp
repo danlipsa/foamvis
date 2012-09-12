@@ -389,7 +389,7 @@ void ConstraintEdge::fixPoint (
 }
 
 void ConstraintEdge::cachePoints ()
-{    
+{
     // do we really need to unset these variables?
     m_parsingData->UnsetVariable ("x");
     m_parsingData->UnsetVariable ("y");

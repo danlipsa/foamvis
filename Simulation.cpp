@@ -522,7 +522,7 @@ void Simulation::ParseT1s (const char* arrayName, const char* countName)
         {
             m_t1s.resize (0);
             RuntimeAssert (
-                i == 0, "ParseT1s: T1s variables not set at index ", i);
+                i == 1, "ParseT1s: T1s variables not set at index ", i);
             return;
         }
     }
