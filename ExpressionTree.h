@@ -7,7 +7,7 @@
 #ifndef __EXPRESSION_TREE_H__
 #define __EXPRESSION_TREE_H__
 
-class ParsingData;
+#include "ParsingData.h"
 
 /**
  * Base  class for  all  types of  nodes  in an  expression tree.   An
@@ -35,14 +35,14 @@ public:
     /**
      * Constructs an ExpressionTree
      */
-    ExpressionTree (ParsingData& parsingData)
+    ExpressionTree (const ParsingData& parsingData)
 
         : m_parsingData (parsingData)
     {}
     virtual ~ExpressionTree () 
     {}
 
-    ParsingData& GetParsingData ()
+    const ParsingData& GetParsingData ()
     {
 	return m_parsingData;
     }
@@ -51,24 +51,24 @@ public:
      * by the tree
      * @return the value of the tree
      */
-    virtual double Value () const = 0;
+    virtual double Value () = 0;
     virtual size_t Height () const
     {
 	return 0;
     }
     virtual ExpressionTreeType::Enum GetType () const = 0;
-    virtual ExpressionTree* GetSimplifiedTree () const = 0;
-    virtual string ToString () const = 0;
+    virtual ExpressionTree* GetSimplifiedTree () = 0;
+    virtual string ToString () = 0;
     virtual bool HasConditional ()
     {
 	return false;
     }
 
-    string ToParenthesisString () const;
+    string ToParenthesisString ();
     bool IsProperBinaryFunction () const;
 
 protected:
-    ParsingData& m_parsingData;
+    const ParsingData& m_parsingData;
 };
 
 /**
@@ -80,7 +80,7 @@ public:
     /**
      * Constructs a number node
      */
-    ExpressionTreeNumber (ParsingData& parsingData, double value) : 
+    ExpressionTreeNumber (const ParsingData& parsingData, double value) : 
 	ExpressionTree (parsingData),
 	m_value (value) 
     {}
@@ -88,13 +88,13 @@ public:
      * Value of the number
      * @return value of the number
      */
-    virtual double Value () const;
-    virtual ExpressionTree* GetSimplifiedTree () const;
+    virtual double Value ();
+    virtual ExpressionTree* GetSimplifiedTree ();
     virtual ExpressionTreeType::Enum GetType () const 
     {
 	return ExpressionTreeType::NUMBER;
     }
-    virtual string ToString () const;
+    virtual string ToString ();
 private:
     /**
      * Value of the nubmber node
@@ -113,23 +113,25 @@ public:
      * @param name the name of the variable
      * @param parsingData data which allows us to get the value of a variable.
      */
-    ExpressionTreeVariable (ParsingData& parsingData, const char* name);
+    ExpressionTreeVariable (const ParsingData& parsingData, const char* name);
     /**
      * Value of the variable
      * @return the value of the variable
      */
-    virtual double Value () const;
-    virtual ExpressionTree* GetSimplifiedTree () const;
+    virtual double Value ();
+    virtual ExpressionTree* GetSimplifiedTree ();
     virtual ExpressionTreeType::Enum GetType () const 
     {
 	return ExpressionTreeType::VARIABLE;
     }
-    virtual string ToString () const;
+    virtual string ToString ();
+    bool IsCoordinate () const;
 private:
     /**
      * Variable name
      */
     string m_name;
+    ParsingData::VariableIt m_it;
 };
 
 
@@ -139,7 +141,7 @@ private:
 class ExpressionTreeArrayElement : public ExpressionTree
 {
 public:
-    ExpressionTreeArrayElement (ParsingData& parsingData, 
+    ExpressionTreeArrayElement (const ParsingData& parsingData, 
 				const char* name, const vector<size_t>& index) :
 
 	ExpressionTree (parsingData),
@@ -150,13 +152,13 @@ public:
      * Value of the variable
      * @return the value of the variable
      */
-    virtual double Value () const;
-    virtual ExpressionTree* GetSimplifiedTree () const;
+    virtual double Value ();
+    virtual ExpressionTree* GetSimplifiedTree ();
     virtual ExpressionTreeType::Enum GetType () const 
     {
 	return ExpressionTreeType::ARRAY_ELEMENT;
     }
-    virtual string ToString () const;
+    virtual string ToString ();
 private:
     /**
      * Variable name
@@ -183,7 +185,7 @@ public:
      * with the function name
      */
     ExpressionTreeUnaryFunction (
-        ParsingData& parsingData, const char* name, ExpressionTree* param)
+        const ParsingData& parsingData, const char* name, ExpressionTree* param)
         : ExpressionTree (parsingData), 
 	  m_name (name), m_param (param)
     {
@@ -192,17 +194,17 @@ public:
      * Value of the function applied to the parameter.
      * @return the value of the function applied to the parameter.
      */
-    virtual double Value () const;
+    virtual double Value ();
     virtual size_t Height () const
     {
 	return 1 + m_param->Height ();
     }
-    virtual ExpressionTree* GetSimplifiedTree () const;
+    virtual ExpressionTree* GetSimplifiedTree ();
     virtual ExpressionTreeType::Enum GetType () const 
     {
 	return ExpressionTreeType::UNARY_FUNCTION;
     }
-    virtual string ToString () const;
+    virtual string ToString ();
     virtual bool HasConditional ()
     {
 	return m_param->HasConditional ();
@@ -231,7 +233,7 @@ public:
      * @param second second child of the tree node
      */
     ExpressionTreeBinaryFunction (
-	ParsingData& parsingData,
+	const ParsingData& parsingData,
         const char* name, 
         ExpressionTree* first, ExpressionTree* second)
         : ExpressionTree (parsingData), m_name (name),
@@ -242,17 +244,17 @@ public:
      * Value of the function applied to the parameters
      * @return the value of the function applied to the parameters.
      */
-    virtual double Value () const;
+    virtual double Value ();
     virtual size_t Height () const
     {
 	return 1 + max (m_first->Height (), m_second->Height ());
     }
-    virtual ExpressionTree* GetSimplifiedTree () const;
+    virtual ExpressionTree* GetSimplifiedTree ();
     virtual ExpressionTreeType::Enum GetType () const 
     {
 	return ExpressionTreeType::BINARY_FUNCTION;
     }
-    virtual string ToString () const;
+    virtual string ToString ();
     virtual bool HasConditional ()
     {
 	return m_first->HasConditional () || m_second->HasConditional ();
@@ -278,7 +280,7 @@ public:
      * Constructs a binary function tree node
      */
     ExpressionTreeConditional (
-	ParsingData& parsingData,
+	const ParsingData& parsingData,
         ExpressionTree* first, ExpressionTree* second, ExpressionTree* third)
         : ExpressionTree (parsingData),
 	  m_first (first), m_second (second), m_third (third)
@@ -287,18 +289,18 @@ public:
     /**
      * Value of the contitional expression
      */
-    virtual double Value () const;
+    virtual double Value ();
     virtual size_t Height () const
     {
 	return 1 + max (max (m_first->Height (), m_second->Height ()), 
 		 m_third->Height ());
     }
-    virtual ExpressionTree* GetSimplifiedTree () const;
+    virtual ExpressionTree* GetSimplifiedTree ();
     virtual ExpressionTreeType::Enum GetType () const 
     {
 	return ExpressionTreeType::CONDITIONAL;
     }
-    virtual string ToString () const;
+    virtual string ToString ();
     virtual bool HasConditional ()
     {
 	return true;
@@ -310,7 +312,7 @@ private:
 };
 
 
-inline ostream& operator<< (ostream& ostr, const ExpressionTree& t)
+inline ostream& operator<< (ostream& ostr, ExpressionTree& t)
 {
     return ostr << t.ToString ();
 }

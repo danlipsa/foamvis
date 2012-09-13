@@ -131,22 +131,27 @@ ParsingData::ParsingData (
 	AddMethodOrQuantity (method);
 }
 
-double ParsingData::GetVariableValue (const char* id) const
+double ParsingData::GetVariableValue (const char* name) const
 {
-    Variables::const_iterator it = m_variables.find (id);
-    RuntimeAssert (it != m_variables.end (), "Undeclared variable: ", id);
+    Variables::const_iterator it = m_variables.find (name);
+    RuntimeAssert (it != m_variables.end (), "Undeclared variable: ", name);
     return it->second;
 }
 
-pair<bool, double> ParsingData::GetVariableExistsValue (const char* id) const
+double ParsingData::GetVariableValue (VariableIt it) const
 {
-    Variables::const_iterator it = m_variables.find (id);
-    if (it == m_variables.end ())
-        return pair<bool, double> (false, 0);
-    else
-        return pair<bool, double> (true, it->second);
+    return it->second;
 }
 
+ParsingData::VariableIt ParsingData::GetVariableIt (const char* name) const
+{
+    return m_variables.find (name);
+}
+
+ParsingData::VariableIt ParsingData::GetVariableItEnd () const
+{
+    return m_variables.end ();
+}
 
 double ParsingData::GetArrayValue (const char* name, 
 				   const vector<size_t>& index) const
@@ -156,12 +161,17 @@ double ParsingData::GetArrayValue (const char* name,
     return it->second->Get (index);
 }
 
-pair<bool,ParsingData::ArrayIt> ParsingData::GetArrayIt (
-    const char* name) const
+ParsingData::ArrayIt ParsingData::GetArrayIt (const char* name) const
 {
-    ArrayIt it = m_arrays.find (name);
-    return pair<bool, ArrayIt> (it != m_arrays.end (), it);
+    return m_arrays.find (name);
 }
+
+ParsingData::ArrayIt ParsingData::GetArrayItEnd () const
+{
+    return m_arrays.end ();
+}
+
+
 
 double ParsingData::GetArrayValue (ArrayIt it, const vector<size_t>& index) const
 {
@@ -169,28 +179,29 @@ double ParsingData::GetArrayValue (ArrayIt it, const vector<size_t>& index) cons
 }
 
 
-void ParsingData::SetArray (const char* id, AttributeArrayAttribute* array)
+void ParsingData::SetArray (const char* name, AttributeArrayAttribute* array)
 {
-    m_arrays[id] = boost::shared_ptr<AttributeArrayAttribute> (array);
+    m_arrays[name] = boost::shared_ptr<AttributeArrayAttribute> (array);
 }
 
-bool ParsingData::IsVariableSet (const char* id)
+bool ParsingData::IsVariableSet (const char* name) const
 {
-    Variables::iterator it = m_variables.find (id);
+    VariableIt it = m_variables.find (name);
     return it != m_variables.end ();
 }
 
-ParsingData::UnaryFunction ParsingData::GetUnaryFunction (const char* name)
+ParsingData::UnaryFunction ParsingData::GetUnaryFunction (const char* name) const
 {
-    UnaryFunctions::iterator it = m_unaryFunctions.find (name);
+    UnaryFunctions::const_iterator it = m_unaryFunctions.find (name);
     RuntimeAssert (it != m_unaryFunctions.end (),
 		   "Invalid unary function name: ", name);
     return it->second;
 }
 
-ParsingData::BinaryFunction ParsingData::GetBinaryFunction (const char* name)
+ParsingData::BinaryFunction ParsingData::GetBinaryFunction (
+    const char* name) const
 {
-    BinaryFunctions::iterator it = m_binaryFunctions.find (name);
+    BinaryFunctions::const_iterator it = m_binaryFunctions.find (name);
     RuntimeAssert (it != m_binaryFunctions.end (),
 		   "Invalid binary function name: ", name);
     return it->second;
@@ -198,9 +209,9 @@ ParsingData::BinaryFunction ParsingData::GetBinaryFunction (const char* name)
 
 
 
-const char* ParsingData::CreateIdentifier(const char* id)
+const char* ParsingData::CreateIdentifier(const char* name)
 {
-    pair<Identifiers::iterator, bool> p = m_identifiers.insert (id);
+    pair<Identifiers::iterator, bool> p = m_identifiers.insert (name);
     return p.first->c_str ();
 }
 
@@ -262,38 +273,30 @@ string ParsingData::ToString () const
     return ostr.str ();
 }
 
-void ParsingData::UnsetVariable (const char* name)
-{
-    Variables::iterator it = m_variables.find (name);
-    if (it != m_variables.end ())
-	m_variables.erase (it);
-}
-
 bool ParsingData::GetT1s (const char* arrayName, const char* countName, 
                           vector<G3D::Vector3>* t1s) const
 {
-    pair<bool, ArrayIt> setId = GetArrayIt (arrayName);
-    if (! setId.first)
+    ParsingData::ArrayIt it = GetArrayIt (arrayName);
+    if (it == GetArrayItEnd ())
         return false;
-    ArrayIt id = setId.second;
-    pair<bool, float> c = GetVariableExistsValue (countName);
-    if (! c.first)
+    ParsingData::VariableIt cIt = GetVariableIt (countName);
+    if (cIt == GetVariableItEnd ())
         return false;
-    size_t count = c.second;
+    size_t count = GetVariableValue (cIt);
     t1s->resize (count);
     vector<size_t> index (2);
     for (size_t i = 0; i < count; ++i)
     {
         index[1] = i;
         index[0] = 0;
-        float x = GetArrayValue (id, index);
+        float x = GetArrayValue (it, index);
         index[0] = 1;
-        float y = GetArrayValue (id, index);
+        float y = GetArrayValue (it, index);
         float z = Foam::Z_COORDINATE_2D;
         if (DATA_PROPERTIES.Is3D ())
         {
             index[0] = 2;
-            z = GetArrayValue (id, index);
+            z = GetArrayValue (it, index);
         }
         (*t1s)[i] = G3D::Vector3 (x, y, z);
     }

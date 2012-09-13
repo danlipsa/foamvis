@@ -28,6 +28,7 @@ public:
      * Variable type
      */
     typedef map<string, double, LessThanNoCase> Variables;
+    typedef Variables::const_iterator VariableIt;
 
     typedef map<string, 
 		boost::shared_ptr<AttributeArrayAttribute>, 
@@ -86,16 +87,16 @@ public:
      * @param name name of the function to be retrieved
      * @return a binary function
      */
-    BinaryFunction GetBinaryFunction (const char* name);
-    BinaryFunction GetBinaryFunction (const string& name)
+    BinaryFunction GetBinaryFunction (const char* name) const;
+    BinaryFunction GetBinaryFunction (const string& name) const
     {
 	return GetBinaryFunction (name.c_str ());
     }
-    bool IsOperator (const char* name)
+    bool IsOperator (const char* name) const
     {
 	return OPERATORS.find (name) != OPERATORS.end ();
     }
-    bool IsOperator (const string& name)
+    bool IsOperator (const string& name) const
     {
 	return IsOperator (name.c_str ());
     }
@@ -122,13 +123,20 @@ public:
      */
     
     double GetVariableValue (const char* name) const;
-    pair<bool, double> GetVariableExistsValue (const char* name) const;
+    VariableIt GetVariableIt (const char* name) const;
+    VariableIt GetVariableIt (const string& name) const
+    {
+        return GetVariableIt (name.c_str ());
+    }
+    VariableIt GetVariableItEnd () const;
+    double GetVariableValue (VariableIt it) const;
     double GetVariableValue (const string& name) const
     {
 	return GetVariableValue (name.c_str ());
     }
     double GetArrayValue (const char* name,   const vector<size_t>& index) const;
-    pair<bool, ArrayIt> GetArrayIt (const char* name) const;
+    ArrayIt GetArrayIt (const char* name) const;
+    ArrayIt GetArrayItEnd () const;
     
     double GetArrayValue (const string& name, const vector<size_t>& index) const
     {
@@ -136,8 +144,8 @@ public:
     }
     double GetArrayValue (ArrayIt, const vector<size_t>& index) const;
 
-    bool IsVariableSet (const char* name);
-    bool IsVariableSet (const string& name)
+    bool IsVariableSet (const char* name) const;
+    bool IsVariableSet (const string& name) const
     {
 	return IsVariableSet (name.c_str ());
     }
@@ -147,8 +155,8 @@ public:
      * @param name name of the function to be retrieved
      * @return a unary function
      */
-    UnaryFunction GetUnaryFunction (const char* name);
-    UnaryFunction GetUnaryFunction (const string& name)
+    UnaryFunction GetUnaryFunction (const char* name) const;
+    UnaryFunction GetUnaryFunction (const string& name) const
     {
 	return GetUnaryFunction (name.c_str ());
     }
@@ -227,7 +235,6 @@ public:
     {
 	SetVariable (id.c_str (), value);
     }
-    void UnsetVariable (const char* name);
 
     /**
      * Stores an Edge object in the Foam object at a certain index

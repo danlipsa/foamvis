@@ -390,9 +390,6 @@ void ConstraintEdge::fixPoint (
 
 void ConstraintEdge::cachePoints ()
 {
-    // do we really need to unset these variables?
-    m_parsingData->UnsetVariable ("x");
-    m_parsingData->UnsetVariable ("y");
     m_points[0] = GetBeginVector ();
     m_points[m_points.size () - 1] = GetEndVector ();
     //cdbg << "0: " << m_points[0] 

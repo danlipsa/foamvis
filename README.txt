@@ -453,6 +453,11 @@ Debug - Parser, Scanner
 See Evolver.y, Evolver.l and EvolverData.output for information on the parser or
 scanner
 
+Debug - STL error messages
+==========================
+Copy the offending compilation command and replace 'g++' with 'gfilt'. 
+It uses STLFilt tool that simplifies STL error messages.
+
 Prerequisites
 =============
 openSUSe 11.2 (x86_64): G3D-8.00 (cvs version 20100524), 
