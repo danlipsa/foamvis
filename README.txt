@@ -404,7 +404,7 @@ This will generate a file called 'foamMovie.mp4'
 
 Debug - Profile (gprof)
 =======================
-Install: gprof, gprof2dot, graphviz
+Install: gprof
 
 Add the following options to foam.pro:
 QMAKE_CXXFLAGS += -pg
@@ -420,14 +420,10 @@ Run gprof on the generated file (gmon.out), eventually selecting some
 files of interest (to profile only functions from those files):
 gprof ./foam_debug > gprof.txt
 or
-gprof -pFoamAlongTime.cpp -qFoamAlongTime.cpp ./foam > gprof.txt
+gprof -pFoamAlongTime.cpp -qFoamAlongTime.cpp ./foam_debug > gprof.txt
 -p generates a flat profile
 -q generates a call graph
 See gprof.info for information on gprof.txt.
-
-Generate a call graph image (the call graph might be too big and 
-dot might crash)
-cat gprof.txt | gprof2dot.py | dot -Tpng -o gprof.png
 
 Debug - static checks (cppcheck)
 ================================
