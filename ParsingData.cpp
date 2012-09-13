@@ -209,7 +209,17 @@ ParsingData::BinaryFunction ParsingData::GetBinaryFunction (
     return it->second;
 }
 
+ParsingData::BinaryFunction ParsingData::GetBinaryFunction (
+    BinaryFunctionIt it) const
+{
+    return it->second;
+}
 
+ParsingData::BinaryFunctionIt ParsingData::GetBinaryFunctionIt (
+    const char* name) const
+{
+    return m_binaryFunctions.find (name);
+}
 
 const char* ParsingData::CreateIdentifier(const char* name)
 {

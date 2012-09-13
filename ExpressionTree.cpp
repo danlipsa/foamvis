@@ -186,11 +186,28 @@ string ExpressionTreeUnaryFunction::ToString ()
 
 // ExpressionTreeBinaryFunction
 // ======================================================================
+ExpressionTreeBinaryFunction::ExpressionTreeBinaryFunction (
+    const ParsingData& parsingData,
+    const char* name, 
+    ExpressionTree* first, ExpressionTree* second)
+    : ExpressionTree (parsingData), 
+      m_name (name),
+      m_it (parsingData.GetBinaryFunctionItEnd ()),
+      m_first (first), m_second (second)
+{
+}
+
 double ExpressionTreeBinaryFunction::Value (void)
 {
     double second = m_second->Value ();
     double first = m_first->Value ();
-    ParsingData::BinaryFunction f = m_parsingData.GetBinaryFunction (m_name);
+    if (m_it == m_parsingData.GetBinaryFunctionItEnd ())
+    {
+        m_it = m_parsingData.GetBinaryFunctionIt (m_name);
+        RuntimeAssert (m_it != m_parsingData.GetBinaryFunctionItEnd (),
+                       "Undefined binary function: ", m_name);
+    }
+    ParsingData::BinaryFunction f = m_parsingData.GetBinaryFunction (m_it);
     return f (first, second);
 }
 

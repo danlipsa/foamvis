@@ -97,11 +97,23 @@ public:
      * @param name name of the function to be retrieved
      * @return a binary function
      */
+
     BinaryFunction GetBinaryFunction (const char* name) const;
     BinaryFunction GetBinaryFunction (const string& name) const
     {
 	return GetBinaryFunction (name.c_str ());
     }
+    BinaryFunctionIt GetBinaryFunctionIt (const char* name) const;
+    BinaryFunctionIt GetBinaryFunctionIt (const string& name) const
+    {
+        return GetBinaryFunctionIt (name.c_str ());
+    }
+    BinaryFunctionIt GetBinaryFunctionItEnd () const
+    {
+        return m_binaryFunctions.end ();
+    }
+    BinaryFunction GetBinaryFunction (BinaryFunctionIt it) const;
+
     bool IsOperator (const char* name) const
     {
 	return OPERATORS.find (name) != OPERATORS.end ();

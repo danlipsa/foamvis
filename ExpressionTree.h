@@ -229,11 +229,7 @@ public:
     ExpressionTreeBinaryFunction (
 	const ParsingData& parsingData,
         const char* name, 
-        ExpressionTree* first, ExpressionTree* second)
-        : ExpressionTree (parsingData), m_name (name),
-	  m_first (first), m_second (second)
-    {
-    }
+        ExpressionTree* first, ExpressionTree* second);
     /**
      * Value of the function applied to the parameters
      * @return the value of the function applied to the parameters.
@@ -259,6 +255,7 @@ private:
      * Function name
      */
     string m_name;
+    ParsingData::BinaryFunctionIt m_it;
     boost::shared_ptr<ExpressionTree> m_first;
     boost::shared_ptr<ExpressionTree> m_second;
 };
