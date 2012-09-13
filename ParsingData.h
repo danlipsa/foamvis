@@ -28,12 +28,19 @@ public:
      * Variable type
      */
     typedef map<string, double, LessThanNoCase> Variables;
+    /**
+     * Note this iterator is not invalidated by inserting or deleting elements
+     * in the map.
+     */
     typedef Variables::const_iterator VariableIt;
+
 
     typedef map<string, 
 		boost::shared_ptr<AttributeArrayAttribute>, 
 		LessThanNoCase> Arrays;
     typedef Arrays::const_iterator ArrayIt;
+
+
     /**
      * Unary function type
      */
@@ -46,10 +53,13 @@ public:
      * Unary functions type
      */
     typedef map<string, UnaryFunction, LessThanNoCase> UnaryFunctions;
+    typedef UnaryFunctions::const_iterator UnaryFunctionIt;
+
     /**
      * Binary functions type
      */
     typedef map<string, BinaryFunction, LessThanNoCase> BinaryFunctions;
+    typedef BinaryFunctions::const_iterator BinaryFunctionIt;
     /**
      * Identifiers type
      */
@@ -116,39 +126,51 @@ public:
     {
 	return m_faces[i];
     }
-    /**
-     * Retrieves a variable value
-     * @param name variable name
-     * @return variable value
-     */
     
+    /**
+     * @{
+     * @ Entities (variables, array elements, unary functions, binary functions)
+     */
     double GetVariableValue (const char* name) const;
     VariableIt GetVariableIt (const char* name) const;
     VariableIt GetVariableIt (const string& name) const
     {
         return GetVariableIt (name.c_str ());
     }
-    VariableIt GetVariableItEnd () const;
+    VariableIt GetVariableItEnd () const
+    {
+        return m_variables.end ();
+    }
     double GetVariableValue (VariableIt it) const;
     double GetVariableValue (const string& name) const
     {
 	return GetVariableValue (name.c_str ());
     }
+    bool IsVariableSet (const char* name) const;
+    bool IsVariableSet (const string& name) const
+    {
+	return IsVariableSet (name.c_str ());
+    }
+    // @}
+
+
+
     double GetArrayValue (const char* name,   const vector<size_t>& index) const;
     ArrayIt GetArrayIt (const char* name) const;
-    ArrayIt GetArrayItEnd () const;
+    ArrayIt GetArrayIt (const string& name) const
+    {
+        return GetArrayIt (name.c_str ());
+    }
+    ArrayIt GetArrayItEnd () const
+    {
+        return m_arrays.end ();
+    }
     
     double GetArrayValue (const string& name, const vector<size_t>& index) const
     {
         return GetArrayValue (name.c_str (), index);
     }
     double GetArrayValue (ArrayIt, const vector<size_t>& index) const;
-
-    bool IsVariableSet (const char* name) const;
-    bool IsVariableSet (const string& name) const
-    {
-	return IsVariableSet (name.c_str ());
-    }
 
     /**
      * Returns the unary function with the name supplied by the parameter
@@ -160,6 +182,17 @@ public:
     {
 	return GetUnaryFunction (name.c_str ());
     }
+    UnaryFunctionIt GetUnaryFunctionIt (const char* name) const;
+    UnaryFunctionIt GetUnaryFunctionIt (const string& name) const
+    {
+        return GetUnaryFunctionIt (name.c_str ());
+    }    
+    UnaryFunctionIt GetUnaryFunctionItEnd () const
+    {
+        return m_unaryFunctions.end ();
+    }
+    UnaryFunction GetUnaryFunction (UnaryFunctionIt it) const;
+    
     /**
      * Gets the vector of vertices
      * @return the vector of vertices

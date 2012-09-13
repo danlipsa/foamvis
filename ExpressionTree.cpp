@@ -102,9 +102,26 @@ bool ExpressionTreeVariable::IsCoordinate () const
 
 // ExpressionTreeArrayElement
 // ======================================================================
+ExpressionTreeArrayElement::ExpressionTreeArrayElement (
+    const ParsingData& parsingData, 
+    const char* name, const vector<size_t>& index) :
+
+    ExpressionTree (parsingData),
+    m_name (name),
+    m_it (parsingData.GetArrayItEnd ()),
+    m_index (index)
+{
+}
+
 double ExpressionTreeArrayElement::Value (void)
 {
-    return m_parsingData.GetArrayValue (m_name, m_index);
+    if (m_it == m_parsingData.GetArrayItEnd ())
+    {
+        m_it = m_parsingData.GetArrayIt (m_name);
+        RuntimeAssert (m_it != m_parsingData.GetArrayItEnd (),
+                       "Undeclared array: ", m_name);
+    }
+    return m_parsingData.GetArrayValue (m_it, m_index);
 }
 
 ExpressionTree* ExpressionTreeArrayElement::GetSimplifiedTree ()
@@ -122,10 +139,26 @@ string ExpressionTreeArrayElement::ToString ()
 
 // ExpressionTreeUnaryFunction
 // ======================================================================
+ExpressionTreeUnaryFunction::ExpressionTreeUnaryFunction (
+    const ParsingData& parsingData, const char* name, ExpressionTree* param)
+    : ExpressionTree (parsingData), 
+      m_name (name), 
+      m_it (parsingData.GetUnaryFunctionItEnd ()),
+      m_param (param)
+{
+}
+
+
 double ExpressionTreeUnaryFunction::Value (void)
 {
     double value = m_param->Value ();
-    ParsingData::UnaryFunction f = m_parsingData.GetUnaryFunction (m_name);
+    if (m_it == m_parsingData.GetUnaryFunctionItEnd ())
+    {
+        m_it = m_parsingData.GetUnaryFunctionIt (m_name);
+        RuntimeAssert (m_it != m_parsingData.GetUnaryFunctionItEnd (),
+                       "Undefined unary function: ", m_name);
+    }
+    ParsingData::UnaryFunction f = m_parsingData.GetUnaryFunction (m_it);
     return f (value);
 }
 

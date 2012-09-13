@@ -148,10 +148,6 @@ ParsingData::VariableIt ParsingData::GetVariableIt (const char* name) const
     return m_variables.find (name);
 }
 
-ParsingData::VariableIt ParsingData::GetVariableItEnd () const
-{
-    return m_variables.end ();
-}
 
 double ParsingData::GetArrayValue (const char* name, 
 				   const vector<size_t>& index) const
@@ -165,13 +161,6 @@ ParsingData::ArrayIt ParsingData::GetArrayIt (const char* name) const
 {
     return m_arrays.find (name);
 }
-
-ParsingData::ArrayIt ParsingData::GetArrayItEnd () const
-{
-    return m_arrays.end ();
-}
-
-
 
 double ParsingData::GetArrayValue (ArrayIt it, const vector<size_t>& index) const
 {
@@ -197,6 +186,19 @@ ParsingData::UnaryFunction ParsingData::GetUnaryFunction (const char* name) cons
 		   "Invalid unary function name: ", name);
     return it->second;
 }
+
+ParsingData::UnaryFunctionIt ParsingData::GetUnaryFunctionIt (
+    const char* name) const
+{
+    return m_unaryFunctions.find (name);
+}
+
+ParsingData::UnaryFunction ParsingData::GetUnaryFunction (
+    UnaryFunctionIt it) const
+{
+    return it->second;
+}
+
 
 ParsingData::BinaryFunction ParsingData::GetBinaryFunction (
     const char* name) const

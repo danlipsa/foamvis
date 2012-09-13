@@ -142,12 +142,7 @@ class ExpressionTreeArrayElement : public ExpressionTree
 {
 public:
     ExpressionTreeArrayElement (const ParsingData& parsingData, 
-				const char* name, const vector<size_t>& index) :
-
-	ExpressionTree (parsingData),
-        m_name (name),
-	m_index (index)
-    {}
+				const char* name, const vector<size_t>& index);
     /**
      * Value of the variable
      * @return the value of the variable
@@ -164,6 +159,7 @@ private:
      * Variable name
      */
     string m_name;
+    ParsingData::ArrayIt m_it;
     vector<size_t> m_index;
 };
 
@@ -185,11 +181,8 @@ public:
      * with the function name
      */
     ExpressionTreeUnaryFunction (
-        const ParsingData& parsingData, const char* name, ExpressionTree* param)
-        : ExpressionTree (parsingData), 
-	  m_name (name), m_param (param)
-    {
-    }
+        const ParsingData& parsingData, const char* name, ExpressionTree* param);
+
     /**
      * Value of the function applied to the parameter.
      * @return the value of the function applied to the parameter.
@@ -215,6 +208,7 @@ private:
      * Name of the function
      */
     string m_name;
+    ParsingData::UnaryFunctionIt m_it;
     boost::shared_ptr<ExpressionTree> m_param;
 };
 
