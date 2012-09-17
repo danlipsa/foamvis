@@ -3830,6 +3830,7 @@ void WidgetGl::ToggledEdgesTessellationShown (bool checked)
 
 void WidgetGl::ToggledCenterPathTubeUsed (bool checked)
 {
+    cdbg << "center path tube used: " << checked << endl;
     makeCurrent ();
     GetSettings ()->SetCenterPathTubeUsed (checked);
     CompileUpdate ();
@@ -3837,6 +3838,7 @@ void WidgetGl::ToggledCenterPathTubeUsed (bool checked)
 
 void WidgetGl::ToggledCenterPathLineUsed (bool checked)
 {
+    cdbg << "center path line used: " << checked << endl;
     makeCurrent ();
     GetSettings ()->SetCenterPathLineUsed (checked);
     CompileUpdate ();

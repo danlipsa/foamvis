@@ -170,8 +170,7 @@ public:
 	const BodySelector& bodySelector, GLUquadricObj* quadric, 
 	const Simulation& simulation,
 	bool useTimeDisplacement = false, 
-	double timeDisplacement = 0,
-	boost::shared_ptr<ofstream> output = boost::shared_ptr<ofstream>());
+	double timeDisplacement = 0);
 
     /**
      * Displays the center path for a certain body
@@ -222,8 +221,6 @@ private:
     vector< boost::shared_ptr<FocusTextureSegment> > m_focusTextureSegments;
     vector< boost::shared_ptr<FocusColorSegment> > m_focusColorSegments;
     vector< boost::shared_ptr<ContextSegment> > m_contextSegments;
-    boost::shared_ptr<ofstream> m_output;
-    size_t m_index;
     const Simulation& m_simulation;
 };
 

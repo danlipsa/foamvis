@@ -1462,6 +1462,12 @@ void MainWindow::CurrentIndexChangedStatisticsType (int value)
 				 getColorBarModel ());
 }
 
+void MainWindow::ToggledCenterPathLineUsed (bool checked)
+{
+    checkBoxTubeCenterPathUsed->setEnabled (! checked);        
+}
+
+
 void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)
 {
     if (reflectedHalfView &&

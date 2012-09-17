@@ -302,8 +302,7 @@ DisplayCenterPath (
     const BodySelector& bodySelector, GLUquadricObj* quadric,
     const Simulation& simulation,
     bool useTimeDisplacement,
-    double timeDisplacement,
-    boost::shared_ptr<ofstream> output) :
+    double timeDisplacement) :
 
     DisplayBodyBase<PropertySetter> (
 	settings, foam, bodySelector, PropertySetter (settings, view),
@@ -312,8 +311,6 @@ DisplayCenterPath (
 		      this->m_settings.IsCenterPathLineUsed () ?
 		      this->m_settings.GetEdgeWidth () :
 		      this->m_settings.GetEdgeRadius ()),
-    m_output (output),
-    m_index (0),
     m_simulation (simulation)
 {
 }

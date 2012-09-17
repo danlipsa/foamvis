@@ -57,6 +57,7 @@ public Q_SLOTS:
     void SelectionChangedSettings (ViewNumber::Enum viewNumber);
     void ToggledViewFocusShown (bool checked);
     void ToggledTitleShown (bool checked);
+    void ToggledCenterPathLineUsed (bool checked);
     void ValueChangedContextAlpha (int sliderValue);
     void ToggledVelocityShown (bool checked);
     void ToggledHistogramGridShown (bool checked);
