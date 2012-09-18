@@ -68,12 +68,11 @@ struct FocusColorSegment : public Segment
 
 template <typename PropertySetter>
 DisplayBodyBase<PropertySetter>::
-DisplayBodyBase (const Settings& settings, const Foam& foam,
-		 const BodySelector& bodySelector,
+DisplayBodyBase (const Settings& settings, const BodySelector& bodySelector,
 		 PropertySetter propertySetter, bool useZPos, double zPos) :
 
     DisplayElementProperty<PropertySetter> (
-	settings, foam, propertySetter, useZPos, zPos),
+        settings, propertySetter, useZPos, zPos),
     m_bodySelector (bodySelector)
 {
 }
@@ -100,12 +99,11 @@ EndContext ()
 
 DisplayBodyDeformation::DisplayBodyDeformation (
     const Settings& settings, ViewNumber::Enum viewNumber, 
-    const Foam& foam,
     const BodySelector& bodySelector, float deformationSizeInitialRatio,
     bool useZPos, double zPos):
     
     DisplayBodyBase<> (
-	settings, foam, bodySelector,
+	settings, bodySelector,
 	SetterTextureCoordinate(settings, viewNumber), useZPos, zPos),
     m_deformationSizeInitialRatio (deformationSizeInitialRatio)
 {}
@@ -141,14 +139,13 @@ void DisplayBodyDeformation::operator () (boost::shared_ptr<Body> body)
 
 DisplayBodyVelocity::DisplayBodyVelocity (
     const Settings& settings, ViewNumber::Enum viewNumber, 
-    const Foam& foam,
     const BodySelector& bodySelector, float bubbleSize, 
     float velocitySizeInitialRatio, float onePixelInObjectSpace,
     bool sameSize, bool clampingShown,
     bool useZPos, double zPos):
     
     DisplayBodyBase<> (
-	settings, foam, bodySelector,
+	settings, bodySelector,
 	SetterTextureCoordinate(settings, viewNumber), useZPos, zPos),
     m_bubbleSize (bubbleSize),
     m_velocitySizeInitialRatio (velocitySizeInitialRatio),
@@ -212,12 +209,11 @@ void DisplayBodyVelocity::operator () (boost::shared_ptr<Body> body)
 // ======================================================================
 
 DisplayBodyCenter::DisplayBodyCenter (
-    const Settings& settings, const Foam& foam,
-    const BodySelector& bodySelector,
+    const Settings& settings, const BodySelector& bodySelector,
     bool useZPos, double zPos):
     
     DisplayBodyBase<> (
-	settings, foam, bodySelector,
+	settings, bodySelector,
 	SetterTextureCoordinate(settings, ViewNumber::VIEW0), useZPos, zPos)
 {}
 
@@ -240,13 +236,13 @@ void DisplayBodyCenter::operator () (boost::shared_ptr<Body> b)
 template<typename displayFace, typename PropertySetter>
 DisplayBody<displayFace, PropertySetter>::
 DisplayBody (
-    const Settings& settings, const Foam& foam,
-    const BodySelector& bodySelector,
+    const Settings& settings, const BodySelector& bodySelector,
     typename DisplayElement::ContextType contextDisplay, 
     ViewNumber::Enum view, bool useZPos, double zPos) :
 
     DisplayBodyBase<PropertySetter> (
-	settings, foam, bodySelector, PropertySetter (settings, view), useZPos, zPos),
+	settings, bodySelector, 
+        PropertySetter (settings, view), useZPos, zPos),
     m_contextDisplay (contextDisplay)
 {
 }
@@ -254,14 +250,14 @@ DisplayBody (
 template<typename displayFace, typename PropertySetter>
 DisplayBody<displayFace, PropertySetter>::
 DisplayBody (
-    const Settings& settings, const Foam& foam,
+    const Settings& settings, 
     const BodySelector& bodySelector,
     PropertySetter setter,
     typename DisplayElement::ContextType contextDisplay,
     bool useZPos, double zPos) :
 
     DisplayBodyBase<PropertySetter> (
-	settings, foam, bodySelector, setter, useZPos, zPos),
+        settings, bodySelector, setter, useZPos, zPos),
     m_contextDisplay (contextDisplay)
 {
 }
@@ -285,8 +281,7 @@ operator () (boost::shared_ptr<Body> b)
     for_each (
 	v.begin (), v.end (),
 	displayFace (
-	    this->m_settings, this->m_foam, 
-	    this->m_propertySetter, bodyFc,
+	    this->m_settings, this->m_propertySetter, bodyFc,
 	    this->m_useZPos, this->m_zPos));
 }
 
@@ -297,15 +292,14 @@ operator () (boost::shared_ptr<Body> b)
 template<typename PropertySetter, typename DisplaySegment>
 DisplayCenterPath<PropertySetter, DisplaySegment>::
 DisplayCenterPath (
-    const Settings& settings, const Foam& foam,
-    ViewNumber::Enum view,
+    const Settings& settings, ViewNumber::Enum view,
     const BodySelector& bodySelector, GLUquadricObj* quadric,
     const Simulation& simulation,
     bool useTimeDisplacement,
     double timeDisplacement) :
 
     DisplayBodyBase<PropertySetter> (
-	settings, foam, bodySelector, PropertySetter (settings, view),
+	settings, bodySelector, PropertySetter (settings, view),
 	useTimeDisplacement, timeDisplacement),
     m_displaySegment (quadric,
 		      this->m_settings.IsCenterPathLineUsed () ?
@@ -517,15 +511,22 @@ template class DisplayBodyBase<SetterVelocity>;
 // ======================================================================
 
 template class DisplayBody<
-    DisplayFaceHighlightColor<HighlightNumber::H0,
-	DisplayFaceEdges<
-	    DisplayEdgePropertyColor<DisplayElement::DONT_DISPLAY_TESSELLATION_EDGES> >,
-	SetterTextureCoordinate>, SetterTextureCoordinate>;
+    DisplayFaceHighlightColor<(HighlightNumber::Enum)0, 
+                              DisplayFaceEdges<
+                                  DisplayEdgePropertyColor<(DisplayElement::TessellationEdgesDisplay)0> >, SetterTextureCoordinate>, SetterTextureCoordinate>;
+
 template class DisplayBody<
-    DisplayFaceHighlightColor<HighlightNumber::H0,
-	DisplayFaceEdges<
-	    DisplayEdgePropertyColor<DisplayElement::DISPLAY_TESSELLATION_EDGES> >,
-	SetterTextureCoordinate>, SetterTextureCoordinate>;
+    DisplayFaceHighlightColor<(HighlightNumber::Enum)0, 
+                              DisplayFaceEdges<
+                                  DisplayEdgePropertyColor<(DisplayElement::TessellationEdgesDisplay)1> >, SetterTextureCoordinate>, SetterTextureCoordinate>;
+
+
+template class DisplayBody<
+    DisplayFaceHighlightColor<(HighlightNumber::Enum)0, 
+                              DisplayFaceEdges<
+                                  DisplayEdge>, SetterTextureCoordinate>, SetterTextureCoordinate>;
+
+
 template class DisplayBody<
     DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceLineStrip, SetterTextureCoordinate>, SetterTextureCoordinate>;
 

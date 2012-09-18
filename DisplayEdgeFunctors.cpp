@@ -21,6 +21,25 @@
 #include "Utils.h"
 #include "Vertex.h"
 
+void DisplayEdgeVertices (const Edge& edge, bool useZPos, double zPos)
+{
+    for (size_t i = 0; i < edge.GetPointCount (); ++i)
+    {
+	G3D::Vector3 p = edge.GetPoint (i);
+	if (useZPos)
+	    p = G3D::Vector3 (p.xy (), zPos);
+	::glVertex (p);
+    }
+}
+
+
+void DisplayEdgeVerticesNoEnds (const Edge& edge)
+{
+    for (size_t i = 1; i < edge.GetPointCount () - 1; ++i)
+	::glVertex (edge.GetPoint (i));
+}
+
+
 G3D::Matrix3 edgeRotation (const G3D::Vector3& begin, const G3D::Vector3& end)
 {
     G3D::Vector3 newZ = end - begin;
@@ -299,11 +318,11 @@ void DisplayOrientedSegmentQuadric::operator () (
 template <typename DisplayEdge, typename DisplaySegmentArrow1, 
 	  bool showDuplicates>
 DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow1, showDuplicates>::
-DisplayEdgeTorus (const Settings& widget, const Foam& foam, 
+DisplayEdgeTorus (const Settings& widget, 
 		  FocusContext focus, bool useZPos, double zPos, 
 		  GLUquadricObj* quadric) : 
     
-    DisplayElementFocus (widget, foam, focus, useZPos, zPos),
+    DisplayElementFocus (widget, focus, useZPos, zPos),
     m_displayEdge (quadric, m_settings.GetEdgeRadius ()),
     m_displayArrow (quadric,
 		    m_settings.GetArrowBaseRadius (),
@@ -361,21 +380,21 @@ display (const boost::shared_ptr<Edge>  e)
 
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 DisplayEdgePropertyColor<tesselationEdgesDisplay>::
-DisplayEdgePropertyColor (const Settings& widget,const Foam& foam,
+DisplayEdgePropertyColor (const Settings& widget,
 			  FocusContext focus,
 			  bool useZPos, double zPos) : 
     
-    DisplayElementFocus (widget, foam, focus, useZPos, zPos)
+    DisplayElementFocus (widget, focus, useZPos, zPos)
 {
 }
 
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 DisplayEdgePropertyColor<tesselationEdgesDisplay>::
-DisplayEdgePropertyColor (const Settings& widget,const Foam& foam,
+DisplayEdgePropertyColor (const Settings& widget,
 			  FocusContext focus, ViewNumber::Enum viewNumber,
 			  bool useZPos, double zPos) : 
     
-    DisplayElementFocus (widget, foam, focus, useZPos, zPos)
+    DisplayElementFocus (widget, focus, useZPos, zPos)
 {
     (void)viewNumber;
 }
@@ -431,136 +450,30 @@ operator() (const boost::shared_ptr<OrientedEdge> oe) const
 // DisplayEdgeHighlightColor
 // ======================================================================
 
-template <HighlightNumber::Enum highlightColorIndex,
-	  DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
-DisplayEdgeHighlightColor<highlightColorIndex, tesselationEdgesDisplay>::
-DisplayEdgeHighlightColor (const Settings& widget, const Foam& foam,
-			   FocusContext focus,
-			   ViewNumber::Enum viewNumber,
-			   bool useZPos, double zPos) : 
+DisplayEdge::DisplayEdge (const Settings& settings, FocusContext focus, 
+                          bool useZPos, double zPos) : 
     
-    DisplayElementFocus (widget, foam, focus, useZPos, zPos),
-    m_viewNumber (viewNumber)
+    DisplayElementFocus (settings, focus, useZPos, zPos)
 {
 }
 
-template <HighlightNumber::Enum highlightColorIndex,
-	  DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
-void DisplayEdgeHighlightColor<highlightColorIndex, tesselationEdgesDisplay>::
-operator () (const boost::shared_ptr<Edge> edge) const
+void DisplayEdge::operator () (const boost::shared_ptr<Edge> edge) const
 {
     operator () (*edge);
 }
 
-template <HighlightNumber::Enum highlightColorIndex,
-	  DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
-void DisplayEdgeHighlightColor<highlightColorIndex, tesselationEdgesDisplay>::
-operator () (const Edge& edge) const
+void DisplayEdge::operator () (const Edge& edge) const
 {
-    if (this->m_focus == DisplayElement::FOCUS)
-    {
-	glColor (this->m_settings.GetHighlightColor (
-		     m_viewNumber, highlightColorIndex));
-    }
-    else
-	glColor (QColor::fromRgbF (
-		     0, 0, 0, this->m_settings.GetContextAlpha ()));
     glBegin(GL_LINE_STRIP);
     DisplayEdgeVertices (edge, m_useZPos, m_zPos);
     glEnd ();
 }
 
-template <HighlightNumber::Enum highlightColorIndex,
-	  DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
-void DisplayEdgeHighlightColor<highlightColorIndex, tesselationEdgesDisplay>::
-operator() (const boost::shared_ptr<OrientedEdge> oe) const
+void DisplayEdge::operator() (const boost::shared_ptr<OrientedEdge> oe) const
 {
     operator () (oe->GetEdge ());
 }
 
-
-
-// DisplayFaceLineStrip
-// ======================================================================
-void DisplayFaceLineStrip::operator() (
-    const boost::shared_ptr<OrientedFace>& of)
-{
-    operator() (of->GetFace ());
-}
-
-void DisplayFaceLineStrip::operator() (const boost::shared_ptr<Face>& f)
-{
-    glBegin (GL_LINE_STRIP);
-    const vector<boost::shared_ptr<OrientedEdge> >& v =
-	f->GetOrientedEdges ();
-    for_each (v.begin (), v.end (), DisplayOrientedEdgeVertices);
-    glEnd ();
-}
-
-
-// DisplayFaceTriangleFan
-// ======================================================================
-
-void DisplayFaceTriangleFan::operator() (
-    const boost::shared_ptr<Face>& f) const
-{
-    OrientedFace of (f, false);
-    operator () (&of);
-}
-
-void DisplayFaceTriangleFan::operator() (const OrientedFace*  of) const
-{
-    OrientedEdge oe = of->GetOrientedEdge (0);
-    glBegin (GL_TRIANGLE_FAN);
-    ::glVertex (of->GetCenter ());
-    ::glVertex (oe.GetPoint (0));
-    ::glVertex (oe.GetPoint (1));
-    size_t pointIndex = 2;
-    for (size_t i = 0; i < of->size (); ++i)
-    {
-	oe = of->GetOrientedEdge (i);
-	for (; pointIndex < oe.GetPointCount (); ++pointIndex)
-	    ::glVertex (oe.GetPoint (pointIndex));
-	pointIndex = 0;
-    }
-    glEnd ();
-}
-
-
-// DisplayFaceEdges
-// ======================================================================
-
-template<typename displayEdge>
-DisplayFaceEdges<displayEdge>::
-DisplayFaceEdges (
-    const Settings& widget, const Foam& foam,
-    FocusContext focus, bool useZPos, double zPos) :
- 
-    DisplayElementFocus (widget, foam, focus, useZPos, zPos)
-{
-}
-
-template<typename displayEdge>
-void DisplayFaceEdges<displayEdge>::
-operator() (const boost::shared_ptr<OrientedFace>  f)
-{
-    operator() (f->GetFace ());
-}
-
-template<typename displayEdge>
-void DisplayFaceEdges<displayEdge>::
-operator () (const boost::shared_ptr<Face>  f)
-{
-    const vector< boost::shared_ptr<OrientedEdge> >& v = 
-	f->GetOrientedEdges ();
-    displayEdge display(m_settings, m_foam, 
-			m_focus, m_useZPos, m_zPos);
-    for (size_t i = 0; i < v.size (); i++)
-    {
-	boost::shared_ptr<OrientedEdge> oe = v[i];
-	display (oe);
-    }
-}
 
 // Template instantiations
 // ======================================================================
@@ -573,10 +486,6 @@ template class DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadri
 template class DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow1, false>;
 template class DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow1, true>;
 
-// DisplayHighlightColor
-// ======================================================================
-template class DisplayEdgeHighlightColor<(HighlightNumber::Enum)0, (DisplayElement::TessellationEdgesDisplay)0>;
-
 
 // DisplayEdgePropertyColor
 // ======================================================================
@@ -584,17 +493,5 @@ template class DisplayEdgeHighlightColor<(HighlightNumber::Enum)0, (DisplayEleme
 template class DisplayEdgePropertyColor <DisplayElement::DISPLAY_TESSELLATION_EDGES>;
 template class DisplayEdgePropertyColor <DisplayElement::DONT_DISPLAY_TESSELLATION_EDGES>;
 
-
-// DisplayEdgeTorus
-// ======================================================================
-
-template class DisplayFaceEdges<
-    DisplayEdgeTorus <DisplaySegment, DisplaySegmentArrow1, true> >;
-template class DisplayFaceEdges<
-    DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, true> >;
-template class DisplayFaceEdges<
-    DisplayEdgePropertyColor<DisplayElement::DISPLAY_TESSELLATION_EDGES> >;
-template class DisplayFaceEdges<
-    DisplayEdgePropertyColor<DisplayElement::DONT_DISPLAY_TESSELLATION_EDGES> >;
 
 

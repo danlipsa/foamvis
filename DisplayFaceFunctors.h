@@ -18,6 +18,29 @@ class OrientedFace;
 class DisplayFaceLineStrip;
 
 /**
+ * Functor that displays an edge
+ */
+class DisplayFaceTriangleFan : public DisplayElementFocus
+{
+public:
+    DisplayFaceTriangleFan (
+	const Settings& settings, 
+	FocusContext focus = FOCUS,
+	bool useZPos = false, double zPos = 0) : 
+	DisplayElementFocus (settings, focus, useZPos, zPos)
+    {
+    }
+
+    void operator () (const boost::shared_ptr<Face>& f) const;
+    void operator () (const boost::shared_ptr<const OrientedFace>& of) const
+    {
+	operator () (of.get ());
+    }
+    void operator () (const OrientedFace* of) const;
+};
+
+
+/**
  * Functor that displays a face using a color map highlight color
  */
 template <HighlightNumber::Enum highlightColorIndex,
@@ -31,14 +54,14 @@ public:
      * Constructor
      */
     DisplayFaceHighlightColor (
-	const Settings& widget, const Foam& foam,
+	const Settings& widget, 
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
-	ViewNumber::Enum view = ViewNumber::VIEW0,
+	ViewNumber::Enum viewNumber = ViewNumber::VIEW0,
 	bool useZPos = false,
 	double zPos = 0);
     
     DisplayFaceHighlightColor (
-	const Settings& settings, const Foam& foam,
+	const Settings& settings, 
 	PropertySetter propertySetter,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	bool useZPos = false,
@@ -65,14 +88,14 @@ class DisplayFaceBodyScalarColor :
 {
 public:
     DisplayFaceBodyScalarColor (
-	const Settings& settings, const Foam& foam,
+	const Settings& settings, 
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	ViewNumber::Enum view = ViewNumber::VIEW0, 
 	bool useZPos = false,
 	double zPos = 0);
 
     DisplayFaceBodyScalarColor (
-	const Settings& settings, const Foam& foam,
+	const Settings& settings, 
 	PropertySetter propertySetter,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	bool useZPos = false, 
@@ -94,14 +117,14 @@ class DisplayFaceDmpColor :
 {
 public:
     DisplayFaceDmpColor (
-	const Settings& settings, const Foam& foam,
+	const Settings& settings, 
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	ViewNumber::Enum view = ViewNumber::VIEW0, 
 	bool useZPos = false,
 	double zPos = 0);
 
     DisplayFaceDmpColor (
-	const Settings& settings, const Foam& foam,
+	const Settings& settings, 
 	PropertySetter propertySetter,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	bool useZPos = false, 
@@ -113,6 +136,37 @@ private:
     void displayNoNormal (const boost::shared_ptr<Face>& f);
 };
 
+// Display all edges of a face
+// ======================================================================
+class DisplayFaceLineStrip : public DisplayElementFocus
+{
+public:
+    DisplayFaceLineStrip (
+	const Settings& settings, 
+	FocusContext focus = FOCUS,
+	bool useZPos = false, double zPos = 0) :
+	DisplayElementFocus (settings, focus, useZPos, zPos)
+    {
+    }
+    void operator() (const boost::shared_ptr<OrientedFace>& of);
+
+    void operator() (const boost::shared_ptr<Face>& f);
+};
+
+
+
+
+template<typename displayEdge>
+class DisplayFaceEdges : public DisplayElementFocus
+{
+public:
+    DisplayFaceEdges (const Settings& settings, FocusContext focus, 
+		      bool useZPos = false, double zPos = 0);
+
+    void operator() (const boost::shared_ptr<OrientedFace> f);
+
+    void operator () (const boost::shared_ptr<Face> f);
+};
 
 
 

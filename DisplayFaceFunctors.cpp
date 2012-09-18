@@ -7,6 +7,7 @@
  */
 
 #include "Body.h"
+#include "DataProperties.h"
 #include "DebugStream.h"
 #include "DisplayFaceFunctors.h"
 #include "DisplayEdgeFunctors.h"
@@ -15,7 +16,16 @@
 #include "Settings.h"
 #include "OpenGLUtils.h"
 #include "OrientedFace.h"
+#include "OrientedEdge.h"
 #include "ViewSettings.h"
+
+
+void  DisplayOrientedEdgeVertices (const boost::shared_ptr<OrientedEdge> e)
+{
+    for (size_t i = 0; i < e->GetPointCount (); ++i)
+	::glVertex(e->GetPoint (i));
+}
+
 
 // DisplayFaceHighlightColor
 // ======================================================================
@@ -25,12 +35,12 @@ template <HighlightNumber::Enum highlightColorIndex,
 DisplayFaceHighlightColor<highlightColorIndex, 
 			  displayEdges, PropertySetter>::
 DisplayFaceHighlightColor (
-    const Settings& settings, const Foam& foam,
+    const Settings& settings, 
     typename DisplayElement::FocusContext focus,
-    ViewNumber::Enum view, bool useZPos, double zPos) : 
+    ViewNumber::Enum viewNumber, bool useZPos, double zPos) : 
     
     DisplayElementPropertyFocus<PropertySetter> (
-	settings, foam, PropertySetter (settings, view), focus, useZPos, zPos)
+	settings, PropertySetter (settings, viewNumber), focus, useZPos, zPos)
 {
 }
 
@@ -38,13 +48,13 @@ template <HighlightNumber::Enum highlightColorIndex,
 	  typename displayEdges, typename PropertySetter>
 DisplayFaceHighlightColor<highlightColorIndex, 
 			  displayEdges, PropertySetter>::
-DisplayFaceHighlightColor (const Settings& settings, const Foam& foam,
+DisplayFaceHighlightColor (const Settings& settings, 
 			   PropertySetter propertySetter,
 			   typename DisplayElement::FocusContext focus,
 			   bool useZPos, double zPos) : 
 
     DisplayElementPropertyFocus<PropertySetter> (
-	settings, foam, propertySetter, focus, useZPos, zPos)
+	settings, propertySetter, focus, useZPos, zPos)
 {
 }
 
@@ -63,8 +73,8 @@ operator () (const boost::shared_ptr<Face>& f)
     else
 	glColor (QColor::fromRgbF (
 		     0, 0, 0, this->m_settings.GetContextAlpha ()));
-    (displayEdges (this->m_settings, this->m_foam, this->m_focus, 
-		   this->m_useZPos, this->m_zPos)) (f);
+    (displayEdges (this->m_settings, this->m_focus,
+                   this->m_useZPos, this->m_zPos)) (f);
 }
 
 template <HighlightNumber::Enum highlightColorIndex,
@@ -82,29 +92,28 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 template<typename PropertySetter>
 DisplayFaceBodyScalarColor<PropertySetter>::
 DisplayFaceBodyScalarColor (
-    const Settings& settings,const Foam& foam,
+    const Settings& settings,
     typename DisplayElement::FocusContext focus, ViewNumber::Enum view, 
     bool useZPos, double zPos) : 
     
     DisplayFaceHighlightColor<
     HighlightNumber::H0, 
     DisplayFaceTriangleFan, PropertySetter> (
-	settings, foam, PropertySetter (settings, view), focus, useZPos, zPos)
+	settings, PropertySetter (settings, view), focus, useZPos, zPos)
 {
 }
 
 template<typename PropertySetter>
 DisplayFaceBodyScalarColor<PropertySetter>::
 DisplayFaceBodyScalarColor (
-    const Settings& settings,const Foam& foam,
-    PropertySetter propertySetter,
+    const Settings& settings, PropertySetter propertySetter,
     typename DisplayElement::FocusContext focus,
     bool useZPos, double zPos) : 
 
     DisplayFaceHighlightColor<
     HighlightNumber::H0, 
     DisplayFaceTriangleFan, PropertySetter> (
-	settings, foam, propertySetter, focus, useZPos, zPos) 
+	settings, propertySetter, focus, useZPos, zPos) 
 {
 }
 
@@ -115,7 +124,7 @@ void DisplayFaceBodyScalarColor<PropertySetter>::
 operator () (const boost::shared_ptr<OrientedFace>& of)
 {
     glNormal (of->GetNormal ());
-    if (this->m_foam.Is2D ())
+    if (DATA_PROPERTIES.Is2D ())
     {
 	bool useColor;
 	setColorOrTexture (of, &useColor);
@@ -125,7 +134,7 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 	// write to the stencil buffer 1s for the concave polygon
 	glStencilFunc (GL_NEVER, 0, 0);
 	glStencilOp (GL_INVERT, GL_KEEP, GL_KEEP);
-	(DisplayFaceTriangleFan (this->m_settings, this->m_foam)) (of);
+	(DisplayFaceTriangleFan (this->m_settings)) (of);
 	
 	// write to the color buffer only if the stencil bit is 1
 	// and set the stencil bit to 0.
@@ -148,7 +157,7 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 	//{
 	//glPushAttrib (GL_POLYGON_BIT);
 	//glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-	DisplayFaceTriangleFan (this->m_settings, this->m_foam) (of);
+	DisplayFaceTriangleFan (this->m_settings) (of);
 	    
         //glPopAttrib ();
         //}
@@ -207,21 +216,21 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 template<QRgb faceColor, typename PropertySetter>
 DisplayFaceDmpColor<faceColor, PropertySetter>::
 DisplayFaceDmpColor (
-    const Settings& settings, const Foam& foam,
+    const Settings& settings, 
     typename DisplayElement::FocusContext focus, ViewNumber::Enum view, 
     bool useZPos, double zPos) : 
     
     DisplayFaceHighlightColor<
     HighlightNumber::H0, 
     DisplayFaceTriangleFan, PropertySetter> (
-	settings, foam, PropertySetter (settings, view), focus, useZPos, zPos)
+	settings, PropertySetter (settings, view), focus, useZPos, zPos)
 {
 }
 
 template<QRgb faceColor, typename PropertySetter>
 DisplayFaceDmpColor<faceColor, PropertySetter>::
 DisplayFaceDmpColor (
-    const Settings& settings, const Foam& foam,
+    const Settings& settings, 
     PropertySetter propertySetter,
     typename DisplayElement::FocusContext focus,
     bool useZPos, double zPos) : 
@@ -229,7 +238,7 @@ DisplayFaceDmpColor (
     DisplayFaceHighlightColor<
     HighlightNumber::H0, 
     DisplayFaceTriangleFan, PropertySetter> (
-	settings, foam, propertySetter, focus, useZPos, zPos) 
+	settings, propertySetter, focus, useZPos, zPos) 
 {
 }
 
@@ -267,7 +276,88 @@ displayNoNormal (const boost::shared_ptr<Face>& f)
     glColor (f->GetColor (this->m_settings.GetHighlightColor (
 			       this->m_propertySetter.GetViewNumber (),
 			       HighlightNumber::H0)));
-    (DisplayFaceTriangleFan (this->m_settings, this->m_foam)) (f);
+    (DisplayFaceTriangleFan (this->m_settings)) (f);
+}
+
+
+// DisplayFaceLineStrip
+// ======================================================================
+void DisplayFaceLineStrip::operator() (
+    const boost::shared_ptr<OrientedFace>& of)
+{
+    operator() (of->GetFace ());
+}
+
+void DisplayFaceLineStrip::operator() (const boost::shared_ptr<Face>& f)
+{
+    glBegin (GL_LINE_STRIP);
+    const vector<boost::shared_ptr<OrientedEdge> >& v =
+	f->GetOrientedEdges ();
+    for_each (v.begin (), v.end (), DisplayOrientedEdgeVertices);
+    glEnd ();
+}
+
+
+// DisplayFaceTriangleFan
+// ======================================================================
+
+void DisplayFaceTriangleFan::operator() (
+    const boost::shared_ptr<Face>& f) const
+{
+    OrientedFace of (f, false);
+    operator () (&of);
+}
+
+void DisplayFaceTriangleFan::operator() (const OrientedFace*  of) const
+{
+    OrientedEdge oe = of->GetOrientedEdge (0);
+    glBegin (GL_TRIANGLE_FAN);
+    ::glVertex (of->GetCenter ());
+    ::glVertex (oe.GetPoint (0));
+    ::glVertex (oe.GetPoint (1));
+    size_t pointIndex = 2;
+    for (size_t i = 0; i < of->size (); ++i)
+    {
+	oe = of->GetOrientedEdge (i);
+	for (; pointIndex < oe.GetPointCount (); ++pointIndex)
+	    ::glVertex (oe.GetPoint (pointIndex));
+	pointIndex = 0;
+    }
+    glEnd ();
+}
+
+
+// DisplayFaceEdges
+// ======================================================================
+
+template<typename displayEdge>
+DisplayFaceEdges<displayEdge>::
+DisplayFaceEdges (
+    const Settings& widget, FocusContext focus, bool useZPos, double zPos) :
+ 
+    DisplayElementFocus (widget, focus, useZPos, zPos)
+{
+}
+
+template<typename displayEdge>
+void DisplayFaceEdges<displayEdge>::
+operator() (const boost::shared_ptr<OrientedFace>  f)
+{
+    operator() (f->GetFace ());
+}
+
+template<typename displayEdge>
+void DisplayFaceEdges<displayEdge>::
+operator () (const boost::shared_ptr<Face>  f)
+{
+    const vector< boost::shared_ptr<OrientedEdge> >& v = 
+	f->GetOrientedEdges ();
+    displayEdge display(m_settings, m_focus, m_useZPos, m_zPos);
+    for (size_t i = 0; i < v.size (); i++)
+    {
+	boost::shared_ptr<OrientedEdge> oe = v[i];
+	display (oe);
+    }
 }
 
 
@@ -278,25 +368,29 @@ displayNoNormal (const boost::shared_ptr<Face>& f)
 // DisplayFaceHighlightColor
 // ======================================================================
 
+template class DisplayFaceHighlightColor<(HighlightNumber::Enum)0, 
+                                         DisplayFaceEdges<DisplayEdgePropertyColor<(DisplayElement::TessellationEdgesDisplay)0> >, SetterTextureCoordinate>;
+
+template class DisplayFaceHighlightColor<(HighlightNumber::Enum)0, 
+                                         DisplayFaceEdges<DisplayEdgePropertyColor<(DisplayElement::TessellationEdgesDisplay)1> >, SetterTextureCoordinate>;
+
 template class DisplayFaceHighlightColor<HighlightNumber::H0,
     DisplayFaceEdges<
 	DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, true> >, 
     SetterTextureCoordinate>;
+
 template class DisplayFaceHighlightColor<HighlightNumber::H0,
     DisplayFaceEdges<
 	DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow1, true> >, SetterTextureCoordinate>;
-template class DisplayFaceHighlightColor<HighlightNumber::H0,
-    DisplayFaceEdges<
-	DisplayEdgePropertyColor<DisplayElement::DISPLAY_TESSELLATION_EDGES> >, 
-    SetterTextureCoordinate>;
-template class DisplayFaceHighlightColor<HighlightNumber::H0,
-    DisplayFaceEdges<
-	DisplayEdgePropertyColor<DisplayElement::DONT_DISPLAY_TESSELLATION_EDGES> >, 
-    SetterTextureCoordinate>;
+
+template class DisplayFaceHighlightColor<(HighlightNumber::Enum)0, DisplayFaceEdges<DisplayEdge>, SetterTextureCoordinate>;
+
 template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceLineStrip, SetterTextureCoordinate>;
+
 template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceLineStrip, SetterVertexAttribute>;
 
 template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceTriangleFan, SetterTextureCoordinate>;
+
 template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceTriangleFan, SetterVertexAttribute>;
 
 template class DisplayFaceHighlightColor<HighlightNumber::H1, DisplayFaceLineStrip, SetterTextureCoordinate>;
@@ -315,3 +409,15 @@ template class DisplayFaceBodyScalarColor<SetterVelocity>;
 // DisplayFaceDmpColor
 // ======================================================================
 template class DisplayFaceDmpColor<0xff000000, SetterTextureCoordinate>;
+
+// DisplayFaceEdges
+// ======================================================================
+
+template class DisplayFaceEdges<
+    DisplayEdgeTorus <DisplaySegment, DisplaySegmentArrow1, true> >;
+template class DisplayFaceEdges<
+    DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, true> >;
+template class DisplayFaceEdges<
+    DisplayEdgePropertyColor<DisplayElement::DISPLAY_TESSELLATION_EDGES> >;
+template class DisplayFaceEdges<
+    DisplayEdgePropertyColor<DisplayElement::DONT_DISPLAY_TESSELLATION_EDGES> >;

@@ -5,7 +5,8 @@ Release log
         - allow keywords inside SCALAR_INTEGRANT (for shearv_35)
         - implement simple form of view transform
         - read t1s from the DMP file using t1positions and num_pops_step
-        - improved constraint processing speed by using gprof
+        - improved constraint processing speed by avoiding string lookups at 
+          each access of a variable.
         
 0.8.2553
         - bug fixes (dataset fluctuates because is centered at foam center 

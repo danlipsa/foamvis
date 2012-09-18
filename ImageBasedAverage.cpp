@@ -342,7 +342,7 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
 	bodies.begin (), bodies.end (),
 	DisplayBody<DisplayFaceBodyScalarColor<PropertySetter>,
 	PropertySetter> (
-	    GetSettings (), foam, vs.GetBodySelector (), 
+	    GetSettings (), vs.GetBodySelector (), 
 	    PropertySetter (GetSettings (), 
 			    GetViewNumber (), m_storeShaderProgram.get (),
 			    m_storeShaderProgram->GetVValueLocation ()),

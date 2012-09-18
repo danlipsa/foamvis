@@ -1267,8 +1267,7 @@ void WidgetGl::displayAverageAroundBodies (
 	glPointSize (4.0);
 	glColor (Qt::black);
 	DisplayBodyCenter (
-	    *GetSettings (), simulation.GetFoam (vs.GetCurrentTime ()), 
-	    IdBodySelector (bodyId)) (focusBody[0]);
+	    *GetSettings (), IdBodySelector (bodyId)) (focusBody[0]);
 
 	// display focus body 2
 	size_t secondBodyId = vs.GetAverageAroundSecondBodyId ();
@@ -1659,7 +1658,7 @@ void WidgetGl::displayEdges (ViewNumber::Enum viewNumber) const
 	      DisplayBody<
 	      DisplayFaceHighlightColor<HighlightNumber::H0,
 	      DisplayFaceEdges<displayEdge> > > (
-		  *GetSettings (), simulation.GetFoam (0), bodySelector));
+		  *GetSettings (), bodySelector));
     displayStandaloneEdges<displayEdge> (simulation.GetFoam (0));
     glPopAttrib ();
 }
@@ -1673,7 +1672,7 @@ void WidgetGl::displayStandaloneEdges (
     {
 	glPushAttrib (GL_ENABLE_BIT);    
 	glDisable (GL_DEPTH_TEST);
-	displayEdge de (*GetSettings (), foam,
+	displayEdge de (*GetSettings (),
 			DisplayElement::FOCUS, viewNumber, useZPos, zPos);
 	const Foam::Edges& standaloneEdges = foam.GetStandaloneEdges ();
 	BOOST_FOREACH (boost::shared_ptr<Edge> edge, standaloneEdges)
@@ -1706,9 +1705,7 @@ void WidgetGl::displayDeformation (ViewNumber::Enum viewNumber) const
     glDisable (GL_DEPTH_TEST);
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBodyDeformation (
-		  *GetSettings (), viewNumber,
-		  GetSimulation (viewNumber).GetFoam (
-		      GetCurrentTime (viewNumber)), vs.GetBodySelector (),
+		  *GetSettings (), viewNumber, vs.GetBodySelector (),
 		  GetDeformationSizeInitialRatio (viewNumber)));
     glPopAttrib ();    
 }
@@ -1735,7 +1732,6 @@ void WidgetGl::displayVelocity (ViewNumber::Enum viewNumber) const
 	bodies.begin (), bodies.end (),
 	DisplayBodyVelocity (
 	    *GetSettings (), viewNumber,
-	    GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber)),
 	    vs.GetBodySelector (), GetBubbleSize (viewNumber), 
 	    GetVelocitySizeInitialRatio (viewNumber),
 	    GetOnePixelInObjectSpace (), 
@@ -1760,7 +1756,6 @@ void WidgetGl::displayBodyDeformation (
 	glColor (Qt::black);
 	DisplayBodyDeformation (
 	    *GetSettings (), viewNumber,
-	    GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber)),
 	    vs.GetBodySelector (), 
 	    GetDeformationSizeInitialRatio (viewNumber)) (
 		*foam.FindBody (m_showBodyId));
@@ -1785,7 +1780,6 @@ void WidgetGl::displayBodyVelocity (
 	    m_viewAverage[viewNumber]->GetVelocityAverage ();
 	DisplayBodyVelocity (
 	    *GetSettings (), viewNumber,
-	    GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber)),
 	    vs.GetBodySelector (), 
 	    GetBubbleSize (viewNumber), 
 	    GetVelocitySizeInitialRatio (viewNumber),
@@ -1970,7 +1964,7 @@ void WidgetGl::displayEdgesTorusTubes () const
 	edgeSet.begin (), edgeSet.end (),
 	DisplayEdgeTorus<DisplaySegmentQuadric, 
 	DisplaySegmentArrowQuadric, false>(
-	    *GetSettings (), GetSimulation ().GetFoam (0), DisplayElement::FOCUS, 
+	    *GetSettings (), DisplayElement::FOCUS, 
 	    false, 0.0, GetQuadricObject ()));
     glPopAttrib ();
 }
@@ -1984,7 +1978,7 @@ void WidgetGl::displayEdgesTorusLines () const
     for_each (edgeSet.begin (), edgeSet.end (),
 	      DisplayEdgeTorus<DisplaySegment, 
 	      DisplaySegmentArrow1, false> (
-		  *GetSettings (), GetSimulation ().GetFoam (0), DisplayElement::FOCUS,
+		  *GetSettings (), DisplayElement::FOCUS,
 		  false, 0.0, GetQuadricObject ()));
     glPopAttrib ();
 }
@@ -2028,8 +2022,7 @@ void WidgetGl::displayBodyCenters (
 	    simulation.GetFoam (currentTime).GetBodies ();
 	for_each (bodies.begin (), bodies.end (),
 		  DisplayBodyCenter (
-		      *GetSettings (), simulation.GetFoam (currentTime),
-		      bodySelector, useZPos, zPos));
+		      *GetSettings (), bodySelector, useZPos, zPos));
 	glPopAttrib ();
     }
 }
@@ -2071,7 +2064,8 @@ void WidgetGl::displayContextMenuPos (ViewNumber::Enum viewNumber) const
 
 void WidgetGl::displayFacesNormal (ViewNumber::Enum viewNumber) const
 {
-    glCallList (m_listFacesNormal[viewNumber]);
+    //glCallList (m_listFacesNormal[viewNumber]);
+    compileFacesNormal (viewNumber);
 }
 
 
@@ -2082,7 +2076,7 @@ void WidgetGl::compileFacesNormal (ViewNumber::Enum viewNumber) const
 	GetSimulation (viewNumber).GetFoam (vs.GetCurrentTime ());
     const Foam::Bodies& bodies = foam.GetBodies ();
 
-    glNewList (m_listFacesNormal[viewNumber], GL_COMPILE);
+    //glNewList (m_listFacesNormal[viewNumber], GL_COMPILE);
     if (EdgesShown ())
 	displayFacesContour (bodies, viewNumber);
     displayFacesInterior (bodies, viewNumber);
@@ -2096,7 +2090,7 @@ void WidgetGl::compileFacesNormal (ViewNumber::Enum viewNumber) const
     if (m_t1sShown)
 	displayT1sDot (viewNumber, GetCurrentTime (viewNumber));
     GetViewAverage (viewNumber).GetForceAverage ().DisplayOneTimeStep ();
-    glEndList ();
+    //glEndList ();
 }
 
 
@@ -2188,9 +2182,8 @@ void WidgetGl::displayFacesContour (const Foam::Faces& faces) const
 {
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     for_each (faces.begin (), faces.end (),
-	      DisplayFaceHighlightColor<HighlightNumber::H0,
-	      DisplayFaceEdges<DisplayEdgePropertyColor<> > > (
-		  *GetSettings (), GetSimulation ().GetFoam (0)));
+              DisplayFaceHighlightColor<HighlightNumber::H0,
+              DisplayFaceEdges<DisplayEdge> > (*GetSettings ()));
 
     glPopAttrib ();
 }
@@ -2201,15 +2194,12 @@ void WidgetGl::displayFacesContour (
 {
     const BodySelector& bodySelector = 
 	GetViewSettings (viewNumber).GetBodySelector ();
-    const Simulation& simulation = GetSimulation (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
     glLineWidth (lineWidth);
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
 	      DisplayFaceHighlightColor<HighlightNumber::H0,
-	      DisplayFaceEdges<DisplayEdgePropertyColor<> > > > (
-		  *GetSettings (), simulation.GetFoam (0), bodySelector));
-
+	      DisplayFaceEdges<DisplayEdge> > > (*GetSettings (), bodySelector));
     glPopAttrib ();
 }
 
@@ -2221,7 +2211,6 @@ void WidgetGl::displayFacesInterior (
     const Foam::Bodies& b, ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    const Foam& foam = GetSimulation (viewNumber).GetFoam (0);
     Foam::Bodies bodies = b;
     const BodySelector& bodySelector = vs.GetBodySelector ();
     // partition: opaque bodies first, then transparent bodies
@@ -2259,7 +2248,7 @@ void WidgetGl::displayFacesInterior (
 	    DisplayBodyBase<>::BeginContext ();
 	for_each (beginEnd[i].m_begin, beginEnd[i].m_end,
 		  DisplayBody<DisplayFaceBodyScalarColor<> > (
-		      *GetSettings (), foam, bodySelector, 
+		      *GetSettings (), bodySelector, 
 		      DisplayElement::USER_DEFINED_CONTEXT, viewNumber));
 	if (beginEnd[i].m_isContext)
 	    DisplayBodyBase<>::EndContext ();
@@ -2274,8 +2263,7 @@ void WidgetGl::displayFacesInterior (const Foam::Faces& faces) const
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
     for_each (faces.begin (), faces.end (),
-	      DisplayFaceDmpColor<0xff000000>(
-		  *GetSettings (), GetSimulation ().GetFoam (0)));
+	      DisplayFaceDmpColor<0xff000000>(*GetSettings ()));
     glPopAttrib ();
 }
 
@@ -2289,8 +2277,7 @@ void WidgetGl::displayFacesTorusTubes () const
 	DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceEdges<
 	DisplayEdgeTorus<
 	DisplaySegmentQuadric, 
-	DisplaySegmentArrowQuadric, true> > > (
-	    *GetSettings (), GetSimulation ().GetFoam (0)));
+	DisplaySegmentArrowQuadric, true> > > (*GetSettings ()));
     glPopAttrib ();
 }
 
@@ -2305,8 +2292,7 @@ void WidgetGl::displayFacesTorusLines () const
 	      DisplayFaceHighlightColor<HighlightNumber::H0,
 	      DisplayFaceEdges<
 	      DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow1, true> > > (
-		  *GetSettings (), 
-		  GetSimulation ().GetFoam (0), DisplayElement::FOCUS) );
+		  *GetSettings (), DisplayElement::FOCUS) );
     glPopAttrib ();
 }
 
@@ -2331,8 +2317,8 @@ void WidgetGl::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
 	    DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H0,
 	    DisplayFaceEdges<DisplayEdgePropertyColor<
 	    DisplayElement::DONT_DISPLAY_TESSELLATION_EDGES> > > > (
-		*GetSettings (), simulation.GetFoam (currentTime),
-		bodySelector, DisplayElement::USER_DEFINED_CONTEXT,
+		*GetSettings (), bodySelector, 
+                DisplayElement::USER_DEFINED_CONTEXT,
 		viewNumber, IsTimeDisplacementUsed (), zPos));
     }
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (
@@ -2379,7 +2365,6 @@ void WidgetGl::compileCenterPaths (ViewNumber::Enum viewNumber) const
 		DisplayCenterPath<
 		SetterTextureCoordinate, DisplaySegmentTube> (
 		    *GetSettings (), 
-		    GetSimulation (viewNumber).GetFoam (0), 
 		    GetViewNumber (), bodySelector, GetQuadricObject (),
 		    GetSimulation (viewNumber),
 		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
@@ -2389,7 +2374,6 @@ void WidgetGl::compileCenterPaths (ViewNumber::Enum viewNumber) const
 		DisplayCenterPath<
 		SetterTextureCoordinate, DisplaySegmentQuadric> (
 		    *GetSettings (), 
-		    GetSimulation (viewNumber).GetFoam (0), 
 		    GetViewNumber (), bodySelector, GetQuadricObject (),
 		    GetSimulation (viewNumber),
 		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
@@ -2399,7 +2383,6 @@ void WidgetGl::compileCenterPaths (ViewNumber::Enum viewNumber) const
 		  DisplayCenterPath<SetterTextureCoordinate, 
 		  DisplaySegment> (
 		      *GetSettings (), 
-		      GetSimulation (viewNumber).GetFoam (0), 
 		      GetViewNumber (), bodySelector, GetQuadricObject (),
 		      GetSimulation (viewNumber),
 		      IsTimeDisplacementUsed (), GetTimeDisplacement ()));
@@ -2904,8 +2887,10 @@ void WidgetGl::CompileUpdate (ViewNumber::Enum viewNumber)
     case ViewType::CENTER_PATHS:
 	compileCenterPaths (viewNumber);
 	break;
+/*
     case ViewType::FACES:
 	compileFacesNormal (viewNumber);
+*/
     default:
 	break;
     }

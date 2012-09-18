@@ -34,7 +34,7 @@ public:
     /**
      * Constructor
      */
-    DisplayBodyBase (const Settings& settings, const Foam& foam,
+    DisplayBodyBase (const Settings& settings, 
 		     const BodySelector& bodySelector, 
 		     PropertySetter propertySetter,
 		     bool useZPos = false, double zPos = 0);
@@ -63,7 +63,6 @@ class DisplayBodyDeformation : public DisplayBodyBase<>
 public:
     DisplayBodyDeformation (
 	const Settings& settings, ViewNumber::Enum viewNumber, 
-	const Foam& foam,
 	const BodySelector& bodySelector, float deformationSizeInitialRatio,
 	bool useZPos = false, double zPos = 0);
 
@@ -78,7 +77,6 @@ class DisplayBodyVelocity : public DisplayBodyBase<>
 public:
     DisplayBodyVelocity (
 	const Settings& settings, ViewNumber::Enum viewNumber, 
-	const Foam& foam,
 	const BodySelector& bodySelector, float bubbleSize, 
 	float velocitySizeInitialRatio, float onePixelInObjectSpace,
 	bool sameSize, bool clampingShown,
@@ -104,7 +102,7 @@ public:
      * Constructor
      */
     DisplayBodyCenter (
-	const Settings& settings, const Foam& foam,
+	const Settings& settings, 
 	const BodySelector& bodySelector,
 	bool useZPos = false, double zPos = 0);
 
@@ -126,16 +124,14 @@ public:
      * Constructor
      */
     DisplayBody (
-	const Settings& settings, const Foam& foam,
-	const BodySelector& bodySelector,
+	const Settings& settings, const BodySelector& bodySelector,
 	typename DisplayElement::ContextType 
 	contextDisplay = DisplayElement::USER_DEFINED_CONTEXT,
 	ViewNumber::Enum view = ViewNumber::VIEW0,
 	bool useZPos = false, double zPos = 0);
 
     DisplayBody (
-	const Settings& settings, const Foam& foam,
-	const BodySelector& bodySelector,
+	const Settings& settings, const BodySelector& bodySelector,
 	PropertySetter setter,
 	typename DisplayElement::ContextType 
 	    contextDisplay = DisplayElement::USER_DEFINED_CONTEXT,
@@ -166,7 +162,7 @@ public:
      * Constructor
      */
     DisplayCenterPath (
-	const Settings& settings, const Foam& foam, ViewNumber::Enum view, 
+	const Settings& settings, ViewNumber::Enum view, 
 	const BodySelector& bodySelector, GLUquadricObj* quadric, 
 	const Simulation& simulation,
 	bool useTimeDisplacement = false, 

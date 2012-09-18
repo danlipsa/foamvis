@@ -15,10 +15,6 @@ class OrientedEdge;
 class Vertex;
 class Settings;
 
-void DisplayEdgeVertices (const Edge& edge,
-			  bool useZPos = false, double zPos = 0);
-void DisplayEdgeVerticesNoEnds (const Edge& edge);
-void  DisplayOrientedEdgeVertices (const boost::shared_ptr<OrientedEdge> oe);
 struct DisplayOriginalVertex
 {
     void operator() (const boost::shared_ptr<Vertex>& v);

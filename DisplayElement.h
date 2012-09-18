@@ -36,9 +36,8 @@ public:
 
 public:
     DisplayElement (
-	const Settings& settings, const Foam& foam,
-	bool useZPos = false, double zPos = 0) : 
-	m_settings (settings), m_foam (foam),
+	const Settings& settings, bool useZPos = false, double zPos = 0) : 
+	m_settings (settings),
 	m_useZPos (useZPos),
 	m_zPos (zPos)
     {
@@ -46,7 +45,6 @@ public:
 
 protected:
     const Settings& m_settings;
-    const Foam& m_foam;
     bool m_useZPos;
     double m_zPos;
 };
@@ -56,10 +54,10 @@ class DisplayElementFocus : public DisplayElement
 {
 public:
     DisplayElementFocus (
-	const Settings& settings, const Foam& foam,
+	const Settings& settings, 
 	FocusContext focus = FOCUS, bool useZPos = false, double zPos = 0) :
 	
-	DisplayElement (settings, foam, useZPos, zPos),
+	DisplayElement (settings, useZPos, zPos),
 	m_focus (focus)
     {
     }
@@ -75,11 +73,11 @@ class DisplayElementProperty : public DisplayElement
 {
 public:
     DisplayElementProperty (
-	const Settings& settings, const Foam& foam, 
+	const Settings& settings, 
 	PropertySetter propertySetter,
 	bool useZPos = false, double zPos = 0) :
 
-	DisplayElement (settings, foam, useZPos, zPos), 
+	DisplayElement (settings, useZPos, zPos), 
 	m_propertySetter (propertySetter)
     {
     }
@@ -95,13 +93,13 @@ class DisplayElementPropertyFocus :
 {
 public:
     DisplayElementPropertyFocus (
-	const Settings& settings, const Foam& foam,
+	const Settings& settings, 
 	PropertySetter setter,
 	DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	bool useZPos = false, double zPos = 0) :
 	
 	DisplayElementProperty<PropertySetter> (
-	    settings, foam, setter, useZPos, zPos),
+	    settings, setter, useZPos, zPos),
 	m_focus (focus)
     {
     }

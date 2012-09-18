@@ -49,6 +49,12 @@ struct Segment
 };
 
 
+void DisplayEdgeVertices (const Edge& edge,
+			  bool useZPos = false, double zPos = 0);
+void DisplayEdgeVerticesNoEnds (const Edge& edge);
+void  DisplayOrientedEdgeVertices (const boost::shared_ptr<OrientedEdge> oe);
+
+
 class DisplaySegment
 {
 public:
@@ -59,7 +65,7 @@ public:
     
 
     DisplaySegment (GLUquadricObj* quadric, double edgeRadius, 
-		 double contextEdgeRadius = 2.0) :
+                    double contextEdgeRadius = 2.0) :
 	
 	m_quadric (quadric), m_radius (edgeRadius), 
 	m_contextRadius (contextEdgeRadius)
@@ -207,7 +213,7 @@ template <typename DisplayEdge,
 class DisplayEdgeTorus : public DisplayElementFocus
 {
 public:
-    DisplayEdgeTorus (const Settings& settings, const Foam& foam,
+    DisplayEdgeTorus (const Settings& settings, 
 		      FocusContext focus = FOCUS,
 		      bool useZPos = false, double zPos = 0, 
 		      GLUquadricObj* quadric = 0);
@@ -232,11 +238,11 @@ class DisplayEdgePropertyColor : public DisplayElementFocus
 {
 public:
     DisplayEdgePropertyColor (
-	const Settings& settings, const Foam& foam,
+	const Settings& settings, 
 	FocusContext focus, bool useZPos = false, double zPos = 0);
 
     DisplayEdgePropertyColor (
-	const Settings& settings, const Foam& foam,
+	const Settings& settings, 
 	FocusContext focus, ViewNumber::Enum viewNumber, 
 	bool useZPos = false, double zPos = 0);
 
@@ -248,15 +254,11 @@ public:
 };
 
 
-template <HighlightNumber::Enum highlightNumber,
-	  DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay = 
-	  DisplayElement::DISPLAY_TESSELLATION_EDGES>
-class DisplayEdgeHighlightColor : public DisplayElementFocus
+class DisplayEdge : public DisplayElementFocus
 {
 public:
-    DisplayEdgeHighlightColor (
-	const Settings& settings, const Foam& foam,
-	FocusContext focus, ViewNumber::Enum viewNumber,
+    DisplayEdge (
+	const Settings& settings, FocusContext focus, 
 	bool useZPos = false, double zPos = 0);
 
     void operator () (const boost::shared_ptr<Edge> edge) const;
@@ -268,59 +270,6 @@ private:
 
 
 
-// Display all edges of a face
-// ======================================================================
-class DisplayFaceLineStrip : public DisplayElementFocus
-{
-public:
-    DisplayFaceLineStrip (
-	const Settings& settings, const Foam& foam,
-	FocusContext focus = FOCUS,
-	bool useZPos = false, double zPos = 0) :
-	DisplayElementFocus (settings, foam, focus, useZPos, zPos)
-    {
-    }
-    void operator() (const boost::shared_ptr<OrientedFace>& of);
-
-    void operator() (const boost::shared_ptr<Face>& f);
-};
-
-
-/**
- * Functor that displays an edge
- */
-class DisplayFaceTriangleFan : public DisplayElementFocus
-{
-public:
-    DisplayFaceTriangleFan (
-	const Settings& settings, const Foam& foam,
-	FocusContext focus = FOCUS,
-	bool useZPos = false, double zPos = 0) : 
-	DisplayElementFocus (settings, foam, focus, useZPos, zPos)
-    {
-    }
-
-    void operator () (const boost::shared_ptr<Face>& f) const;
-    void operator () (const boost::shared_ptr<const OrientedFace>& of) const
-    {
-	operator () (of.get ());
-    }
-    void operator () (const OrientedFace* of) const;
-};
-
-
-template<typename displayEdge>
-class DisplayFaceEdges : public DisplayElementFocus
-{
-public:
-    DisplayFaceEdges (const Settings& settings, const Foam& foam,
-		      FocusContext focus, 
-		      bool useZPos = false, double zPos = 0);
-
-    void operator() (const boost::shared_ptr<OrientedFace> f);
-
-    void operator () (const boost::shared_ptr<Face> f);
-};
 
 #endif //__DISPLAY_EDGE_FUNCTORS_H__
 
