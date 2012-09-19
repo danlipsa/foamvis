@@ -15,7 +15,7 @@ class ViewSettings;
 class Foam;
 class RegularGridAverage;
 
-struct Average3dPipeline
+class Average3dPipeline
 {
 public:
     Average3dPipeline (
@@ -32,7 +32,7 @@ public:
 
     void UpdateAverage (
         boost::shared_ptr<RegularGridAverage> average, int direction);
-    void UpdateTitle (
+    void UpdateViewTitle (
         bool titleShown, const G3D::Vector2& postion,
         boost::shared_ptr<RegularGridAverage> average, 
         ViewNumber::Enum viewNumber);
@@ -42,14 +42,21 @@ public:
         return m_renderer;
     }
 
+protected:
+    void createRenderer ();
+    void createScalarBar ();
+    void createViewTitle (size_t fontSize);
+    void createFocusRect ();
+
 private:
+    vtkSmartPointer<vtkRenderer> m_renderer;
     vtkSmartPointer<vtkScalarBarActor> m_scalarBar;
+    vtkSmartPointer<vtkActor2D> m_viewTitleActor;
+
     vtkSmartPointer<vtkActor> m_averageActor;
     vtkSmartPointer<vtkThreshold> m_threshold;
-    vtkSmartPointer<vtkActor2D> m_textActor;
     vector<vtkSmartPointer<vtkActor> > m_constraintSurface;
     vector<vtkSmartPointer<vtkActor> > m_object;
-    vtkSmartPointer<vtkRenderer> m_renderer;
     vtkSmartPointer<vtkActor2D> m_focusActor;
 };
 

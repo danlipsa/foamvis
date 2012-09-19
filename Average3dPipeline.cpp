@@ -32,35 +32,23 @@ Average3dPipeline::Average3dPipeline (
     // (foam objects)    vtkPolyData->vtkDatasetMapper->vtkActor
     // (constraint faces)
 
+    createRenderer ();
+    createScalarBar ();
+    createViewTitle (fontSize);
+    createFocusRect ();
 
     // threshold
     VTK_CREATE (vtkThreshold, threshold);
     threshold->AllScalarsOn ();
     m_threshold = threshold;
 
-    // renderer
-    VTK_CREATE (vtkRenderer, renderer);
-    renderer->SetBackground(1,1,1);
-    renderer->LightFollowCameraOn ();
-    //renderer->SetAutomaticLightCreation (0);
-    m_renderer = renderer;
-
-    // scalar bar
-    VTK_CREATE (vtkScalarBarActor, scalarBar);
-    scalarBar->SetOrientationToVertical ();
-    scalarBar->SetNumberOfLabels (3);
-    m_scalarBar = scalarBar;
-    renderer->AddViewProp (scalarBar);
-
     // scalar average mapper and actor
     VTK_CREATE (vtkDataSetMapper, averageMapper);
     averageMapper->SetInputConnection (threshold->GetOutputPort ());
-
     VTK_CREATE(vtkActor, averageActor);
     averageActor->SetMapper(averageMapper);
     m_averageActor = averageActor;
-    renderer->AddViewProp(averageActor);
-
+    m_renderer->AddViewProp(averageActor);
 
     // foam objects
     m_object.resize (objects);
@@ -71,7 +59,7 @@ Average3dPipeline::Average3dPipeline (
 	VTK_CREATE (vtkActor, actor);
 	actor->SetMapper (mapper);
 	m_object[i] = actor;
-	renderer->AddViewProp (actor);
+	m_renderer->AddViewProp (actor);
     }
 
     // constraint faces rendered transparent
@@ -83,10 +71,29 @@ Average3dPipeline::Average3dPipeline (
 	VTK_CREATE (vtkActor, actor);
 	actor->SetMapper (mapper);
 	m_constraintSurface[i] = actor;
-	renderer->AddViewProp (actor);
+	m_renderer->AddViewProp (actor);
     }
+}
 
-    // view title
+void Average3dPipeline::createRenderer ()
+{
+    VTK_CREATE (vtkRenderer, renderer);
+    renderer->SetBackground(1,1,1);
+    renderer->LightFollowCameraOn ();
+    m_renderer = renderer;
+}
+
+void Average3dPipeline::createScalarBar ()
+{
+    VTK_CREATE (vtkScalarBarActor, scalarBar);
+    scalarBar->SetOrientationToVertical ();
+    scalarBar->SetNumberOfLabels (3);
+    m_scalarBar = scalarBar;
+    m_renderer->AddViewProp (scalarBar);
+}
+
+void Average3dPipeline::createViewTitle (size_t fontSize)
+{
     VTK_CREATE (vtkTextProperty, singleLineTextProp);
     singleLineTextProp->SetFontSize (fontSize);
     singleLineTextProp->SetFontFamilyToArial ();
@@ -110,10 +117,12 @@ Average3dPipeline::Average3dPipeline (
     textActor->SetMapper (textMapper);
     textActor->GetPositionCoordinate ()->
         SetCoordinateSystemToNormalizedDisplay ();
-    renderer->AddViewProp (textActor);
-    m_textActor = textActor;
+    m_renderer->AddViewProp (textActor);
+    m_viewTitleActor = textActor;
+}
 
-    // focus rectangle
+void Average3dPipeline::createFocusRect ()
+{
     VTK_CREATE(vtkPoints, Pts);
     Pts->InsertNextPoint (0.0, 0.0, 0.0);
     Pts->InsertNextPoint (0.0, 1.0, 0.0);
@@ -151,7 +160,8 @@ Average3dPipeline::Average3dPipeline (
     m_focusActor = focusActor;
 }
 
-void Average3dPipeline::UpdateTitle (
+
+void Average3dPipeline::UpdateViewTitle (
     bool titleShown, const G3D::Vector2& position,
     boost::shared_ptr<RegularGridAverage> average, ViewNumber::Enum viewNumber)
 {
@@ -163,9 +173,9 @@ void Average3dPipeline::UpdateTitle (
 	     << average->GetViewSettings ().GetTitle (viewNumber);
 	title = ostr.str ();
     }
-    vtkTextMapper::SafeDownCast (m_textActor->GetMapper ())->SetInput (
+    vtkTextMapper::SafeDownCast (m_viewTitleActor->GetMapper ())->SetInput (
         title.c_str ());
-    m_textActor->GetPositionCoordinate ()->SetValue (position.x, position.y);
+    m_viewTitleActor->GetPositionCoordinate ()->SetValue (position.x, position.y);
 }
 
 

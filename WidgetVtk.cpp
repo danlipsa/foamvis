@@ -1,5 +1,5 @@
 /**
- * @file   WidgetGl.cpp
+ * @file   WidgetVtk.cpp
  * @author Dan R. Lipsa
  * @date 13 June 2012
  * 
@@ -170,8 +170,8 @@ void WidgetVtk::AddView (
     renderWindow->AddRenderer(pipeline.GetRenderer ());
     pipeline.GetRenderer ()->SetViewport (viewRect.x0 (), viewRect.y0 (),
 				      viewRect.x1 (), viewRect.y1 ());
-    pipeline.UpdateTitle (GetSettings ()->IsTitleShown (), 
-                          position, average, viewNumber);
+    pipeline.UpdateViewTitle (GetSettings ()->IsTitleShown (), 
+                              position, average, viewNumber);
     resizeViewEvent (viewNumber);
     setVisible (true);
 }
@@ -231,7 +231,7 @@ void WidgetVtk::updateViewTitle (ViewNumber::Enum viewNumber)
         viewRect.center ().x, 
         viewRect.y1 () * .98);
     boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
-    pipeline.UpdateTitle (titleShown, position, average, viewNumber);
+    pipeline.UpdateViewTitle (titleShown, position, average, viewNumber);
 }
 
 
