@@ -124,14 +124,14 @@ void WidgetVtk::UpdateColorTransferFunction (
 
 void WidgetVtk::UpdateOpacity ()
 {
-    for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
-    {
-	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
-	m_pipeline[viewNumber]->UpdateOpacity (
-	    GetSettings ()->GetContextAlpha ());
-    }
+    ForAllViews (boost::bind (&WidgetVtk::updateViewOpacity, this, _1));
     update ();
 }
+void WidgetVtk::updateViewOpacity (ViewNumber::Enum viewNumber)
+{
+    m_pipeline[viewNumber]->UpdateOpacity (GetSettings ()->GetContextAlpha ());
+}
+
 
 
 void WidgetVtk::RemoveViews ()

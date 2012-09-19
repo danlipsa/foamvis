@@ -1739,9 +1739,9 @@
                   </spacer>
                  </item>
                  <item row="2" column="0">
-                  <widget class="QCheckBox" name="checkBoxCenterPathHidden">
+                  <widget class="QCheckBox" name="checkBoxPartialPathHidden">
                    <property name="text">
-                    <string>Path hidden</string>
+                    <string>Partial path</string>
                    </property>
                   </widget>
                  </item>
@@ -2530,6 +2530,7 @@
     <slot>ToggledTorusDomainBotton(bool)</slot>
     <slot>ToggledTorusDomainLeft(bool)</slot>
     <slot>ToggledTorusDomainRight(bool)</slot>
+    <slot>ToggledPartialPathHidden(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -2973,10 +2974,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxCenterPathHidden</sender>
+   <sender>checkBoxPartialPathHidden</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledCenterPathHidden(bool)</slot>
+   <slot>ToggledPartialPathHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>799</x>

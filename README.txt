@@ -7,6 +7,7 @@ Release log
         - read t1s from the DMP file using t1positions and num_pops_step
         - improved constraint processing speed by avoiding string lookups at 
           each access of a variable.
+        - fix regression: deselected objects are not transparent
         
 0.8.2553
         - bug fixes (dataset fluctuates because is centered at foam center 

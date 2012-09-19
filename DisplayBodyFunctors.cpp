@@ -60,9 +60,6 @@ struct FocusColorSegment : public Segment
     QColor m_color;
 };
 
-
-
-
 // DisplayBodyBase
 // ======================================================================
 
@@ -93,6 +90,22 @@ EndContext ()
     glDisable (GL_BLEND);
 }
 
+template <typename PropertySetter>
+void DisplayBodyBase<PropertySetter>::
+operator () (boost::shared_ptr<Body> b)
+{
+    bool focus = m_bodySelector (b);
+    if (focus)
+	display (b);
+    else
+    {
+	BeginContext ();
+	display (b);
+	EndContext ();
+    }
+}
+
+
 
 // DisplayBodyDeformation
 // ======================================================================
@@ -108,7 +121,7 @@ DisplayBodyDeformation::DisplayBodyDeformation (
     m_deformationSizeInitialRatio (deformationSizeInitialRatio)
 {}
 
-void DisplayBodyDeformation::operator () (boost::shared_ptr<Body> body)
+void DisplayBodyDeformation::display (boost::shared_ptr<Body> body)
 {
     if (body->IsObject ())
 	return;
@@ -169,7 +182,7 @@ G3D::Vector2 clamp (G3D::Vector2 v, float maxLength, bool* clamped)
     }
 }
 
-void DisplayBodyVelocity::operator () (boost::shared_ptr<Body> body)
+void DisplayBodyVelocity::display (boost::shared_ptr<Body> body)
 {
     if (body->IsObject ())
 	return;
@@ -218,7 +231,7 @@ DisplayBodyCenter::DisplayBodyCenter (
 {}
 
 
-void DisplayBodyCenter::operator () (boost::shared_ptr<Body> b)
+void DisplayBodyCenter::display (boost::shared_ptr<Body> b)
 {
     if (GetFocusContext (b) == FOCUS)
     {
@@ -265,7 +278,7 @@ DisplayBody (
 
 template<typename displayFace, typename PropertySetter>
 void DisplayBody<displayFace, PropertySetter>::
-operator () (boost::shared_ptr<Body> b)
+display (boost::shared_ptr<Body> b)
 {
     ViewSettings& vs = this->m_settings.GetViewSettings (
 	this->m_propertySetter.GetViewNumber ());
@@ -388,14 +401,30 @@ template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
 displaySegments ()
 {
-     ViewSettings& vs = this->m_settings.GetViewSettings (
-	 this->m_propertySetter.GetViewNumber ());
+    ViewSettings& vs = this->m_settings.GetViewSettings (
+        this->m_propertySetter.GetViewNumber ());
+    
+    // focus segments
+    size_t focusSegmentsSize = 
+        m_focusTextureSegments.size () + m_focusColorSegments.size();
     for_each (
 	m_focusTextureSegments.begin (), m_focusTextureSegments.end (),
 	boost::bind (&DisplayCenterPath<PropertySetter, DisplaySegment>::
 		     displayFocusTextureSegment, this, _1));
-    if (vs.IsSelectionContextShown () && 
-	! vs.IsCenterPathHidden () && m_contextSegments.size () > 0)
+    if (m_focusColorSegments.size () > 0)
+    {
+	glDisable (GL_TEXTURE_1D);
+	for_each (
+	    m_focusColorSegments.begin (), m_focusColorSegments.end (),
+	    boost::bind (&DisplayCenterPath<PropertySetter, DisplaySegment>::
+			 displayFocusColorSegment, this, _1));
+	glEnable (GL_TEXTURE_1D);
+    }
+
+    // context segments
+    if (m_contextSegments.size () > 0 &&
+        ((focusSegmentsSize == 0 && vs.IsSelectionContextShown ()) ||
+         (focusSegmentsSize != 0 && ! vs.IsPartialPathHidden ())))
     {
 	glDisable (GL_TEXTURE_1D);
 	DisplayBodyBase<>::BeginContext ();
@@ -404,15 +433,6 @@ displaySegments ()
 	    boost::bind (&DisplayCenterPath<PropertySetter, DisplaySegment>::
 			 displayContextSegment, this, _1));
 	DisplayBodyBase<>::EndContext ();
-	glEnable (GL_TEXTURE_1D);
-    }
-    if (m_focusColorSegments.size () > 0)
-    {
-	glDisable (GL_TEXTURE_1D);
-	for_each (
-	    m_focusColorSegments.begin (), m_focusColorSegments.end (),
-	    boost::bind (&DisplayCenterPath<PropertySetter, DisplaySegment>::
-			 displayFocusColorSegment, this, _1));
 	glEnable (GL_TEXTURE_1D);
     }
 }

@@ -252,7 +252,7 @@ public Q_SLOTS:
     void ToggledLightNumberShown (bool checked);
     void ToggledLightEnabled (bool checked);
     void ToggledSelectionContextShown (bool checked);
-    void ToggledCenterPathHidden (bool checked);
+    void ToggledPartialPathHidden (bool checked);
     void ToggledTorusDomainClipped (bool checked);
     void ToggledTorusDomainShown (bool checked);
     void ToggledT1sShown (bool checked);

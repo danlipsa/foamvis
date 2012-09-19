@@ -447,7 +447,7 @@ operator() (const boost::shared_ptr<OrientedEdge> oe) const
 }
 
 
-// DisplayEdgeHighlightColor
+// DisplayEdge
 // ======================================================================
 
 DisplayEdge::DisplayEdge (const Settings& settings, FocusContext focus, 

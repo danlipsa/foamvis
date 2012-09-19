@@ -548,11 +548,11 @@ public:
      * @{
      * @name Various
      */
-    bool IsCenterPathHidden () const
+    bool IsPartialPathHidden () const
     {
 	return m_centerPathHidden;
     }
-    void SetCenterPathHidden (bool centerPathHidden)
+    void SetPartialPathHidden (bool centerPathHidden)
     {
 	m_centerPathHidden = centerPathHidden;
     }

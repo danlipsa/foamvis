@@ -1680,7 +1680,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 
     SetCheckedNoSignals (checkBoxSelectionContextShown, 
 			 vs.IsSelectionContextShown ());
-    SetCheckedNoSignals (checkBoxCenterPathHidden, vs.IsCenterPathHidden ());
+    SetCheckedNoSignals (checkBoxPartialPathHidden, vs.IsPartialPathHidden ());
     SetCheckedNoSignals (checkBoxT1sShiftLower, vs.T1sShiftLower ());
 
     deformationViewToUI ();

@@ -3759,10 +3759,10 @@ void WidgetGl::ToggledSelectionContextShown (bool checked)
     CompileUpdate ();
 }
 
-void WidgetGl::ToggledCenterPathHidden (bool checked)
+void WidgetGl::ToggledPartialPathHidden (bool checked)
 {
     makeCurrent ();
-    GetViewSettings ().SetCenterPathHidden (checked);
+    GetViewSettings ().SetPartialPathHidden (checked);
     CompileUpdate ();
 }
 

@@ -71,8 +71,11 @@ operator () (const boost::shared_ptr<Face>& f)
 		     highlightColorIndex));
     }
     else
-	glColor (QColor::fromRgbF (
-		     0, 0, 0, this->m_settings.GetContextAlpha ()));
+    {
+        QColor color =  QColor::fromRgbF (
+            0, 0, 0, this->m_settings.GetContextAlpha ());
+	glColor (color);
+    }
     (displayEdges (this->m_settings, this->m_focus,
                    this->m_useZPos, this->m_zPos)) (f);
 }

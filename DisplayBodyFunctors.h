@@ -52,6 +52,10 @@ public:
 	return  IsFocus (b) ? 
 	    DisplayElement::FOCUS : DisplayElement::CONTEXT;
     }
+    void operator () (boost::shared_ptr<Body> b);
+
+protected:
+    virtual void display (boost::shared_ptr<Body> b) = 0;
 
 private:
     const BodySelector& m_bodySelector;
@@ -66,7 +70,9 @@ public:
 	const BodySelector& bodySelector, float deformationSizeInitialRatio,
 	bool useZPos = false, double zPos = 0);
 
-    void operator () (boost::shared_ptr<Body> b);
+protected:
+    virtual void display (boost::shared_ptr<Body> b);
+
 private:
     float m_deformationSizeInitialRatio;
 };
@@ -82,7 +88,8 @@ public:
 	bool sameSize, bool clampingShown,
 	bool useZPos = false, double zPos = 0);
 
-    void operator () (boost::shared_ptr<Body> b);
+protected:
+    virtual void display (boost::shared_ptr<Body> b);
 
 private:
     float m_bubbleSize;
@@ -106,10 +113,8 @@ public:
 	const BodySelector& bodySelector,
 	bool useZPos = false, double zPos = 0);
 
-    /**
-     * Displays the center of a body (bubble)
-     */
-    void operator () (boost::shared_ptr<Body> b);
+protected:
+    virtual void display (boost::shared_ptr<Body> b);
 };
 
 
@@ -136,12 +141,10 @@ public:
 	typename DisplayElement::ContextType 
 	    contextDisplay = DisplayElement::USER_DEFINED_CONTEXT,
 	bool useZPos = false, double zPos = 0);
-			
-    /**
-     * Displays a body going through all its faces
-     */
-    void operator () (boost::shared_ptr<Body> b);
 
+protected:
+    virtual void display (boost::shared_ptr<Body> b);
+			
 private:
     typename DisplayElement::ContextType m_contextDisplay;
 };
@@ -182,6 +185,12 @@ public:
 	const map <size_t, boost::shared_ptr<BodyAlongTime> >::value_type& p)
     {
 	operator() (p.first);
+    }
+
+protected:
+    virtual void display (boost::shared_ptr<Body> b)
+    {
+        (void)b;
     }
     
 

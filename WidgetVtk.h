@@ -55,8 +55,6 @@ public:
     void UpdateFocus ();
     
     virtual const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
-
-public:
     QSize sizeHint ()
     {
 	return QSize (128, 128);
@@ -94,6 +92,7 @@ private:
     void updateViewTitle (ViewNumber::Enum viewNumber);
     void updateViewFocus (ViewNumber::Enum viewNumber);
     void resizeViewEvent (ViewNumber::Enum viewNumber);
+    void updateViewOpacity (ViewNumber::Enum viewNumber);
 
 private:
     Q_OBJECT

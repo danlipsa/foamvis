@@ -141,8 +141,8 @@ ostream& operator<< (ostream& ostr, const G3D::Plane& plane)
 
 ostream& operator<< (ostream& ostr, const QColor& color)
 {
-    return ostr << "QColor(" << color.red () << ", " << color.green () << ", "
-		<< color.blue () << ")";
+    return ostr << "[" << color.redF () << ", " << color.greenF () << ", "
+		<< color.blueF () << ", " << color.alphaF () << "]";
 }
 
 ostream& operator<< (ostream& ostr, const QwtDoubleInterval& interval)
