@@ -52,12 +52,12 @@ private:
     vtkSmartPointer<vtkRenderer> m_renderer;
     vtkSmartPointer<vtkScalarBarActor> m_scalarBar;
     vtkSmartPointer<vtkActor2D> m_viewTitleActor;
+    vtkSmartPointer<vtkActor2D> m_focusRectActor;
 
     vtkSmartPointer<vtkActor> m_averageActor;
     vtkSmartPointer<vtkThreshold> m_threshold;
     vector<vtkSmartPointer<vtkActor> > m_constraintSurface;
     vector<vtkSmartPointer<vtkActor> > m_object;
-    vtkSmartPointer<vtkActor2D> m_focusActor;
 };
 
 

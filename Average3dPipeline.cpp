@@ -157,7 +157,7 @@ void Average3dPipeline::createFocusRect ()
     VTK_CREATE (vtkActor2D, focusActor);
     focusActor->SetMapper (mapper);
     focusActor->GetProperty ()->SetColor (0.1, 0.1, 0.1);
-    m_focusActor = focusActor;
+    m_focusRectActor = focusActor;
 }
 
 
@@ -220,9 +220,9 @@ void Average3dPipeline::UpdateOpacity (float contextAlpha)
 void Average3dPipeline::UpdateFocus (bool focus)
 {
     if (focus)
-	m_renderer->AddViewProp (m_focusActor);
+	m_renderer->AddViewProp (m_focusRectActor);
     else
-	m_renderer->RemoveViewProp (m_focusActor);
+	m_renderer->RemoveViewProp (m_focusRectActor);
 }
 
 
