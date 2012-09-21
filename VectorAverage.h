@@ -20,7 +20,7 @@ class VectorAverage : public TensorAverageTemplate<SetterVelocity>
 {
 public:
     VectorAverage (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl,
-		   FramebufferObjects& scalarAverageFbos);
+		   FramebufferObjects& countFbos);
 
     static void InitShaders ();
 };

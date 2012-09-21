@@ -75,13 +75,15 @@ public:
     typedef float (ViewSettings::*ViewSettingsFloatFunction) () const;
 
 public:
-    TensorAverageTemplate (ViewNumber::Enum viewNumber,
-	const WidgetGl& widgetGl, WidgetGlFloatFunction sizeInitialRatio,
+    TensorAverageTemplate (
+        ViewNumber::Enum viewNumber,
+        const WidgetGl& widgetGl, WidgetGlFloatFunction sizeInitialRatio,
 	ViewSettingsFloatFunction sizeRatio, 
-	ViewSettingsFloatFunction lineWidthRatio,
-	FramebufferObjects& scalarAverageFbos) :
+        ViewSettingsFloatFunction lineWidthRatio,
+        FramebufferObjects& countFbos) :
+
 	ImageBasedAverage<Setter> (viewNumber,
-	    widgetGl, "tensor", QColor (0, 0, 0, 0), scalarAverageFbos),
+	    widgetGl, "tensor", QColor (0, 0, 0, 0), countFbos),
 	m_gridShown (false),
 	m_clampingShown (false),
 	m_gridCellCenterShown (false),
@@ -187,7 +189,7 @@ class TensorAverage : public TensorAverageTemplate<SetterDeformation>
 {
 public:
     TensorAverage (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl,
-		   FramebufferObjects& scalarAverageFbos);
+		   FramebufferObjects& countFbos);
 };
 
 #endif //__TENSOR_AVERAGE_H__

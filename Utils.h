@@ -7,24 +7,9 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
-// Fuzzy equality functionality
-// ======================================================================
-
 /**
- * Fix of G3D version 8.0, 
- * Vector3::isZero () which tests against fuzzyEpsilon instead of 
- * fuzzyEpsilon squared.
- */
-bool IsFuzzyZero (const G3D::Vector3& v);
-
-// ToString functionality
-// ======================================================================
-
-/**
- * Pretty prints a G3D::AABox
- * @param ostr where to print
- * @param box what to print
- * @return where to print next
+ * @{
+ * @name Pretty printing
  */
 ostream& operator<< (ostream& ostr, const G3D::AABox& box);
 ostream& operator<< (ostream& ostr, const G3D::Rect2D& rect);
@@ -41,20 +26,23 @@ ostream& operator<< (ostream& ostr, const QRect& r);
 ostream& operator<< (ostream& ostr, const QBox3D& p);
 ostream& operator<< (ostream& ostr, const QwtDoubleInterval& interval);
 ostream& operator<< (ostream& ostr, const vector<bool>& v);
-
 template<typename U, typename V>
 ostream& operator<< (ostream& ostr, const pair<U, V>& p);
+// @}
 
-
-// Unit vectors
-// ======================================================================
-
+/**
+ * @{
+ * @name Unit vectors
+ */
 const G3D::Vector3int16& Vector3int16Unit (size_t direction);
 extern const G3D::Vector3int16 Vector3int16Zero;
+// @}
 
-// 3D Math functionality
-// ======================================================================
 
+/**
+ * @{
+ * @name Graphics math
+ */
 void Scale (G3D::AABox* aabox, double change);
 void Scale (G3D::Rect2D* aabox, double change);
 void Translate (G3D::AABox* aabox, const G3D::Vector3& translationRatio);
@@ -93,8 +81,8 @@ G3D::Matrix3 MatrixFromColumns (
     const G3D::Vector3& col3);
 G3D::Matrix2 mult (const G3D::Matrix2& first, const G3D::Matrix2& second);
 G3D::Rect2D toRect2D (G3D::AABox aabox);
-
-
+G3D::Rect2D TexRectFromInsideRect (G3D::Rect2D insideRect);
+G3D::Vector2 TexCoord (G3D::Rect2D enclosingRect, G3D::Vector2 v);
 /**
  * Eigen things calculations
  */
@@ -121,38 +109,36 @@ G3D::AABox EncloseRotation2D (const G3D::AABox& box);
 G3D::Rect2D EncloseRotation (const G3D::Rect2D& rect);
 G3D::Vector2 rotateRadians (G3D::Vector2, float radiansCounterClockwise);
 G3D::Vector2 rotateDegrees (G3D::Vector2 v, float degreesCounterClockwise);
+// @}
 
 
-// Conversions Qt - G3D
-// ======================================================================
-
+/**
+ * @{
+ * @name Conversions
+ */
+// Qt - G3D
 QVector2D ToQt (const G3D::Vector2& v);
 QVector3D ToQt (const G3D::Vector3& v);
 QBox3D ToQt (const G3D::AABox& box);
 G3D::Vector2 ToG3D (const QVector2D& v);
 G3D::Vector3 ToG3D (const QVector3D& v);
 G3D::AABox ToG3D (const QBox3D& box);
-
-
-// Conversions Qt - OpenGl
-// ======================================================================
+// Qt - OpenGl
 G3D::Vector2 QtToOpenGl (const QPoint& point, int windowHeight);
 int OpenGlToQt (int h, int windowHeight);
-
 string ColorToHtml (const QColor& color, const char* text);
-
-// Conversions Qt - stl
+// Qt - Stl
 QStringList ToQStringList (const vector<string>& v);
-
 inline QwtDoubleInterval toQwtDoubleInterval (pair<float, float> p)
 {
     return QwtDoubleInterval (p.first, p.second);
 }
+// @}
 
-
-// Container algorithms
-// ======================================================================
-
+/**
+ * @{
+ * @name Container helpers
+ */
 template<typename Container, typename ContainerIterator, 
 	 typename ElementComparatorAlong>
 struct CalculateAggregate
@@ -164,13 +150,11 @@ struct CalculateAggregate
     void operator() (Aggregate aggregate, Container& container, 
 		     G3D::Vector3* result);
 };
-
 template<typename Container> void resizeAllowIndex (Container* c, size_t i)
 {
     if (i >= c->size ())
         c->resize (i + 1);
 }
-
 template<typename T> vector<G3D::Vector3> GetEdgeVectors (const T& t);
 template<typename T> G3D::AABox CalculateBoundingBox (const T& t);
 template<typename T> void setPointerValue (T* p, T value)
@@ -178,34 +162,34 @@ template<typename T> void setPointerValue (T* p, T value)
     if (p != 0)
 	*p = value;
 }
+// @}
 
-// file name utilities
-// ======================================================================
+/**
+ * @{
+ * @name File path
+ */
 string ChangeExtension (const string& path, const char* ext);
 string NameFromPath (const string& path);
+string LastDirFile (const char* fileName);
+string LastDirFile (const string& fileName);
+// @}
 
-// Defines
-//======================================================================
-#define VTK_CREATE(type, name) \
+/**
+ * @{
+ * @name Defines
+ */
+#define VTK_CREATE(type, name)                                  \
     vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 #define CALL_MEMBER(object,ptrToMember)  ((object).*(ptrToMember))
-
-
-// Other
-// ======================================================================
-const static size_t HISTOGRAM_INTERVALS = 256;
-const static size_t INVALID_INDEX = numeric_limits<size_t>::max ();
-
-
-
-QString ReadShader (const QString& resourceUrl);
-boost::shared_ptr<QGLShader> CreateShader (const QString& resourceUrl,
-	
-				   QGLShader::ShaderType type);
-G3D::Rect2D TexRectFromInsideRect (G3D::Rect2D insideRect);
-G3D::Vector2 TexCoord (G3D::Rect2D enclosingRect, G3D::Vector2 v);
-
 #define RESOURCE(name) ":/" name
+// @}
+
+
+/**
+ * @{
+ * @name Qt UI
+ */
+const static size_t HISTOGRAM_INTERVALS = 256;
 
 void SetCheckedNoSignals (QButtonGroup* buttonGroup, int buttonId, 
 			  bool checked);
@@ -216,7 +200,6 @@ template<typename T>
 void SetValueNoSignals (T* slider, size_t value);
 template<typename T>
 void SetValueAndMaxNoSignals (T* slider, size_t value, size_t max);
-
 float IndexExponent2Value (const QSlider* slider, 
 			   const pair<float,float>& minMax);
 int Value2ExponentIndex (QSlider* slider, 
@@ -224,11 +207,26 @@ int Value2ExponentIndex (QSlider* slider,
 float Index2Value (const QSlider* slider, const pair<float,float>& minMax);
 int Value2Index (QSlider* slider, 
 		 const pair<float,float>& minMax, float value);
+void RemoveLayout (QWidget* widget);
+// @}
+
+/**
+ * @{
+ * @name Others
+ */
+const static size_t INVALID_INDEX = numeric_limits<size_t>::max ();
 vtkSmartPointer<vtkImageData> CreateEmptyRegularGrid (
     size_t bodyAttribute, size_t regularGridResolution, G3D::AABox bb);
 vtkSmartPointer<vtkImageData> CreateRegularGridNoAttributes (
     G3D::AABox bb, size_t regularGridResolution);
-void RemoveLayout (QWidget* widget);
+/**
+ * Fix of G3D version 8.0, 
+ * Vector3::isZero () which tests against fuzzyEpsilon instead of 
+ * fuzzyEpsilon squared.
+ */
+bool IsFuzzyZero (const G3D::Vector3& v);
+// @}
+
 
 #endif //__UTILS_H__
 

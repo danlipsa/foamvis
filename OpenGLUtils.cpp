@@ -463,3 +463,24 @@ G3D::Matrix4 OpenGlToG3D (const boost::array<GLdouble,16>& mv)
     G3D::Matrix4 m (&mv[0]);
     return m.transpose ();
 }
+
+QString ReadShader (const QString& resourceUrl)
+{
+    QFile file (resourceUrl);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+	ThrowException ("Invalid resource: ", 
+			resourceUrl.toStdString ());
+    QTextStream in (&file);
+    return in.readAll ();
+}
+
+boost::shared_ptr<QGLShader> CreateShader (const QString& resourceUrl,
+					   QGLShader::ShaderType type)
+{
+    boost::shared_ptr<QGLShader> shader(new QGLShader (type));
+    QString vsrc = ReadShader (resourceUrl);
+    if (! shader->compileSourceCode(vsrc))
+	ThrowException ("Compile error for ", 
+			resourceUrl.toLatin1 ().constData ());
+    return shader;
+}

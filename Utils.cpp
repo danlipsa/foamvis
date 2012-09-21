@@ -16,7 +16,6 @@
 #include "Vertex.h"
 
 
-
 // G3D Helper functions
 // ======================================================================
 
@@ -485,8 +484,32 @@ QStringList ToQStringList (const vector<string>& v)
     return list;
 }
 
-// file name utilities
+// File path
 // ======================================================================
+
+QString lastName (const QString& path)
+{
+    int slashPos = path.lastIndexOf ('/');
+    QString ret = path;
+    return ret.remove (0, slashPos + 1);
+}
+
+string LastDirFile (const char* fileName)
+{
+    QFileInfo fileInfo (fileName);
+    QDir dir = fileInfo.absoluteDir ();
+    string filePattern = 
+	(lastName (dir.absolutePath ()) + 
+	 '/' + fileInfo.fileName ()).toStdString ();
+    return filePattern;
+}
+
+string LastDirFile (const string& fileName)
+{
+    return LastDirFile (fileName.c_str ());
+}
+
+
 string ChangeExtension (const string& path, const char* ext)
 {
     string extPath (path);
@@ -525,28 +548,6 @@ operator() (Aggregate aggregate, Container& container, G3D::Vector3* v)
     comparator = ElementComparatorAlong (Vector3::Z_AXIS);
     it = aggregate (container.begin (), container.end (), comparator);
     v->z = comparator (*it);
-}
-
-
-QString ReadShader (const QString& resourceUrl)
-{
-    QFile file (resourceUrl);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-	ThrowException ("Invalid resource: ", 
-			resourceUrl.toStdString ());
-    QTextStream in (&file);
-    return in.readAll ();
-}
-
-boost::shared_ptr<QGLShader> CreateShader (const QString& resourceUrl,
-					   QGLShader::ShaderType type)
-{
-    boost::shared_ptr<QGLShader> shader(new QGLShader (type));
-    QString vsrc = ReadShader (resourceUrl);
-    if (! shader->compileSourceCode(vsrc))
-	ThrowException ("Compile error for ", 
-			resourceUrl.toLatin1 ().constData ());
-    return shader;
 }
 
 

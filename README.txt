@@ -8,6 +8,7 @@ Release log
         - improved constraint processing speed by avoiding string lookups at 
           each access of a variable.
         - fix regression: deselected objects are not transparent
+        - save cache files in ~/.foamvis instead of original folder.
         
 0.8.2553
         - bug fixes (dataset fluctuates because is centered at foam center 

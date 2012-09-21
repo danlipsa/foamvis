@@ -22,6 +22,7 @@
 #include "ParsingData.h"
 #include "ProcessBodyTorus.h"
 #include "Vertex.h"
+#include "Simulation.h"
 
 //#define __LOG__(code) code
 #define __LOG__(code)
@@ -1146,14 +1147,26 @@ vtkSmartPointer<vtkImageData> Foam::calculateRegularGrid (
     return vtkImageData::SafeDownCast(regularProbe->GetOutput ());
 }
 
+void Foam::SetCachePath (const string& dmpPath)
+{
+    m_cachePath = Simulation::GetCachePath () + LastDirFile (dmpPath);
+
+    QFileInfo fi (m_cachePath.c_str ());
+    QDir parentDir = fi.dir ();
+    if (! parentDir.exists ())
+    {
+        QDir::root ().mkpath (parentDir.absolutePath ());
+    }
+}
+
 string Foam::getVtiPath () const
 {
-    return ChangeExtension (m_dmpPath, "vti");
+    return ChangeExtension (m_cachePath, "vti");
 }
 
 string Foam::GetDmpName () const
 {
-    return NameFromPath (m_dmpPath);
+    return NameFromPath (m_cachePath);
 }
 
 boost::shared_ptr<OrientedFace> pairGetSecond (

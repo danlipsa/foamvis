@@ -83,6 +83,12 @@ while (no more items in the queue)
  * The first time step is 1. \n
  * A T1 labeled with timestep T occurs between T and T+1.\n
  *
+ *
+ * @todo look at paths coresponding to bubbles around the circulation
+ *       shown by average: Simon's email 21 Sep. 2012
+ * @todo add vorticity: Simon's email 21 Sep. 2012
+ * @todo implement VIEW_TRANSFORM, VIEW_TRANSFORM_GENERATORS, TRANSFORM_EXPR for
+ *       twogascoarse dataset.
  * @todo Why time displacement does not go all the way to max Z?
  * @todo Use vertex arrays for center paths
  * @todo Use google-breakpad for reporting crashes.  

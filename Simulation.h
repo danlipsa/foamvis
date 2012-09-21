@@ -226,6 +226,7 @@ public:
 	return m_regularGridResolution;
     }
     void SetRegularGridResolution (size_t resolution);
+    static string GetCachePath ();
 
 private:
     void MapPerFoam (FoamParamMethod* foamMethods, size_t n);
@@ -250,10 +251,6 @@ private:
     template <typename Accumulator, typename GetBodyScalar>
     void forAllBodiesAccumulate (
 	Accumulator* acc, GetBodyScalar getBodyScalar);
-
-
-private:
-    static const vector<G3D::Vector3> NO_T1S;
 
 private:
     /**
@@ -314,7 +311,6 @@ public:
     }
     string ToString () const;
     float GetBubbleSize () const;    
-
 
 private:
     vector<Simulation> m_simulation;

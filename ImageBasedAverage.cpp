@@ -46,10 +46,10 @@ template<typename PropertySetter>
 ImageBasedAverage<PropertySetter>::ImageBasedAverage (
     ViewNumber::Enum viewNumber,
     const WidgetGl& widgetGl, string id, QColor stepClearColor,
-    FramebufferObjects& scalarAverageFbos) :
+    FramebufferObjects& countFbos) :
     Average (viewNumber, 
 	     *widgetGl.GetSettings (), widgetGl.GetSimulationGroup ()), 
-    m_scalarAverageFbos (scalarAverageFbos), m_id (id),
+    m_countFbos (countFbos), m_id (id),
     m_stepClearColor (stepClearColor),
     m_widgetGl (widgetGl)
 {
@@ -112,19 +112,19 @@ void ImageBasedAverage<PropertySetter>::clear ()
     ClearColorStencilBuffers (getStepClearColor (), 0);
     m_fbos.m_step->release ();
     //save (
-    //viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
+    //viewNumber, make_pair (m_fbos.m_step, m_countFbos.m_step), 
     //"step", FAKE_TIMESTEP, 0, 
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     initFramebuffer (m_fbos.m_current);
     //save (viewNumber, 
-    //make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
+    //make_pair (m_fbos.m_current, m_countFbos.m_current), 
     //"current", FAKE_TIMESTEP, 0,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
     
     initFramebuffer (m_fbos.m_previous);
     // save (viewNumber, 
-    // 	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
+    // 	  make_pair (m_fbos.m_previous, m_countFbos.m_previous), 
     // 	  "previous", FAKE_TIMESTEP + 1,
     // 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     WarnOnOpenGLError ("ImageBasedAverage::clear");
@@ -147,20 +147,20 @@ void ImageBasedAverage<PropertySetter>::addStep (size_t timeStep, size_t subStep
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (timeStep, subStep);
     //save (
-    //viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
+    //viewNumber, make_pair (m_fbos.m_step, m_countFbos.m_step), 
     //"step", timeStep, subStep, 
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     currentIsPreviousPlusStep ();
     //save (viewNumber, 
-    //make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
+    //make_pair (m_fbos.m_current, m_countFbos.m_current), 
     //"current", timeStep, subStep,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
     //cdbg << "addStep: " << timeStep << "-" << subStep << endl;
 
     copyCurrentToPrevious ();
     // save (viewNumber, 
-    // 	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
+    // 	  make_pair (m_fbos.m_previous, m_countFbos.m_previous), 
     // 	  "previous", timeStep + 1,
     // 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     glPopAttrib ();
@@ -180,7 +180,7 @@ void ImageBasedAverage<PropertySetter>::removeStep (
 
     currentIsPreviousMinusStep ();
     //save (viewNumber, 
-    //make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
+    //make_pair (m_fbos.m_current, m_countFbos.m_current), 
     //"current", timeStep, subStep,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
     //cdbg << "removeStep: " << timeStep << "-" << subStep << endl;
@@ -302,7 +302,7 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
     pair<float,float> minMax = GetWidgetGl ().GetRange (GetViewNumber ());
     rotateAndDisplay (
 	minMax.first, minMax.second, displayType, 
-	make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
+	make_pair (m_fbos.m_current, m_countFbos.m_current), 
 	ViewingVolumeOperation::DONT_ENCLOSE2D, rotationCenter, angleDegrees);
 }
 
@@ -357,6 +357,14 @@ void ImageBasedAverage<PropertySetter>::glActiveTexture (GLenum texture) const
 {
     const_cast<WidgetGl&>(GetWidgetGl ()).glActiveTexture (texture);
 }
+
+template<typename PropertySetter>
+vtkSmartPointer<vtkImageData> ImageBasedAverage<PropertySetter>::GetData () const
+{
+    // TODO: set x, y, width, height and current buffer
+    glReadPixels (0, 0, 0, 0, GL_RGBA, GL_FLOAT, data);
+}
+
 
 // Template instantiations
 //======================================================================

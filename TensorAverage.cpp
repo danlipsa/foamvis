@@ -202,13 +202,13 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
 
 TensorAverage::TensorAverage (ViewNumber::Enum viewNumber, 
 			      const WidgetGl& widgetGl,
-			      FramebufferObjects& scalarAverageFbos) :
+			      FramebufferObjects& countFbos) :
     TensorAverageTemplate<SetterDeformation> (
 	viewNumber, widgetGl, 
 	&WidgetGl::GetDeformationSizeInitialRatio,
 	&ViewSettings::GetDeformationSize,
 	&ViewSettings::GetDeformationLineWidth,
-	scalarAverageFbos)
+	countFbos)
 {
 }
 

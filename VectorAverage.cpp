@@ -18,13 +18,13 @@
 
 VectorAverage::VectorAverage (ViewNumber::Enum viewNumber, 
 			      const WidgetGl& widgetGl, 
-			      FramebufferObjects& scalarAverageFbos) :
+			      FramebufferObjects& countFbos) :
     TensorAverageTemplate<SetterVelocity> (
 	viewNumber, widgetGl,
 	&WidgetGl::GetVelocitySizeInitialRatio,
 	&ViewSettings::GetVelocityClampingRatio,
 	&ViewSettings::GetVelocityLineWidth,
-	scalarAverageFbos)
+	countFbos)
 {
 }
 

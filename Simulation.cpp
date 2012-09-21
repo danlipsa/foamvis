@@ -96,7 +96,7 @@ public:
 		      m_parametersOperation));
 	foam->GetParsingData ().SetDebugParsing (m_debugParsing);
 	foam->GetParsingData ().SetDebugScanning (m_debugScanning);	    
-	foam->SetDmpPath (fullPath);
+	foam->SetCachePath (fullPath);
 	result = foam->GetParsingData ().Parse (fullPath, foam.get ());
 	if (result != 0)
 	    ThrowException ("Error parsing ", fullPath);
@@ -116,16 +116,12 @@ private:
     const bool m_debugScanning;
 };
 
-
-
-// Static Members
-// ======================================================================
-const vector<G3D::Vector3> Simulation::NO_T1S;
-
-
+const vector<G3D::Vector3> NO_T1S;
+const char* CACHE_DIR_NAME = ".foamvis";
 
 // Members: Simulation
 // ======================================================================
+
 Simulation::Simulation () :
     m_histogram (
         BodyScalar::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
@@ -137,7 +133,19 @@ Simulation::Simulation () :
     m_maxDeformationEigenValue (0),
     m_regularGridResolution (64)
 {
+    QDir h = QDir::home ();
+    if (! h.exists (CACHE_DIR_NAME))
+    {
+        h.mkdir (CACHE_DIR_NAME);
+    }
 }
+
+string Simulation::GetCachePath ()
+{
+    return (QDir::home ().absolutePath () + 
+            "/" +  CACHE_DIR_NAME + "/").toStdString ();
+}
+
 
 void Simulation::SetRegularGridResolution (size_t resolution)
 {

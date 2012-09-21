@@ -44,11 +44,11 @@ struct FramebufferObjects
 
 
 /**
- * Calculate an average a time window.
+ * Calculate the average of 2D foam over a time window.
  * It uses three framebuffer objects: step, previous, current.
  * Average is implemented by first calculating the sum and then dividing by
  * the number of elements in the sum. The sum is calculated in 3 steps:
- * 1. step = draw current foam using attribute values instead of colors
+ * 1. draw current foam using attribute values instead of colors into step
  * 2. current = previous + step
  * 3. previous = current
  *
@@ -62,7 +62,7 @@ public:
     ImageBasedAverage (
 	ViewNumber::Enum viewNumber,
 	const WidgetGl& widgetGl, string id, QColor stepClearColor,
-	FramebufferObjects& scalarAverageFbos);
+	FramebufferObjects& countFbos);
     void AverageRelease ();
     void AverageRotateAndDisplay (	
 	StatisticsType::Enum displayType = StatisticsType::AVERAGE,	
@@ -81,6 +81,8 @@ public:
     {
 	return m_widgetGl;
     }
+    vtkSmartPointer<vtkImageData> GetData () const;
+
 
 protected:
     typedef pair<boost::shared_ptr<QGLFramebufferObject>, 
@@ -108,7 +110,7 @@ protected:
     static boost::shared_ptr<AddShaderProgram> m_addShaderProgram;
     static boost::shared_ptr<AddShaderProgram> m_removeShaderProgram;
 
-    FramebufferObjects& m_scalarAverageFbos;
+    FramebufferObjects& m_countFbos;
     FramebufferObjects m_fbos;
 
 private:

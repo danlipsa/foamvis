@@ -142,6 +142,12 @@ bool isMatrixValid (GLenum matrixType);
 vtkSmartPointer<vtkMatrix4x4> OpenGlToVtk (const boost::array<GLdouble,16>& mv);
 G3D::Matrix4 OpenGlToG3D (const boost::array<GLdouble,16>& mv);
 
+QString ReadShader (const QString& resourceUrl);
+boost::shared_ptr<QGLShader> CreateShader (const QString& resourceUrl,
+                                           QGLShader::ShaderType type);
+
+
+
 #endif //__OPENGL_UTIL_H__
 
 // Local Variables:

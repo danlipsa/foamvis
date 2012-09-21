@@ -301,10 +301,7 @@ public:
     {
 	return m_attributesInfoElements;
     }
-    void SetDmpPath (const string& dmpPath)
-    {
-	m_dmpPath = dmpPath;
-    }
+    void SetCachePath (const string& dmpPath);
     string GetDmpName () const;
     void SaveRegularGrid (size_t regularGridResolution) const;
     void StoreConstraintFaces ();
@@ -448,7 +445,7 @@ private:
     DataProperties& m_properties;    
     ParametersOperation m_parametersOperation;
     AttributesInfoElements m_attributesInfoElements;
-    string m_dmpPath;
+    string m_cachePath;
 };
 
 /**
