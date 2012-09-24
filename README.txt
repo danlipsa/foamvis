@@ -8,7 +8,7 @@ Release log
         - improved constraint processing speed by avoiding string lookups at 
           each access of a variable.
         - fix regression: deselected objects are not transparent
-        - save cache files in ~/.foamvis instead of original folder.
+        - save cache files in ~/.foamvis instead of the original data folder.
         
 0.8.2553
         - bug fixes (dataset fluctuates because is centered at foam center 
@@ -34,7 +34,7 @@ Release log
 	  using OpenGL display lists. 
 	  (stokeslibre_22_04_17_0003_0001_bodies.dmp.dmp.dmp)
 	- Added --resolution <r> to specify the resolution of the regular grid 
-	  saved for 3D averages, 0 means no regular grid saved.
+	  saved (.vti) for 3D averages, 0 means no regular grid saved.
 	- Fix: translate pressure only if there are no free surfaces.
 	- A histogram per view can be displayed.
 0.7.2374 2012-03-09

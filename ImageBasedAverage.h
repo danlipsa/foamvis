@@ -81,8 +81,6 @@ public:
     {
 	return m_widgetGl;
     }
-    vtkSmartPointer<vtkImageData> GetData () const;
-
 
 protected:
     typedef pair<boost::shared_ptr<QGLFramebufferObject>, 
@@ -103,7 +101,9 @@ protected:
     {
 	return m_stepClearColor;
     }
-
+    vtkSmartPointer<vtkFloatArray> getData (
+        boost::shared_ptr<QGLFramebufferObject> framebuffer,
+        const G3D::Rect2D& windowCoord, GLenum format) const;
 
     static boost::shared_ptr<ShaderProgram> m_initShaderProgram;
     static boost::shared_ptr<StoreShaderProgram> m_storeShaderProgram;

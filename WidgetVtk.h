@@ -19,7 +19,7 @@ class SimulationGroup;
 class RegularGridAverage;
 class ViewSettings;
 class Foam;
-class Average3dPipeline;
+class PipelineAverage3d;
 
 class WidgetVtk : public QVTKWidget, public WidgetBase
 {
@@ -49,7 +49,7 @@ public:
     void UpdateViewAverage (
         ViewNumber::Enum viewNumber,
         const boost::array<int, ViewNumber::COUNT>& direction);
-    void CreateAverage3dPipeline (size_t objects, size_t constraintSurfaces, 
+    void CreatePipelineAverage3d (size_t objects, size_t constraintSurfaces, 
                                   size_t fontSize);
     void UpdateTitle ();
     void UpdateFocus ();
@@ -98,10 +98,9 @@ private:
     Q_OBJECT
     boost::array<boost::shared_ptr<RegularGridAverage>,
 		 ViewNumber::COUNT> m_average;
-    boost::array<boost::shared_ptr<Average3dPipeline>, 
+    boost::array<boost::shared_ptr<PipelineAverage3d>, 
                  ViewNumber::COUNT> m_pipeline;
     int m_fontSize;
-    
 };
 
 

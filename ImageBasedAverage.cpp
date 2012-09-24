@@ -27,6 +27,29 @@
 // Private classes/functions
 // ======================================================================
 
+size_t getNumberOfComponents (GLenum format)
+{
+    switch (format)
+    {
+    case GL_RED:
+        // read a scalar
+        return 1;
+    case GL_GREEN:
+        // read the count
+        return 1;
+    case GL_RGB:
+        // read a 2D vector (RG contain the vector components)
+        return 3;
+    case GL_RGBA:
+        // read a 2D tensor
+        return 4;
+    default:
+        ThrowException ("Invalid read format: ", format);
+        return 0;
+    }
+}
+
+
 // ImageBasedAverage Methods
 // ======================================================================
 
@@ -358,11 +381,24 @@ void ImageBasedAverage<PropertySetter>::glActiveTexture (GLenum texture) const
     const_cast<WidgetGl&>(GetWidgetGl ()).glActiveTexture (texture);
 }
 
+
 template<typename PropertySetter>
-vtkSmartPointer<vtkImageData> ImageBasedAverage<PropertySetter>::GetData () const
+vtkSmartPointer<vtkFloatArray> ImageBasedAverage<PropertySetter>::getData (
+    boost::shared_ptr<QGLFramebufferObject> framebuffer,
+    const G3D::Rect2D& windowCoord, GLenum format) const
 {
-    // TODO: set x, y, width, height and current buffer
-    glReadPixels (0, 0, 0, 0, GL_RGBA, GL_FLOAT, data);
+    VTK_CREATE(vtkFloatArray, attributes);
+    vtkIdType numberOfPoints = windowCoord.width () * windowCoord.height ();
+    attributes->SetNumberOfComponents (getNumberOfComponents (format));
+    attributes->SetNumberOfTuples (numberOfPoints);
+
+    framebuffer->bind ();
+    glReadPixels (
+        windowCoord.x0 (), windowCoord.y0 (), 
+        windowCoord.width (), windowCoord.height (), 
+        format, GL_FLOAT, attributes->GetVoidPointer (0));
+    framebuffer->release ();
+    return attributes;
 }
 
 

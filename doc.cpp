@@ -84,17 +84,21 @@ while (no more items in the queue)
  * A T1 labeled with timestep T occurs between T and T+1.\n
  *
  *
- * @todo look at paths coresponding to bubbles around the circulation
+ *
+ * @todo Look at paths coresponding to bubbles around the circulation
  *       shown by average: Simon's email 21 Sep. 2012
- * @todo add vorticity: Simon's email 21 Sep. 2012
- * @todo implement VIEW_TRANSFORM, VIEW_TRANSFORM_GENERATORS, TRANSFORM_EXPR for
+ * @todo Add vorticity: Simon's email 21 Sep. 2012
+ * @todo Implement VIEW_TRANSFORM, VIEW_TRANSFORM_GENERATORS, TRANSFORM_EXPR for
  *       twogascoarse dataset.
  * @todo Why time displacement does not go all the way to max Z?
  * @todo Use vertex arrays for center paths
  * @todo Use google-breakpad for reporting crashes.  
- *
- * @todo set new line significant only for list of vertices, edges,
- * faces, bodies
- *
- *
+ * @todo Set new line significant only for list of vertices, edges,
+ *       faces, bodies
+ * @todo Replace vector + tensor drawing with geometry shader or CPU 
+ *       (instead fragment shader)
+ * @todo optimization: for 2D foam, store vector count in the same texture
+ *       instead of storing it in the scalar texture.
+ * @todo bug: velocity average shows a black blob if only one time step of data 
+         is loaded. An error message should be shown instead.
  */

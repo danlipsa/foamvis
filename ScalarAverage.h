@@ -36,6 +36,9 @@ public:
     {
     }
 
+    vtkSmartPointer<vtkImageData> GetData (
+        const G3D::Rect2D& objectCoord, BodyScalar::Enum property) const;    
+
 protected:
     virtual void rotateAndDisplay (
 	GLfloat minValue, GLfloat maxValue,

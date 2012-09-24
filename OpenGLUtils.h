@@ -69,7 +69,11 @@ G3D::Vector3 toEye (G3D::Vector3 object);
 /**
  * Maps object coordinates to window coordinates
  */
-G3D::Vector3 gluProject (G3D::Vector3 object);
+G3D::Vector3 gluProject (G3D::Vector3 objectCoord);
+template<typename InputIterator, typename OutputIterator>
+void gluProject (InputIterator objectCoordBegin, InputIterator objectCoordEnd,
+                 OutputIterator windowCoordBegin);
+G3D::Rect2D gluProject (const G3D::Rect2D& objectCoord);
 
 struct GluUnProjectZOperation
 {
@@ -81,7 +85,7 @@ struct GluUnProjectZOperation
 };
 
 /**
- * Returns the world coordinate associated with a screen coordinate.
+ * Returns the world coordinate associated with a window coordinate.
  * Uses the depth buffer to find out the Z screen coordinate (and then
  * the z coordinate) if zOperation == READ otherwise it uses a Z screen 
  * coordinate equal with 0.

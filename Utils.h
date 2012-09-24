@@ -216,9 +216,9 @@ void RemoveLayout (QWidget* widget);
  */
 const static size_t INVALID_INDEX = numeric_limits<size_t>::max ();
 vtkSmartPointer<vtkImageData> CreateEmptyRegularGrid (
-    size_t bodyAttribute, size_t regularGridResolution, G3D::AABox bb);
+    size_t bodyAttribute, int extent[6], G3D::AABox bb);
 vtkSmartPointer<vtkImageData> CreateRegularGridNoAttributes (
-    G3D::AABox bb, size_t regularGridResolution);
+    G3D::AABox bb, int extent[6]);
 /**
  * Fix of G3D version 8.0, 
  * Vector3::isZero () which tests against fuzzyEpsilon instead of 

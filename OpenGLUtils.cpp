@@ -124,20 +124,55 @@ private:
     string m_name;
 };
 
-
-G3D::Vector3 gluProject (G3D::Vector3 object)
+void getCurrentMatrices (GLdouble model[], GLdouble proj[], GLint view[])
 {
-    GLdouble model[16];
     glGetDoublev (GL_MODELVIEW_MATRIX, model);
-    GLdouble proj[16];
     glGetDoublev (GL_PROJECTION_MATRIX, proj);
-    GLint view[4];
     glGetIntegerv (GL_VIEWPORT, view);
+}
+
+
+G3D::Vector3 gluProject (G3D::Vector3 objectCoord)
+{
+    GLdouble model[16];GLdouble proj[16];GLint view[4];
+    getCurrentMatrices (model, proj, view);
     GLdouble x, y, z;
-    gluProject (object.x, object.y, object.z, model, proj, view, 
+    gluProject (objectCoord.x, objectCoord.y, objectCoord.z, model, proj, view, 
 		&x, &y, &z);
     return G3D::Vector3 (x, y, z);
 }
+
+template<typename InputIterator, typename OutputIterator>
+void gluProject (InputIterator objectCoordBegin, InputIterator objectCoordEnd,
+                 OutputIterator windowCoordBegin)
+{
+    GLdouble model[16];GLdouble proj[16];GLint view[4];
+    getCurrentMatrices (model, proj, view);
+    OutputIterator outIt = windowCoordBegin;
+    for (InputIterator it = objectCoordBegin; it != objectCoordEnd; ++it)
+    {
+        GLdouble x, y, z;
+        gluProject (it->x, it->y, it->z,
+                    model, proj, view, &x, &y, &z);
+        (*outIt) = G3D::Vector3 (x, y, z);
+        ++outIt;
+    }
+}
+
+G3D::Rect2D gluProject (const G3D::Rect2D& oc)
+{
+    boost::array<G3D::Vector3, 4> objectCoord = {{
+            G3D::Vector3 (oc.x0y0 (), 0),
+            G3D::Vector3 (oc.x0y1 (), 0),
+            G3D::Vector3 (oc.x1y1 (), 0),
+            G3D::Vector3 (oc.x1y0 (), 0)
+        }};
+    boost::array<G3D::Vector3, 4> windowCoord;
+    gluProject (objectCoord.begin (), objectCoord.end (), windowCoord.begin ());
+    return G3D::Rect2D::xyxy (windowCoord[0].x, windowCoord[0].y,
+                              windowCoord[2].x, windowCoord[2].y);
+}
+
 
 G3D::Vector3 toEye (G3D::Vector3 object)
 {
@@ -195,12 +230,8 @@ G3D::Vector3 gluUnProject (
     G3D::Vector2 screenCoord, 
     GluUnProjectZOperation::Enum zOperation)
 {
-    GLdouble model[16];
-    glGetDoublev (GL_MODELVIEW_MATRIX, model);
-    GLdouble proj[16];
-    glGetDoublev (GL_PROJECTION_MATRIX, proj);
-    GLint view[4];
-    glGetIntegerv (GL_VIEWPORT, view);
+    GLdouble model[16];GLdouble proj[16];GLint view[4];
+    getCurrentMatrices (model, proj, view);
     GLfloat zScreenCoord = 0;
     if (zOperation == GluUnProjectZOperation::READ)
 	glReadPixels (screenCoord.x, screenCoord.y, 1, 1, 

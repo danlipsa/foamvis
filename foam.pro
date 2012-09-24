@@ -1,7 +1,7 @@
 HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h Average.h AverageInterface.h\
-	AverageShaders.h Average3dPipeline.h Body.h BrowseSimulations.h\
+	AverageShaders.h PipelineAverage3d.h Body.h BrowseSimulations.h\
 	BodyAlongTime.h AdjacentBody.h BodySelector.h \
 	ConstraintEdge.h ColorBarModel.h Comparisons.h\
 	Debug.h \
@@ -19,7 +19,8 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	OrientedEdge.h OrientedFace.h Options.h \
 	ParsingData.h ParsingDriver.h \
 	Settings.h SelectBodiesById.h ScalarAverage.h ShaderProgram.h\
-	ParsingEnums.h ProcessBodyTorus.h PropertySetter.h \
+	ParsingEnums.h PipelineBase.h \
+	ProcessBodyTorus.h PropertySetter.h \
 	QuadraticEdge.h RegularGridAverage.h\
 	RestrictedRangeSlider.h Simulation.h\
 	stable.h StripIterator.h SystemDifferences.h ScalarDisplay.h \
@@ -29,7 +30,7 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 SOURCES += Application.cpp ApproximationEdge.cpp\
 	Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	AttributeHistogram.cpp Average.cpp AverageShaders.cpp \
-	Body.cpp BodyAlongTime.cpp AdjacentBody.cpp Average3dPipeline.cpp \
+	Body.cpp BodyAlongTime.cpp AdjacentBody.cpp PipelineAverage3d.cpp \
 	BodySelector.cpp BrowseSimulations.cpp \
 	ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
 	DebugStream.cpp Disk.cpp DisplayBodyFunctors.cpp \
@@ -49,7 +50,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	OOBox.cpp OpenGLUtils.cpp OrientedElement.cpp Options.cpp\
 	OrientedEdge.cpp OrientedFace.cpp AdjacentOrientedFace.cpp\
 	ScalarAverage.cpp Settings.cpp SelectBodiesById.cpp \
-	ParsingData.cpp ParsingDriver.cpp \
+	ParsingData.cpp PipelineBase.cpp ParsingDriver.cpp \
 	ParsingEnums.cpp ProcessBodyTorus.cpp \
 	PropertySetter.cpp ShaderProgram.cpp\
 	QuadraticEdge.cpp RegularGridAverage.cpp\

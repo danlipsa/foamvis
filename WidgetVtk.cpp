@@ -6,7 +6,7 @@
  * Definitions for the widget for displaying foam bubbles using Vtk
  */
 
-#include "Average3dPipeline.h"
+#include "PipelineAverage3d.h"
 #include "Body.h"
 #include "DebugStream.h"
 #include "Foam.h"
@@ -90,7 +90,7 @@ void WidgetVtk::CreateAverage (boost::shared_ptr<Settings> settings,
     }
 }
 
-void WidgetVtk::CreateAverage3dPipeline (
+void WidgetVtk::CreatePipelineAverage3d (
     size_t objects, size_t constraintSurfaces, size_t fontSize)
 {
     m_fontSize = fontSize + 4;
@@ -98,7 +98,7 @@ void WidgetVtk::CreateAverage3dPipeline (
 
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
     {
-	m_pipeline[i].reset (new Average3dPipeline (
+	m_pipeline[i].reset (new PipelineAverage3d (
                                  objects, constraintSurfaces, fontSize));
     }
 
@@ -153,7 +153,7 @@ void WidgetVtk::AddView (
     const char* scalarName = FaceScalar::ToString (vs.GetBodyOrFaceScalar ());
     const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
     const Foam& foam = m_average[viewNumber]->GetFoam ();
-    Average3dPipeline& pipeline = *m_pipeline[viewNumber];
+    PipelineAverage3d& pipeline = *m_pipeline[viewNumber];
     G3D::AABox vv = CalculateViewingVolume (viewNumber);
     average->AverageInitStep ();
     int direction = 0;
@@ -181,7 +181,7 @@ void WidgetVtk::ViewToVtk (ViewNumber::Enum viewNumber)
     const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
     const Foam& foam = m_average[viewNumber]->GetFoam ();
     const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
-    Average3dPipeline& pipeline = *m_pipeline[viewNumber];
+    PipelineAverage3d& pipeline = *m_pipeline[viewNumber];
     pipeline.ViewToVtk (vs, simulation.GetBoundingBox ().center (), foam);
 }
 
@@ -193,7 +193,7 @@ void WidgetVtk::VtkToView (ViewNumber::Enum viewNumber)
     {
         ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
         const Foam& foam = m_average[viewNumber]->GetFoam ();
-        Average3dPipeline& pipeline = *m_pipeline[viewNumber];
+        PipelineAverage3d& pipeline = *m_pipeline[viewNumber];
         pipeline.VtkToView (vs, foam);
     }
 }
@@ -209,7 +209,7 @@ void WidgetVtk::UpdateViewAverage (
     ViewNumber::Enum viewNumber,
     const boost::array<int, ViewNumber::COUNT>& direction)
 {
-    Average3dPipeline& pipeline = *m_pipeline[viewNumber];
+    PipelineAverage3d& pipeline = *m_pipeline[viewNumber];
     boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
     pipeline.UpdateAverage (average, direction[viewNumber]);
     updateViewTitle (viewNumber);
@@ -225,7 +225,7 @@ void WidgetVtk::UpdateTitle ()
 void WidgetVtk::updateViewTitle (ViewNumber::Enum viewNumber)
 {
     bool titleShown = GetSettings ()->IsTitleShown ();
-    Average3dPipeline& pipeline = *m_pipeline[viewNumber];
+    PipelineAverage3d& pipeline = *m_pipeline[viewNumber];
     G3D::Rect2D viewRect = GetNormalizedViewRect (viewNumber);
     G3D::Vector2 position = G3D::Vector2 (
         viewRect.center ().x, 
@@ -245,7 +245,7 @@ void WidgetVtk::updateViewFocus (ViewNumber::Enum viewNumber)
 {
     bool focus = (GetSettings ()->GetViewNumber () == viewNumber) && 
 	GetSettings ()->IsViewFocusShown ();
-    Average3dPipeline& pipeline = *m_pipeline[viewNumber];
+    PipelineAverage3d& pipeline = *m_pipeline[viewNumber];
     pipeline.UpdateFocus (focus);
 }
 

@@ -1,5 +1,5 @@
 /**
- * @file   Average3dPipeline.cpp
+ * @file   PipelineAverage3d.cpp
  * @author Dan R. Lipsa
  * @date 4 Sept 2012
  * 
@@ -7,7 +7,7 @@
  * 
  */
 
-#include "Average3dPipeline.h"
+#include "PipelineAverage3d.h"
 #include "Body.h"
 #include "DebugStream.h"
 #include "Foam.h"
@@ -20,22 +20,18 @@
 #define __LOG__(code)
 
 
-// Methods Average3dPipeline
+// Methods PipelineAverage3d
 // ======================================================================
 
-Average3dPipeline::Average3dPipeline (
-    size_t objects, size_t constraintSurfaces, size_t fontSize)
+PipelineAverage3d::PipelineAverage3d (
+    size_t objects, size_t constraintSurfaces, size_t fontSize) :
+    PipelineBase (fontSize)
 {
     // vtkImageData->vtkThreshold->vtkDatasetMapper->vtkActor->vtkRenderer
     //                                      vtkScalarBarActor 
     // 
     // (foam objects)    vtkPolyData->vtkDatasetMapper->vtkActor
     // (constraint faces)
-
-    createRenderer ();
-    createScalarBar ();
-    createViewTitle (fontSize);
-    createFocusRect ();
 
     // threshold
     VTK_CREATE (vtkThreshold, threshold);
@@ -48,7 +44,7 @@ Average3dPipeline::Average3dPipeline (
     VTK_CREATE(vtkActor, averageActor);
     averageActor->SetMapper(averageMapper);
     m_averageActor = averageActor;
-    m_renderer->AddViewProp(averageActor);
+    GetRenderer ()->AddViewProp(averageActor);
 
     // foam objects
     m_object.resize (objects);
@@ -59,7 +55,7 @@ Average3dPipeline::Average3dPipeline (
 	VTK_CREATE (vtkActor, actor);
 	actor->SetMapper (mapper);
 	m_object[i] = actor;
-	m_renderer->AddViewProp (actor);
+	GetRenderer ()->AddViewProp (actor);
     }
 
     // constraint faces rendered transparent
@@ -71,97 +67,11 @@ Average3dPipeline::Average3dPipeline (
 	VTK_CREATE (vtkActor, actor);
 	actor->SetMapper (mapper);
 	m_constraintSurface[i] = actor;
-	m_renderer->AddViewProp (actor);
+	GetRenderer ()->AddViewProp (actor);
     }
 }
 
-void Average3dPipeline::createRenderer ()
-{
-    VTK_CREATE (vtkRenderer, renderer);
-    renderer->SetBackground(1,1,1);
-    renderer->LightFollowCameraOn ();
-    m_renderer = renderer;
-}
-
-void Average3dPipeline::createScalarBar ()
-{
-    VTK_CREATE (vtkScalarBarActor, scalarBar);
-    scalarBar->SetOrientationToVertical ();
-    scalarBar->SetNumberOfLabels (3);
-    m_scalarBar = scalarBar;
-    m_renderer->AddViewProp (scalarBar);
-}
-
-void Average3dPipeline::createViewTitle (size_t fontSize)
-{
-    VTK_CREATE (vtkTextProperty, singleLineTextProp);
-    singleLineTextProp->SetFontSize (fontSize);
-    singleLineTextProp->SetFontFamilyToArial ();
-    singleLineTextProp->BoldOff ();
-    singleLineTextProp->ItalicOff ();
-    singleLineTextProp->ShadowOff ();
-    
-    VTK_CREATE(vtkTextProperty, multiLineTextProp);
-    multiLineTextProp->ShallowCopy (singleLineTextProp);
-    multiLineTextProp->ShadowOn ();
-    multiLineTextProp->SetLineSpacing (1.2);
-
-    VTK_CREATE(vtkTextMapper, textMapper);
-    vtkTextProperty* tprop = textMapper->GetTextProperty ();
-    tprop->ShallowCopy (multiLineTextProp);
-    tprop->SetJustificationToCentered ();
-    tprop->SetVerticalJustificationToTop ();
-    tprop->SetColor (0, 0, 0);
-    
-    VTK_CREATE (vtkActor2D, textActor);
-    textActor->SetMapper (textMapper);
-    textActor->GetPositionCoordinate ()->
-        SetCoordinateSystemToNormalizedDisplay ();
-    m_renderer->AddViewProp (textActor);
-    m_viewTitleActor = textActor;
-}
-
-void Average3dPipeline::createFocusRect ()
-{
-    VTK_CREATE(vtkPoints, Pts);
-    Pts->InsertNextPoint (0.0, 0.0, 0.0);
-    Pts->InsertNextPoint (0.0, 1.0, 0.0);
-    Pts->InsertNextPoint (1.0, 1.0, 0.0);
-    Pts->InsertNextPoint (1.0, 0.0, 0.0);
-
-    VTK_CREATE (vtkCellArray, Lines);
-    Lines->InsertNextCell (2);
-    Lines->InsertCellPoint (0);
-    Lines->InsertCellPoint (1);
-    Lines->InsertNextCell (2);
-    Lines->InsertCellPoint (1);
-    Lines->InsertCellPoint (2);
-    Lines->InsertNextCell (2);
-    Lines->InsertCellPoint (2);
-    Lines->InsertCellPoint (3);
-    Lines->InsertNextCell (2);
-    Lines->InsertCellPoint (3);
-    Lines->InsertCellPoint (0);
-
-    VTK_CREATE (vtkPolyData, Grid);
-    Grid->SetPoints (Pts);
-    Grid->SetLines (Lines);
-
-    VTK_CREATE (vtkCoordinate, normCoords);
-    normCoords->SetCoordinateSystemToNormalizedViewport ();
-
-    VTK_CREATE (vtkPolyDataMapper2D, mapper);
-    mapper->SetInput (Grid);
-    mapper->SetTransformCoordinate (normCoords);
-    
-    VTK_CREATE (vtkActor2D, focusActor);
-    focusActor->SetMapper (mapper);
-    focusActor->GetProperty ()->SetColor (0.1, 0.1, 0.1);
-    m_focusRectActor = focusActor;
-}
-
-
-void Average3dPipeline::UpdateViewTitle (
+void PipelineAverage3d::UpdateViewTitle (
     bool titleShown, const G3D::Vector2& position,
     boost::shared_ptr<RegularGridAverage> average, ViewNumber::Enum viewNumber)
 {
@@ -173,13 +83,11 @@ void Average3dPipeline::UpdateViewTitle (
 	     << average->GetViewSettings ().GetTitle (viewNumber);
 	title = ostr.str ();
     }
-    vtkTextMapper::SafeDownCast (m_viewTitleActor->GetMapper ())->SetInput (
-        title.c_str ());
-    m_viewTitleActor->GetPositionCoordinate ()->SetValue (position.x, position.y);
+    PipelineBase::UpdateViewTitle (title.c_str (), position);
 }
 
 
-void Average3dPipeline::UpdateThreshold (QwtDoubleInterval interval)
+void PipelineAverage3d::UpdateThreshold (QwtDoubleInterval interval)
 {
     if (m_threshold != 0)
     {
@@ -188,28 +96,18 @@ void Average3dPipeline::UpdateThreshold (QwtDoubleInterval interval)
     }
 }
 
-void Average3dPipeline::UpdateColorTransferFunction (
+void PipelineAverage3d::UpdateColorTransferFunction (
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction, 
     const char * name)
 {
     if (m_averageActor != 0)
     {
-	m_scalarBar->SetLookupTable (colorTransferFunction);
-        (void)name;
-	//m_scalarBar->SetTitle (name);
+        UpdateScalarBar (colorTransferFunction, name);
 	m_averageActor->GetMapper ()->SetLookupTable (colorTransferFunction);
     }
 }
 
-
-void Average3dPipeline::PositionScalarBar (G3D::Rect2D position)
-{
-    m_scalarBar->SetHeight (position.height ());
-    m_scalarBar->SetWidth (position.width ());
-    m_scalarBar->SetPosition (position.x0 (), position.y0 ());
-}
-
-void Average3dPipeline::UpdateOpacity (float contextAlpha)
+void PipelineAverage3d::UpdateOpacity (float contextAlpha)
 {
     BOOST_FOREACH (vtkSmartPointer<vtkActor> actor, m_constraintSurface)
     {
@@ -217,16 +115,7 @@ void Average3dPipeline::UpdateOpacity (float contextAlpha)
     }
 }
 
-void Average3dPipeline::UpdateFocus (bool focus)
-{
-    if (focus)
-	m_renderer->AddViewProp (m_focusRectActor);
-    else
-	m_renderer->RemoveViewProp (m_focusRectActor);
-}
-
-
-void Average3dPipeline::ViewToVtk (
+void PipelineAverage3d::ViewToVtk (
     const ViewSettings& vs, G3D::Vector3 center, const Foam& foam)
 {
     G3D::Matrix3 cameraRotationAxes = 
@@ -246,18 +135,18 @@ void Average3dPipeline::ViewToVtk (
     up = cameraRotationAxes * up ;
     position = cameraRotationAxes * (position - center) + center;
 
-    vtkCamera* camera = m_renderer->GetActiveCamera ();
+    vtkCamera* camera = GetRenderer ()->GetActiveCamera ();
     camera->SetFocalPoint (center.x, center.y, center.z);
     camera->SetPosition (position.x, position.y, position.z);
     camera->ComputeViewPlaneNormal ();
     camera->SetViewUp (up.x, up.y, up.z);
-    m_renderer->ResetCamera ();
+    GetRenderer ()->ResetCamera ();
 }
 
-void Average3dPipeline::VtkToView (
+void PipelineAverage3d::VtkToView (
     ViewSettings& vs, const Foam& foam)
 {
-    vtkCamera* camera = m_renderer->GetActiveCamera ();
+    vtkCamera* camera = GetRenderer ()->GetActiveCamera ();
     double center[3];
     double position[3];
     double up[3];
@@ -285,7 +174,7 @@ void Average3dPipeline::VtkToView (
 }
 
 
-void Average3dPipeline::UpdateAverage (
+void PipelineAverage3d::UpdateAverage (
     boost::shared_ptr<RegularGridAverage> average, int direction)
 {
     __LOG__ (cdbg << "UpdateAverage: " << direction[0] << endl;)
