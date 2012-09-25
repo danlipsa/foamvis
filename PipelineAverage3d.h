@@ -6,14 +6,12 @@
  * VTK pipeline for displaying 3D average
  * 
  */
-#ifndef __AVERAGE_PIPELINE_3D_H__
-#define __AVERAGE_PIPELINE_3D_H__
+#ifndef __PIPELINE_AVERAGE_3D_H__
+#define __PIPELINE_AVERAGE_3D_H__
 
 #include "Enums.h"
 #include "PipelineBase.h"
 
-class ViewSettings;
-class Foam;
 class RegularGridAverage;
 
 class PipelineAverage3d : public PipelineBase
@@ -21,15 +19,13 @@ class PipelineAverage3d : public PipelineBase
 public:
     PipelineAverage3d (
         size_t objects, size_t constraintSurfaces, size_t fontSize);
-    void UpdateThreshold (QwtDoubleInterval interval);
-    void UpdateColorTransferFunction (
+
+    virtual void UpdateColorTransferFunction (
         vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
         const char* name);
-    void UpdateOpacity (float contextAlpha);
-    void ViewToVtk (const ViewSettings& vs, 
-                    G3D::Vector3 simulationCenter, const Foam& foam);
-    void VtkToView (ViewSettings& vs, const Foam& foam);
 
+    void UpdateThreshold (QwtDoubleInterval interval);
+    void UpdateOpacity (float contextAlpha);
     void UpdateAverage (
         boost::shared_ptr<RegularGridAverage> average, int direction);
     void UpdateViewTitle (
@@ -45,7 +41,7 @@ private:
 };
 
 
-#endif //__AVERAGE_PIPELINE_3D_H__
+#endif //__PIPELINE_AVERAGE_3D_H__
 
 // Local Variables:
 // mode: c++

@@ -20,6 +20,7 @@ class RegularGridAverage;
 class ViewSettings;
 class Foam;
 class PipelineAverage3d;
+class PipelineBase;
 
 class WidgetVtk : public QVTKWidget, public WidgetBase
 {
@@ -27,10 +28,15 @@ class WidgetVtk : public QVTKWidget, public WidgetBase
     
 public:
     WidgetVtk (QWidget* parent);
+
+    /**
+     * @{
+     * @name PipelineBase
+     */
     void UpdateColorTransferFunction (
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
 	const char* name);
-    void UpdateThreshold (QwtDoubleInterval interval);
+    void UpdateFocus ();
     void ViewToVtk (ViewNumber::Enum viewNumber);
     void VtkToView (ViewNumber::Enum viewNumber);
     void VtkToView ()
@@ -38,22 +44,31 @@ public:
         VtkToView (GetViewNumber ());
     }
     void RemoveViews ();
-    void AddView (
+    // @}
+
+    /** 
+     * @{
+     * @name PipelineAverage3d
+     */
+    void UpdateAverage3dThreshold (QwtDoubleInterval interval);
+    void AddAverage3dView (
 	ViewNumber::Enum viewNumber,
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
 	QwtDoubleInterval interval);
-    void CreateAverage (boost::shared_ptr<Settings> settings,
-		      const SimulationGroup& simulationGroup);
-    void UpdateOpacity ();
-    void UpdateAverage (const boost::array<int, ViewNumber::COUNT>& direction);
-    void UpdateViewAverage (
+    void CreateAverage3d (boost::shared_ptr<Settings> settings,
+                          const SimulationGroup& simulationGroup);
+    void UpdateAverage3dOpacity ();
+    void UpdateViewAverage3d (
         ViewNumber::Enum viewNumber,
         const boost::array<int, ViewNumber::COUNT>& direction);
     void CreatePipelineAverage3d (size_t objects, size_t constraintSurfaces, 
                                   size_t fontSize);
-    void UpdateTitle ();
-    void UpdateFocus ();
+    void UpdateAverage3dTitle ();
+    // @}
     
+    PipelineType::Enum GetPipelineType (ViewNumber::Enum viewNumber);
+    void ForAllPipelines (
+        PipelineType::Enum type, boost::function <void (ViewNumber::Enum)> f);
     virtual const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
     QSize sizeHint ()
     {
@@ -93,14 +108,20 @@ private:
     void updateViewFocus (ViewNumber::Enum viewNumber);
     void resizeViewEvent (ViewNumber::Enum viewNumber);
     void updateViewOpacity (ViewNumber::Enum viewNumber);
+    void removeView (ViewNumber::Enum viewNumber);
 
 private:
     Q_OBJECT
+    // PipelineBase
+    boost::array<boost::shared_ptr<PipelineBase>, 
+                 ViewNumber::COUNT> m_pipeline;
+    int m_fontSize;
+
+    // PipelineAverage3d
     boost::array<boost::shared_ptr<RegularGridAverage>,
 		 ViewNumber::COUNT> m_average;
     boost::array<boost::shared_ptr<PipelineAverage3d>, 
-                 ViewNumber::COUNT> m_pipeline;
-    int m_fontSize;
+                 ViewNumber::COUNT> m_pipelineAverage3d;
 };
 
 

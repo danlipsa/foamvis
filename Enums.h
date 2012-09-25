@@ -529,6 +529,16 @@ struct DuplicateDomain
     };
 };
 
+struct PipelineType
+{
+    enum Enum
+    {
+        AVERAGE_3D,
+        STREAMLINES_2D,
+        COUNT
+    };
+};
+
 
 #endif //__ENUMS_H__
 

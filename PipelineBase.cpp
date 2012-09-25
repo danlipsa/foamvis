@@ -7,10 +7,13 @@
  * 
  */
 
+#include "Foam.h"
 #include "PipelineBase.h"
 #include "Utils.h"
+#include "ViewSettings.h"
 
-PipelineBase::PipelineBase (size_t fontSize)
+PipelineBase::PipelineBase (size_t fontSize, PipelineType::Enum type) :
+    m_type (type)
 {
     createRenderer ();
     createScalarBar ();
@@ -113,7 +116,7 @@ void PipelineBase::UpdateViewTitle (
         position.x, position.y);
 }
 
-void PipelineBase::UpdateScalarBar (
+void PipelineBase::UpdateColorTransferFunction (
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction, 
     const char * name)
 {
@@ -135,4 +138,62 @@ void PipelineBase::UpdateFocus (bool focus)
 	GetRenderer ()->AddViewProp (m_focusRectActor);
     else
 	GetRenderer ()->RemoveViewProp (m_focusRectActor);
+}
+
+void PipelineBase::ViewToVtk (
+    const ViewSettings& vs, G3D::Vector3 center, const Foam& foam)
+{
+    G3D::Matrix3 cameraRotationAxes = 
+        vs.GetRotationForAxesOrder (foam).inverse ();
+    G3D::Matrix3 cameraRotation = vs.GetRotation ().inverse ();
+
+    G3D::Vector3 rotationCenter = vs.GetRotationCenter ();
+    G3D::Vector3 up = G3D::Vector3 (0, 1, 0);
+    G3D::Vector3 position = center + G3D::Vector3 (0, 0, 1);
+    // apply the rotations from ModelViewTransform in reverse order
+    // rotation around the rotationCenter
+    up = cameraRotation * up;
+    position = cameraRotation * (position - rotationCenter) + rotationCenter;
+    center = cameraRotation * (center - rotationCenter) + rotationCenter;
+
+    // rotation around center
+    up = cameraRotationAxes * up ;
+    position = cameraRotationAxes * (position - center) + center;
+
+    vtkCamera* camera = GetRenderer ()->GetActiveCamera ();
+    camera->SetFocalPoint (center.x, center.y, center.z);
+    camera->SetPosition (position.x, position.y, position.z);
+    camera->ComputeViewPlaneNormal ();
+    camera->SetViewUp (up.x, up.y, up.z);
+    GetRenderer ()->ResetCamera ();
+}
+
+void PipelineBase::VtkToView (
+    ViewSettings& vs, const Foam& foam)
+{
+    vtkCamera* camera = GetRenderer ()->GetActiveCamera ();
+    double center[3];
+    double position[3];
+    double up[3];
+    camera->GetFocalPoint (center);
+    camera->GetPosition (position);
+    camera->GetViewUp (up);
+
+    G3D::Vector3 one (up[0], up[1], up[2]);
+    G3D::Vector3 two = G3D::Vector3 (position[0] - center[0],
+                                     position[1] - center[1],
+                                     position[2] - center[2]).unit ();
+    G3D::Vector3 three = one.cross (two);
+    G3D::Matrix3 m = MatrixFromColumns (one, two, three);
+    G3D::Matrix3 mInitial = MatrixFromColumns (G3D::Vector3 (0, 1, 0),
+                                               G3D::Vector3 (0, 0, 1),
+                                               G3D::Vector3 (1, 0, 0));
+    G3D::Matrix3 cRAm = vs.GetRotationForAxesOrder (foam);
+    G3D::Matrix3 rCamera =  cRAm * m * mInitial.inverse ();
+    vs.SetRotation (rCamera.inverse ());
+    if (vs.GetRotationCenterType () != ViewSettings::ROTATION_CENTER_FOAM)
+    {
+        vs.SetRotationCenterType (ViewSettings::ROTATION_CENTER_FOAM);
+        vs.SetRotationCenter (G3D::Vector3 (center[0], center[1], center[2]));
+    }
 }

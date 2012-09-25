@@ -105,7 +105,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     QFont defaultFont = app->font ();
     spinBoxFontSize->setValue (defaultFont.pointSize ());
 
-    widgetVtk->CreateAverage (m_settings, simulationGroup);
+    widgetVtk->CreateAverage3d (m_settings, simulationGroup);
     if (DATA_PROPERTIES.Is3D ())
     {
 	const Foam& foam = simulationGroup.GetSimulation (0).GetFoam (0);
@@ -687,7 +687,7 @@ void MainWindow::addVtkView (ViewNumber::Enum viewNumber)
 	interval.setMinValue (range[0]);
 	interval.setMaxValue (range[1]);
     }
-    widgetVtk->AddView (viewNumber, colorTransferFunction, interval);
+    widgetVtk->AddAverage3dView (viewNumber, colorTransferFunction, interval);
 }
 
 
@@ -1174,7 +1174,7 @@ void MainWindow::ValueChangedContextAlpha (int index)
 	Index2Value (static_cast<QSlider*> (sender ()), 
 		     Settings::CONTEXT_ALPHA));
     widgetGl->CompileUpdate ();
-    widgetVtk->UpdateOpacity ();
+    widgetVtk->UpdateAverage3dOpacity ();
 }
 
 void MainWindow::ToggledViewFocusShown (bool checked)
@@ -1325,7 +1325,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
         if (viewType == ViewType::AVERAGE)
         {
             if (DATA_PROPERTIES.Is3D ())
-                widgetVtk->UpdateViewAverage (viewNumber, direction);
+                widgetVtk->UpdateViewAverage3d (viewNumber, direction);
             else
                 widgetGl->UpdateAverage (viewNumber, direction[viewNumber]);
         }
@@ -1492,7 +1492,7 @@ void MainWindow::ToggledTitleShown (bool checked)
 {
     m_settings->SetTitleShown (checked);
     widgetGl->update ();
-    widgetVtk->UpdateTitle ();
+    widgetVtk->UpdateAverage3dTitle ();
 }
 
 
@@ -1558,7 +1558,7 @@ void MainWindow::SelectionChangedHistogram (int vn)
 	    interval = QwtDoubleInterval (0, -1);
 	else
 	    interval = valueIntervals[0];
-	widgetVtk->UpdateThreshold (interval);
+	widgetVtk->UpdateAverage3dThreshold (interval);
     }
 }
 

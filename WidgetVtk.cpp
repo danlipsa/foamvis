@@ -64,13 +64,79 @@ WidgetVtk::WidgetVtk (QWidget* parent) :
 	     SLOT (CopyTransformFrom (int)));
 }
 
+// ======================================================================
+// PipelineBase
+void WidgetVtk::UpdateColorTransferFunction (
+    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction, 
+    const char* name)
+{
+    m_pipeline[GetSettings ()->GetViewNumber ()]->UpdateColorTransferFunction (
+	colorTransferFunction, name);
+    update ();
+}
+
+void WidgetVtk::UpdateFocus ()
+{
+    ForAllViews (
+	boost::bind (&WidgetVtk::updateViewFocus, this, _1));
+    update ();
+}
+void WidgetVtk::updateViewFocus (ViewNumber::Enum viewNumber)
+{
+    bool focus = (GetSettings ()->GetViewNumber () == viewNumber) && 
+	GetSettings ()->IsViewFocusShown ();
+    PipelineBase& pipeline = *m_pipeline[viewNumber];
+    pipeline.UpdateFocus (focus);
+}
+
+void WidgetVtk::ViewToVtk (ViewNumber::Enum viewNumber)
+{
+    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    const Foam& foam = m_average[viewNumber]->GetFoam ();
+    const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
+    PipelineBase& pipeline = *m_pipeline[viewNumber];
+    pipeline.ViewToVtk (vs, simulation.GetBoundingBox ().center (), foam);
+}
+
+void WidgetVtk::VtkToView (ViewNumber::Enum viewNumber)
+{
+    // This may be called by RenderWindowPaintEnd and may arrive after the 
+    // view was switched to a Gl view
+    if (GetSettings ()->IsVtkView (viewNumber))
+    {
+        ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+        const Foam& foam = m_average[viewNumber]->GetFoam ();
+        PipelineBase& pipeline = *m_pipeline[viewNumber];
+        pipeline.VtkToView (vs, foam);
+    }
+}
+
+void WidgetVtk::RemoveViews ()
+{
+    vtkSmartPointer<vtkRenderWindow> renderWindow = GetRenderWindow ();
+    ForAllViews (boost::bind (&WidgetVtk::removeView, this, _1));
+    setVisible (false);
+}
+void WidgetVtk::removeView (ViewNumber::Enum viewNumber)
+{
+    if (m_pipeline[viewNumber])
+    {
+        vtkSmartPointer<vtkRenderWindow> renderWindow = GetRenderWindow ();
+        renderWindow->RemoveRenderer (m_pipeline[viewNumber]->GetRenderer ());
+        m_pipeline[viewNumber].reset ();
+    }
+}
+
+
+// ======================================================================
+// PipelineAverage3d
 void WidgetVtk::SendPaintEnd ()
 {
     Q_EMIT PaintEnd ();
 }
 
-void WidgetVtk::CreateAverage (boost::shared_ptr<Settings> settings,
-			       const SimulationGroup& simulationGroup)    
+void WidgetVtk::CreateAverage3d (boost::shared_ptr<Settings> settings,
+                                 const SimulationGroup& simulationGroup)    
 {
     SetSettings (settings);
     // interactor style
@@ -98,8 +164,9 @@ void WidgetVtk::CreatePipelineAverage3d (
 
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
     {
-	m_pipeline[i].reset (new PipelineAverage3d (
-                                 objects, constraintSurfaces, fontSize));
+	m_pipelineAverage3d[i].reset (
+            new PipelineAverage3d (
+                objects, constraintSurfaces, fontSize));
     }
 
     vtkSmartPointer<RenderWindowPaintEnd> sendPaint (
@@ -107,42 +174,31 @@ void WidgetVtk::CreatePipelineAverage3d (
     renWin->AddObserver (vtkCommand::EndEvent, sendPaint);
 }
 
-void WidgetVtk::UpdateThreshold (QwtDoubleInterval interval)
+void WidgetVtk::UpdateAverage3dThreshold (QwtDoubleInterval interval)
 {
-    m_pipeline[ GetSettings ()->GetViewNumber ()]->UpdateThreshold (interval);
-    update ();
+    ViewNumber::Enum viewNumber = GetSettings ()->GetViewNumber ();
+    if (GetPipelineType (viewNumber) == PipelineType::AVERAGE_3D)
+    {
+        m_pipelineAverage3d[viewNumber]->UpdateThreshold (interval);
+        update ();
+    }
 }
 
-void WidgetVtk::UpdateColorTransferFunction (
-    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction, 
-    const char* name)
-{
-    m_pipeline[GetSettings ()->GetViewNumber ()]->UpdateColorTransferFunction (
-	colorTransferFunction, name);
-    update ();
-}
 
-void WidgetVtk::UpdateOpacity ()
+void WidgetVtk::UpdateAverage3dOpacity ()
 {
-    ForAllViews (boost::bind (&WidgetVtk::updateViewOpacity, this, _1));
+    ForAllPipelines (PipelineType::AVERAGE_3D, 
+                     boost::bind (&WidgetVtk::updateViewOpacity, this, _1));
     update ();
 }
 void WidgetVtk::updateViewOpacity (ViewNumber::Enum viewNumber)
 {
-    m_pipeline[viewNumber]->UpdateOpacity (GetSettings ()->GetContextAlpha ());
+    m_pipelineAverage3d[viewNumber]->UpdateOpacity (
+        GetSettings ()->GetContextAlpha ());
 }
 
 
-
-void WidgetVtk::RemoveViews ()
-{
-    vtkSmartPointer<vtkRenderWindow> renderWindow = GetRenderWindow ();
-    for (size_t i = 0; i < m_pipeline.size (); ++i)
-	renderWindow->RemoveRenderer (m_pipeline[i]->GetRenderer ());
-    setVisible (false);
-}
-
-void WidgetVtk::AddView (
+void WidgetVtk::AddAverage3dView (
     ViewNumber::Enum viewNumber,
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
     QwtDoubleInterval interval)
@@ -153,7 +209,8 @@ void WidgetVtk::AddView (
     const char* scalarName = FaceScalar::ToString (vs.GetBodyOrFaceScalar ());
     const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
     const Foam& foam = m_average[viewNumber]->GetFoam ();
-    PipelineAverage3d& pipeline = *m_pipeline[viewNumber];
+    m_pipeline[viewNumber] = m_pipelineAverage3d[viewNumber];
+    PipelineAverage3d& pipeline = *m_pipelineAverage3d[viewNumber];
     G3D::AABox vv = CalculateViewingVolume (viewNumber);
     average->AverageInitStep ();
     int direction = 0;
@@ -176,77 +233,33 @@ void WidgetVtk::AddView (
     setVisible (true);
 }
 
-void WidgetVtk::ViewToVtk (ViewNumber::Enum viewNumber)
-{
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
-    const Foam& foam = m_average[viewNumber]->GetFoam ();
-    const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
-    PipelineAverage3d& pipeline = *m_pipeline[viewNumber];
-    pipeline.ViewToVtk (vs, simulation.GetBoundingBox ().center (), foam);
-}
-
-void WidgetVtk::VtkToView (ViewNumber::Enum viewNumber)
-{
-    // This may be called by RenderWindowPaintEnd and may arrive after the 
-    // view was switched to a Gl view
-    if (GetSettings ()->IsVtkView (viewNumber))
-    {
-        ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
-        const Foam& foam = m_average[viewNumber]->GetFoam ();
-        PipelineAverage3d& pipeline = *m_pipeline[viewNumber];
-        pipeline.VtkToView (vs, foam);
-    }
-}
-
-
-void WidgetVtk::UpdateAverage (
-    const boost::array<int, ViewNumber::COUNT>& direction)
-{
-    ForAllViews (
-	boost::bind (&WidgetVtk::UpdateViewAverage, this, _1, direction));
-}
-void WidgetVtk::UpdateViewAverage (
+void WidgetVtk::UpdateViewAverage3d (
     ViewNumber::Enum viewNumber,
     const boost::array<int, ViewNumber::COUNT>& direction)
 {
-    PipelineAverage3d& pipeline = *m_pipeline[viewNumber];
+    PipelineAverage3d& pipeline = *m_pipelineAverage3d[viewNumber];
     boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
     pipeline.UpdateAverage (average, direction[viewNumber]);
     updateViewTitle (viewNumber);
 }
 
 
-void WidgetVtk::UpdateTitle ()
+void WidgetVtk::UpdateAverage3dTitle ()
 {
-    ForAllViews (
+    ForAllPipelines (PipelineType::AVERAGE_3D,
 	boost::bind (&WidgetVtk::updateViewTitle, this, _1));
     update ();
 }
 void WidgetVtk::updateViewTitle (ViewNumber::Enum viewNumber)
 {
     bool titleShown = GetSettings ()->IsTitleShown ();
-    PipelineAverage3d& pipeline = *m_pipeline[viewNumber];
+    PipelineAverage3d& pipeline = *m_pipelineAverage3d[viewNumber];
     G3D::Rect2D viewRect = GetNormalizedViewRect (viewNumber);
     G3D::Vector2 position = G3D::Vector2 (
         viewRect.center ().x, 
         viewRect.y1 () * .98);
     boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
     pipeline.UpdateViewTitle (titleShown, position, average, viewNumber);
-}
-
-
-void WidgetVtk::UpdateFocus ()
-{
-    ForAllViews (
-	boost::bind (&WidgetVtk::updateViewFocus, this, _1));
-    update ();
-}
-void WidgetVtk::updateViewFocus (ViewNumber::Enum viewNumber)
-{
-    bool focus = (GetSettings ()->GetViewNumber () == viewNumber) && 
-	GetSettings ()->IsViewFocusShown ();
-    PipelineAverage3d& pipeline = *m_pipeline[viewNumber];
-    pipeline.UpdateFocus (focus);
 }
 
 G3D::Rect2D WidgetVtk::GetNormalizedViewRect (ViewNumber::Enum viewNumber) const
@@ -270,6 +283,26 @@ void WidgetVtk::CopyTransformFrom (int fromViewNumber)
     GetViewSettings (viewNumber).CopyTransformation (
 	GetViewSettings (ViewNumber::Enum (fromViewNumber)));
     ViewToVtk (viewNumber);
+}
+
+void WidgetVtk::ForAllPipelines (
+    PipelineType::Enum type, boost::function <void (ViewNumber::Enum)> f)
+{
+    for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
+	if (GetSettings ()->IsVtkView (viewNumber) &&
+            GetPipelineType (viewNumber) == type)
+	    f (viewNumber);
+    }
+}
+
+PipelineType::Enum WidgetVtk::GetPipelineType (ViewNumber::Enum viewNumber)
+{
+    if (m_pipeline[viewNumber] != 0)
+        return m_pipeline[viewNumber]->GetType ();
+    else
+        return PipelineType::COUNT;
 }
 
 
