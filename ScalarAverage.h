@@ -12,6 +12,7 @@
 #include "ImageBasedAverage.h"
 #include "PropertySetter.h"
 class ScalarDisplay;
+class AverageCache;
 
 /**
  * Calculate face average, min, max over a time window.
@@ -36,8 +37,10 @@ public:
     {
     }
 
-    vtkSmartPointer<vtkImageData> GetData (
-        const G3D::Rect2D& objectCoord, BodyScalar::Enum property) const;    
+    void CacheData (
+        AverageCache* averageCache,
+        const G3D::Rect2D& objectCoord, BodyScalar::Enum property) const;
+
 
 protected:
     virtual void rotateAndDisplay (
@@ -50,6 +53,10 @@ protected:
 
 protected:
     static boost::shared_ptr<ScalarDisplay> m_displayShaderProgram;
+
+private:
+    vtkSmartPointer<vtkImageData> getData (
+        const G3D::Rect2D& objectCoord, BodyScalar::Enum property) const;
 };
 
 class ScalarAverage : public ScalarAverageTemplate<SetterVertexAttribute>

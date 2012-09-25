@@ -14,6 +14,7 @@
 #include "ScalarAverage.h"
 #include "ScalarDisplay.h"
 #include "ShaderProgram.h"
+#include "Simulation.h"
 #include "Utils.h"
 
 
@@ -67,17 +68,19 @@ void ScalarAverageTemplate<PropertySetter>::rotateAndDisplay (
 }
 
 template<typename PropertySetter>
-vtkSmartPointer<vtkImageData> ScalarAverageTemplate<PropertySetter>::GetData (
+vtkSmartPointer<vtkImageData> ScalarAverageTemplate<PropertySetter>::getData (
     const G3D::Rect2D& objectCoord, BodyScalar::Enum property) const
 {
     G3D::Rect2D windowCoord = gluProject (objectCoord);
 
-    vtkSmartPointer<vtkFloatArray> scalar = getData (
-        this->m_fbos.m_current, windowCoord, GL_RED);
+    vtkSmartPointer<vtkFloatArray> scalar = 
+        ImageBasedAverage<PropertySetter>::getData (
+            this->m_fbos.m_current, windowCoord, GL_RED);
     scalar->SetName (BodyAttribute::ToString (property));
     
-    vtkSmartPointer<vtkFloatArray> count = getData (
-        this->m_countFbos.m_current, windowCoord, GL_GREEN);
+    vtkSmartPointer<vtkFloatArray> count = 
+        ImageBasedAverage<PropertySetter>::getData (
+            this->m_countFbos.m_current, windowCoord, GL_GREEN);
     // scalar / count
     for (vtkIdType i = 0; i < scalar->GetNumberOfTuples (); ++i)
     {
@@ -94,6 +97,16 @@ vtkSmartPointer<vtkImageData> ScalarAverageTemplate<PropertySetter>::GetData (
     scalarImage->GetPointData ()->AddArray (scalar);
     return scalarImage;
 }
+
+template<typename PropertySetter>
+void ScalarAverageTemplate<PropertySetter>::CacheData (
+    AverageCache* averageCache,
+    const G3D::Rect2D& objectCoord, BodyScalar::Enum property) const
+{
+    vtkSmartPointer<vtkImageData> data = getData (objectCoord, property);
+    averageCache->SetScalar (property, data);
+}
+
 
 
 // Template instantiations

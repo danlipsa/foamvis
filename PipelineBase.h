@@ -1,9 +1,9 @@
 /**
  * @file   PipelineBase.h
  * @author Dan R. Lipsa
- * @date 4 Sept 2012
+ * @date 24 Sept 2012
  * 
- * VTK pipeline for displaying 3D average
+ * VTK pipeline
  * 
  */
 #ifndef __PIPELINE_BASE_H__

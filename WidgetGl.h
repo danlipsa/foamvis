@@ -20,6 +20,7 @@ class Edge;
 class EditColorMap;
 class Simulation;
 class SimulationGroup;
+class AverageCache;
 class ForcesOneObject;
 class OrientedFace;
 class OrientedEdge;
@@ -60,7 +61,7 @@ public:
 	return *m_simulationGroup;
     }
     void Init (boost::shared_ptr<Settings> settings,
-	       SimulationGroup* dataAlongTime);
+	       SimulationGroup* dataAlongTime, AverageCache* averageCache);
     /**
      * Gets the data displayed by the WidgetGl
      */
@@ -648,6 +649,7 @@ private:
      * Foam to be displayd. Each element coresponds to a DMP file
      */
     const SimulationGroup* m_simulationGroup;
+    AverageCache* m_averageCache;
     /**
      * Used for rotation, translation and scale
      */

@@ -73,6 +73,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     m_playReverse (false),
     m_simulationGroup (simulationGroup)
 {
+    m_averageCache.reset (new AverageCache ());
     // for anti-aliased lines
     QGLFormat format = QGLFormat::defaultFormat ();
     format.setSampleBuffers (true);
@@ -99,7 +100,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     setupButtonGroups ();
 
     boost::shared_ptr<Application> app = Application::Get ();
-    widgetGl->Init (m_settings, &simulationGroup);
+    widgetGl->Init (m_settings, &simulationGroup, m_averageCache.get ());
     widgetGl->SetStatus (labelStatusBar);
 
     QFont defaultFont = app->font ();

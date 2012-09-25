@@ -316,6 +316,27 @@ private:
     vector<Simulation> m_simulation;
 };
 
+
+class AverageCache
+{
+public:
+    void SetScalar (BodyScalar::Enum scalar, 
+                    vtkSmartPointer<vtkImageData> average)
+    {
+        m_scalarAverage[scalar] = average;
+    }
+    vtkSmartPointer<vtkImageData> GeScalar (BodyScalar::Enum scalar) const
+    {
+        return m_scalarAverage[scalar];
+    }
+    
+private:
+    boost::array<vtkSmartPointer<vtkImageData>, 
+                 BodyScalar::COUNT> m_scalarAverage;
+};
+
+
+
 /**
  * Pretty print a Simulation
  */

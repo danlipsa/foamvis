@@ -498,10 +498,12 @@ void WidgetGl::setSimulationGroup (SimulationGroup* simulationGroup)
 }
 
 void WidgetGl::Init (
-    boost::shared_ptr<Settings> settings, SimulationGroup* simulationGroup)
+    boost::shared_ptr<Settings> settings, SimulationGroup* simulationGroup,
+    AverageCache* averageCache)
 {
     SetSettings (settings);
     setSimulationGroup (simulationGroup);
+    m_averageCache = averageCache;
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
@@ -2143,6 +2145,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     }
     GetViewAverage (viewNumber).AverageRotateAndDisplay (
 	vs.GetStatisticsType (), rotationCenter.xy (), angleDegrees);
+
     GetViewAverage (viewNumber).GetForceAverage ().Display (
 	adjustForAverageAroundMovementRotation);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (
@@ -2815,7 +2818,16 @@ void WidgetGl::SetOneOrTwoViews (T* t, void (T::*f) (ViewNumber::Enum))
 void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
 {
     if (direction != 0)
+    {
         m_viewAverage[viewNumber]->AverageStep (direction);
+        G3D::AABox box = GetFoam ().GetBoundingBox ();
+        BodyScalar::Enum scalar = BodyScalar::FromSizeT (
+            GetSettings ()->GetViewSettings (
+                viewNumber).GetBodyOrFaceScalar ());
+        m_viewAverage[viewNumber]->GetScalarAverage ().CacheData (
+            m_averageCache,
+            G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ()), scalar);
+    }
 }
 
 void WidgetGl::setTexture (

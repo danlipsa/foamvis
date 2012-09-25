@@ -15,6 +15,7 @@ class ProcessBodyTorus;
 class QTimer;
 class Settings;
 class SimulationGroup;
+class AverageCache;
 class WidgetGl;
 
 /**
@@ -273,6 +274,7 @@ private:
     bool m_playForward;
     bool m_playReverse;
     const SimulationGroup& m_simulationGroup;
+    boost::shared_ptr<AverageCache> m_averageCache;
 };
 
 
