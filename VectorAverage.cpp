@@ -51,17 +51,11 @@ vtkSmartPointer<vtkImageData> VectorAverage::getData (
 {
     G3D::Rect2D windowCoord = gluProject (objectCoord);
 
-    // create a float array with 2 components
-    VTK_CREATE(vtkFloatArray, velocity);
-    vtkIdType numberOfPoints = windowCoord.width () * windowCoord.height ();
-    velocity->SetNumberOfComponents (2);
-    velocity->SetNumberOfTuples (numberOfPoints);
-    velocity->SetName (BodyAttribute::ToString (BodyAttribute::VELOCITY));
-
-    // opengl can get only 3 componens from the hardware
-    vtkSmartPointer<vtkFloatArray> data = 
+    // opengl gets 3 componens from the hardware
+    vtkSmartPointer<vtkFloatArray> velocity = 
         ImageBasedAverage<SetterVelocity>::getData (
             this->m_fbos.m_current, windowCoord, GL_RGB);
+    velocity->SetName (BodyAttribute::ToString (BodyAttribute::VELOCITY));
     
     vtkSmartPointer<vtkFloatArray> count = 
         ImageBasedAverage<SetterVelocity>::getData (
@@ -74,15 +68,16 @@ vtkSmartPointer<vtkImageData> VectorAverage::getData (
         if (c != 0)
         {
             velocity->SetComponent (i, 0, 
-                                    data->GetComponent (i, 0) / c);
+                                    velocity->GetComponent (i, 0) / c);
             velocity->SetComponent (i, 1, 
-                                    data->GetComponent (i, 1) / c);
+                                    velocity->GetComponent (i, 1) / c);
         }
         else
         {
             velocity->SetComponent (i, 0, 0);
             velocity->SetComponent (i, 1, 0);
         }
+        velocity->SetComponent (i, 2, 0);
     }
     int extent[6] = {0, windowCoord.width () - 1,
                      0, windowCoord.height () -1,
