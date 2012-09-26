@@ -56,10 +56,6 @@ public:
      * Gets the prefered size
      */
     QSize sizeHint() ;
-    const SimulationGroup& GetSimulationGroup () const
-    {
-	return *m_simulationGroup;
-    }
     void Init (boost::shared_ptr<Settings> settings,
 	       SimulationGroup* dataAlongTime, AverageCache* averageCache);
     /**
@@ -67,7 +63,6 @@ public:
      */
     const Simulation& GetSimulation (size_t index) const;
     const Simulation& GetSimulation () const;
-    virtual const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
     const Foam& GetFoam () const;
 
     size_t GetHighlightLineWidth () const
@@ -423,7 +418,6 @@ private:
 private:
     void setTorusDomainClipPlanes ();
     void enableTorusDomainClipPlanes (bool enable);
-    void setSimulationGroup (SimulationGroup* dataAlongTime);
     void setSimulation (int i, ViewNumber::Enum viewNumber);
     void initTransformViewport ();
     void cleanupTransformViewport ();
@@ -644,12 +638,6 @@ private:
      */
     bool m_torusDomainShown;
     InteractionObject::Enum m_interactionObject;
-
-    /**
-     * Foam to be displayd. Each element coresponds to a DMP file
-     */
-    const SimulationGroup* m_simulationGroup;
-    AverageCache* m_averageCache;
     /**
      * Used for rotation, translation and scale
      */

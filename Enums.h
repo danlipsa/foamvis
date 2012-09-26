@@ -539,6 +539,17 @@ struct PipelineType
     };
 };
 
+struct VectorVis
+{
+    enum Enum
+    {
+        GLYPH,
+        STREAMLINE,
+        PATHLINE,
+        COUNT
+    };
+};
+
 
 #endif //__ENUMS_H__
 

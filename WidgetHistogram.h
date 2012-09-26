@@ -55,8 +55,6 @@ public:
 	return *m_histogram[i];
     }
 
-    virtual const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
-
 Q_SIGNALS:
     void SelectionChanged (int viewNumber);
 
@@ -79,7 +77,6 @@ private:
 private:
     Q_OBJECT
     boost::array<AttributeHistogram*, ViewNumber::COUNT> m_histogram;    
-    const SimulationGroup* m_simulationGroup;
     boost::shared_ptr<QSignalMapper> m_signalMapperSelectionChanged;
 };
 

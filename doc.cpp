@@ -101,4 +101,5 @@ while (no more items in the queue)
  *       instead of storing it in the scalar texture.
  * @todo bug: velocity average shows a black blob if only one time step of data 
          is loaded. An error message should be shown instead.
+ * @todo bug: fix Overlay, Velocity, Glyph, Grid Cell Center
  */

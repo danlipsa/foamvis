@@ -66,6 +66,7 @@ ViewSettings::ViewSettings () :
     m_forceDifferenceShown (false),
     m_deformationShown (false),
     m_velocityShown (false),
+    m_velocityVis (VectorVis::GLYPH),
     m_averageAroundRotationShown (false),
     m_bodySelector (AllBodySelector::Get ()),
     m_selectionContextShown (true),

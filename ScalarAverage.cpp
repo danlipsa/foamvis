@@ -76,7 +76,7 @@ vtkSmartPointer<vtkImageData> ScalarAverageTemplate<PropertySetter>::getData (
     vtkSmartPointer<vtkFloatArray> scalar = 
         ImageBasedAverage<PropertySetter>::getData (
             this->m_fbos.m_current, windowCoord, GL_RED);
-    scalar->SetName (BodyAttribute::ToString (property));
+    scalar->SetName (BodyScalar::ToString (property));
     
     vtkSmartPointer<vtkFloatArray> count = 
         ImageBasedAverage<PropertySetter>::getData (

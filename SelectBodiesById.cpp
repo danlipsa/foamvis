@@ -18,6 +18,14 @@ SelectBodiesById::SelectBodiesById (QWidget* parent) :
     lineEditIds->setValidator(validator);
 }
 
+void SelectBodiesById::Init (size_t minBodyId, size_t maxBodyId)
+{
+    SetMinBodyId (minBodyId);
+    SetMaxBodyId (maxBodyId);
+    UpdateLabelMinMax ();
+}
+
+
 void SelectBodiesById::UpdateLabelMinMax ()
 {
     ostringstream instructions;

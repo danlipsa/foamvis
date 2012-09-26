@@ -36,7 +36,7 @@ public:
 	    viewNumber, widgetGl, id, stepClearColor, this->m_fbos)
     {
     }
-
+    
     void CacheData (
         AverageCache* averageCache,
         const G3D::Rect2D& objectCoord, BodyScalar::Enum property) const;

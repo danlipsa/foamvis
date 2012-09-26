@@ -12,6 +12,7 @@
 #include "WidgetGl.h"
 #include "OpenGLUtils.h"
 #include "ShaderProgram.h"
+#include "Simulation.h"
 #include "VectorAverage.h"
 #include "Utils.h"
 #include "ViewSettings.h"
@@ -43,4 +44,59 @@ void VectorAverage::InitShaders ()
     m_displayShaderProgram.reset (
 	new TensorDisplay (RESOURCE("TensorDisplay.vert"),
 			   RESOURCE("VectorDisplay.frag")));
+}
+
+vtkSmartPointer<vtkImageData> VectorAverage::getData (
+    const G3D::Rect2D& objectCoord) const
+{
+    G3D::Rect2D windowCoord = gluProject (objectCoord);
+
+    // create a float array with 2 components
+    VTK_CREATE(vtkFloatArray, velocity);
+    vtkIdType numberOfPoints = windowCoord.width () * windowCoord.height ();
+    velocity->SetNumberOfComponents (2);
+    velocity->SetNumberOfTuples (numberOfPoints);
+    velocity->SetName (BodyAttribute::ToString (BodyAttribute::VELOCITY));
+
+    // opengl can get only 3 componens from the hardware
+    vtkSmartPointer<vtkFloatArray> data = 
+        ImageBasedAverage<SetterVelocity>::getData (
+            this->m_fbos.m_current, windowCoord, GL_RGB);
+    
+    vtkSmartPointer<vtkFloatArray> count = 
+        ImageBasedAverage<SetterVelocity>::getData (
+            this->m_countFbos.m_current, windowCoord, GL_GREEN);
+
+    // vector / count
+    for (vtkIdType i = 0; i < velocity->GetNumberOfTuples (); ++i)
+    {
+        float c = count->GetComponent (i, 0);
+        if (c != 0)
+        {
+            velocity->SetComponent (i, 0, 
+                                    data->GetComponent (i, 0) / c);
+            velocity->SetComponent (i, 1, 
+                                    data->GetComponent (i, 1) / c);
+        }
+        else
+        {
+            velocity->SetComponent (i, 0, 0);
+            velocity->SetComponent (i, 1, 0);
+        }
+    }
+    int extent[6] = {0, windowCoord.width () - 1,
+                     0, windowCoord.height () -1,
+                     0, 0};
+    vtkSmartPointer<vtkImageData> image = CreateRegularGridNoAttributes (
+        G3D::AABox (G3D::Vector3 (objectCoord.x0y0 (), 0),
+                    G3D::Vector3 (objectCoord.x1y1 (), 0)), extent);
+    image->GetPointData ()->AddArray (velocity);
+    return image;
+}
+
+void VectorAverage::CacheData (
+    AverageCache* averageCache, const G3D::Rect2D& objectCoord) const
+{
+    vtkSmartPointer<vtkImageData> data = getData (objectCoord);
+    averageCache->SetVelocity (data);
 }

@@ -89,9 +89,10 @@ public:
 	m_gridCellCenterShown (false),
 	m_sameSize (false),
 	m_colorMapped(false),
+	
+        /*m_noiseAmplitude (10.0),*/ m_noiseAmplitude (0),
 	m_noiseStart (0.5),
 	m_noiseFrequency (317),
-	m_noiseAmplitude (10.0),
 	m_sizeInitialRatio (sizeInitialRatio),
 	m_sizeRatio (sizeRatio),
 	m_lineWidthRatio (lineWidthRatio)
@@ -177,9 +178,9 @@ private:
     bool m_gridCellCenterShown;
     bool m_sameSize;
     bool m_colorMapped;
+    float m_noiseAmplitude;
     float m_noiseStart;
     float m_noiseFrequency;
-    float m_noiseAmplitude;
     WidgetGlFloatFunction m_sizeInitialRatio;
     ViewSettingsFloatFunction m_sizeRatio;
     ViewSettingsFloatFunction m_lineWidthRatio;

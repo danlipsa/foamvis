@@ -31,8 +31,10 @@ public:
 
     /**
      * @{
-     * @name PipelineBase
+     * @name Common for all pipelines
      */
+    void Init (boost::shared_ptr<Settings> settings,
+               const SimulationGroup* simulationGroup);
     void UpdateColorTransferFunction (
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
 	const char* name);
@@ -44,32 +46,9 @@ public:
         VtkToView (GetViewNumber ());
     }
     void RemoveViews ();
-    // @}
-
-    /** 
-     * @{
-     * @name PipelineAverage3d
-     */
-    void UpdateAverage3dThreshold (QwtDoubleInterval interval);
-    void AddAverage3dView (
-	ViewNumber::Enum viewNumber,
-	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
-	QwtDoubleInterval interval);
-    void CreateAverage3d (boost::shared_ptr<Settings> settings,
-                          const SimulationGroup& simulationGroup);
-    void UpdateAverage3dOpacity ();
-    void UpdateViewAverage3d (
-        ViewNumber::Enum viewNumber,
-        const boost::array<int, ViewNumber::COUNT>& direction);
-    void CreatePipelineAverage3d (size_t objects, size_t constraintSurfaces, 
-                                  size_t fontSize);
-    void UpdateAverage3dTitle ();
-    // @}
-    
     PipelineType::Enum GetPipelineType (ViewNumber::Enum viewNumber);
     void ForAllPipelines (
         PipelineType::Enum type, boost::function <void (ViewNumber::Enum)> f);
-    virtual const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
     QSize sizeHint ()
     {
 	return QSize (128, 128);
@@ -79,11 +58,6 @@ public:
     {
 	return QSize (128, 128);
     }
-    RegularGridAverage& GetScalarAverage (ViewNumber::Enum viewNumber)
-    {
-	return *m_average[viewNumber];
-    }
-
     G3D::Rect2D GetNormalizedViewRect (ViewNumber::Enum viewNumber) const;
     G3D::Rect2D GetNormalizedViewRect () const
     {
@@ -91,7 +65,30 @@ public:
     }
 
     void SendPaintEnd ();
+    // @}
 
+    /** 
+     * @{
+     * @name PipelineAverage3d
+     */
+    void Average3dUpdateThreshold (QwtDoubleInterval interval);
+    void Average3dAddView (
+	ViewNumber::Enum viewNumber,
+	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
+	QwtDoubleInterval interval);
+    void Average3dUpdateOpacity ();
+    void Average3dUpdateViewAverage (
+        ViewNumber::Enum viewNumber,
+        const boost::array<int, ViewNumber::COUNT>& direction);
+    void Average3dCreatePipeline (size_t objects, size_t constraintSurfaces, 
+                                  size_t fontSize);
+    void UpdateAverage3dTitle ();
+    RegularGridAverage& GetScalarAverage (ViewNumber::Enum viewNumber)
+    {
+	return *m_average[viewNumber];
+    }
+    // @}
+    
 Q_SIGNALS:
     void PaintEnd ();
 
@@ -122,6 +119,8 @@ private:
 		 ViewNumber::COUNT> m_average;
     boost::array<boost::shared_ptr<PipelineAverage3d>, 
                  ViewNumber::COUNT> m_pipelineAverage3d;
+
+    // PipelineStreamlines
 };
 
 

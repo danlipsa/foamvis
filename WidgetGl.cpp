@@ -143,7 +143,6 @@ WidgetGl::WidgetGl(QWidget *parent)
       WidgetBase (this, &Settings::IsGlView, &Settings::GetGlCount),
       m_torusDomainShown (false),
       m_interactionObject (InteractionObject::FOCUS),
-      m_simulationGroup (0), 
       m_edgesShown (true),
       m_bodyCenterShown (false),
       m_bodyNeighborsShown (false),
@@ -481,29 +480,18 @@ const Foam& WidgetGl::GetFoam () const
 
 const Simulation& WidgetGl::GetSimulation (size_t i) const
 {
-    return m_simulationGroup->GetSimulation (i);
-}
-
-void WidgetGl::setSimulationGroup (SimulationGroup* simulationGroup)
-{
-    m_simulationGroup = simulationGroup;
-    Foam::Bodies bodies = GetSimulation ().GetFoam (0).GetBodies ();
-    if (! bodies.empty ())
-    {
-	size_t maxIndex = bodies.size () - 1;
-	m_selectBodiesByIdList->SetMinBodyId (bodies[0]->GetId ());
-	m_selectBodiesByIdList->SetMaxBodyId (bodies[maxIndex]->GetId ());
-	m_selectBodiesByIdList->UpdateLabelMinMax ();
-    }
+    return GetSimulationGroup ().GetSimulation (i);
 }
 
 void WidgetGl::Init (
     boost::shared_ptr<Settings> settings, SimulationGroup* simulationGroup,
     AverageCache* averageCache)
 {
-    SetSettings (settings);
-    setSimulationGroup (simulationGroup);
-    m_averageCache = averageCache;
+    WidgetBase::Init (settings, simulationGroup, averageCache);
+    Foam::Bodies bodies = GetSimulation ().GetFoam (0).GetBodies ();
+    if (! bodies.empty ())
+        m_selectBodiesByIdList->Init (bodies[0]->GetId (),
+                                      bodies[bodies.size () - 1]->GetId ());
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
@@ -2821,12 +2809,9 @@ void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
     {
         m_viewAverage[viewNumber]->AverageStep (direction);
         G3D::AABox box = GetFoam ().GetBoundingBox ();
-        BodyScalar::Enum scalar = BodyScalar::FromSizeT (
-            GetSettings ()->GetViewSettings (
-                viewNumber).GetBodyOrFaceScalar ());
-        m_viewAverage[viewNumber]->GetScalarAverage ().CacheData (
-            m_averageCache,
-            G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ()), scalar);
+        m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
+            GetAverageCache (),
+            G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ()));
     }
 }
 
@@ -2876,15 +2861,6 @@ void WidgetGl::enableTorusDomainClipPlanes (bool enable)
         enable ? glEnable (CLIP_PLANE_NUMBER[i]) : 
             glDisable (CLIP_PLANE_NUMBER[i]);
     } 
-}
-
-// Overrides
-////////////
-
-const Simulation& WidgetGl::GetSimulation (ViewNumber::Enum viewNumber) const
-{
-    return GetSimulation (
-	GetViewSettings (viewNumber).GetSimulationIndex ());
 }
 
 

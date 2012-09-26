@@ -10,8 +10,10 @@
 #define __WIDGET_BASE_H__
 
 #include "Enums.h"
+class AverageCache;
 class Settings;
 class Simulation;
+class SimulationGroup;
 class ViewSettings;
 
 /**
@@ -29,11 +31,17 @@ public:
     WidgetBase (QWidget* widget,
 		IsViewType isView,
 		GetViewCountType getViewCount) :
+        m_simulationGroup (0),
+        m_averageCache (0),
 	m_widget (widget), 
 	m_isView (isView),
 	m_getViewCount (getViewCount)
     {
     }
+
+    void Init (boost::shared_ptr<Settings> settings,
+	       const SimulationGroup* simulationGroup, 
+               AverageCache* averageCache);
 
     void ForAllViews (boost::function <void (ViewNumber::Enum)> f);
     void ForAllHiddenViews (boost::function <void (ViewNumber::Enum)> f);
@@ -51,10 +59,15 @@ public:
     {
 	return m_settings;
     }
-    void SetSettings (boost::shared_ptr<Settings> settings)
+    const SimulationGroup& GetSimulationGroup () const
     {
-	m_settings = settings;
+	return *m_simulationGroup;
     }
+    AverageCache* GetAverageCache ()
+    {
+        return m_averageCache;
+    }
+    
     ViewNumber::Enum GetViewNumber () const;
     ViewSettings& GetViewSettings (ViewNumber::Enum viewNumber) const;
     ViewSettings& GetViewSettings () const
@@ -62,8 +75,8 @@ public:
 	return GetViewSettings (GetViewNumber ());
     }
 
-    virtual const Simulation& GetSimulation (
-	ViewNumber::Enum viewNumber) const = 0;
+
+    const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
 
 protected:
     void setView (const G3D::Vector2& clickedPoint);
@@ -87,6 +100,8 @@ protected:
 
 private:
     boost::shared_ptr<Settings> m_settings;
+    const SimulationGroup* m_simulationGroup;
+    AverageCache* m_averageCache;    
     QWidget* m_widget;
     IsViewType m_isView;
     GetViewCountType m_getViewCount;

@@ -9,6 +9,7 @@ Release log
           each access of a variable.
         - fix regression: deselected objects are not transparent
         - save cache files in ~/.foamvis instead of the original data folder.
+        - fix bug: 
         
 0.8.2553
         - bug fixes (dataset fluctuates because is centered at foam center 
@@ -334,7 +335,7 @@ tar xzf VTK-5.10.0.tgz
 mkdir VTK-5.10.0-build
 cd VTK-5.10.0-build
 ccmake ../VTK-5.10.0
-Enable: VTK_USE_QT
+Enable: VTK_USE_QT, VTK_USE_PARALLEL
 Make sure the "qmake executable" is for the Qt installation you want!
 press c twice to configure the build and then g to generate the makefile and exit
 make -j <number_of_processors> (or just make if you have one processor)

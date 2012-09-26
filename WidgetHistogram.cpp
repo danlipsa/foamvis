@@ -17,8 +17,7 @@
 WidgetHistogram::WidgetHistogram(QWidget *parent)
     : QWidget (parent), 
       WidgetBase (this, &Settings::IsHistogramShown, 
-                  &Settings::GetHistogramCount),
-      m_simulationGroup (0)
+                  &Settings::GetHistogramCount)
 {
     fill (m_histogram.begin (), m_histogram.end (), (AttributeHistogram*)0);
 }
@@ -31,8 +30,7 @@ int WidgetHistogram::GetHeight () const
 void WidgetHistogram::Init (boost::shared_ptr<Settings> settings, 
                             const SimulationGroup* simulationGroup)
 {    
-    m_simulationGroup = simulationGroup;
-    SetSettings (settings);
+    WidgetBase::Init (settings, simulationGroup, 0);
     m_signalMapperSelectionChanged.reset (new QSignalMapper (this));
     QLayout* layout = new QHBoxLayout ();
     for (size_t i = 0; i < m_histogram.size (); ++i)
@@ -224,12 +222,4 @@ void WidgetHistogram::setDefaultFont (ViewNumber::Enum viewNumber)
 }
 
 
-
-// Overrides
-////////////
-const Simulation& WidgetHistogram::GetSimulation (
-    ViewNumber::Enum viewNumber) const
-{
-    return m_simulationGroup->GetSimulation (*GetSettings (), viewNumber);
-}
 

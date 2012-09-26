@@ -16,6 +16,8 @@ class SelectBodiesById :
 {
 public:
     SelectBodiesById (QWidget* parent);
+    void Init (size_t minBodyId, size_t maxBodyId);
+
     const vector<size_t>& GetIds () const
     {
 	return m_ids;

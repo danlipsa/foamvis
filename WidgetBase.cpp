@@ -9,10 +9,20 @@
 
 #include "Debug.h"
 #include "Settings.h"
+#include "Simulation.h"
 #include "Utils.h"
 #include "ViewSettings.h"
 #include "WidgetBase.h"
 
+
+void WidgetBase::Init (
+    boost::shared_ptr<Settings> settings,
+    const SimulationGroup* simulationGroup, AverageCache* averageCache)
+{
+    m_settings = settings;
+    m_simulationGroup = simulationGroup;
+    m_averageCache = averageCache;
+}
 
 void WidgetBase::ForAllViews (boost::function <void (ViewNumber::Enum)> f)
 {
@@ -146,4 +156,9 @@ void WidgetBase::initCopy (
 	signalMapperCopyOp->setMapping (
 	    actionCopyOp[i].get (), i);
     }
+}
+
+const Simulation& WidgetBase::GetSimulation (ViewNumber::Enum viewNumber) const
+{
+    return m_simulationGroup->GetSimulation (*GetSettings (), viewNumber);
 }

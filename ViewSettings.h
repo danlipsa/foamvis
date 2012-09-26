@@ -154,6 +154,16 @@ public:
     {
 	return m_velocityShown;
     }
+    
+    void SetVelocityVis (VectorVis::Enum vis)
+    {
+        m_velocityVis = vis;
+    }
+    VectorVis::Enum GetVelocityVis () const
+    {
+        return m_velocityVis;
+    }
+
     // @}
 
     /**
@@ -709,6 +719,7 @@ private:
     bool m_forceDifferenceShown;
     bool m_deformationShown;
     bool m_velocityShown;
+    VectorVis::Enum m_velocityVis;
     // Context display
     set<size_t> m_contextBody;
     // Context stationary

@@ -60,9 +60,9 @@ bool isOnGridCellCenter (vec2 x, vec2 f)
     vec2 percentage = vec2 (empty, empty);
     x = fract (
 	vec2 (0.5, 0.5) + x - 
-	halfFull * (vec2(1,1) + 
-		    u_noiseAmplitude * snoise2 (
-			u_noiseStart + f / u_noiseFrequency)));
+	halfFull * (vec2(1,1) + u_noiseAmplitude * snoise2 (
+                        u_noiseStart + f / u_noiseFrequency)
+            ));
     vec2 isOnLine = step (percentage, x);
     return isOnLine.x * isOnLine.y == 1.0;
 }

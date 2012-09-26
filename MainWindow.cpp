@@ -106,11 +106,11 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     QFont defaultFont = app->font ();
     spinBoxFontSize->setValue (defaultFont.pointSize ());
 
-    widgetVtk->CreateAverage3d (m_settings, simulationGroup);
+    widgetVtk->Init (m_settings, &simulationGroup);
     if (DATA_PROPERTIES.Is3D ())
     {
 	const Foam& foam = simulationGroup.GetSimulation (0).GetFoam (0);
-	widgetVtk->CreatePipelineAverage3d (
+	widgetVtk->Average3dCreatePipeline (
 	    foam.GetObjects ().size (), foam.GetConstraintFaces ().size (), 
 	    defaultFont.pointSize ());
     }
@@ -403,15 +403,15 @@ void MainWindow::velocityViewToUI ()
     }
 
     SetCheckedNoSignals (checkBoxVelocityShown, vs.IsVelocityShown ());
-    SetCheckedNoSignals (checkBoxVelocityGridShown, gridShown);
-    SetCheckedNoSignals (checkBoxVelocityClampingShown, clampingShown);
-    SetCheckedNoSignals (checkBoxVelocityGridCellCenterShown, 
+    SetCheckedNoSignals (checkBoxVelocityGlyphGridShown, gridShown);
+    SetCheckedNoSignals (checkBoxVelocityGlyphClampingShown, clampingShown);
+    SetCheckedNoSignals (checkBoxVelocityGlyphGridCellCenterShown, 
 			 gridCellCenterShown);
-    SetCheckedNoSignals (checkBoxVelocitySameSize, sameSize);
-    SetCheckedNoSignals (checkBoxVelocityColorMapped, colorMapped);
+    SetCheckedNoSignals (checkBoxVelocityGlyphSameSize, sameSize);
+    SetCheckedNoSignals (checkBoxVelocityGlyphColorMapped, colorMapped);
     SetValueNoSignals (
-	horizontalSliderVelocityLineWidth, 
-	Value2ExponentIndex (horizontalSliderVelocityLineWidth,
+	horizontalSliderVelocityGlyphLineWidth, 
+	Value2ExponentIndex (horizontalSliderVelocityGlyphLineWidth,
 			     WidgetGl::TENSOR_LINE_WIDTH_EXP2,
 			     vs.GetVelocityLineWidth ()));
 }
@@ -506,6 +506,12 @@ void MainWindow::setupButtonGroups ()
         checkBoxDomainTop, DuplicateDomain::TOP);
     buttonGroupDuplicateDomain->setId (
         checkBoxDomainBottom, DuplicateDomain::BOTTOM);
+
+    buttonGroupVelocityVis->setId (radioButtonVelocityGlyph, VectorVis::GLYPH);
+    buttonGroupVelocityVis->setId (radioButtonVelocityStreamline, 
+                                   VectorVis::STREAMLINE);
+    buttonGroupVelocityVis->setId (radioButtonVelocityPathline, 
+                                   VectorVis::PATHLINE);
 }
 
 void MainWindow::setupSliderData (const Simulation& simulation)
@@ -688,7 +694,7 @@ void MainWindow::addVtkView (ViewNumber::Enum viewNumber)
 	interval.setMinValue (range[0]);
 	interval.setMaxValue (range[1]);
     }
-    widgetVtk->AddAverage3dView (viewNumber, colorTransferFunction, interval);
+    widgetVtk->Average3dAddView (viewNumber, colorTransferFunction, interval);
 }
 
 
@@ -1175,7 +1181,7 @@ void MainWindow::ValueChangedContextAlpha (int index)
 	Index2Value (static_cast<QSlider*> (sender ()), 
 		     Settings::CONTEXT_ALPHA));
     widgetGl->CompileUpdate ();
-    widgetVtk->UpdateAverage3dOpacity ();
+    widgetVtk->Average3dUpdateOpacity ();
 }
 
 void MainWindow::ToggledViewFocusShown (bool checked)
@@ -1326,7 +1332,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
         if (viewType == ViewType::AVERAGE)
         {
             if (DATA_PROPERTIES.Is3D ())
-                widgetVtk->UpdateViewAverage3d (viewNumber, direction);
+                widgetVtk->Average3dUpdateViewAverage (viewNumber, direction);
             else
                 widgetGl->UpdateAverage (viewNumber, direction[viewNumber]);
         }
@@ -1358,6 +1364,11 @@ void MainWindow::ValueChangedAverageTimeWindow (int timeSteps)
     labelAverageLinkedTimeWindow->setText (ostr.str ().c_str ());
 }
 
+
+void MainWindow::ButtonClickedVelocityVis (int vv)
+{
+    VectorVis::Enum velocityVis = VectorVis::Enum (vv);
+}
 
 void MainWindow::ButtonClickedViewType (int vt)
 {
@@ -1559,7 +1570,7 @@ void MainWindow::SelectionChangedHistogram (int vn)
 	    interval = QwtDoubleInterval (0, -1);
 	else
 	    interval = valueIntervals[0];
-	widgetVtk->UpdateAverage3dThreshold (interval);
+	widgetVtk->Average3dUpdateThreshold (interval);
     }
 }
 

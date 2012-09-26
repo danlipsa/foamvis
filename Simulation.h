@@ -329,10 +329,21 @@ public:
     {
         return m_scalarAverage[scalar];
     }
+
+    void SetVelocity (vtkSmartPointer<vtkImageData> average)
+    {
+        m_velocityAverage = average;
+    }
+
+    vtkSmartPointer<vtkImageData> GetVelocity () const
+    {
+        return m_velocityAverage;
+    }
     
 private:
     boost::array<vtkSmartPointer<vtkImageData>, 
                  BodyScalar::COUNT> m_scalarAverage;
+    vtkSmartPointer<vtkImageData> m_velocityAverage;
 };
 
 

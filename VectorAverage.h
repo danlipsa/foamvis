@@ -15,14 +15,20 @@
 
 class ScalarAverage;
 class VectorDisplay;
+class AverageCache;
 
 class VectorAverage : public TensorAverageTemplate<SetterVelocity>
 {
 public:
     VectorAverage (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl,
 		   FramebufferObjects& countFbos);
-
     static void InitShaders ();
+    void CacheData (
+        AverageCache* averageCache, const G3D::Rect2D& objectCoord) const;
+
+private:
+    vtkSmartPointer<vtkImageData> getData (const G3D::Rect2D& objectCoord) const;
+
 };
 
 

@@ -67,6 +67,7 @@ public Q_SLOTS:
     void ToggledHistogramAllTimestepsShown (bool checked);
 
     void ButtonClickedViewType (int viewType);
+    void ButtonClickedVelocityVis (int velocityVis);
 
     void ToggledReflectedHalfView (bool checked);
     void ToggledForceDifference (bool checked);

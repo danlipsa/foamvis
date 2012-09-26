@@ -135,10 +135,10 @@ void WidgetVtk::SendPaintEnd ()
     Q_EMIT PaintEnd ();
 }
 
-void WidgetVtk::CreateAverage3d (boost::shared_ptr<Settings> settings,
-                                 const SimulationGroup& simulationGroup)    
+void WidgetVtk::Init (boost::shared_ptr<Settings> settings,
+                      const SimulationGroup* simulationGroup)
 {
-    SetSettings (settings);
+    WidgetBase::Init (settings, simulationGroup, 0);
     // interactor style
     VTK_CREATE (FoamvisInteractorStyle, interactorStyle);
     interactorStyle->SetInteractionModeQuery (
@@ -152,11 +152,11 @@ void WidgetVtk::CreateAverage3d (boost::shared_ptr<Settings> settings,
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	m_average[i].reset (new RegularGridAverage (
 				viewNumber,
-				*settings, simulationGroup));
+				*settings, *simulationGroup));
     }
 }
 
-void WidgetVtk::CreatePipelineAverage3d (
+void WidgetVtk::Average3dCreatePipeline (
     size_t objects, size_t constraintSurfaces, size_t fontSize)
 {
     m_fontSize = fontSize + 4;
@@ -174,7 +174,7 @@ void WidgetVtk::CreatePipelineAverage3d (
     renWin->AddObserver (vtkCommand::EndEvent, sendPaint);
 }
 
-void WidgetVtk::UpdateAverage3dThreshold (QwtDoubleInterval interval)
+void WidgetVtk::Average3dUpdateThreshold (QwtDoubleInterval interval)
 {
     ViewNumber::Enum viewNumber = GetSettings ()->GetViewNumber ();
     if (GetPipelineType (viewNumber) == PipelineType::AVERAGE_3D)
@@ -185,7 +185,7 @@ void WidgetVtk::UpdateAverage3dThreshold (QwtDoubleInterval interval)
 }
 
 
-void WidgetVtk::UpdateAverage3dOpacity ()
+void WidgetVtk::Average3dUpdateOpacity ()
 {
     ForAllPipelines (PipelineType::AVERAGE_3D, 
                      boost::bind (&WidgetVtk::updateViewOpacity, this, _1));
@@ -198,7 +198,7 @@ void WidgetVtk::updateViewOpacity (ViewNumber::Enum viewNumber)
 }
 
 
-void WidgetVtk::AddAverage3dView (
+void WidgetVtk::Average3dAddView (
     ViewNumber::Enum viewNumber,
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
     QwtDoubleInterval interval)
@@ -233,7 +233,7 @@ void WidgetVtk::AddAverage3dView (
     setVisible (true);
 }
 
-void WidgetVtk::UpdateViewAverage3d (
+void WidgetVtk::Average3dUpdateViewAverage (
     ViewNumber::Enum viewNumber,
     const boost::array<int, ViewNumber::COUNT>& direction)
 {
@@ -270,11 +270,6 @@ G3D::Rect2D WidgetVtk::GetNormalizedViewRect (ViewNumber::Enum viewNumber) const
     G3D::Rect2D viewRect = G3D::Rect2D::xyxy (vr.x0 () / w, vr.y0 () / h,
 					      vr.x1 () / w, vr.y1 () / h);    
     return viewRect;
-}
-
-const Simulation& WidgetVtk::GetSimulation (ViewNumber::Enum viewNumber) const
-{
-    return m_average[viewNumber]->GetSimulation ();
 }
 
 void WidgetVtk::CopyTransformFrom (int fromViewNumber)
