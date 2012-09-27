@@ -47,16 +47,18 @@ void VectorAverage::InitShaders ()
 }
 
 vtkSmartPointer<vtkImageData> VectorAverage::getData (
-    const G3D::Rect2D& objectCoord) const
+    const G3D::Rect2D& oc) const
 {
-    G3D::Rect2D windowCoord = gluProject (objectCoord);
+    G3D::Rect2D windowCoord = rectInside (gluProject (oc));
+    G3D::Rect2D objectCoord = gluUnProject (
+        windowCoord, GluUnProjectZOperation::SET0);
+    BodyAttribute::Enum attribute = BodyAttribute::VELOCITY;
 
     // opengl gets 3 componens from the hardware
     vtkSmartPointer<vtkFloatArray> velocity = 
         ImageBasedAverage<SetterVelocity>::getData (
             this->m_fbos.m_current, windowCoord, GL_RGB);
-    velocity->SetName (BodyAttribute::ToString (BodyAttribute::VELOCITY));
-    
+    velocity->SetName (BodyAttribute::ToString (attribute));    
     vtkSmartPointer<vtkFloatArray> count = 
         ImageBasedAverage<SetterVelocity>::getData (
             this->m_countFbos.m_current, windowCoord, GL_GREEN);
@@ -85,7 +87,9 @@ vtkSmartPointer<vtkImageData> VectorAverage::getData (
     vtkSmartPointer<vtkImageData> image = CreateRegularGridNoAttributes (
         G3D::AABox (G3D::Vector3 (objectCoord.x0y0 (), 0),
                     G3D::Vector3 (objectCoord.x1y1 (), 0)), extent);
-    image->GetPointData ()->AddArray (velocity);
+    image->GetPointData ()->SetVectors (velocity);
+    image->GetPointData ()->SetActiveAttribute (
+	BodyAttribute::ToString (attribute), BodyAttribute::GetType (attribute));
     return image;
 }
 

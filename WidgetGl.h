@@ -209,6 +209,7 @@ public:
 	ViewNumber::Enum viewNumber) const;
     void ButtonClickedViewType (ViewType::Enum oldViewType);
     void SetViewTypeAndCameraDistance (ViewNumber::Enum viewNumber);
+    void ComputeStreamline (ViewNumber::Enum viewNumber);
 
     
 Q_SIGNALS:
@@ -455,6 +456,7 @@ private:
 			     bool useZPos = false) const;
     void displayRotationCenter (ViewNumber::Enum viewNumber) const;
     void displayFaceCenters (ViewNumber::Enum viewNumber) const;
+    void displayStreamline (ViewNumber::Enum viewNumber) const;
     void displayViewDecorations (ViewNumber::Enum viewNumber);
     void displayViewFocus (ViewNumber::Enum viewNumber);
     void displayTextureColorBar (GLuint texture,
@@ -725,6 +727,7 @@ private:
     boost::array<GLuint, ViewNumber::COUNT> m_colorBarTexture;
     boost::array<GLuint, ViewNumber::COUNT> m_overlayBarTexture;
     boost::array<bool, DuplicateDomain::COUNT> m_duplicateDomain;
+    vtkSmartPointer<vtkPolyData> m_streamlines;
 };
 
 

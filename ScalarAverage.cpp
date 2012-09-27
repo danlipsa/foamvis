@@ -69,9 +69,11 @@ void ScalarAverageTemplate<PropertySetter>::rotateAndDisplay (
 
 template<typename PropertySetter>
 vtkSmartPointer<vtkImageData> ScalarAverageTemplate<PropertySetter>::getData (
-    const G3D::Rect2D& objectCoord, BodyScalar::Enum property) const
+    const G3D::Rect2D& oc, BodyScalar::Enum property) const
 {
-    G3D::Rect2D windowCoord = gluProject (objectCoord);
+    G3D::Rect2D windowCoord = rectInside (gluProject (oc));
+    G3D::Rect2D objectCoord = gluUnProject (
+        windowCoord, GluUnProjectZOperation::SET0);
 
     vtkSmartPointer<vtkFloatArray> scalar = 
         ImageBasedAverage<PropertySetter>::getData (

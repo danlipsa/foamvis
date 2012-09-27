@@ -393,10 +393,10 @@ vtkSmartPointer<vtkFloatArray> ImageBasedAverage<PropertySetter>::getData (
     attributes->SetNumberOfTuples (numberOfPoints);
 
     framebuffer->bind ();
+    void* data = attributes->WriteVoidPointer (0, numberOfPoints);
     glReadPixels (
         windowCoord.x0 (), windowCoord.y0 (), 
-        windowCoord.width (), windowCoord.height (), 
-        format, GL_FLOAT, attributes->GetVoidPointer (0));
+        windowCoord.width (), windowCoord.height (), format, GL_FLOAT, data);
     framebuffer->release ();
     return attributes;
 }

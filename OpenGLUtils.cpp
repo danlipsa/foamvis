@@ -149,9 +149,9 @@ void gluProject (InputIterator objectCoordBegin, InputIterator objectCoordEnd,
     GLdouble model[16];GLdouble proj[16];GLint view[4];
     getCurrentMatrices (model, proj, view);
     OutputIterator outIt = windowCoordBegin;
+    GLdouble x, y, z;
     for (InputIterator it = objectCoordBegin; it != objectCoordEnd; ++it)
     {
-        GLdouble x, y, z;
         gluProject (it->x, it->y, it->z,
                     model, proj, view, &x, &y, &z);
         (*outIt) = G3D::Vector3 (x, y, z);
@@ -172,6 +172,84 @@ G3D::Rect2D gluProject (const G3D::Rect2D& oc)
     return G3D::Rect2D::xyxy (windowCoord[0].x, windowCoord[0].y,
                               windowCoord[2].x, windowCoord[2].y);
 }
+
+G3D::Vector3 gluUnProject (
+    GLdouble model[16], GLdouble proj[16], GLint view[4],
+    G3D::Vector2 windowCoord, GluUnProjectZOperation::Enum zOperation)
+{
+    GLfloat zWindowCoord = 0;
+    if (zOperation == GluUnProjectZOperation::READ)
+	glReadPixels (windowCoord.x, windowCoord.y, 1, 1, 
+		      GL_DEPTH_COMPONENT, GL_FLOAT, &zWindowCoord);
+    else
+	zWindowCoord = 0;
+    double x = 0, y = 0, z = 0;
+    GLint ret = gluUnProject (windowCoord.x, windowCoord.y, zWindowCoord, 
+			      model, proj, view, 
+			      &x, &y, &z);
+    G3D::Vector3 v = 
+	G3D::Vector3 (
+            x, y, zOperation == GluUnProjectZOperation::READ ? z : 0);
+    if (ret != GLU_TRUE)
+    {
+	cdbg << "model: ";
+	for (size_t i = 0; i < 16; ++i)
+	    cdbg << model[i] << " ";
+	cdbg << endl << "projection: ";
+	for (size_t i = 0; i < 16; ++i)
+	    cdbg << proj[i] << " ";
+	cdbg << endl << "viewport: ";
+	for (size_t i = 0; i < 4; ++i)
+	    cdbg << view[i] << " ";
+	cdbg << endl;
+	WarnOnOpenGLError ("gluUnProject");
+	RuntimeAssert (false, "gluUnproject: ", v, " zOp:", zOperation);
+    }
+    __LOG__(
+	cdbg << windowCoord << ", " << zWindowCoord << ", " << v << endl;)
+    return v;
+}
+
+
+G3D::Vector3 gluUnProject (
+    G3D::Vector2 windowCoord, GluUnProjectZOperation::Enum zOperation)
+{
+    GLdouble model[16];GLdouble proj[16];GLint view[4];
+    getCurrentMatrices (model, proj, view);
+    return gluUnProject (model, proj, view,
+                         windowCoord, zOperation);
+}
+
+template<typename InputIterator, typename OutputIterator>
+void gluUnProject (
+    InputIterator windowCoordBegin, InputIterator windowCoordEnd,
+    OutputIterator objectCoordBegin, GluUnProjectZOperation::Enum zOperation)
+{
+    GLdouble model[16];GLdouble proj[16];GLint view[4];
+    getCurrentMatrices (model, proj, view);
+
+    OutputIterator outIt = objectCoordBegin;
+    for (InputIterator it = windowCoordBegin; it != windowCoordEnd; ++it)
+        *outIt++ = gluUnProject (model, proj, view, *it, zOperation);
+}
+
+G3D::Rect2D gluUnProject (const G3D::Rect2D& wc,
+                          GluUnProjectZOperation::Enum zOperation)
+{
+    boost::array<G3D::Vector2, 4> windowCoord = {{
+            wc.x0y0 (),
+            wc.x0y1 (),
+            wc.x1y1 (),
+            wc.x1y0 ()
+        }};
+    boost::array<G3D::Vector3, 4> objectCoord;
+    gluUnProject (
+        windowCoord.begin (), windowCoord.end (), objectCoord.begin (),
+        zOperation);
+    return G3D::Rect2D::xyxy (objectCoord[0].x, objectCoord[0].y,
+                              objectCoord[2].x, objectCoord[2].y);
+}
+
 
 
 G3D::Vector3 toEye (G3D::Vector3 object)
@@ -226,44 +304,6 @@ G3D::Vector3 toObject (const QPoint& positionQt, int windowHeight)
 }
 
 
-G3D::Vector3 gluUnProject (
-    G3D::Vector2 screenCoord, 
-    GluUnProjectZOperation::Enum zOperation)
-{
-    GLdouble model[16];GLdouble proj[16];GLint view[4];
-    getCurrentMatrices (model, proj, view);
-    GLfloat zScreenCoord = 0;
-    if (zOperation == GluUnProjectZOperation::READ)
-	glReadPixels (screenCoord.x, screenCoord.y, 1, 1, 
-		      GL_DEPTH_COMPONENT, GL_FLOAT, &zScreenCoord);
-    else
-	zScreenCoord = 0;
-    double x = 0, y = 0, z = 0;
-    GLint ret = gluUnProject (screenCoord.x, screenCoord.y, zScreenCoord, 
-			      model, proj, view, 
-			      &x, &y, &z);
-    G3D::Vector3 v = 
-	G3D::Vector3 (x, y, 
-		      zOperation == GluUnProjectZOperation::READ ? z : 0);
-    if (ret != GLU_TRUE)
-    {
-	cdbg << "model: ";
-	for (size_t i = 0; i < 16; ++i)
-	    cdbg << model[i] << " ";
-	cdbg << endl << "projection: ";
-	for (size_t i = 0; i < 16; ++i)
-	    cdbg << proj[i] << " ";
-	cdbg << endl << "viewport: ";
-	for (size_t i = 0; i < 4; ++i)
-	    cdbg << view[i] << " ";
-	cdbg << endl;
-	WarnOnOpenGLError ("gluUnProject");
-	RuntimeAssert (false, "gluUnproject: ", v, " zOp:", zOperation);
-    }
-    __LOG__(
-	cdbg << screenCoord << ", " << zScreenCoord << ", " << v << endl;)
-    return v;
-}
 
 
 void WarnOnOpenGLError (string message)

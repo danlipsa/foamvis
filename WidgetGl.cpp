@@ -2136,6 +2136,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
 
     GetViewAverage (viewNumber).GetForceAverage ().Display (
 	adjustForAverageAroundMovementRotation);
+    displayStreamline (viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (
 	GetSimulation (viewNumber).GetFoam (0));
     if (m_t1sShown)
@@ -2808,12 +2809,49 @@ void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
     if (direction != 0)
     {
         m_viewAverage[viewNumber]->AverageStep (direction);
-        G3D::AABox box = GetFoam ().GetBoundingBox ();
-        m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
-            GetAverageCache (),
-            G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ()));
+        if (GetViewSettings (viewNumber).GetVelocityVis () == 
+            VectorVis::STREAMLINE)
+            ComputeStreamline (viewNumber);
     }
 }
+
+void WidgetGl::ComputeStreamline (ViewNumber::Enum viewNumber)
+{
+    makeCurrent ();
+    allTransform (viewNumber);
+    G3D::AABox box = GetFoam ().GetBoundingBox ();
+    m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
+        GetAverageCache (),
+        G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ()));
+
+    VTK_CREATE (vtkXMLImageDataWriter, writer);
+    writer->SetFileName ("velocity.vti");
+    writer->SetInput (GetAverageCache ()->GetVelocity ());
+    writer->Write ();
+        
+    VTK_CREATE (vtkRungeKutta45, rk);
+    VTK_CREATE (vtkStreamTracer, streamer);
+    streamer->SetInput (GetAverageCache ()->GetVelocity ());
+    streamer->SetStartPosition (0.5, 0.25, 0);
+    streamer->SetMaximumPropagation (500);
+    streamer->SetIntegrationStepUnit (2);
+    streamer->SetMinimumIntegrationStep (0.1);
+    streamer->SetMaximumIntegrationStep (1.0);
+    streamer->SetInitialIntegrationStep (0.2);
+    streamer->SetIntegrationDirection (0);
+    streamer->SetIntegrator (rk);
+    streamer->SetRotationScale (0.5);
+    streamer->SetMaximumError (1.0e-8);
+    streamer->Update ();
+    m_streamlines = vtkPolyData::SafeDownCast (streamer->GetOutput ());
+}
+
+void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
+{
+    if (GetViewSettings (viewNumber).GetVelocityVis () == VectorVis::STREAMLINE)
+        cdbg << m_streamlines->GetLines ()->GetSize () << endl;
+}
+
 
 void WidgetGl::setTexture (
     boost::shared_ptr<ColorBarModel> colorBarModel, GLuint texture)

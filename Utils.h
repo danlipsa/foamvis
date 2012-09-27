@@ -109,6 +109,7 @@ G3D::AABox EncloseRotation2D (const G3D::AABox& box);
 G3D::Rect2D EncloseRotation (const G3D::Rect2D& rect);
 G3D::Vector2 rotateRadians (G3D::Vector2, float radiansCounterClockwise);
 G3D::Vector2 rotateDegrees (G3D::Vector2 v, float degreesCounterClockwise);
+G3D::Rect2D rectInside (const G3D::Rect2D& windowRect);
 // @}
 
 

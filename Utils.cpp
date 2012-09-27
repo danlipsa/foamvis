@@ -413,6 +413,13 @@ G3D::Vector2 rotateDegrees (G3D::Vector2 v, float degrees)
     return rotateRadians (v, G3D::toRadians (degrees));
 }
 
+G3D::Rect2D rectInside (const G3D::Rect2D& wc)
+{
+    return G3D::Rect2D::xyxy (
+        ceil (wc.x0 ()), ceil (wc.y0 ()),
+        floor (wc.x1 ()), floor (wc.y1 ()));
+}
+
 
 // Conversions Qt - G3D
 // ======================================================================

@@ -85,14 +85,20 @@ struct GluUnProjectZOperation
 };
 
 /**
- * Returns the world coordinate associated with a window coordinate.
+ * Returns the object coordinate associated with a window coordinate.
  * Uses the depth buffer to find out the Z screen coordinate (and then
  * the z coordinate) if zOperation == READ otherwise it uses a Z screen 
  * coordinate equal with 0.
  * see OpenGL FAQ, 9.110
  */
 G3D::Vector3 gluUnProject (
-    G3D::Vector2 screenCoord, GluUnProjectZOperation::Enum zOperation);
+    G3D::Vector2 windowCoord, GluUnProjectZOperation::Enum zOperation);
+template<typename InputIterator, typename OutputIterator>
+void gluUnProject (
+    InputIterator windowCoordBegin, InputIterator windowCoordEnd,
+    OutputIterator objectCoordBegin, GluUnProjectZOperation::Enum zOperation);
+G3D::Rect2D gluUnProject (const G3D::Rect2D& windowCoord,
+                          GluUnProjectZOperation::Enum zOperation);
 
 /**
  * Check the OpenGL  error code and prints a message  to cdbg if there

@@ -141,10 +141,12 @@
 #include <vtkProbeFilter.h>
 #include <vtkProperty.h>
 #include <vtkProperty2D.h>
+#include <vtkRungeKutta45.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkScalarBarActor.h>
+#include <vtkStreamTracer.h>
 #include <vtkSmartPointer.h>
 #include <vtkShrinkFilter.h>
 #include <vtkTextMapper.h>

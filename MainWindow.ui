@@ -2970,6 +2970,22 @@
    </hints>
   </connection>
   <connection>
+   <sender>buttonGroupVelocityVis</sender>
+   <signal>buttonClicked(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ButtonClickedVelocityVis(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>521</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>buttonGroupTimeLinkage</sender>
    <signal>buttonClicked(int)</signal>
    <receiver>widgetGl</receiver>
@@ -4348,6 +4364,7 @@
   <slot>ButtonClickedInteractionObject(int)</slot>
   <slot>CurrentIndexChangedInteractionMode(int)</slot>
   <slot>ButtonClickedViewType(int)</slot>
+  <slot>ButtonClickedVelocityVis(int)</slot>
   <slot>ValueChangedT1sKernelSigma(int)</slot>
   <slot>CurrentIndexChangedSimulation(int)</slot>
   <slot>ValueChangedAverageTimeWindow(int)</slot>
