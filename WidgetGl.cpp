@@ -2831,7 +2831,7 @@ void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
     VTK_CREATE (vtkStreamTracer, streamer);
     streamer->SetInput (GetAverageCache ()->GetVelocity ());
     streamer->SetStartPosition (0.5, 0.25, 0);
-    streamer->SetMaximumPropagation (.5);
+    streamer->SetMaximumPropagation (.2);
     streamer->SetIntegrationStepUnit (vtkStreamTracer::LENGTH_UNIT);
     //streamer->SetMinimumIntegrationStep (0.001);
     //streamer->SetMaximumIntegrationStep (1.0);
