@@ -74,9 +74,22 @@ public:
     {
 	return GetViewSettings (GetViewNumber ());
     }
+    size_t GetCurrentTime () const
+    {
+	return GetCurrentTime (GetViewNumber ());
+    }
+    size_t GetCurrentTime (ViewNumber::Enum viewNumber) const;
+
 
 
     const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
+    const Simulation& GetSimulation (size_t index) const;
+    const Simulation& GetSimulation () const
+    {
+        return GetSimulation (GetViewNumber ());
+    }
+
+
 
 protected:
     void setView (const G3D::Vector2& clickedPoint);

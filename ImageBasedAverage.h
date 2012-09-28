@@ -109,6 +109,14 @@ protected:
     static boost::shared_ptr<StoreShaderProgram> m_storeShaderProgram;
     static boost::shared_ptr<AddShaderProgram> m_addShaderProgram;
     static boost::shared_ptr<AddShaderProgram> m_removeShaderProgram;
+    void save (TensorScalarFbo fbo, 
+	       const char* fileName, size_t timeStep, size_t subStep,
+	       GLfloat minValue, 
+	       GLfloat maxValue, StatisticsType::Enum displayType);
+    void save (vtkSmartPointer<vtkFloatArray> data, 
+               const G3D::Rect2D& windowCoord, 
+               size_t components, float maxValue) const;
+
 
     FramebufferObjects& m_countFbos;
     FramebufferObjects m_fbos;
@@ -116,10 +124,7 @@ protected:
 private:
     void clear ();
 
-    void save (TensorScalarFbo fbo, 
-	       const char* fileName, size_t timeStep, size_t subStep,
-	       GLfloat minValue, 
-	       GLfloat maxValue, StatisticsType::Enum displayType);
+
     void renderToStep (size_t timeStep, size_t subStep);
     void currentIsPreviousPlusStep ();
     void currentIsPreviousMinusStep ();

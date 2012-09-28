@@ -467,20 +467,9 @@ void WidgetGl::initDisplayView ()
     copy (displayView.begin (), displayView.end (), m_display.begin ());
 }
 
-
-const Simulation& WidgetGl::GetSimulation () const
-{
-    return GetSimulation (GetViewNumber ());
-}
-
 const Foam& WidgetGl::GetFoam () const
 {
     return GetSimulation ().GetFoam (GetCurrentTime ());
-}
-
-const Simulation& WidgetGl::GetSimulation (size_t i) const
-{
-    return GetSimulationGroup ().GetSimulation (i);
 }
 
 void WidgetGl::Init (
@@ -779,7 +768,7 @@ string WidgetGl::infoSelectedBody ()
 {
     ostringstream ostr;
     vector< boost::shared_ptr<Body> > bodies;
-    brushedBodies (m_contextMenuPosScreen, &bodies);
+    brushedBodies (m_contextMenuPosWindow, &bodies);
     if (bodies.empty ())
 	ostr << "No bodies focused.";
     else
@@ -963,6 +952,19 @@ void WidgetGl::allTransform (ViewNumber::Enum viewNumber) const
     ProjectionTransform (viewNumber);
     glMatrixMode (GL_MODELVIEW);
     ModelViewTransform (viewNumber, GetCurrentTime (viewNumber));
+}
+
+
+
+void WidgetGl::AllTransformAverage (
+    ViewNumber::Enum viewNumber, size_t timeStep) const
+{
+    G3D::Rect2D destRect = EncloseRotation (GetViewRect (viewNumber));
+    glViewport (0, 0, destRect.width (), destRect.height ());
+    glMatrixMode (GL_PROJECTION);
+    ProjectionTransform (viewNumber, ViewingVolumeOperation::ENCLOSE2D);
+    glMatrixMode (GL_MODELVIEW);
+    ModelViewTransform (viewNumber, timeStep);
 }
 
 
@@ -1160,7 +1162,7 @@ G3D::Vector3 WidgetGl::brushedBodies (
 G3D::Vector3 WidgetGl::brushedFace (const OrientedFace** of)
 {
     vector< boost::shared_ptr<Body> > bodies;
-    G3D::Vector3 op = brushedBodies (m_contextMenuPosScreen, &bodies);
+    G3D::Vector3 op = brushedBodies (m_contextMenuPosWindow, &bodies);
     //cdbg << "point=" << op << endl;
     if (bodies.empty ())
 	*of = 0;
@@ -2394,11 +2396,6 @@ void WidgetGl::setLight (int sliderValue, int maximumValue,
 }
 
 
-size_t WidgetGl::GetCurrentTime (ViewNumber::Enum viewNumber) const
-{
-    return GetViewSettings (viewNumber).GetCurrentTime ();
-}
-
 pair<size_t, ViewNumber::Enum> WidgetGl::LinkedTimeMaxSteps () const
 {
     pair<size_t, ViewNumber::Enum> maxInterval = 
@@ -2811,14 +2808,14 @@ void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
         m_viewAverage[viewNumber]->AverageStep (direction);
         if (GetViewSettings (viewNumber).GetVelocityVis () == 
             VectorVis::STREAMLINE)
-            ComputeStreamline (viewNumber);
+            CalculateStreamline (viewNumber);
     }
 }
 
-void WidgetGl::ComputeStreamline (ViewNumber::Enum viewNumber)
+void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
 {
     makeCurrent ();
-    allTransform (viewNumber);
+    AllTransformAverage (viewNumber);
     G3D::AABox box = GetFoam ().GetBoundingBox ();
     m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
         GetAverageCache (),
@@ -2829,16 +2826,17 @@ void WidgetGl::ComputeStreamline (ViewNumber::Enum viewNumber)
     writer->SetInput (GetAverageCache ()->GetVelocity ());
     writer->Write ();
         
-    VTK_CREATE (vtkRungeKutta45, rk);
+    //VTK_CREATE (vtkRungeKutta45, rk);
+    VTK_CREATE (vtkRungeKutta4, rk);
     VTK_CREATE (vtkStreamTracer, streamer);
     streamer->SetInput (GetAverageCache ()->GetVelocity ());
     streamer->SetStartPosition (0.5, 0.25, 0);
-    streamer->SetMaximumPropagation (500);
-    streamer->SetIntegrationStepUnit (2);
-    streamer->SetMinimumIntegrationStep (0.1);
-    streamer->SetMaximumIntegrationStep (1.0);
-    streamer->SetInitialIntegrationStep (0.2);
-    streamer->SetIntegrationDirection (0);
+    streamer->SetMaximumPropagation (.5);
+    streamer->SetIntegrationStepUnit (vtkStreamTracer::LENGTH_UNIT);
+    //streamer->SetMinimumIntegrationStep (0.001);
+    //streamer->SetMaximumIntegrationStep (1.0);
+    streamer->SetInitialIntegrationStep (0.005);
+    streamer->SetIntegrationDirection (vtkStreamTracer::FORWARD);
     streamer->SetIntegrator (rk);
     streamer->SetRotationScale (0.5);
     streamer->SetMaximumError (1.0e-8);
@@ -2849,7 +2847,24 @@ void WidgetGl::ComputeStreamline (ViewNumber::Enum viewNumber)
 void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
 {
     if (GetViewSettings (viewNumber).GetVelocityVis () == VectorVis::STREAMLINE)
-        cdbg << m_streamlines->GetLines ()->GetSize () << endl;
+    {
+        vtkSmartPointer<vtkCellArray> lines = m_streamlines->GetLines ();
+        lines->InitTraversal ();
+        VTK_CREATE(vtkIdList, points);
+        cdbg << "lines: " << m_streamlines->GetNumberOfLines () << endl;
+        while (lines->GetNextCell (points))
+        {
+            glBegin (GL_LINE_STRIP);
+            cdbg << "points: " << points->GetNumberOfIds () << endl;
+            for (vtkIdType i = 0; i < points->GetNumberOfIds (); ++i)
+            {
+                double point[3];
+                m_streamlines->GetPoint (points->GetId (i), point);
+                glVertex2dv (point);
+            }
+            glEnd ();
+        }
+    }
 }
 
 
@@ -2956,7 +2971,7 @@ void WidgetGl::AverageAroundBody ()
     makeCurrent ();
     ViewSettings& vs = GetViewSettings ();
     vector< boost::shared_ptr<Body> > bodies;
-    brushedBodies (m_contextMenuPosScreen, &bodies);
+    brushedBodies (m_contextMenuPosWindow, &bodies);
     if (! bodies.empty ())
     {
 	boost::shared_ptr<Body> body = bodies[0];
@@ -2984,7 +2999,7 @@ void WidgetGl::AverageAroundSecondBody ()
     makeCurrent ();
     ViewSettings& vs = GetViewSettings ();
     vector< boost::shared_ptr<Body> > bodies;
-    brushedBodies (m_contextMenuPosScreen, &bodies);
+    brushedBodies (m_contextMenuPosWindow, &bodies);
     string message;
     if (! bodies.empty ())
     {
@@ -3032,7 +3047,7 @@ void WidgetGl::ContextDisplayBody ()
     makeCurrent ();
     ViewSettings& vs = GetViewSettings ();
     vector<size_t> bodies;
-    brushedBodies (m_contextMenuPosScreen, &bodies);
+    brushedBodies (m_contextMenuPosWindow, &bodies);
     vs.AddContextDisplayBody (bodies[0]);
     CompileUpdate ();
 }
@@ -3068,7 +3083,9 @@ void WidgetGl::InfoPoint ()
     makeCurrent ();
     QMessageBox msgBox (this);
     ostringstream ostr;
-    ostr << "Point: " << m_contextMenuPosObject;
+    ostr << "Point" << endl
+         << "object: " << m_contextMenuPosObject << endl
+         << "window: " << QtToOpenGl (m_contextMenuPosWindow, height ());
     msgBox.setText(ostr.str ().c_str ());
     msgBox.exec();
 }
@@ -3153,7 +3170,7 @@ void WidgetGl::ShowNeighbors ()
     makeCurrent ();
     m_showType = SHOW_NEIGHBORS;
     vector<size_t> bodies;
-    brushedBodies (m_contextMenuPosScreen, &bodies);
+    brushedBodies (m_contextMenuPosWindow, &bodies);
     m_showBodyId = bodies[0];
     update ();
 }
@@ -3163,7 +3180,7 @@ void WidgetGl::ShowDeformation ()
     makeCurrent ();
     m_showType = SHOW_DEFORMATION_TENSOR;
     vector<size_t> bodies;
-    brushedBodies (m_contextMenuPosScreen, &bodies);
+    brushedBodies (m_contextMenuPosWindow, &bodies);
     m_showBodyId = bodies[0];
     CompileUpdate ();
 }
@@ -3173,7 +3190,7 @@ void WidgetGl::ShowVelocity ()
     makeCurrent ();
     m_showType = SHOW_VELOCITY;
     vector<size_t> bodies;
-    brushedBodies (m_contextMenuPosScreen, &bodies);
+    brushedBodies (m_contextMenuPosWindow, &bodies);
     m_showBodyId = bodies[0];
     CompileUpdate ();
 }
@@ -3251,7 +3268,7 @@ void WidgetGl::SelectThisBodyOnly ()
 {
     makeCurrent ();
     vector<size_t> bodyIds;
-    brushedBodies (m_contextMenuPosScreen, &bodyIds);
+    brushedBodies (m_contextMenuPosWindow, &bodyIds);
     if (! bodyIds.empty ())
     {
         ViewSettings& vs = GetViewSettings ();
@@ -3326,16 +3343,16 @@ void WidgetGl::mouseMoveEvent(QMouseEvent *event)
 void WidgetGl::contextMenuEvent (QContextMenuEvent *event)
 {
     makeCurrent ();
-    m_contextMenuPosScreen = event->pos ();
-    m_contextMenuPosObject = toObjectTransform (m_contextMenuPosScreen);
+    m_contextMenuPosWindow = event->pos ();
+    m_contextMenuPosObject = toObjectTransform (m_contextMenuPosWindow);
     QMenu menu (this);
     G3D::Rect2D colorBarRect = Settings::GetViewColorBarRect (GetViewRect ());
     G3D::Rect2D overlayBarRect = 
 	Settings::GetViewOverlayBarRect (GetViewRect ());
-    if (colorBarRect.contains (QtToOpenGl (m_contextMenuPosScreen, height ())))
+    if (colorBarRect.contains (QtToOpenGl (m_contextMenuPosWindow, height ())))
 	contextMenuEventColorBar (&menu);
     else if (overlayBarRect.contains (
-		 QtToOpenGl (m_contextMenuPosScreen, height ())))
+		 QtToOpenGl (m_contextMenuPosWindow, height ())))
 	contextMenuEventOverlayBar (&menu);
     else
 	contextMenuEventView (&menu);
@@ -3424,7 +3441,7 @@ void WidgetGl::RotationCenterBody ()
     vector< boost::shared_ptr<Body> > bodies;
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    brushedBodies (m_contextMenuPosScreen, &bodies);
+    brushedBodies (m_contextMenuPosWindow, &bodies);
     if (! bodies.empty ())
     {
 	vs.SetRotationCenter (bodies[0]->GetCenter ());

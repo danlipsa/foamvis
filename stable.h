@@ -126,6 +126,7 @@
 #include <vtkDataSetMapper.h>
 #include <vtkEventQtSlotConnect.h>
 #include <vtkFloatArray.h>
+#include <vtkIdList.h>
 #include <vtkImageData.h>
 #include <vtkIndent.h>
 #include <vtkInteractorStyle.h>
@@ -142,6 +143,7 @@
 #include <vtkProperty.h>
 #include <vtkProperty2D.h>
 #include <vtkRungeKutta45.h>
+#include <vtkRungeKutta4.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>

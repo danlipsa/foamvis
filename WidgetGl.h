@@ -61,8 +61,6 @@ public:
     /**
      * Gets the data displayed by the WidgetGl
      */
-    const Simulation& GetSimulation (size_t index) const;
-    const Simulation& GetSimulation () const;
     const Foam& GetFoam () const;
 
     size_t GetHighlightLineWidth () const
@@ -70,11 +68,6 @@ public:
 	return m_highlightLineWidth;
     }
 
-    size_t GetCurrentTime () const
-    {
-	return GetCurrentTime (GetViewNumber ());
-    }
-    size_t GetCurrentTime (ViewNumber::Enum viewNumber) const;
     size_t GetTimeSteps () const
     {
 	return GetTimeSteps (GetViewNumber ());
@@ -209,8 +202,14 @@ public:
 	ViewNumber::Enum viewNumber) const;
     void ButtonClickedViewType (ViewType::Enum oldViewType);
     void SetViewTypeAndCameraDistance (ViewNumber::Enum viewNumber);
-    void ComputeStreamline (ViewNumber::Enum viewNumber);
-
+    void CalculateStreamline (ViewNumber::Enum viewNumber);
+    void AllTransformAverage (
+        ViewNumber::Enum viewNumber, size_t timeStep) const;
+    void AllTransformAverage (
+        ViewNumber::Enum viewNumber) const
+    {
+        return AllTransformAverage (viewNumber, GetCurrentTime (viewNumber));
+    }
     
 Q_SIGNALS:
     void PaintEnd ();
@@ -644,7 +643,7 @@ private:
      * Used for rotation, translation and scale
      */
     QPoint m_lastPos;
-    QPoint m_contextMenuPosScreen;
+    QPoint m_contextMenuPosWindow;
     G3D::Vector3 m_contextMenuPosObject;
     GLUquadricObj* m_quadric;
 

@@ -222,18 +222,12 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::renderToStep (
     size_t timeStep, size_t subStep)
 {
-    const WidgetGl& widgetGl = GetWidgetGl ();
-    G3D::Rect2D destRect = 
-	EncloseRotation (widgetGl.GetViewRect (GetViewNumber ()));
-    glMatrixMode (GL_MODELVIEW);
-    glPushMatrix ();
-    widgetGl.ModelViewTransform (GetViewNumber (), timeStep);
     glMatrixMode (GL_PROJECTION);
     glPushMatrix ();
-    widgetGl.ProjectionTransform (
-	GetViewNumber (), ViewingVolumeOperation::ENCLOSE2D);
-    glViewport (0, 0, destRect.width (), destRect.height ());    
+    glMatrixMode (GL_MODELVIEW);
+    glPushMatrix ();
 
+    GetWidgetGl ().AllTransformAverage (GetViewNumber (), timeStep);
     m_fbos.m_step->bind ();
     ClearColorStencilBuffers (getStepClearColor (), 0);
     writeStepValues (timeStep, subStep);
@@ -330,25 +324,6 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
 }
 
 template<typename PropertySetter>
-void ImageBasedAverage<PropertySetter>::save (
-    TensorScalarFbo fbo, const char* postfix, size_t timeStep, size_t subStep,
-    GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
-{
-    // render to the debug buffer
-    m_fbos.m_debug->bind ();
-    ClearColorBuffer (Qt::white);
-    rotateAndDisplay (
-	minValue, maxValue, displayType, fbo, ViewingVolumeOperation::ENCLOSE2D);
-    m_fbos.m_debug->release ();
-    ostringstream ostr;
-    ostr << "images/" 
-	 << m_id << setfill ('0') << setw (4) << timeStep << "-" 
-	 << setw (2) << subStep << postfix << ".png";
-    m_fbos.m_debug->toImage ().save (ostr.str ().c_str ());
-    WarnOnOpenGLError ("ImageBasedAverage::save");
-}
-
-template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::writeStepValues (
     size_t timeStep, size_t subStep)
 {
@@ -389,7 +364,8 @@ vtkSmartPointer<vtkFloatArray> ImageBasedAverage<PropertySetter>::getData (
 {
     VTK_CREATE(vtkFloatArray, attributes);
     vtkIdType numberOfPoints = windowCoord.width () * windowCoord.height ();
-    attributes->SetNumberOfComponents (getNumberOfComponents (format));
+    size_t numberOfComponents = getNumberOfComponents (format);
+    attributes->SetNumberOfComponents (numberOfComponents);
     attributes->SetNumberOfTuples (numberOfPoints);
 
     framebuffer->bind ();
@@ -400,6 +376,58 @@ vtkSmartPointer<vtkFloatArray> ImageBasedAverage<PropertySetter>::getData (
     framebuffer->release ();
     return attributes;
 }
+
+template<typename PropertySetter>
+void ImageBasedAverage<PropertySetter>::save (
+    vtkSmartPointer<vtkFloatArray> data, 
+    const G3D::Rect2D& windowCoord, size_t components, float maxValue) const
+{
+    QImage image (windowCoord.width (), windowCoord.height (), 
+                  QImage::Format_RGB32);
+    ostringstream ostr;
+    ostr << "images/data" << components << "-"
+	 << setfill ('0') << setw (4) << GetWidgetGl ().GetCurrentTime ()  
+         << ".png";
+    QColor color;
+    for (size_t x = 0; x < windowCoord.width (); ++x)
+        for (size_t y = 0; y < windowCoord.height (); ++y)
+        {
+            float d = 0;
+            if (components == 1)
+                d = data->GetComponent (y * windowCoord.width () + x, 0);
+            else
+            {
+                float one = data->GetComponent (y * windowCoord.width () + x, 0);
+                float two = data->GetComponent (y * windowCoord.width () + x, 1);
+                d = sqrt (one * one + two * two);
+            }
+            color.setRgbF (d / maxValue, d / maxValue, d / maxValue);
+            // QImage y value grows top - down, OpenGL grows bottom - up.
+            image.setPixel (x, windowCoord.height () - 1 - y, color.rgb ());
+        }
+    image.save (ostr.str ().c_str ());
+}
+
+
+template<typename PropertySetter>
+void ImageBasedAverage<PropertySetter>::save (
+    TensorScalarFbo fbo, const char* postfix, size_t timeStep, size_t subStep,
+    GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
+{
+    // render to the debug buffer
+    m_fbos.m_debug->bind ();
+    ClearColorBuffer (Qt::white);
+    rotateAndDisplay (
+	minValue, maxValue, displayType, fbo, ViewingVolumeOperation::ENCLOSE2D);
+    m_fbos.m_debug->release ();
+    ostringstream ostr;
+    ostr << "images/" 
+	 << m_id << setfill ('0') << setw (4) << timeStep << "-" 
+	 << setw (2) << subStep << postfix << ".png";
+    m_fbos.m_debug->toImage ().save (ostr.str ().c_str ());
+    WarnOnOpenGLError ("ImageBasedAverage::save");
+}
+
 
 
 // Template instantiations

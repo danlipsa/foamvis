@@ -78,6 +78,17 @@ ViewSettings& WidgetBase::GetViewSettings (ViewNumber::Enum viewNumber) const
     return GetSettings ()->GetViewSettings (viewNumber);
 }
 
+size_t WidgetBase::GetCurrentTime (ViewNumber::Enum viewNumber) const
+{
+    return GetViewSettings (viewNumber).GetCurrentTime ();
+}
+
+const Simulation& WidgetBase::GetSimulation (size_t index) const
+{
+    return GetSimulationGroup ().GetSimulation (index);
+}
+
+
 void WidgetBase::setView (const G3D::Vector2& clickedPoint)
 {
     ForAllViews (boost::bind (&WidgetBase::setView, this, _1, clickedPoint));
