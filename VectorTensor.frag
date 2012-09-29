@@ -6,23 +6,12 @@ struct Rect
     vec2 m_high;
 };
 
-// each fragmet receives the object coordinates of the fragment.
+// each fragmet receives its object coordinates
 varying vec2 v_objectCoordA;
 
-// object coordinates for screen
-uniform Rect u_enclosingRect;
-// expressed in (e1, e2) axes
-uniform vec2 u_gridTranslationE;
-// cell length in object coordinates
-uniform float u_cellLength;
 // line width in object coordinates
 uniform float u_lineWidth;
-uniform float u_noiseStart;
-uniform float u_noiseFrequency;
-uniform float u_noiseAmplitude;
 uniform float u_sizeRatio;
-uniform bool u_sameSize;
-uniform bool u_colorMapped;
 // deformation tensors are stored here.
 uniform sampler2D u_tensorAverageTexUnit;
 // scalar averages are stored here (sum, count, min, max). We use count.
@@ -30,10 +19,38 @@ uniform sampler2D u_scalarAverageTexUnit;
 uniform float u_minValue;
 uniform float u_maxValue;
 uniform sampler1D u_overlayBarTexUnit;
+uniform float u_onePixelInObjectSpace;
+
+uniform bool u_sameSize;
+uniform bool u_colorMapped;
+uniform bool u_clampingShown;
+uniform bool u_glyphShown;
+
+
+/**
+ * @{
+ * @name Grid
+ */
+// object coordinates for screen
+uniform Rect u_enclosingRect;
+// expressed in (e1, e2) axes
+uniform vec2 u_gridTranslationE;
 uniform bool u_gridShown;
 uniform bool u_gridCellCenterShown;
-uniform bool u_clampingShown;
-uniform float u_onePixelInObjectSpace;
+// cell length in object coordinates
+uniform float u_gridCellLength;
+// @}
+
+/**
+ * @{
+ * @name Noise for random seeding points for glyphs
+ */
+uniform float u_noiseStart;
+uniform float u_noiseFrequency;
+uniform float u_noiseAmplitude;
+// @}
+
+
 
 #include "noise2D.glsl"
 
@@ -46,7 +63,7 @@ vec2 snoise2 (vec2 x)
 bool isOnGrid (vec2 x)
 {
     vec2 isBackground;
-    float perc = (u_cellLength - u_onePixelInObjectSpace) / u_cellLength;
+    float perc = (u_gridCellLength - u_onePixelInObjectSpace) / u_gridCellLength;
     vec2 percentage = vec2 (perc, perc);
     isBackground = step (x, percentage);
     return isBackground.x * isBackground.y == 0.;
@@ -55,7 +72,7 @@ bool isOnGrid (vec2 x)
 // x is in [0, 1)
 bool isOnGridCellCenter (vec2 x, vec2 f)
 {
-    float empty = (u_cellLength - 2 * u_onePixelInObjectSpace) / u_cellLength;
+    float empty = (u_gridCellLength - 2 * u_onePixelInObjectSpace) / u_gridCellLength;
     float halfFull = (1 - empty) / 2;
     vec2 percentage = vec2 (empty, empty);
     x = fract (
@@ -71,7 +88,7 @@ bool isOnGridCellCenter (vec2 x, vec2 f)
 bool isOnGridCenter (vec2 x)
 {
     x = abs (x);
-    float perc = 2*u_onePixelInObjectSpace / u_cellLength;
+    float perc = 2 * u_onePixelInObjectSpace / u_gridCellLength;
     vec2 percentage = vec2 (perc, perc);
     vec2 isOnLine = step (x, percentage);
     return isOnLine.x * isOnLine.y == 1.0;
@@ -85,9 +102,9 @@ void getCoordinates (out vec2 gridCoord, out vec2 texCoordCenter)
 	gl_ModelViewMatrix[1].xy) * u_gridTranslationE;
 
     // expressed in (a1, a2) coordinate system
-    gridCoord = (v_objectCoordA - gridTranslationA) / u_cellLength;
+    gridCoord = (v_objectCoordA - gridTranslationA) / u_gridCellLength;
     vec2 gridCoordFloor = floor (gridCoord);
-    vec2 cellCenterA = u_cellLength * (gridCoordFloor + vec2 (.5, .5));
+    vec2 cellCenterA = u_gridCellLength * (gridCoordFloor + vec2 (.5, .5));
 
     // express in  (e1, e2) coordinates.
     vec2 cellCenterE = mat2 (gl_ModelViewMatrixInverse[0].xy, 

@@ -510,17 +510,17 @@ float WidgetGl::GetDeformationSizeInitialRatio (
     ViewNumber::Enum viewNumber) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
-    float cellLength = GetBubbleSize (viewNumber);
-    return cellLength / (2 * simulation.GetMaxDeformationEigenValue ());
+    float gridCellLength = GetBubbleSize (viewNumber);
+    return gridCellLength / (2 * simulation.GetMaxDeformationEigenValue ());
 }
 
 float WidgetGl::GetVelocitySizeInitialRatio (
     ViewNumber::Enum viewNumber) const
 {
-    float cellLength = GetBubbleSize (viewNumber);
+    float gridCellLength = GetBubbleSize (viewNumber);
     float velocityMagnitude = 
 	GetSimulation (viewNumber).GetMax (BodyScalar::VELOCITY_MAGNITUDE);
-    return cellLength / velocityMagnitude;
+    return gridCellLength / velocityMagnitude;
 }
 
 
@@ -635,8 +635,7 @@ G3D::Vector3 WidgetGl::calculateViewingVolumeScaledExtent (
     ViewNumber::Enum viewNumber) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    return CalculateViewingVolume (viewNumber).extent () / 
-	vs.GetScaleRatio ();
+    return CalculateViewingVolume (viewNumber).extent () / vs.GetScaleRatio ();
 }
 
 
@@ -2094,53 +2093,62 @@ G3D::Vector2 WidgetGl::toTexture (ViewNumber::Enum viewNumber,
     return (eye - vv.low ().xy ()) / (vv.high ().xy () - vv.low ().xy ());
 }
 
+void WidgetGl::calculateRotationParams (
+    ViewNumber::Enum viewNumber,
+    G3D::Vector3* rotationCenter,
+    float* angleDegrees) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
+    if (vs.IsAverageAround ())
+    {
+        bool adjustForAverageAroundMovementRotation = 
+            vs.IsAverageAroundRotationShown ();
+	const ObjectPosition rotationBegin = vs.GetAverageAroundPosition (0);
+	const ObjectPosition rotationCurrent = 
+	    vs.GetAverageAroundPosition (GetCurrentTime (viewNumber));
+	*rotationCenter = 
+	    toEye (rotationCurrent.m_rotationCenter) - 
+	    getEyeTransform (viewNumber);
+	*angleDegrees =
+	    adjustForAverageAroundMovementRotation ? 
+	    - G3D::toDegrees (
+		rotationCurrent.m_angleRadians - rotationBegin.m_angleRadians) : 
+	    0;
+	if (simulation.GetReflectionAxis () == 1)
+	    *angleDegrees = - *angleDegrees;
+    }
+    else
+    {
+	*rotationCenter = 
+	    toEye (simulation.GetFoam(0).GetBoundingBoxTorus ().center ())
+	    - getEyeTransform (viewNumber);
+	*angleDegrees = 0;
+    }
+}
+
 void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    const Foam& foam = GetSimulation (viewNumber).GetFoam (0);
-    const DataProperties& foamProperties = foam.GetDataProperties ();
-    if (! foamProperties.Is2D ())
+    const Simulation& simulation = GetSimulation (viewNumber);
+    const Foam& foam = simulation.GetFoam (0);
+    if (! DATA_PROPERTIES.Is2D ())
 	return;
     glPushAttrib (GL_ENABLE_BIT);    
     glDisable (GL_DEPTH_TEST);
     glBindTexture (GL_TEXTURE_1D, m_colorBarTexture[viewNumber]);
     bool adjustForAverageAroundMovementRotation = 
 	vs.IsAverageAroundRotationShown ();
-    const Simulation& simulation = GetSimulation (viewNumber);
+    G3D::Vector3 rotationCenter; float angleDegrees;
+    calculateRotationParams (viewNumber, &rotationCenter, &angleDegrees);
 
-    G3D::Vector3 rotationCenter;
-    float angleDegrees;
-    if (vs.IsAverageAround ())
-    {
-	const ObjectPosition rotationBegin = vs.GetAverageAroundPosition (0);
-	const ObjectPosition rotationCurrent = 
-	    vs.GetAverageAroundPosition (GetCurrentTime (viewNumber));
-	rotationCenter = 
-	    toEye (rotationCurrent.m_rotationCenter) - 
-	    getEyeTransform (viewNumber);
-	angleDegrees =
-	    adjustForAverageAroundMovementRotation ? 
-	    - G3D::toDegrees (
-		rotationCurrent.m_angleRadians - rotationBegin.m_angleRadians) : 
-	    0;
-	if (simulation.GetReflectionAxis () == 1)
-	    angleDegrees = - angleDegrees;
-    }
-    else
-    {
-	rotationCenter = 
-	    toEye (simulation.GetFoam(0).GetBoundingBoxTorus ().center ())
-	    - getEyeTransform (viewNumber);
-	angleDegrees = 0;
-    }
     GetViewAverage (viewNumber).AverageRotateAndDisplay (
 	vs.GetStatisticsType (), rotationCenter.xy (), angleDegrees);
 
     GetViewAverage (viewNumber).GetForceAverage ().Display (
 	adjustForAverageAroundMovementRotation);
     displayStreamline (viewNumber);
-    displayStandaloneEdges< DisplayEdgePropertyColor<> > (
-	GetSimulation (viewNumber).GetFoam (0));
+    displayStandaloneEdges< DisplayEdgePropertyColor<> > (foam);
     if (m_t1sShown)
 	displayT1sDot (viewNumber);
     displayAverageAroundBodies (
@@ -2846,16 +2854,17 @@ void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
 
 void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
 {
-    if (GetViewSettings (viewNumber).GetVelocityVis () == VectorVis::STREAMLINE)
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    if (vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::STREAMLINE)
     {
+	glPushAttrib (GL_CURRENT_BIT);
         vtkSmartPointer<vtkCellArray> lines = m_streamlines->GetLines ();
         lines->InitTraversal ();
         VTK_CREATE(vtkIdList, points);
-        cdbg << "lines: " << m_streamlines->GetNumberOfLines () << endl;
+        glColor (Qt::black);
         while (lines->GetNextCell (points))
         {
             glBegin (GL_LINE_STRIP);
-            cdbg << "points: " << points->GetNumberOfIds () << endl;
             for (vtkIdType i = 0; i < points->GetNumberOfIds (); ++i)
             {
                 double point[3];
@@ -2864,6 +2873,7 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
             }
             glEnd ();
         }
+        glPopAttrib ();
     }
 }
 

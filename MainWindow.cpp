@@ -1192,7 +1192,7 @@ void MainWindow::ToggledViewFocusShown (bool checked)
     widgetHistogram->UpdateFocus ();
 }
 
-void MainWindow::ToggledVelocityShown (bool checked)
+void MainWindow::ToggledVelocityShown (bool shown)
 {
     vector<ViewNumber::Enum> vn = m_settings->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -1204,7 +1204,10 @@ void MainWindow::ToggledVelocityShown (bool checked)
 	    m_overlayBarModelVelocityVector[simulationIndex][viewNumber];
 	Q_EMIT OverlayBarModelChanged (viewNumber, overlayBarModel);
     }
-    widgetGl->ToggledVelocityShown (checked);
+    radioButtonVelocityGlyph->setEnabled (shown);
+    radioButtonVelocityStreamline->setEnabled (shown);
+    radioButtonVelocityPathline->setEnabled (shown);
+    widgetGl->ToggledVelocityShown (shown);
 }
 
 void MainWindow::ToggledHistogramGridShown (bool checked)

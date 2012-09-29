@@ -100,8 +100,13 @@ void ViewAverage::AverageRotateAndDisplay (
 	    GetDeformationAverage ().AverageRotateAndDisplay (
 		displayType, rotationCenter, angleDegrees);
 	if (m_viewSettings.IsVelocityShown ())
-	    GetVelocityAverage ().AverageRotateAndDisplay (
-		displayType, rotationCenter, angleDegrees);	    
+        {
+            VectorAverage& velocityAverage = GetVelocityAverage ();
+            velocityAverage.SetGlyphShown (
+                m_viewSettings.GetVelocityVis () == VectorVis::GLYPH);
+            velocityAverage.AverageRotateAndDisplay (
+		displayType, rotationCenter, angleDegrees);
+        }
 	break;
 	
     case ViewType::T1S_PDE:

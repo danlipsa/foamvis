@@ -25,7 +25,7 @@ TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
     ShaderProgram (vert, frag)
 {
     m_gridTranslationLocation = uniformLocation ("u_gridTranslationE");
-    m_cellLengthLocation = uniformLocation ("u_cellLength");
+    m_gridCellLenghtLocation = uniformLocation ("u_gridCellLength");
     m_lineWidthLocation = uniformLocation ("u_lineWidth");
     m_sameSizeLocation = uniformLocation ("u_sameSize");
     m_colorMappedLocation = uniformLocation ("u_colorMapped");
@@ -47,21 +47,22 @@ TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
 	uniformLocation ("u_gridCellCenterShown");
     m_onePixelInObjectSpaceLocation = 
 	uniformLocation ("u_onePixelInObjectSpace");
+    m_glyphShownLocation = uniformLocation ("u_glyphShown");
 }
 
 void TensorDisplay::Bind (
-    G3D::Vector2 gridTranslation, float cellLength, float lineWidth,
+    G3D::Vector2 gridTranslation, float gridCellLength, float lineWidth,
     bool sameSize, bool colorMapped,
     float noiseStart, float noiseFrequency, float noiseAmplitude,
     float ellipseSizeRatio, G3D::Rect2D enclosingRect, 
     G3D::Vector2 rotationCenter, float minValue, float maxValue,
     bool gridShown, bool clampingShown, bool gridCellCenterShown,
-    float onePixelInObjectSpace)
+    float onePixelInObjectSpace, bool glyphShown)
 {
     ShaderProgram::Bind ();
     setUniformValue (
 	m_gridTranslationLocation, gridTranslation[0], gridTranslation[1]);
-    setUniformValue (m_cellLengthLocation, cellLength);
+    setUniformValue (m_gridCellLenghtLocation, gridCellLength);
     setUniformValue (m_lineWidthLocation, lineWidth);
     setUniformValue (m_sameSizeLocation, sameSize);
     setUniformValue (m_colorMappedLocation, colorMapped);
@@ -88,6 +89,7 @@ void TensorDisplay::Bind (
     setUniformValue (m_gridCellCenterShownLocation, 
 		     gridCellCenterShown);
     setUniformValue (m_onePixelInObjectSpaceLocation, onePixelInObjectSpace);
+    setUniformValue (m_glyphShownLocation, glyphShown);
 }
 
 
@@ -130,22 +132,22 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
     (void)minValue;(void)maxValue;(void)displayType;
 
     const WidgetGl& widgetGl = this->GetWidgetGl ();
-    G3D::Vector2 gridTranslation;float cellLength; float lineWidth;
+    G3D::Vector2 gridTranslation;float gridCellLength; float lineWidth;
     float sizeRatio;G3D::Rect2D enclosingRect;float onePixelInObjectSpace;
     pair<float,float> minMax = 
 	widgetGl.GetVelocityMagnitudeRange (this->GetViewNumber ());
     calculateShaderParameters (
 	rotationCenter, &gridTranslation, 
-	&cellLength, &lineWidth, &sizeRatio, &enclosingRect, 
+	&gridCellLength, &lineWidth, &sizeRatio, &enclosingRect, 
 	&onePixelInObjectSpace);
     m_displayShaderProgram->Bind (
-	gridTranslation, cellLength, lineWidth, m_sameSize, m_colorMapped,
+	gridTranslation, gridCellLength, lineWidth, m_sameSize, m_colorMapped,
 	m_noiseStart, m_noiseFrequency,
 	m_noiseAmplitude,
 	sizeRatio, enclosingRect, rotationCenter,
 	minMax.first, minMax.second,
-	m_gridShown, m_clampingShown, m_gridCellCenterShown, 
-	onePixelInObjectSpace);
+	m_gridShown, m_clampingShown, m_gridCellCenterShown,
+	onePixelInObjectSpace, m_glyphShown);
 
     // bind "tensor average" to texture unit 1
     this->glActiveTexture (
@@ -174,23 +176,24 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
 template<typename Setter>
 void TensorAverageTemplate<Setter>::calculateShaderParameters (
     G3D::Vector2 rotationCenter,
-    G3D::Vector2* gridTranslation, float* cellLength,
+
+    G3D::Vector2* gridTranslation,
+    float* gridCellLength,
     float* lineWidth, 
-    float* sizeRatio, G3D::Rect2D* enclosingRect, 
+    float* sizeRatio,
+    G3D::Rect2D* enclosingRect, 
     float* onePixelInObjectSpace) const
 {
     const WidgetGl& widgetGl = this->GetWidgetGl ();
     ViewSettings& vs = widgetGl.GetViewSettings (this->GetViewNumber ());
     float scaleRatio = vs.GetScaleRatio ();
     float gridScaleRatio = vs.GetScaleRatio () * vs.GetGridScaleRatio ();
-    *gridTranslation = (vs.GetGridTranslation () * scaleRatio).xy ();
-    *cellLength = widgetGl.GetBubbleSize (
-	this->GetViewNumber ()) * gridScaleRatio;
-    float p = GetOnePixelInObjectSpace ();
-    *onePixelInObjectSpace = p * scaleRatio;
-    *lineWidth = *onePixelInObjectSpace * 
-	CALL_MEMBER (vs, m_lineWidthRatio) ();
 
+    *gridTranslation = (vs.GetGridTranslation () * scaleRatio).xy ();
+    *gridCellLength = widgetGl.GetBubbleSize (this->GetViewNumber ()) * 
+        gridScaleRatio;
+    *onePixelInObjectSpace = GetOnePixelInObjectSpace () * scaleRatio;
+    *lineWidth = *onePixelInObjectSpace * CALL_MEMBER (vs, m_lineWidthRatio) ();
     *sizeRatio = 
 	CALL_MEMBER (widgetGl, m_sizeInitialRatio) (this->GetViewNumber ()) * 
 	gridScaleRatio * CALL_MEMBER (vs, m_sizeRatio) ();

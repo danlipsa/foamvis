@@ -9,7 +9,7 @@ Release log
           each access of a variable.
         - fix regression: deselected objects are not transparent
         - save cache files in ~/.foamvis instead of the original data folder.
-        - fix bug: 
+        - warning message in automatically generaged fragment shaders
         
 0.8.2553
         - bug fixes (dataset fluctuates because is centered at foam center 

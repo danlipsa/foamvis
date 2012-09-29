@@ -47,7 +47,7 @@ public:
     void ForAllHiddenViews (boost::function <void (ViewNumber::Enum)> f);
     G3D::AABox CalculateViewingVolume (
 	ViewNumber::Enum viewNumber, 
-	ViewingVolumeOperation::Enum enclose  = 
+	ViewingVolumeOperation::Enum enclose = 
 	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     G3D::Rect2D GetViewRect (ViewNumber::Enum viewNumber) const;
     G3D::Rect2D GetViewRect () const

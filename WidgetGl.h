@@ -513,9 +513,10 @@ private:
     void displayFacesTorusTubes () const;
     void displayFacesTorusLines () const;
 
-    /**
-     * Generates a display list for center paths
-     */
+
+    void calculateRotationParams (
+        ViewNumber::Enum viewNumber, G3D::Vector3* rotationCenter,
+        float* angleDegrees) const;
     void displayCenterPathsWithBodies (ViewNumber::Enum view) const;
     void displayTorusDomain (ViewNumber::Enum viewNumber) const;
     void displayBodyNeighbors (ViewNumber::Enum viewNumber) const;

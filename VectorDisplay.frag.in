@@ -6,7 +6,7 @@
  * Displays a vector field
  */
 
-float lineWidthPerc = u_lineWidth / u_cellLength;
+float lineWidthPerc = u_lineWidth / u_gridCellLength;
 
 
 /**
@@ -104,14 +104,14 @@ bool isOnArrow (vec2 x, vec2 texCoordCenter, out float magnitude)
         rotateModelView (v);
         bool clamped = false;
 	if (u_sameSize)
-	    v = normalize (v) * u_cellLength;
+	    v = normalize (v) * u_gridCellLength;
 	else
-	    v = clamp (v * u_sizeRatio, u_cellLength, clamped);
+	    v = clamp (v * u_sizeRatio, u_gridCellLength, clamped);
         float arrowLength = min (
             length (v), arrowLengthInPixels * u_onePixelInObjectSpace) / 
-            u_cellLength;
-        //float arrowLength = length (v) / u_cellLength;
-        v = v / u_cellLength;
+            u_gridCellLength;
+        //float arrowLength = length (v) / u_gridCellLength;
+        v = v / u_gridCellLength;
         float magnitude = length (v);
         v = normalize (v);
         vec2 n = vec2 (-v[1], v[0]);
@@ -137,10 +137,15 @@ void main (void)
     vec2 gridCoordFract = fract (gridCoord);
     vec2 gridCoordFloor = floor (gridCoord);
     float velocityMagnitude;
-    if (isOnArrow (gridCoordFract, texCoordCenter, velocityMagnitude) || 
-	(u_gridShown && isOnGrid (gridCoordFract)) ||
+    if (
+        (u_glyphShown &&
+         isOnArrow (gridCoordFract, texCoordCenter, velocityMagnitude)) || 
+	
+        (u_gridShown && isOnGrid (gridCoordFract)) ||
+
 	(u_gridCellCenterShown && 
 	 isOnGridCellCenter (gridCoordFract, gridCoordFloor)) ||
+
 	isOnGridCenter (gridCoord))
     {
 	if (u_colorMapped)

@@ -94,8 +94,8 @@ void clampTensorSize (inout vec2 eigenVal, float max)
 
 vec2 calculateC (vec2 eigen)
 {
-    float middle = u_sizeRatio / u_cellLength;
-    float width = u_lineWidth / eigen[1] / u_cellLength / 2;
+    float middle = u_sizeRatio / u_gridCellLength;
+    float width = u_lineWidth / eigen[1] / u_gridCellLength / 2;
     return vec2 (middle - width, middle + width);
 }
 

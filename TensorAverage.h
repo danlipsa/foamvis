@@ -20,14 +20,15 @@ class TensorDisplay : public ShaderProgram
 public:
     TensorDisplay (const char* vert, const char* frag);
     void Bind (
-	G3D::Vector2 gridTranslation, float cellLength, 
+	G3D::Vector2 gridTranslation, float gridCellLength, 
 	float lineWidth, bool sameSize, bool colorMapped,
 	float noiseStart, float noiseFrequency,
 	float noiseAmplitude,
 	float elipseSizeRatio, G3D::Rect2D enclosingRect,
 	G3D::Vector2 rotationCenter, float minValue, float maxValue,
 	bool gridShown, bool clampingShown,
-	bool gridCellCenterShown, float onePixelInObjectSpace);
+	bool gridCellCenterShown, float onePixelInObjectSpace, 
+        bool glyphShown);
 
     GLint GetTensorAverageTexUnit ()
     {
@@ -44,7 +45,7 @@ public:
 
 private:
     int m_gridTranslationLocation;
-    int m_cellLengthLocation;
+    int m_gridCellLenghtLocation;
     int m_lineWidthLocation;
     int m_sameSizeLocation;
     int m_colorMappedLocation;
@@ -64,6 +65,7 @@ private:
     int m_clampingShownLocation;
     int m_gridCellCenterShownLocation;
     int m_onePixelInObjectSpaceLocation;
+    int m_glyphShownLocation;
 };
 
 template<typename Setter>
@@ -89,6 +91,7 @@ public:
 	m_gridCellCenterShown (false),
 	m_sameSize (false),
 	m_colorMapped(false),
+        m_glyphShown (true),
 	
         /*m_noiseAmplitude (10.0),*/ m_noiseAmplitude (0),
 	m_noiseStart (0.5),
@@ -139,6 +142,14 @@ public:
     {
 	return m_colorMapped;
     }
+    void SetGlyphShown (bool shown)
+    {
+        m_glyphShown = shown;
+    }
+    bool IsGlyphShown () const
+    {
+        return m_glyphShown;
+    }
     void SetNoiseStart (float noiseStart)
     {
 	m_noiseStart = noiseStart;
@@ -165,7 +176,7 @@ protected:
 private:
     void calculateShaderParameters (
 	G3D::Vector2 rotationCenter, 
-	G3D::Vector2* gridTranslation, float* cellLength, float* lineWidth, 	
+	G3D::Vector2* gridTranslation, float* gridCellLength, float* lineWidth, 	
 	float* elipseSizeRatio, G3D::Rect2D* srcRect, 
 	float* onePixelInObjectSpace) const;
 
@@ -178,6 +189,7 @@ private:
     bool m_gridCellCenterShown;
     bool m_sameSize;
     bool m_colorMapped;
+    bool m_glyphShown;
     float m_noiseAmplitude;
     float m_noiseStart;
     float m_noiseFrequency;

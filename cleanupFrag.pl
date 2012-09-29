@@ -3,10 +3,11 @@ use File::Copy;
 use strict;
 use warnings;
 
-#Removes empty lines and spaces before the first nonempty line
+# Removes empty lines and spaces before the first nonempty line
+# Adds do not modify warning
 sub cleanupFrag
 {
-    my $first = 1;
+    my $firstLine = 1;
   LINE: 
     while (<STDIN>)
     {
@@ -15,10 +16,14 @@ sub cleanupFrag
 	{
 	    next LINE;
 	}
-	if ($first)
+	if ($firstLine)
 	{
 	    $line =~ s/ *(.*)/$1/;
-	    $first = 0;
+	    $firstLine = 0;
+            $line = $line . "\n" . 
+                "// WARNING: Do not modify!\n" . 
+                "//<file> automatically generated from <file>.in\n" . 
+                "//=============================================\n";
 	}
 	print $line;
     }

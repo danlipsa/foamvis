@@ -62,8 +62,8 @@ G3D::AABox WidgetBase::CalculateViewingVolume (
 G3D::Rect2D WidgetBase::GetViewRect (ViewNumber::Enum viewNumber) const
 {
     vector<ViewNumber::Enum> mapping;
-    ViewCount::Enum viewCount = CALL_MEMBER (
-	*GetSettings (), m_getViewCount) (&mapping);
+    ViewCount::Enum viewCount = 
+        CALL_MEMBER (*GetSettings (), m_getViewCount) (&mapping);
     return GetSettings ()->GetViewRect (
 	m_widget->width (), m_widget->height (), mapping[viewNumber], viewCount);
 }
