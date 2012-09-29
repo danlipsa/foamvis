@@ -1,3 +1,5 @@
+#!/usr/bin/sh
+# Builds the tags database for foamvis
 find . -maxdepth 1 \
     -name '*.cpp' -or -name '*.h' -or -name '*.frag' -or \
     -name '*.vert' -or -name '*.frag.in' -or -name '*.ui' -or \

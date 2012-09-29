@@ -1100,6 +1100,7 @@ void WidgetGl::translateGrid (
     G3D::Vector3 extent = calculateViewingVolumeScaledExtent (viewNumber);
     vs.SetGridTranslation (
 	vs.GetGridTranslation () + (translationRatio * extent));
+    updateStreamlineSeeds (viewNumber);
 }
 
 void WidgetGl::scale (ViewNumber::Enum viewNumber, const QPoint& position)
@@ -1117,6 +1118,7 @@ void WidgetGl::scaleGrid (ViewNumber::Enum viewNumber, const QPoint& position)
     ViewSettings& vs = GetViewSettings (viewNumber);
     float ratio = ratioFromScaleCenter (viewNumber, position);
     vs.SetGridScaleRatio (vs.GetGridScaleRatio () * ratio);
+    updateStreamlineSeeds (viewNumber);
 }
 
 
@@ -2820,6 +2822,34 @@ void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
     }
 }
 
+
+void WidgetGl::GetGridParams (
+    ViewNumber::Enum viewNumber, float angleDegrees,
+    
+    G3D::Vector2* gridTranslation, float* gridCellLength) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    float scaleRatio = vs.GetScaleRatio ();
+    float gridScaleRatio = vs.GetScaleRatio () * vs.GetGridScaleRatio ();
+
+    G3D::Vector2 gridTranslationE = 
+        (vs.GetGridTranslation () * scaleRatio).xy ();
+    *gridTranslation = rotateDegrees (gridTranslationE, angleDegrees);
+    *gridCellLength = GetBubbleSize (viewNumber) * gridScaleRatio;
+}
+
+
+
+void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
+{
+    G3D::Vector3 rotationCenter; float angleDegrees;
+    calculateRotationParams (viewNumber, &rotationCenter, &angleDegrees);
+    
+    G3D::Vector2 gridTranslation; float gridCellLength;
+    GetGridParams (viewNumber, angleDegrees, 
+                   &gridTranslation, &gridCellLength);
+}
+
 void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
 {
     makeCurrent ();
@@ -2849,8 +2879,11 @@ void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
     streamer->SetRotationScale (0.5);
     streamer->SetMaximumError (1.0e-8);
     streamer->Update ();
-    m_streamlines = vtkPolyData::SafeDownCast (streamer->GetOutput ());
+    m_streamline[viewNumber] = 
+        vtkPolyData::SafeDownCast (streamer->GetOutput ());
 }
+
+
 
 void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
 {
@@ -2858,17 +2891,19 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
     if (vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::STREAMLINE)
     {
 	glPushAttrib (GL_CURRENT_BIT);
-        vtkSmartPointer<vtkCellArray> lines = m_streamlines->GetLines ();
+        vtkSmartPointer<vtkPolyData> streamline = m_streamline[viewNumber];
+        vtkSmartPointer<vtkCellArray> lines = streamline->GetLines ();
         lines->InitTraversal ();
         VTK_CREATE(vtkIdList, points);
         glColor (Qt::black);
         while (lines->GetNextCell (points))
         {
+            // each cell represents a streamline
             glBegin (GL_LINE_STRIP);
             for (vtkIdType i = 0; i < points->GetNumberOfIds (); ++i)
             {
                 double point[3];
-                m_streamlines->GetPoint (points->GetId (i), point);
+                streamline->GetPoint (points->GetId (i), point);
                 glVertex2dv (point);
             }
             glEnd ();

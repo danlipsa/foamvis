@@ -210,6 +210,10 @@ public:
     {
         return AllTransformAverage (viewNumber, GetCurrentTime (viewNumber));
     }
+    void GetGridParams (
+        ViewNumber::Enum viewNumber, float angleDegrees,
+        G3D::Vector2* gridTranslation, float* gridCellLength) const;
+        
     
 Q_SIGNALS:
     void PaintEnd ();
@@ -456,6 +460,7 @@ private:
     void displayRotationCenter (ViewNumber::Enum viewNumber) const;
     void displayFaceCenters (ViewNumber::Enum viewNumber) const;
     void displayStreamline (ViewNumber::Enum viewNumber) const;
+    void updateStreamlineSeeds (ViewNumber::Enum viewNumber);
     void displayViewDecorations (ViewNumber::Enum viewNumber);
     void displayViewFocus (ViewNumber::Enum viewNumber);
     void displayTextureColorBar (GLuint texture,
@@ -727,7 +732,10 @@ private:
     boost::array<GLuint, ViewNumber::COUNT> m_colorBarTexture;
     boost::array<GLuint, ViewNumber::COUNT> m_overlayBarTexture;
     boost::array<bool, DuplicateDomain::COUNT> m_duplicateDomain;
-    vtkSmartPointer<vtkPolyData> m_streamlines;
+    boost::array<vtkSmartPointer<vtkPolyData>, 
+                 ViewNumber::COUNT> m_streamline;
+    boost::array<vtkSmartPointer<vtkPolyData>, 
+                 ViewNumber::COUNT> m_streamlineSeeds;
 };
 
 
