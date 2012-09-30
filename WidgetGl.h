@@ -58,10 +58,6 @@ public:
     QSize sizeHint() ;
     void Init (boost::shared_ptr<Settings> settings,
 	       SimulationGroup* dataAlongTime, AverageCache* averageCache);
-    /**
-     * Gets the data displayed by the WidgetGl
-     */
-    const Foam& GetFoam () const;
 
     size_t GetHighlightLineWidth () const
     {
@@ -211,8 +207,8 @@ public:
         return AllTransformAverage (viewNumber, GetCurrentTime (viewNumber));
     }
     void GetGridParams (
-        ViewNumber::Enum viewNumber, float angleDegrees,
-        G3D::Vector2* gridTranslation, float* gridCellLength) const;
+        ViewNumber::Enum viewNumber, 
+        G3D::Vector2* gridOrigin, float* gridCellLength) const;
         
     
 Q_SIGNALS:

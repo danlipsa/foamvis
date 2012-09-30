@@ -169,6 +169,9 @@ WidgetGl::WidgetGl(QWidget *parent)
     initQuadrics ();
     initDisplayView ();
     createActions ();
+
+    for (size_t i = 0; i < m_streamlineSeeds.size (); ++i)
+        m_streamlineSeeds[i] = vtkSmartPointer<vtkPolyData>::New();
 }
 
 
@@ -465,11 +468,6 @@ void WidgetGl::initDisplayView ()
 	  &WidgetGl::displayFacesAverage,
 	    }};
     copy (displayView.begin (), displayView.end (), m_display.begin ());
-}
-
-const Foam& WidgetGl::GetFoam () const
-{
-    return GetSimulation ().GetFoam (GetCurrentTime ());
 }
 
 void WidgetGl::Init (
@@ -2822,42 +2820,69 @@ void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
     }
 }
 
-
+// see doc/TensorDisplay.pdf
 void WidgetGl::GetGridParams (
-    ViewNumber::Enum viewNumber, float angleDegrees,
+    ViewNumber::Enum viewNumber,
     
-    G3D::Vector2* gridTranslation, float* gridCellLength) const
+    G3D::Vector2* gridOrigin, float* gridCellLength) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    float scaleRatio = vs.GetScaleRatio ();
-    float gridScaleRatio = vs.GetScaleRatio () * vs.GetGridScaleRatio ();
+    G3D::Vector3 rotationCenter; float angleDegrees;
 
-    G3D::Vector2 gridTranslationE = 
-        (vs.GetGridTranslation () * scaleRatio).xy ();
-    *gridTranslation = rotateDegrees (gridTranslationE, angleDegrees);
-    *gridCellLength = GetBubbleSize (viewNumber) * gridScaleRatio;
+    calculateRotationParams (viewNumber, &rotationCenter, &angleDegrees);
+    G3D::Vector2 gridTranslationE = vs.GetGridTranslation ().xy ();
+    G3D::Vector2 gridTranslation = 
+        rotateDegrees (gridTranslationE, angleDegrees);
+
+    *gridCellLength = GetBubbleSize (viewNumber) * vs.GetGridScaleRatio ();
+    *gridOrigin = rotationCenter.xy () + gridTranslation;
 }
 
 
 
 void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
-{
-    G3D::Vector3 rotationCenter; float angleDegrees;
-    calculateRotationParams (viewNumber, &rotationCenter, &angleDegrees);
-    
-    G3D::Vector2 gridTranslation; float gridCellLength;
-    GetGridParams (viewNumber, angleDegrees, 
-                   &gridTranslation, &gridCellLength);
+{    
+    G3D::Vector2 gridOrigin; float gridCellLength;
+    GetGridParams (viewNumber, &gridOrigin, &gridCellLength);
+        
+    G3D::AABox box = GetFoam (viewNumber).GetBoundingBox ();
+    G3D::Rect2D rect = G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ());
+
+    rect = (rect - gridOrigin) / gridCellLength;
+    G3D::Rect2D r = G3D::Rect2D::xyxy (
+        floor (rect.x0 () + 0.5),
+        floor (rect.y0 () + 0.5),
+        floor (rect.x1 () + 0.5),
+        floor (rect.y1 () + 0.5));
+    VTK_CREATE (vtkPoints, points);
+    points->SetNumberOfPoints (r.width () * r.height ());
+    VTK_CREATE (vtkCellArray, vertices);
+    VTK_CREATE (vtkIdList, v);
+    vertices->InsertNextCell (v);
+    v->SetNumberOfIds (r.width () * r.height ());
+    for (int y = r.y0 () ; y < r.y1 (); ++y)
+        for (int x = r.x0 (); x < r.x1 (); ++x)
+        {
+            G3D::Vector2 p (0.5 + x, 0.5 + y);
+            p = p * gridCellLength + gridOrigin;
+            vtkIdType pointId = (x - r.x0 ()) + (y - r.y0 ()) * r.width ();
+            points->SetPoint (pointId, p.x, p.y, 0);
+            v->SetId (pointId, pointId);
+        }
+   m_streamlineSeeds[viewNumber]->SetPoints (points);
+   m_streamlineSeeds[viewNumber]->SetVerts (vertices);
 }
 
 void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
 {
+    if (m_streamlineSeeds[viewNumber]->GetNumberOfVerts () == 0)
+        updateStreamlineSeeds (viewNumber);
     makeCurrent ();
     AllTransformAverage (viewNumber);
-    G3D::AABox box = GetFoam ().GetBoundingBox ();
+    G3D::AABox box = GetFoam (viewNumber).GetBoundingBox ();
+    G3D::Rect2D rect = G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ());
     m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
-        GetAverageCache (),
-        G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ()));
+        GetAverageCache (), rect);
 
     VTK_CREATE (vtkXMLImageDataWriter, writer);
     writer->SetFileName ("velocity.vti");
@@ -2908,6 +2933,18 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
             }
             glEnd ();
         }
+
+        m_streamlineSeeds[viewNumber]->GetVerts ()->GetCell (0, points);
+        // for now just display the seeds as points
+        glBegin (GL_POINTS);
+        for (vtkIdType i = 0; i < points->GetNumberOfIds (); ++i)
+        {
+            double point[3];
+            m_streamlineSeeds[viewNumber]->GetPoint (points->GetId (i), point);
+            glVertex2dv (point);
+        }
+        glEnd ();
+
         glPopAttrib ();
     }
 }

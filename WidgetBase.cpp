@@ -83,12 +83,6 @@ size_t WidgetBase::GetCurrentTime (ViewNumber::Enum viewNumber) const
     return GetViewSettings (viewNumber).GetCurrentTime ();
 }
 
-const Simulation& WidgetBase::GetSimulation (size_t index) const
-{
-    return GetSimulationGroup ().GetSimulation (index);
-}
-
-
 void WidgetBase::setView (const G3D::Vector2& clickedPoint)
 {
     ForAllViews (boost::bind (&WidgetBase::setView, this, _1, clickedPoint));
@@ -172,4 +166,14 @@ void WidgetBase::initCopy (
 const Simulation& WidgetBase::GetSimulation (ViewNumber::Enum viewNumber) const
 {
     return m_simulationGroup->GetSimulation (*GetSettings (), viewNumber);
+}
+
+const Simulation& WidgetBase::GetSimulation (size_t index) const
+{
+    return GetSimulationGroup ().GetSimulation (index);
+}
+
+const Foam& WidgetBase::GetFoam (ViewNumber::Enum viewNumber) const
+{
+    return GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
 }

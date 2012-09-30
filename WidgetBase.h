@@ -11,6 +11,7 @@
 
 #include "Enums.h"
 class AverageCache;
+class Foam;
 class Settings;
 class Simulation;
 class SimulationGroup;
@@ -88,8 +89,11 @@ public:
     {
         return GetSimulation (GetViewNumber ());
     }
-
-
+    const Foam& GetFoam (ViewNumber::Enum viewNumber) const;
+    const Foam& GetFoam () const
+    {
+        return GetFoam (GetViewNumber ());
+    }
 
 protected:
     void setView (const G3D::Vector2& clickedPoint);
