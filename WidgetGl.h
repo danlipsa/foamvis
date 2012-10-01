@@ -434,8 +434,6 @@ private:
 	ViewNumber::Enum viewNumber, 
 	ViewingVolumeOperation::Enum enclose, G3D::Rect2D& srcRect,
 	G3D::Vector2 rotationCenter, float angleDegrees) const;
-    G3D::Vector2 toTexture (ViewNumber::Enum viewNumber, 
-			    G3D::Vector2 object) const;
     G3D::Vector3 getEyeTransform (ViewNumber::Enum viewNumber) const;
     G3D::AABox calculateEyeViewingVolume (
 	ViewNumber::Enum viewNumber, 
@@ -516,8 +514,8 @@ private:
 
 
     void calculateRotationParams (
-        ViewNumber::Enum viewNumber, G3D::Vector3* rotationCenter,
-        float* angleDegrees) const;
+        ViewNumber::Enum viewNumber, size_t timeStep, 
+        G3D::Vector3* rotationCenter, float* angleDegrees) const;
     void displayCenterPathsWithBodies (ViewNumber::Enum view) const;
     void displayTorusDomain (ViewNumber::Enum viewNumber) const;
     void displayBodyNeighbors (ViewNumber::Enum viewNumber) const;

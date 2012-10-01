@@ -173,7 +173,8 @@ const Simulation& WidgetBase::GetSimulation (size_t index) const
     return GetSimulationGroup ().GetSimulation (index);
 }
 
-const Foam& WidgetBase::GetFoam (ViewNumber::Enum viewNumber) const
+const Foam& WidgetBase::GetFoam (ViewNumber::Enum viewNumber, 
+                                 size_t timeStep) const
 {
-    return GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
+    return GetSimulation (viewNumber).GetFoam (timeStep);
 }

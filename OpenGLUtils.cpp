@@ -132,6 +132,28 @@ void getCurrentMatrices (GLdouble model[], GLdouble proj[], GLint view[])
 }
 
 
+G3D::Vector3 ObjectToEye (G3D::Vector3 object)
+{
+    G3D::Matrix4 m;
+    G3D::Vector4 o (object, 1);
+    G3D::glGetMatrix (GL_MODELVIEW_MATRIX, m);
+    return (m * o).xyz ();
+}
+
+G3D::Vector2 ObjectToEyeRotation (G3D::Vector2 object)
+{
+    G3D::Matrix4 m;
+    G3D::glGetMatrix (GL_MODELVIEW_MATRIX, m);
+    return ToMatrix2 (m) * object;
+}
+
+
+G3D::Vector2 ObjectToEye (G3D::Vector2 object)
+{
+    return ObjectToEye (G3D::Vector3 (object, 0)).xy ();
+}
+
+
 G3D::Vector3 gluProject (G3D::Vector3 objectCoord)
 {
     GLdouble model[16];GLdouble proj[16];GLint view[4];
@@ -250,15 +272,6 @@ G3D::Rect2D gluUnProject (const G3D::Rect2D& wc,
                               objectCoord[2].x, objectCoord[2].y);
 }
 
-
-
-G3D::Vector3 toEye (G3D::Vector3 object)
-{
-    G3D::Matrix4 m;
-    G3D::Vector4 o (object, 1);
-    G3D::glGetMatrix (GL_MODELVIEW_MATRIX, m);
-    return (m * o).xyz ();
-}
 
 bool isMatrixValid (GLenum matrixType)
 {

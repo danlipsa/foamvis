@@ -89,7 +89,11 @@ public:
     {
         return GetSimulation (GetViewNumber ());
     }
-    const Foam& GetFoam (ViewNumber::Enum viewNumber) const;
+    const Foam& GetFoam (ViewNumber::Enum viewNumber, size_t timeStep) const;
+    const Foam& GetFoam (ViewNumber::Enum viewNumber) const
+    {
+        return GetFoam (viewNumber, GetCurrentTime (viewNumber));
+    }
     const Foam& GetFoam () const
     {
         return GetFoam (GetViewNumber ());

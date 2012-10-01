@@ -94,7 +94,7 @@ bool isOnGridCenter (vec2 x)
     return isOnLine.x * isOnLine.y == 1.0;
 }
 
-// See doc/TensorDisplay.pdf
+// See doc/TensorDisplay.png
 void getCoordinates (out vec2 gridCoord, out vec2 texCoordCenter)
 {
     vec2 gridTranslationA = mat2 (

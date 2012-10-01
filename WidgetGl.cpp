@@ -662,7 +662,7 @@ G3D::AABox WidgetGl::CalculateCenteredViewingVolume (
 G3D::Vector3 WidgetGl::getEyeTransform (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    return G3D::Vector3 (0, 0, - vs.GetCameraDistance ()) -
+    return - G3D::Vector3 (0, 0, vs.GetCameraDistance ()) -
 	GetSimulation (viewNumber).GetBoundingBox ().center ();
 }
 
@@ -2085,16 +2085,8 @@ void WidgetGl::compileFacesNormal (ViewNumber::Enum viewNumber) const
 }
 
 
-G3D::Vector2 WidgetGl::toTexture (ViewNumber::Enum viewNumber, 
-				  G3D::Vector2 object) const
-{
-    G3D::Vector2 eye = toEye (G3D::Vector3 (object, 0)).xy ();
-    G3D::AABox vv = CalculateCenteredViewingVolume (viewNumber);
-    return (eye - vv.low ().xy ()) / (vv.high ().xy () - vv.low ().xy ());
-}
-
 void WidgetGl::calculateRotationParams (
-    ViewNumber::Enum viewNumber,
+    ViewNumber::Enum viewNumber, size_t timeStep,
     G3D::Vector3* rotationCenter,
     float* angleDegrees) const
 {
@@ -2106,10 +2098,8 @@ void WidgetGl::calculateRotationParams (
             vs.IsAverageAroundRotationShown ();
 	const ObjectPosition rotationBegin = vs.GetAverageAroundPosition (0);
 	const ObjectPosition rotationCurrent = 
-	    vs.GetAverageAroundPosition (GetCurrentTime (viewNumber));
-	*rotationCenter = 
-	    toEye (rotationCurrent.m_rotationCenter) - 
-	    getEyeTransform (viewNumber);
+            vs.GetAverageAroundPosition (timeStep);
+	*rotationCenter = rotationCurrent.m_rotationCenter;
 	*angleDegrees =
 	    adjustForAverageAroundMovementRotation ? 
 	    - G3D::toDegrees (
@@ -2121,11 +2111,12 @@ void WidgetGl::calculateRotationParams (
     else
     {
 	*rotationCenter = 
-	    toEye (simulation.GetFoam(0).GetBoundingBoxTorus ().center ())
-	    - getEyeTransform (viewNumber);
+            simulation.GetFoam(0).GetBoundingBoxTorus ().center ();
 	*angleDegrees = 0;
     }
 }
+
+
 
 void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
 {
@@ -2139,11 +2130,14 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     glBindTexture (GL_TEXTURE_1D, m_colorBarTexture[viewNumber]);
     bool adjustForAverageAroundMovementRotation = 
 	vs.IsAverageAroundRotationShown ();
-    G3D::Vector3 rotationCenter; float angleDegrees;
-    calculateRotationParams (viewNumber, &rotationCenter, &angleDegrees);
+    G3D::Vector3 rotationCenterEye; float angleDegrees;
+    calculateRotationParams (viewNumber, GetCurrentTime (viewNumber),
+                             &rotationCenterEye, &angleDegrees);
+    rotationCenterEye = 
+        ObjectToEye (rotationCenterEye) - getEyeTransform (viewNumber);
 
     GetViewAverage (viewNumber).AverageRotateAndDisplay (
-	vs.GetStatisticsType (), rotationCenter.xy (), angleDegrees);
+	vs.GetStatisticsType (), rotationCenterEye.xy (), angleDegrees);
 
     GetViewAverage (viewNumber).GetForceAverage ().Display (
 	adjustForAverageAroundMovementRotation);
@@ -2660,7 +2654,8 @@ void WidgetGl::displayOverlayBar (
     glColor (Qt::white);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     DisplayBox (barRect);
-    glColor (GetSettings ()->GetHighlightColor (viewNumber, HighlightNumber::H0));
+    glColor (GetSettings ()->GetHighlightColor (
+                 viewNumber, HighlightNumber::H0));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     DisplayBox (barRect);
     float y = 
@@ -2690,7 +2685,7 @@ bool WidgetGl::IsTimeDisplacementUsed () const
  * 1. fbo -> fbo or img : 2  -> 2 , 2       ENCLOSE2D
  * 3. fbo -> scr        : 1  -> 1,  2       DONT_ENCLOSE2D
  *
- * @see doc/TensorDisplay.pdf
+ * @see doc/TensorDisplay.png
  */
 void WidgetGl::activateViewShader (
     ViewNumber::Enum viewNumber, 
@@ -2820,7 +2815,7 @@ void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
     }
 }
 
-// see doc/TensorDisplay.pdf
+// see doc/TensorDisplay.png
 void WidgetGl::GetGridParams (
     ViewNumber::Enum viewNumber,
     
@@ -2829,23 +2824,29 @@ void WidgetGl::GetGridParams (
     const ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::Vector3 rotationCenter; float angleDegrees;
 
-    calculateRotationParams (viewNumber, &rotationCenter, &angleDegrees);
-    G3D::Vector2 gridTranslationE = vs.GetGridTranslation ().xy ();
-    G3D::Vector2 gridTranslation = 
-        rotateDegrees (gridTranslationE, angleDegrees);
+    calculateRotationParams (viewNumber, 0, 
+                             &rotationCenter, &angleDegrees);
+
+    G3D::Matrix4 m;
+    G3D::glGetMatrix (GL_MODELVIEW_MATRIX, m);
+
+    G3D::Vector2 gridTranslation = ToMatrix2 (m).inverse () *
+        vs.GetGridTranslation ().xy ();
 
     *gridCellLength = GetBubbleSize (viewNumber) * vs.GetGridScaleRatio ();
     *gridOrigin = rotationCenter.xy () + gridTranslation;
+    cdbg << "rotationCenter: " << rotationCenter << endl;
+    cdbg << "gridTranslation: " << gridTranslation << endl;
 }
 
 
-
+// see doc/updateStreamlineSeeds.png
 void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
 {    
     G3D::Vector2 gridOrigin; float gridCellLength;
     GetGridParams (viewNumber, &gridOrigin, &gridCellLength);
         
-    G3D::AABox box = GetFoam (viewNumber).GetBoundingBox ();
+    G3D::AABox box = GetFoam (viewNumber, 0).GetBoundingBox ();
     G3D::Rect2D rect = G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ());
 
     rect = (rect - gridOrigin) / gridCellLength;
@@ -2858,7 +2859,6 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
     points->SetNumberOfPoints (r.width () * r.height ());
     VTK_CREATE (vtkCellArray, vertices);
     VTK_CREATE (vtkIdList, v);
-    vertices->InsertNextCell (v);
     v->SetNumberOfIds (r.width () * r.height ());
     for (int y = r.y0 () ; y < r.y1 (); ++y)
         for (int x = r.x0 (); x < r.x1 (); ++x)
@@ -2869,8 +2869,9 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
             points->SetPoint (pointId, p.x, p.y, 0);
             v->SetId (pointId, pointId);
         }
-   m_streamlineSeeds[viewNumber]->SetPoints (points);
-   m_streamlineSeeds[viewNumber]->SetVerts (vertices);
+    m_streamlineSeeds[viewNumber]->SetPoints (points);
+    vertices->InsertNextCell (v);    
+    m_streamlineSeeds[viewNumber]->SetVerts (vertices);
 }
 
 void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
@@ -2915,7 +2916,8 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::STREAMLINE)
     {
-	glPushAttrib (GL_CURRENT_BIT);
+	glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT);
+
         vtkSmartPointer<vtkPolyData> streamline = m_streamline[viewNumber];
         vtkSmartPointer<vtkCellArray> lines = streamline->GetLines ();
         lines->InitTraversal ();
@@ -2936,6 +2938,7 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
 
         m_streamlineSeeds[viewNumber]->GetVerts ()->GetCell (0, points);
         // for now just display the seeds as points
+        glPointSize (4.0);
         glBegin (GL_POINTS);
         for (vtkIdType i = 0; i < points->GetNumberOfIds (); ++i)
         {
@@ -2944,7 +2947,6 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
             glVertex2dv (point);
         }
         glEnd ();
-
         glPopAttrib ();
     }
 }
@@ -3051,7 +3053,8 @@ void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
 void WidgetGl::AverageAroundBody ()
 {
     makeCurrent ();
-    ViewSettings& vs = GetViewSettings ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
     vector< boost::shared_ptr<Body> > bodies;
     brushedBodies (m_contextMenuPosWindow, &bodies);
     if (! bodies.empty ())
@@ -3066,6 +3069,7 @@ void WidgetGl::AverageAroundBody ()
 	    vs.SetAverageAroundPositions (simulation);
 	else
 	    vs.SetAverageAroundPositions (simulation, bodyId);
+        updateStreamlineSeeds (viewNumber);
 	CompileUpdate ();
     }
     else
@@ -3117,10 +3121,12 @@ void WidgetGl::AverageAroundSecondBody ()
 void WidgetGl::AverageAroundReset ()
 {
     makeCurrent ();
-    ViewSettings& vs = GetViewSettings ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetAverageAround (false);
     vs.SetAverageAroundBodyId (INVALID_INDEX);
     vs.SetAverageAroundSecondBodyId (INVALID_INDEX);
+    updateStreamlineSeeds (viewNumber);
     CompileUpdate ();
 }
 

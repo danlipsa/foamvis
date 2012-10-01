@@ -63,10 +63,6 @@ float GetOnePixelInObjectSpace ();
 G3D::Vector3 toObject (const G3D::Vector2& positionGl);
 G3D::Vector3 toObject (const QPoint& positionQt, int windowHeight);
 /**
- * Maps object coordinates to eye coordinates.
- */
-G3D::Vector3 toEye (G3D::Vector3 object);
-/**
  * Maps object coordinates to window coordinates
  */
 G3D::Vector3 gluProject (G3D::Vector3 objectCoord);
@@ -155,8 +151,11 @@ G3D::Matrix4 OpenGlToG3D (const boost::array<GLdouble,16>& mv);
 QString ReadShader (const QString& resourceUrl);
 boost::shared_ptr<QGLShader> CreateShader (const QString& resourceUrl,
                                            QGLShader::ShaderType type);
-
-
+/**
+ * Maps object coordinates to eye coordinates.
+ */
+G3D::Vector3 ObjectToEye (G3D::Vector3 object);
+G3D::Vector2 ObjectToEye (G3D::Vector2 object);
 
 #endif //__OPENGL_UTIL_H__
 
