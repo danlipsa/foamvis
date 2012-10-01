@@ -91,7 +91,8 @@ vtkSmartPointer<vtkImageData> VectorAverage::getData (
                     G3D::Vector3 (objectCoord.x1y1 (), 0)), extent);
     image->GetPointData ()->SetVectors (velocity);
     image->GetPointData ()->SetActiveAttribute (
-	BodyAttribute::ToString (attribute), BodyAttribute::GetType (attribute));
+	BodyAttribute::ToString (attribute), 
+        BodyAttribute::GetType (attribute));
     return image;
 }
 

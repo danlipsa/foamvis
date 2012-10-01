@@ -2913,6 +2913,7 @@ void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
 
 void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
 {
+    
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::STREAMLINE)
     {
