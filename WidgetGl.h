@@ -490,10 +490,10 @@ private:
     void displayContextBodies (ViewNumber::Enum view) const;
     void displayContextBox (
 	ViewNumber::Enum view,
-	bool adjustForAverageAroundMovementRotation = false) const;
+	bool adjustForAverageAroundRotationShown = false) const;
     void displayAverageAroundBodies (
 	ViewNumber::Enum view, 
-	bool adjustForAverageAroundMovementRotation = false) const;
+	bool adjustForAverageAroundRotationShown = false) const;
 
     void displayEdgesNormal (ViewNumber::Enum view) const;
     template<typename displayEdge>
@@ -608,8 +608,6 @@ private:
     string getAverageAroundMovementShownLabel ();
     string getAverageAroundLabel ();
     void displayStatus ();
-    void transformFoamAverageAround (
-	ViewNumber::Enum viewNumber, size_t timeStep) const;
     string infoSelectedBody ();
     string infoSelectedBodies ();
     void initList ();

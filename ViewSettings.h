@@ -31,6 +31,12 @@ public:
 	ROTATION_CENTER_BODY
     };
 
+    enum RotateAndTranslateOperation
+    {
+        TRANSLATE,
+        DONT_TRANSLATE
+    };
+
 
 public:
     ViewSettings ();
@@ -450,7 +456,11 @@ public:
     void SetAverageAroundPositions (const Simulation& simulation, size_t bodyId);
     void SetAverageAroundPositions (const Simulation& simulation,
 				    size_t bodyId, size_t secondBodyId);
-    void RotateAndTranslateAverageAround (size_t timeStep, int direction) const;
+    /**
+     * Translate only when rotating in the positive direction.
+     */
+    void RotateAndTranslateAverageAround (
+        size_t timeStep, int direction, RotateAndTranslateOperation op) const;
     // @}
 
     // ContextDisplay

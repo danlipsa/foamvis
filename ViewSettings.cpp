@@ -601,22 +601,21 @@ void ViewSettings::SetSimulation (int i, const Simulation& simulation,
 }
 
 void ViewSettings::RotateAndTranslateAverageAround (
-    size_t timeStep, int direction) const
+    size_t timeStep, int direction, RotateAndTranslateOperation op) const
 {
-    const ObjectPosition rotationBegin = GetAverageAroundPosition (0);
-    const ObjectPosition rotationCurrent = 
-	GetAverageAroundPosition (timeStep);
-    float angleRadians = 
-	rotationCurrent.m_angleRadians - rotationBegin.m_angleRadians;
-    if (direction > 0)
+    const ObjectPosition posBegin = GetAverageAroundPosition (0);
+    const ObjectPosition posCurrent = GetAverageAroundPosition (timeStep);
+    float angleRadians = posCurrent.m_angleRadians - posBegin.m_angleRadians;
+    G3D::Vector3 translation;
+    if (op == TRANSLATE)
     {
-	G3D::Vector3 translation = 
-	    rotationBegin.m_rotationCenter - rotationCurrent.m_rotationCenter;
-	glTranslate (translation);
+	translation = posBegin.m_rotationCenter - posCurrent.m_rotationCenter;
+        if (direction > 0)
+            glTranslate (translation);
     }
     if (angleRadians != 0)
     {
-	G3D::Vector3 rotationCenter = rotationCurrent.m_rotationCenter;
+	G3D::Vector3 rotationCenter = posCurrent.m_rotationCenter;
 	glTranslate (rotationCenter);
 	float angleDegrees =  G3D::toDegrees (angleRadians);
 	//cdbg << "angle degrees = " << angleDegrees << endl;
@@ -624,6 +623,8 @@ void ViewSettings::RotateAndTranslateAverageAround (
 	glRotatef (angleDegrees, 0, 0, 1);
 	glTranslate (-rotationCenter);
     }
+    if (op == TRANSLATE && direction < 0)
+        glTranslate (-translation);
 }
 
 bool ViewSettings::HasHistogramOption (HistogramType::Option option) const

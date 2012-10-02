@@ -68,11 +68,11 @@ void ForceAverage::removeStep (size_t timeStep, size_t subStep)
     }
 }
 
-void ForceAverage::Display (bool adjustForAverageAroundMovementRotation) const
+void ForceAverage::Display (bool adjustForAverageAroundRotationShown) const
 {
     displayForcesAllObjects (m_average, 
 			     GetCurrentTimeWindow (), 
-			     adjustForAverageAroundMovementRotation);
+			     adjustForAverageAroundRotationShown);
 }
 
 void ForceAverage::DisplayOneTimeStep () const
@@ -94,17 +94,18 @@ void ForceAverage::AverageRotateAndDisplay (
 
 void ForceAverage::displayForcesAllObjects (
     const vector<ForcesOneObject>& forces, size_t count,
-    bool adjustForAverageAroundMovementRotation) const
+    bool adjustForAverageAroundRotationShown) const
 {
     const ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
     if (GetSimulation ().ForcesUsed ())
     {
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT | GL_LINE_BIT);
-	if (adjustForAverageAroundMovementRotation)
+	if (adjustForAverageAroundRotationShown)
 	{
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
-	    vs.RotateAndTranslateAverageAround (vs.GetCurrentTime (), -1);
+	    vs.RotateAndTranslateAverageAround (
+                vs.GetCurrentTime (), -1, ViewSettings::DONT_TRANSLATE);
 	}
 	glDisable (GL_DEPTH_TEST);
 	if (vs.IsForceDifferenceShown ())
@@ -112,7 +113,7 @@ void ForceAverage::displayForcesAllObjects (
 	else
 	    BOOST_FOREACH (const ForcesOneObject& force, forces)
 		displayForcesTorqueOneObject (force, count);
-	if (adjustForAverageAroundMovementRotation)
+	if (adjustForAverageAroundRotationShown)
 	    glPopMatrix ();
 	glPopAttrib ();
     }

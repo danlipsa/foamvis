@@ -617,18 +617,6 @@ void WidgetGl::initializeLighting ()
     glEnable (GL_COLOR_MATERIAL);
 }
 
-
-void WidgetGl::transformFoamAverageAround (
-    ViewNumber::Enum viewNumber, size_t timeStep) const
-{
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    if (vs.IsAverageAround ())
-	vs.RotateAndTranslateAverageAround (timeStep, 1);
-}
-
-
-
-
 G3D::Vector3 WidgetGl::calculateViewingVolumeScaledExtent (
     ViewNumber::Enum viewNumber) const
 {
@@ -721,7 +709,9 @@ void WidgetGl::ModelViewTransform (ViewNumber::Enum viewNumber,
     // rotate around the center of the simulation
     glMultMatrix (vs.GetRotationForAxesOrder (foam));
     glTranslate (- center);
-    transformFoamAverageAround (viewNumber, timeStep);
+    if (vs.IsAverageAround ())
+	vs.RotateAndTranslateAverageAround (timeStep, 1, 
+                                            ViewSettings::TRANSLATE);
 }
 
 
@@ -1227,7 +1217,7 @@ G3D::Vector3 WidgetGl::toObjectTransform (const QPoint& position) const
 
 void WidgetGl::displayAverageAroundBodies (
     ViewNumber::Enum viewNumber,
-    bool adjustForAverageAroundMovementRotation) const
+    bool adjustForAverageAroundRotationShown) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (m_averageAroundMarked && vs.IsAverageAround ())
@@ -1235,11 +1225,12 @@ void WidgetGl::displayAverageAroundBodies (
 	const Simulation& simulation = GetSimulation (viewNumber);
 	glPushAttrib (GL_CURRENT_BIT |
 		      GL_ENABLE_BIT | GL_LINE_BIT | GL_POINT_BIT);
-	if (adjustForAverageAroundMovementRotation)
+	if (adjustForAverageAroundRotationShown)
 	{
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
-	    vs.RotateAndTranslateAverageAround (vs.GetCurrentTime (), -1);
+	    vs.RotateAndTranslateAverageAround (
+                vs.GetCurrentTime (), -1, ViewSettings::DONT_TRANSLATE);
 	}
 	glDisable (GL_DEPTH_TEST);
 	// display focus body 1
@@ -1252,8 +1243,6 @@ void WidgetGl::displayAverageAroundBodies (
 	displayFacesInterior (focusBody, viewNumber);
 	glDisable (GL_DEPTH_TEST);
 	
-
-
 	// display body center for focus body 1.
 	glPointSize (4.0);
 	glColor (Qt::black);
@@ -1272,7 +1261,7 @@ void WidgetGl::displayAverageAroundBodies (
 	    displayFacesInterior (focusBody, viewNumber);
 	}
 
-	if (adjustForAverageAroundMovementRotation)
+	if (adjustForAverageAroundRotationShown)
 	    glPopMatrix ();
 	glPopAttrib ();
     }
@@ -1305,24 +1294,25 @@ void WidgetGl::displayContextBodies (ViewNumber::Enum viewNumber) const
 
 void WidgetGl::displayContextBox (
     ViewNumber::Enum viewNumber,
-    bool adjustForAverageAroundMovementRotation) const
+    bool adjustForAverageAroundRotationShown) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (m_contextBoxShown && vs.IsAverageAroundRotationShown ())
     {
 	glPushAttrib (GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
-	if (adjustForAverageAroundMovementRotation)
+	if (adjustForAverageAroundRotationShown)
 	{
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
-	    vs.RotateAndTranslateAverageAround (vs.GetCurrentTime (), -1);
+	    vs.RotateAndTranslateAverageAround (
+                vs.GetCurrentTime (), -1, ViewSettings::DONT_TRANSLATE);
 	}
 	DisplayBox (GetSimulation (viewNumber), 
 		    GetSettings ()->GetHighlightColor (
 			viewNumber, HighlightNumber::H1),
 		    GetHighlightLineWidth ());
-	if (adjustForAverageAroundMovementRotation)
+	if (adjustForAverageAroundRotationShown)
 	    glPopMatrix ();
 	glPopAttrib ();
     }
@@ -2094,14 +2084,14 @@ void WidgetGl::calculateRotationParams (
     const Simulation& simulation = GetSimulation (viewNumber);
     if (vs.IsAverageAround ())
     {
-        bool adjustForAverageAroundMovementRotation = 
+        bool adjustForAverageAroundRotationShown = 
             vs.IsAverageAroundRotationShown ();
 	const ObjectPosition rotationBegin = vs.GetAverageAroundPosition (0);
 	const ObjectPosition rotationCurrent = 
             vs.GetAverageAroundPosition (timeStep);
 	*rotationCenter = rotationCurrent.m_rotationCenter;
 	*angleDegrees =
-	    adjustForAverageAroundMovementRotation ? 
+	    adjustForAverageAroundRotationShown ? 
 	    - G3D::toDegrees (
 		rotationCurrent.m_angleRadians - rotationBegin.m_angleRadians) : 
 	    0;
@@ -2128,7 +2118,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     glPushAttrib (GL_ENABLE_BIT);    
     glDisable (GL_DEPTH_TEST);
     glBindTexture (GL_TEXTURE_1D, m_colorBarTexture[viewNumber]);
-    bool adjustForAverageAroundMovementRotation = 
+    bool adjustForAverageAroundRotationShown = 
 	vs.IsAverageAroundRotationShown ();
     G3D::Vector3 rotationCenterEye; float angleDegrees;
     calculateRotationParams (viewNumber, GetCurrentTime (viewNumber),
@@ -2140,16 +2130,16 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	vs.GetStatisticsType (), rotationCenterEye.xy (), angleDegrees);
 
     GetViewAverage (viewNumber).GetForceAverage ().Display (
-	adjustForAverageAroundMovementRotation);
+	adjustForAverageAroundRotationShown);
     displayStreamline (viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (foam);
     if (m_t1sShown)
 	displayT1sDot (viewNumber);
     displayAverageAroundBodies (
-	viewNumber, adjustForAverageAroundMovementRotation);
+	viewNumber, adjustForAverageAroundRotationShown);
     displayContextBodies (viewNumber);
     displayContextBox (
-	viewNumber, adjustForAverageAroundMovementRotation);
+	viewNumber, adjustForAverageAroundRotationShown);
     T1sPDE& t1sPDE = GetViewAverage (viewNumber).GetT1sPDE ();
     if (vs.GetViewType () == ViewType::T1S_PDE &&
 	t1sPDE.IsKernelTextureSizeShown ())
@@ -2835,12 +2825,11 @@ void WidgetGl::GetGridParams (
 
     *gridCellLength = GetBubbleSize (viewNumber) * vs.GetGridScaleRatio ();
     *gridOrigin = rotationCenter.xy () + gridTranslation;
-    cdbg << "rotationCenter: " << rotationCenter << endl;
-    cdbg << "gridTranslation: " << gridTranslation << endl;
 }
 
 
 // see doc/updateStreamlineSeeds.png
+// the seeds sample foam (0)
 void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
 {    
     G3D::Vector2 gridOrigin; float gridCellLength;
@@ -2880,7 +2869,7 @@ void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
         updateStreamlineSeeds (viewNumber);
     makeCurrent ();
     AllTransformAverage (viewNumber);
-    G3D::AABox box = GetFoam (viewNumber).GetBoundingBox ();
+    G3D::AABox box = GetFoam (viewNumber, 0).GetBoundingBox ();
     G3D::Rect2D rect = G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ());
     m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
         GetAverageCache (), rect);
@@ -2917,8 +2906,14 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::STREAMLINE)
     {
-	glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT);
+        if (vs.IsAverageAround ())
+        {
+            glPushMatrix ();
+            vs.RotateAndTranslateAverageAround (
+                vs.GetCurrentTime (), -1, ViewSettings::TRANSLATE);
+        }
 
+	glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT);
         vtkSmartPointer<vtkPolyData> streamline = m_streamline[viewNumber];
         vtkSmartPointer<vtkCellArray> lines = streamline->GetLines ();
         lines->InitTraversal ();
@@ -2949,6 +2944,8 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
         }
         glEnd ();
         glPopAttrib ();
+        if (vs.IsAverageAround ())
+            glPopMatrix ();
     }
 }
 
