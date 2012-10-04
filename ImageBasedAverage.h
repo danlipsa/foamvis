@@ -81,6 +81,7 @@ public:
     {
 	return m_widgetGl;
     }
+    G3D::Rect2D GetWindowCoord () const;
 
 protected:
     typedef pair<boost::shared_ptr<QGLFramebufferObject>, 

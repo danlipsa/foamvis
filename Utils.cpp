@@ -444,6 +444,11 @@ G3D::Vector2 ToG3D (const QVector2D& v)
     return G3D::Vector2 (v.x (), v.y ());
 }
 
+G3D::Vector2 ToG3D (const QSize& s)
+{
+    return G3D::Vector2 (s.width (), s.height ());
+}
+
 G3D::Vector3 ToG3D (const QVector3D& v)
 {
     return G3D::Vector3 (v.x (), v.y (), v.z ());

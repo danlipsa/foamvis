@@ -126,6 +126,17 @@ void ImageBasedAverage<PropertySetter>::AverageInit ()
 }
 
 template<typename PropertySetter>
+G3D::Rect2D ImageBasedAverage<PropertySetter>::GetWindowCoord () const
+{
+    G3D::Rect2D windowCoord = 
+        G3D::Rect2D::xywh(G3D::Vector2::zero (), 
+                          ToG3D (this->m_fbos.m_current->size ()));
+    return windowCoord;
+}
+
+
+
+template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::clear ()
 {
     //const size_t FAKE_TIMESTEP = -1;

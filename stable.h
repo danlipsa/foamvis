@@ -121,6 +121,7 @@
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
 #include <vtkCellDataToPointData.h>
+#include <vtkCleanPolyData.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkCommand.h>
 #include <vtkDataSetMapper.h>

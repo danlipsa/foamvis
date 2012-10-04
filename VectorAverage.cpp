@@ -46,10 +46,9 @@ void VectorAverage::InitShaders ()
 			   RESOURCE("VectorDisplay.frag")));
 }
 
-vtkSmartPointer<vtkImageData> VectorAverage::getData (
-    const G3D::Rect2D& oc) const
+vtkSmartPointer<vtkImageData> VectorAverage::getData () const
 {
-    G3D::Rect2D windowCoord = rectInside (gluProject (oc));
+    G3D::Rect2D windowCoord = GetWindowCoord ();
     G3D::Rect2D objectCoord = gluUnProject (
         windowCoord, GluUnProjectZOperation::SET0);
     BodyAttribute::Enum attribute = BodyAttribute::VELOCITY;
@@ -62,7 +61,7 @@ vtkSmartPointer<vtkImageData> VectorAverage::getData (
     vtkSmartPointer<vtkFloatArray> count = 
         ImageBasedAverage<SetterVelocity>::getData (
             this->m_countFbos.m_current, windowCoord, GL_GREEN);
-    save (count, windowCoord, 1, 5);        
+    //save (count, windowCoord, 1, 5);        
 
     // vector / count
     for (vtkIdType i = 0; i < velocity->GetNumberOfTuples (); ++i)
@@ -85,7 +84,7 @@ vtkSmartPointer<vtkImageData> VectorAverage::getData (
     int extent[6] = {0, windowCoord.width () - 1,
                      0, windowCoord.height () -1,
                      0, 0};
-    save (velocity, windowCoord, 3, 0.28);
+    //save (velocity, windowCoord, 3, 0.28);
     vtkSmartPointer<vtkImageData> image = CreateRegularGridNoAttributes (
         G3D::AABox (G3D::Vector3 (objectCoord.x0y0 (), 0),
                     G3D::Vector3 (objectCoord.x1y1 (), 0)), extent);
@@ -97,8 +96,8 @@ vtkSmartPointer<vtkImageData> VectorAverage::getData (
 }
 
 void VectorAverage::CacheData (
-    AverageCache* averageCache, const G3D::Rect2D& objectCoord) const
+    AverageCache* averageCache) const
 {
-    vtkSmartPointer<vtkImageData> data = getData (objectCoord);
+    vtkSmartPointer<vtkImageData> data = getData ();
     averageCache->SetVelocity (data);
 }

@@ -23,11 +23,10 @@ public:
     VectorAverage (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl,
 		   FramebufferObjects& countFbos);
     static void InitShaders ();
-    void CacheData (
-        AverageCache* averageCache, const G3D::Rect2D& objectCoord) const;
+    void CacheData (AverageCache* averageCache) const;
 
 private:
-    vtkSmartPointer<vtkImageData> getData (const G3D::Rect2D& objectCoord) const;
+    vtkSmartPointer<vtkImageData> getData () const;
 
 };
 

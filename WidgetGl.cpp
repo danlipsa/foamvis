@@ -2527,7 +2527,7 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
 	displayTextureColorBar (
 	    m_colorBarTexture[viewNumber], viewNumber, viewColorBarRect);
     }
-    if (vs.IsVelocityShown ())
+    if (vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::GLYPH)
     {
 	if (GetViewAverage (viewNumber).GetVelocityAverage ().IsColorMapped ())
 	    displayTextureColorBar (
@@ -2834,10 +2834,11 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
 {    
     G3D::Vector2 gridOrigin; float gridCellLength;
     GetGridParams (viewNumber, &gridOrigin, &gridCellLength);
-        
-    G3D::AABox box = GetFoam (viewNumber, 0).GetBoundingBox ();
-    G3D::Rect2D rect = G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ());
-
+    
+    G3D::Rect2D rect = gluUnProject (
+        m_viewAverage[viewNumber]->GetVelocityAverage ().GetWindowCoord (),
+        GluUnProjectZOperation::SET0);
+    
     rect = (rect - gridOrigin) / gridCellLength;
     G3D::Rect2D r = G3D::Rect2D::xyxy (
         floor (rect.x0 () + 0.5),
@@ -2869,10 +2870,8 @@ void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
         updateStreamlineSeeds (viewNumber);
     makeCurrent ();
     AllTransformAverage (viewNumber);
-    G3D::AABox box = GetFoam (viewNumber, 0).GetBoundingBox ();
-    G3D::Rect2D rect = G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ());
     m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
-        GetAverageCache (), rect);
+        GetAverageCache ());
 
     VTK_CREATE (vtkXMLImageDataWriter, writer);
     writer->SetFileName ("velocity.vti");
@@ -2883,7 +2882,8 @@ void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
     VTK_CREATE (vtkRungeKutta4, rk);
     VTK_CREATE (vtkStreamTracer, streamer);
     streamer->SetInput (GetAverageCache ()->GetVelocity ());
-    streamer->SetStartPosition (0.5, 0.25, 0);
+    //streamer->SetStartPosition (0.5, 0.25, 0);
+    streamer->SetSource (m_streamlineSeeds[viewNumber]);
     streamer->SetMaximumPropagation (.2);
     streamer->SetIntegrationStepUnit (vtkStreamTracer::LENGTH_UNIT);
     //streamer->SetMinimumIntegrationStep (0.001);
@@ -2893,9 +2893,13 @@ void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
     streamer->SetIntegrator (rk);
     streamer->SetRotationScale (0.5);
     streamer->SetMaximumError (1.0e-8);
-    streamer->Update ();
+
+    VTK_CREATE (vtkCleanPolyData, cleanPoly);
+    cleanPoly->SetInput (streamer->GetOutput ());
+    cleanPoly->Update ();
+
     m_streamline[viewNumber] = 
-        vtkPolyData::SafeDownCast (streamer->GetOutput ());
+        vtkPolyData::SafeDownCast (cleanPoly->GetOutput ());
 }
 
 
@@ -2931,18 +2935,6 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
             }
             glEnd ();
         }
-
-        m_streamlineSeeds[viewNumber]->GetVerts ()->GetCell (0, points);
-        // for now just display the seeds as points
-        glPointSize (4.0);
-        glBegin (GL_POINTS);
-        for (vtkIdType i = 0; i < points->GetNumberOfIds (); ++i)
-        {
-            double point[3];
-            m_streamlineSeeds[viewNumber]->GetPoint (points->GetId (i), point);
-            glVertex2dv (point);
-        }
-        glEnd ();
         glPopAttrib ();
         if (vs.IsAverageAround ())
             glPopMatrix ();

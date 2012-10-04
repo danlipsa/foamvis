@@ -117,19 +117,24 @@ G3D::Rect2D rectInside (const G3D::Rect2D& windowRect);
  * @{
  * @name Conversions
  */
-// Qt - G3D
+// Qt <-> G3D
 QVector2D ToQt (const G3D::Vector2& v);
 QVector3D ToQt (const G3D::Vector3& v);
 QBox3D ToQt (const G3D::AABox& box);
 G3D::Vector2 ToG3D (const QVector2D& v);
+G3D::Vector2 ToG3D (const QSize& s);
 G3D::Vector3 ToG3D (const QVector3D& v);
 G3D::AABox ToG3D (const QBox3D& box);
-// Qt - OpenGl
+
+// Qt <-> OpenGl
 G3D::Vector2 QtToOpenGl (const QPoint& point, int windowHeight);
 int OpenGlToQt (int h, int windowHeight);
 string ColorToHtml (const QColor& color, const char* text);
-// Qt - Stl
+
+// Qt <-> stl
 QStringList ToQStringList (const vector<string>& v);
+
+// Qwt <-> stl
 inline QwtDoubleInterval toQwtDoubleInterval (pair<float, float> p)
 {
     return QwtDoubleInterval (p.first, p.second);
