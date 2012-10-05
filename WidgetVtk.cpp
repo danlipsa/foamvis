@@ -91,7 +91,7 @@ void WidgetVtk::updateViewFocus (ViewNumber::Enum viewNumber)
 
 void WidgetVtk::ViewToVtk (ViewNumber::Enum viewNumber)
 {
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     const Foam& foam = m_average[viewNumber]->GetFoam ();
     const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
     PipelineBase& pipeline = *m_pipeline[viewNumber];

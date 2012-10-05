@@ -39,6 +39,13 @@ class AllBodySelector;
 class WidgetGl : public QGLWidget, public QGLFunctions, public WidgetBase
 {
 public:
+    enum RotateForAxisOrder
+    {
+        ROTATE_FOR_AXIS_ORDER,
+        DONT_ROTATE_FOR_AXIS_ORDER
+    };
+
+public:
     /**
      * Constructor
      * @param parent parent widget
@@ -108,18 +115,6 @@ public:
     {
 	return m_actionEditOverlayMap;
     }
-
-
-    
-    /**
-     * Calculates and does the viewport transform.
-     */
-    void ModelViewTransform (ViewNumber::Enum viewNumber, 
-			     size_t timeStep) const;
-    boost::array<GLdouble,16>* GetModelViewMatrix (
-	boost::array<GLdouble, 16>* mv,
-	ViewNumber::Enum viewNumber, 
-	size_t timeStep) const;
 
     /**
      * Setup the viewing volume first centered around origin and then 
@@ -416,6 +411,10 @@ private:
     typedef void (WidgetGl::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    void printVelocitiesDebug (ViewNumber::Enum viewNumber) const;
+    void modelViewTransform (ViewNumber::Enum viewNumber, 
+			     size_t timeStep,
+                             RotateForAxisOrder rotateForAxisOrder) const;
     void setTorusDomainClipPlanes ();
     void enableTorusDomainClipPlanes (bool enable);
     void setSimulation (int i, ViewNumber::Enum viewNumber);

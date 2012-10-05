@@ -680,12 +680,12 @@ void WidgetGl::translateAndScale (
  * The camera is at (0,0,0), 
  * the model is centered at (0, 0, - vs.GetCameraDistance ())
  */
-void WidgetGl::ModelViewTransform (ViewNumber::Enum viewNumber, 
-				   size_t timeStep) const
+void WidgetGl::modelViewTransform (
+    ViewNumber::Enum viewNumber, 
+    size_t timeStep, RotateForAxisOrder rotateForAxisOrder) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
-    const Foam& foam = simulation.GetFoam (timeStep);
     G3D::Vector3 center = simulation.GetBoundingBox ().center ();
 
     glLoadIdentity ();
@@ -700,14 +700,15 @@ void WidgetGl::ModelViewTransform (ViewNumber::Enum viewNumber,
     else
 	translateAndScale (
 	    viewNumber, vs.GetScaleRatio (), vs.GetTranslation (), false);
-    G3D::Vector3 translate = 
-	vs.GetRotationForAxesOrder (foam) * (vs.GetRotationCenter () - center);
+    G3D::Vector3 translate = vs.GetRotationCenter () - center;
+    if (rotateForAxisOrder == ROTATE_FOR_AXIS_ORDER)
+        translate = GetRotationForAxesOrder (viewNumber, timeStep) * translate;
     // rotate around the center of rotation
     glTranslate (translate);
     glMultMatrix (vs.GetRotation ());
     glTranslate (- translate);
-    // rotate around the center of the simulation
-    glMultMatrix (vs.GetRotationForAxesOrder (foam));
+    if (rotateForAxisOrder == ROTATE_FOR_AXIS_ORDER)
+        glMultMatrix (GetRotationForAxesOrder (viewNumber, timeStep));
     glTranslate (- center);
     if (vs.IsAverageAround ())
 	vs.RotateAndTranslateAverageAround (timeStep, 1, 
@@ -715,17 +716,6 @@ void WidgetGl::ModelViewTransform (ViewNumber::Enum viewNumber,
 }
 
 
-boost::array<GLdouble,16>* WidgetGl::GetModelViewMatrix (
-    boost::array<GLdouble, 16>* mv,
-    ViewNumber::Enum viewNumber, 
-    size_t timeStep) const
-{
-    glPushMatrix ();
-    ModelViewTransform (viewNumber, timeStep);
-    glGetDoublev (GL_MODELVIEW_MATRIX, &(*mv)[0]);
-    glPopMatrix ();
-    return mv;
-}
 
 void WidgetGl::ProjectionTransform (
     ViewNumber::Enum viewNumber,
@@ -932,17 +922,24 @@ void WidgetGl::displayView (ViewNumber::Enum viewNumber)
     //<< t.elapsed () << " ms" << endl;
 }
 
+
+/**
+ * Display data onto the screen, rotate for average around body
+ */
 void WidgetGl::allTransform (ViewNumber::Enum viewNumber) const
 {
     viewportTransform (viewNumber);    
     glMatrixMode (GL_PROJECTION);
     ProjectionTransform (viewNumber);
     glMatrixMode (GL_MODELVIEW);
-    ModelViewTransform (viewNumber, GetCurrentTime (viewNumber));
+    modelViewTransform (
+        viewNumber, GetCurrentTime (viewNumber), ROTATE_FOR_AXIS_ORDER);
 }
 
 
-
+/*
+ * The same as allTransform but with larger viewing volume and viewport
+ */
 void WidgetGl::AllTransformAverage (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
@@ -951,7 +948,7 @@ void WidgetGl::AllTransformAverage (
     glMatrixMode (GL_PROJECTION);
     ProjectionTransform (viewNumber, ViewingVolumeOperation::ENCLOSE2D);
     glMatrixMode (GL_MODELVIEW);
-    ModelViewTransform (viewNumber, timeStep);
+    modelViewTransform (viewNumber, timeStep, ROTATE_FOR_AXIS_ORDER);
 }
 
 
@@ -1264,6 +1261,31 @@ void WidgetGl::displayAverageAroundBodies (
 	if (adjustForAverageAroundRotationShown)
 	    glPopMatrix ();
 	glPopAttrib ();
+    }
+}
+
+
+void WidgetGl::printVelocitiesDebug (ViewNumber::Enum viewNumber) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
+    size_t bodyId = vs.GetAverageAroundBodyId ();
+    if (bodyId != INVALID_INDEX)
+    {
+        boost::shared_ptr<Body> body = *simulation.GetFoam (0).FindBody (bodyId);
+        G3D::Vector3 firstBodyCenter = body->GetCenter ();
+        
+        size_t secondBodyId = vs.GetAverageAroundSecondBodyId ();
+        if (secondBodyId != INVALID_INDEX)
+        {
+            body = *simulation.GetFoam (0).FindBody (secondBodyId);
+            G3D::Vector3 secondBodyCenter = body->GetCenter ();
+            glBegin (GL_LINES);
+            ::glVertex (firstBodyCenter);
+            ::glVertex (secondBodyCenter);
+            glEnd ();
+            cdbg << firstBodyCenter << ", " << secondBodyCenter << endl;
+        }
     }
 }
 
@@ -2668,7 +2690,9 @@ bool WidgetGl::IsTimeDisplacementUsed () const
 /**
  * Activate a shader for each fragment where the Quad is drawn on destRect. 
  * Rotate the Quad if angleDegrees != 0.
- * We use the following notation: VV = viewing volume, VP = viewport, 
+ * We use the following notation: 
+ * VV = viewing volume, 
+ * VP = viewport, 
  * Q = quad, 1 = original VV, 2 = enclosing VV
  * Can be called in 2 situations:
  *                        VV    VP, Q
@@ -2704,9 +2728,11 @@ void WidgetGl::activateViewShader (
     glMatrixMode (GL_PROJECTION);
     glPushMatrix ();
     ProjectionTransform (viewNumber, enclose);
+
     glBegin (GL_QUADS);
     sendQuad (srcRect, G3D::Rect2D::xyxy (0., 0., 1., 1.));
     glEnd ();
+
     glMatrixMode (GL_PROJECTION);
     glPopMatrix ();
     glMatrixMode (GL_MODELVIEW);
@@ -2834,7 +2860,10 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
 {    
     G3D::Vector2 gridOrigin; float gridCellLength;
     GetGridParams (viewNumber, &gridOrigin, &gridCellLength);
-    
+    const Simulation& simulation = GetSimulation ();
+
+    G3D::Vector2 center = simulation.GetBoundingBox ().center ().xy ();
+
     G3D::Rect2D rect = gluUnProject (
         m_viewAverage[viewNumber]->GetVelocityAverage ().GetWindowCoord (),
         GluUnProjectZOperation::SET0);
@@ -2855,6 +2884,13 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
         {
             G3D::Vector2 p (0.5 + x, 0.5 + y);
             p = p * gridCellLength + gridOrigin;
+            
+            // @todo fix this
+            // rotate the seeds with with GetRotationForAxesOrder ()
+            p -= center;
+            p = ToMatrix2 (GetRotationForAxesOrder (viewNumber)) * p;
+            p += center;
+
             vtkIdType pointId = (x - r.x0 ()) + (y - r.y0 ()) * r.width ();
             points->SetPoint (pointId, p.x, p.y, 0);
             v->SetId (pointId, pointId);
@@ -2864,12 +2900,17 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
     m_streamlineSeeds[viewNumber]->SetVerts (vertices);
 }
 
+/**
+ *
+ * @todo: Save data and streamlines without rotation 
+ *        with GetRotationForAxesOrder ()
+ */
 void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
 {
     if (m_streamlineSeeds[viewNumber]->GetNumberOfVerts () == 0)
         updateStreamlineSeeds (viewNumber);
     makeCurrent ();
-    AllTransformAverage (viewNumber);
+    AllTransformAverage (viewNumber, 0);
     m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
         GetAverageCache ());
 
@@ -2905,19 +2946,27 @@ void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
 
 
 void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
-{
-    
+{    
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::STREAMLINE)
     {
+	glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT);
+
+
+        glPushMatrix ();
+
         if (vs.IsAverageAround ())
         {
-            glPushMatrix ();
             vs.RotateAndTranslateAverageAround (
                 vs.GetCurrentTime (), -1, ViewSettings::TRANSLATE);
         }
 
-	glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT);
+        const Simulation& simulation = GetSimulation (viewNumber);
+        G3D::Vector3 center = simulation.GetBoundingBox ().center ();
+        glTranslate (center);
+        glMultMatrix (GetRotationForAxesOrder (viewNumber).inverse ());
+        glTranslate (-center);
+
         vtkSmartPointer<vtkPolyData> streamline = m_streamline[viewNumber];
         vtkSmartPointer<vtkCellArray> lines = streamline->GetLines ();
         lines->InitTraversal ();
@@ -2935,9 +2984,23 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
             }
             glEnd ();
         }
+
+
+        // display the seeds as points
+        m_streamlineSeeds[viewNumber]->GetVerts ()->GetCell (0, points);
+        glPointSize (4.0);
+        glBegin (GL_POINTS);
+        for (vtkIdType i = 0; i < points->GetNumberOfIds (); ++i)
+        {
+            double point[3];
+            m_streamlineSeeds[viewNumber]->GetPoint (points->GetId (i), point);
+            glVertex2dv (point);
+        }
+        glEnd ();
+
+        glPopMatrix ();
+
         glPopAttrib ();
-        if (vs.IsAverageAround ())
-            glPopMatrix ();
     }
 }
 

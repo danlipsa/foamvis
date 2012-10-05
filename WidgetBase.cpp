@@ -178,3 +178,12 @@ const Foam& WidgetBase::GetFoam (ViewNumber::Enum viewNumber,
 {
     return GetSimulation (viewNumber).GetFoam (timeStep);
 }
+
+G3D::Matrix3 WidgetBase::GetRotationForAxesOrder (ViewNumber::Enum viewNumber, 
+                                                  size_t timeStep) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
+    const Foam& foam = simulation.GetFoam (timeStep);
+    return vs.GetRotationForAxesOrder (foam);
+}

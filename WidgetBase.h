@@ -80,8 +80,12 @@ public:
 	return GetCurrentTime (GetViewNumber ());
     }
     size_t GetCurrentTime (ViewNumber::Enum viewNumber) const;
-
-
+    G3D::Matrix3 GetRotationForAxesOrder (ViewNumber::Enum viewNumber, 
+                                          size_t timeStep) const;
+    G3D::Matrix3 GetRotationForAxesOrder (ViewNumber::Enum viewNumber) const
+    {
+        return GetRotationForAxesOrder (viewNumber, GetCurrentTime (viewNumber));
+    }
 
     const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
     const Simulation& GetSimulation (size_t index) const;
