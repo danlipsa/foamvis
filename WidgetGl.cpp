@@ -2855,7 +2855,6 @@ void WidgetGl::GetGridParams (
 // the seeds sample foam (0)
 void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
 {    
-    const ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::Vector2 gridOrigin; float gridCellLength;
     GetGridParams (viewNumber, &gridOrigin, &gridCellLength);
     const Simulation& simulation = GetSimulation ();
@@ -2888,22 +2887,6 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
             p -= center;
             p = ToMatrix2 (GetRotationForAxesOrder (viewNumber)) * p;
             p += center;
-
-            // rotate the seeds with if isaveragearoundrotationshown
-            if (false /*vs.IsAverageAroundRotationShown ()*/)
-            {
-                size_t timeStep = GetCurrentTime ();
-                const ObjectPosition posBegin = vs.GetAverageAroundPosition (0);
-                const ObjectPosition posCurrent = 
-                    vs.GetAverageAroundPosition (timeStep);
-                G3D::Vector2 rotationCenter = posCurrent.m_rotationCenter.xy ();
-                float angleRadians = 
-                    posCurrent.m_angleRadians - posBegin.m_angleRadians;
-                cdbg << angleRadians << endl;
-                p -= rotationCenter;
-                p = rotateRadians (p, angleRadians);
-                p += rotationCenter;
-            }
 
             vtkIdType pointId = (x - r.x0 ()) + (y - r.y0 ()) * r.width ();
             points->SetPoint (pointId, p.x, p.y, 0);
