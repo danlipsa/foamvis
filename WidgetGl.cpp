@@ -1086,6 +1086,7 @@ void WidgetGl::translateGrid (
     vs.SetGridTranslation (
 	vs.GetGridTranslation () + (translationRatio * extent));
     updateStreamlineSeeds (viewNumber);
+    CalculateStreamline (viewNumber);
 }
 
 void WidgetGl::scale (ViewNumber::Enum viewNumber, const QPoint& position)
@@ -1104,6 +1105,7 @@ void WidgetGl::scaleGrid (ViewNumber::Enum viewNumber, const QPoint& position)
     float ratio = ratioFromScaleCenter (viewNumber, position);
     vs.SetGridScaleRatio (vs.GetGridScaleRatio () * ratio);
     updateStreamlineSeeds (viewNumber);
+    CalculateStreamline (viewNumber);
 }
 
 
@@ -2855,6 +2857,11 @@ void WidgetGl::GetGridParams (
 // the seeds sample foam (0)
 void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
 {    
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    if (! vs.IsVelocityShown () || 
+        ! vs.GetVelocityVis () == VectorVis::STREAMLINE)
+        return;
+
     G3D::Vector2 gridOrigin; float gridCellLength;
     GetGridParams (viewNumber, &gridOrigin, &gridCellLength);
     const Simulation& simulation = GetSimulation ();
@@ -2904,6 +2911,11 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
  */
 void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
 {
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    if (! vs.IsVelocityShown () || 
+        ! vs.GetVelocityVis () == VectorVis::STREAMLINE)
+        return;
+
     if (m_streamlineSeeds[viewNumber]->GetNumberOfVerts () == 0)
         updateStreamlineSeeds (viewNumber);
     makeCurrent ();
@@ -3130,6 +3142,7 @@ void WidgetGl::AverageAroundBody ()
 	else
 	    vs.SetAverageAroundPositions (simulation, bodyId);
         updateStreamlineSeeds (viewNumber);
+        CalculateStreamline (viewNumber);
 	CompileUpdate ();
     }
     else
@@ -3187,6 +3200,7 @@ void WidgetGl::AverageAroundReset ()
     vs.SetAverageAroundBodyId (INVALID_INDEX);
     vs.SetAverageAroundSecondBodyId (INVALID_INDEX);
     updateStreamlineSeeds (viewNumber);
+    CalculateStreamline (viewNumber);
     CompileUpdate ();
 }
 
