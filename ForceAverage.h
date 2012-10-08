@@ -29,7 +29,7 @@ public:
     {
     }
     void DisplayOneTimeStep () const;
-    void Display (bool adjustForAverageAroundRotationShown = false) const;    
+    void Display (bool isAverageAroundRotationShown = false) const;    
     virtual void AverageRotateAndDisplay (
 	StatisticsType::Enum displayType = StatisticsType::AVERAGE,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
@@ -46,7 +46,7 @@ protected:
 private:
     void displayForcesAllObjects (
 	const vector<ForcesOneObject>& forces, size_t timeWindow,
-	bool adjustForAverageAroundRotationShown = false) const;
+	bool isAverageAroundRotationShown = false) const;
     void displayForcesOneObject (
 	const ForcesOneObject& force, size_t count) const;
     void displayTorqueOneObject (const ForcesOneObject& force, 

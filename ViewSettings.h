@@ -456,9 +456,6 @@ public:
     void SetAverageAroundPositions (const Simulation& simulation, size_t bodyId);
     void SetAverageAroundPositions (const Simulation& simulation,
 				    size_t bodyId, size_t secondBodyId);
-    /**
-     * Translate only when rotating in the positive direction.
-     */
     void RotateAndTranslateAverageAround (
         size_t timeStep, int direction, RotateAndTranslateOperation op) const;
     // @}

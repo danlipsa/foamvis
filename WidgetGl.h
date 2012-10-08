@@ -411,6 +411,10 @@ private:
     typedef void (WidgetGl::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+
+    void rotateAverageAroundStreamlines (ViewNumber::Enum viewNumber,
+                                         bool isIsAverageAroundShown) const;
+
     void printVelocitiesDebug (ViewNumber::Enum viewNumber) const;
     void modelViewTransform (ViewNumber::Enum viewNumber, 
 			     size_t timeStep,
@@ -489,10 +493,10 @@ private:
     void displayContextBodies (ViewNumber::Enum view) const;
     void displayContextBox (
 	ViewNumber::Enum view,
-	bool adjustForAverageAroundRotationShown = false) const;
+	bool isAverageAroundRotationShown = false) const;
     void displayAverageAroundBodies (
 	ViewNumber::Enum view, 
-	bool adjustForAverageAroundRotationShown = false) const;
+	bool isAverageAroundRotationShown = false) const;
 
     void displayEdgesNormal (ViewNumber::Enum view) const;
     template<typename displayEdge>

@@ -51,7 +51,6 @@ vtkSmartPointer<vtkImageData> VectorAverage::getData () const
     G3D::Rect2D windowCoord = GetWindowCoord ();
     G3D::Rect2D objectCoord = gluUnProject (
         windowCoord, GluUnProjectZOperation::SET0);
-    cdbg << objectCoord << endl;
     BodyAttribute::Enum attribute = BodyAttribute::VELOCITY;
 
     // opengl gets 3 componens from the hardware
