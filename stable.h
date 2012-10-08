@@ -152,6 +152,7 @@
 #include <vtkStreamTracer.h>
 #include <vtkSmartPointer.h>
 #include <vtkShrinkFilter.h>
+#include <vtkStripper.h>
 #include <vtkTextMapper.h>
 #include <vtkTextProperty.h>
 #include <vtkTetra.h>

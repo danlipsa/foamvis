@@ -2943,13 +2943,21 @@ void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
     streamer->SetIntegrator (rk);
     streamer->SetRotationScale (0.5);
     streamer->SetMaximumError (1.0e-8);
+    streamer->Update ();
+
+/*
+    VTK_CREATE (vtkStripper, stripper);
+    stripper->SetInput (streamer->GetOutput ());
 
     VTK_CREATE (vtkCleanPolyData, cleanPoly);
-    cleanPoly->SetInput (streamer->GetOutput ());
+    cleanPoly->SetInput (stripper->GetOutput ());
     cleanPoly->Update ();
+*/
+
+
 
     m_streamline[viewNumber] = 
-        vtkPolyData::SafeDownCast (cleanPoly->GetOutput ());
+        vtkPolyData::SafeDownCast (streamer->GetOutput ());
 }
 
 
@@ -2981,14 +2989,15 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
     if (vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::STREAMLINE)
     {
 	glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT);
+
+        VTK_CREATE(vtkIdList, points);
+        /*
         glPushMatrix ();
         rotateAverageAroundStreamlines (
             viewNumber, vs.IsAverageAroundRotationShown ());
-
         vtkSmartPointer<vtkPolyData> streamline = m_streamline[viewNumber];
         vtkSmartPointer<vtkCellArray> lines = streamline->GetLines ();
         lines->InitTraversal ();
-        VTK_CREATE(vtkIdList, points);
         glColor (Qt::black);
         while (lines->GetNextCell (points))
         {
@@ -3003,9 +3012,11 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
             glEnd ();
         }
         glPopMatrix ();
-        /*
+        */
+        
         // display the seeds as points
         glPushMatrix ();
+        glColor (Qt::black);
         rotateAverageAroundStreamlines (viewNumber, false);
         m_streamlineSeeds[viewNumber]->GetVerts ()->GetCell (0, points);
         glPointSize (4.0);
@@ -3018,7 +3029,7 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
         }
         glEnd ();
         glPopMatrix ();
-        */
+        
         glPopAttrib ();
     }
 }
