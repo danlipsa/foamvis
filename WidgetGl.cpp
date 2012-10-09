@@ -3013,7 +3013,7 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
         }
         glPopMatrix ();
         
-        
+        /*
         // display the seeds as points
         glPushMatrix ();
         glColor (Qt::black);
@@ -3029,6 +3029,7 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
         }
         glEnd ();
         glPopMatrix ();
+        */
         
         glPopAttrib ();
     }

@@ -169,6 +169,16 @@ public:
     {
         return m_velocityVis;
     }
+    float GetVelocityClampingRatio () const;
+    float GetVelocityLineWidth () const
+    {
+	return m_velocityLineWidth;
+    }
+    void SetVelocityLineWidth (float value)
+    {
+	m_velocityLineWidth = value;
+    }
+
 
     // @}
 
@@ -608,15 +618,6 @@ public:
     void SetDeformationLineWidth (float value)
     {
 	m_deformationLineWidth = value;
-    }
-    float GetVelocityClampingRatio () const;
-    float GetVelocityLineWidth () const
-    {
-	return m_velocityLineWidth;
-    }
-    void SetVelocityLineWidth (float value)
-    {
-	m_velocityLineWidth = value;
     }
     float GetForceTorqueSize () const
     {

@@ -354,121 +354,6 @@ void MainWindow::connectColorBarHistogram (bool connected)
 }
 
 
-void MainWindow::deformationViewToUI ()
-{
-    const ViewSettings& vs = m_settings->GetViewSettings ();
-    SetCheckedNoSignals (checkBoxDeformationShown, 
-			 vs.IsDeformationShown ());
-    bool gridShown = false;
-    bool gridCellCenterShown = false;
-    if (DATA_PROPERTIES.Is2D ())
-    {
-	ViewAverage& va = widgetGl->GetViewAverage ();
-	gridShown = va.GetDeformationAverage ().IsGridShown ();
-	gridCellCenterShown = 
-	    va.GetDeformationAverage ().IsGridCellCenterShown ();
-    }
-
-    SetCheckedNoSignals (checkBoxDeformationGridShown, gridShown);
-    SetCheckedNoSignals (checkBoxDeformationGridCellCenterShown, 
-			 gridCellCenterShown);
-    SetValueNoSignals (
-	horizontalSliderDeformationSize, 
-	Value2ExponentIndex (horizontalSliderDeformationSize, 
-		    WidgetGl::TENSOR_SIZE_EXP2, vs.GetDeformationSize ()));
-    SetValueNoSignals (
-	horizontalSliderDeformationLineWidth, 
-	Value2ExponentIndex (horizontalSliderDeformationLineWidth,
-		     WidgetGl::TENSOR_LINE_WIDTH_EXP2,
-		     vs.GetDeformationLineWidth ()));
-}
-
-void MainWindow::velocityViewToUI ()
-{
-    const ViewSettings& vs = m_settings->GetViewSettings ();
-    bool gridShown = false;
-    bool clampingShown = false;
-    bool gridCellCenterShown = false;
-    bool sameSize = false;
-    bool colorMapped = false;
-    if (DATA_PROPERTIES.Is2D ())
-    {
-	const VectorAverage& va = 
-	    widgetGl->GetViewAverage ().GetVelocityAverage ();
-	gridShown = va.IsGridShown ();
-	clampingShown = va.IsClampingShown ();
-	gridCellCenterShown = va.IsGridCellCenterShown ();
-	sameSize = va.IsSameSize ();
-	colorMapped = va.IsColorMapped ();
-    }
-
-    SetCheckedNoSignals (checkBoxVelocityShown, vs.IsVelocityShown ());
-    SetCheckedNoSignals (checkBoxVelocityGlyphGridShown, gridShown);
-    SetCheckedNoSignals (checkBoxVelocityGlyphClampingShown, clampingShown);
-    SetCheckedNoSignals (checkBoxVelocityGlyphGridCellCenterShown, 
-			 gridCellCenterShown);
-    SetCheckedNoSignals (checkBoxVelocityGlyphSameSize, sameSize);
-    SetCheckedNoSignals (checkBoxVelocityGlyphColorMapped, colorMapped);
-    SetValueNoSignals (
-	horizontalSliderVelocityGlyphLineWidth, 
-	Value2ExponentIndex (horizontalSliderVelocityGlyphLineWidth,
-			     WidgetGl::TENSOR_LINE_WIDTH_EXP2,
-			     vs.GetVelocityLineWidth ()));
-}
-
-void MainWindow::forceViewToUI ()
-{
-    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
-    const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
-    const Simulation& simulation = m_simulationGroup.GetSimulation (
-	*m_settings, viewNumber);
-    SetCheckedNoSignals (
-	checkBoxForceNetwork, vs.IsForceNetworkShown (), 
-	simulation.ForcesUsed ());
-    SetCheckedNoSignals (
-	checkBoxForcePressure, 
-	vs.IsForcePressureShown (), simulation.ForcesUsed ());
-    SetCheckedNoSignals (
-	checkBoxForceResult, vs.IsForceResultShown (), simulation.ForcesUsed ());
-    SetValueNoSignals (
-	horizontalSliderForceTorqueSize, 
-	Value2ExponentIndex (horizontalSliderForceTorqueSize,
-		   WidgetGl::FORCE_SIZE_EXP2, vs.GetForceTorqueSize ()));
-    SetValueNoSignals (
-	horizontalSliderForceTorqueLineWidth, 
-	Value2ExponentIndex (horizontalSliderForceTorqueLineWidth,
-		   WidgetGl::TENSOR_LINE_WIDTH_EXP2,
-		   vs.GetForceTorqueLineWidth ()));
-}
-
-void MainWindow::t1sPDEViewToUI ()
-{
-    bool kernelTextureSizeShown = false;
-    size_t kernelTextureSize = 0;
-    float kernelIntervalPerPixel = 0;
-    float kernelSigma = 0;
-    if (DATA_PROPERTIES.Is2D ())
-    {
-	const T1sPDE& kde = widgetGl->GetViewAverage ().GetT1sPDE ();
-	kernelTextureSizeShown = kde.IsKernelTextureSizeShown ();
-	kernelTextureSize = kde.GetKernelTextureSize ();
-	kernelIntervalPerPixel = kde.GetKernelIntervalPerPixel ();
-	kernelSigma = kde.GetKernelSigma ();
-    }
-    SetCheckedNoSignals (checkBoxTextureSizeShown, kernelTextureSizeShown);
-    SetValueNoSignals (
-	horizontalSliderT1sKernelTextureSize,
-	Value2Index (horizontalSliderT1sKernelTextureSize,
-		     T1sPDE::KERNEL_TEXTURE_SIZE, kernelTextureSize));
-    SetValueNoSignals (
-	horizontalSliderT1sKernelIntervalPerPixel,
-	Value2Index(horizontalSliderT1sKernelIntervalPerPixel,
-		    T1sPDE::KERNEL_INTERVAL_PER_PIXEL, kernelIntervalPerPixel));
-    SetValueNoSignals (
-	horizontalSliderT1sKernelSigma,
-	Value2Index (horizontalSliderT1sKernelSigma,
-		     T1sPDE::KERNEL_SIGMA, kernelSigma));
-}
 
 void MainWindow::setupButtonGroups ()
 {        
@@ -1668,6 +1553,123 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
     widgetHistogram->CurrentIndexChangedInteractionMode (index);
 }
 
+
+void MainWindow::deformationViewToUI ()
+{
+    const ViewSettings& vs = m_settings->GetViewSettings ();
+    SetCheckedNoSignals (checkBoxDeformationShown, 
+			 vs.IsDeformationShown ());
+    bool gridShown = false;
+    bool gridCellCenterShown = false;
+    if (DATA_PROPERTIES.Is2D ())
+    {
+	ViewAverage& va = widgetGl->GetViewAverage ();
+	gridShown = va.GetDeformationAverage ().IsGridShown ();
+	gridCellCenterShown = 
+	    va.GetDeformationAverage ().IsGridCellCenterShown ();
+    }
+
+    SetCheckedNoSignals (checkBoxDeformationGridShown, gridShown);
+    SetCheckedNoSignals (checkBoxDeformationGridCellCenterShown, 
+			 gridCellCenterShown);
+    SetValueNoSignals (
+	horizontalSliderDeformationSize, 
+	Value2ExponentIndex (horizontalSliderDeformationSize, 
+		    WidgetGl::TENSOR_SIZE_EXP2, vs.GetDeformationSize ()));
+    SetValueNoSignals (
+	horizontalSliderDeformationLineWidth, 
+	Value2ExponentIndex (horizontalSliderDeformationLineWidth,
+		     WidgetGl::TENSOR_LINE_WIDTH_EXP2,
+		     vs.GetDeformationLineWidth ()));
+}
+
+void MainWindow::velocityViewToUI ()
+{
+    const ViewSettings& vs = m_settings->GetViewSettings ();
+    bool gridShown = false;
+    bool clampingShown = false;
+    bool gridCellCenterShown = false;
+    bool sameSize = false;
+    bool colorMapped = false;
+    if (DATA_PROPERTIES.Is2D ())
+    {
+	const VectorAverage& va = 
+	    widgetGl->GetViewAverage ().GetVelocityAverage ();
+	gridShown = va.IsGridShown ();
+	clampingShown = va.IsClampingShown ();
+	gridCellCenterShown = va.IsGridCellCenterShown ();
+	sameSize = va.IsSameSize ();
+	colorMapped = va.IsColorMapped ();
+    }
+
+    SetCheckedNoSignals (checkBoxVelocityShown, vs.IsVelocityShown ());
+    SetCheckedNoSignals (buttonGroupVelocityVis, vs.GetVelocityVis (), true);
+    SetCheckedNoSignals (checkBoxVelocityGlyphGridShown, gridShown);
+    SetCheckedNoSignals (checkBoxVelocityGlyphClampingShown, clampingShown);
+    SetCheckedNoSignals (checkBoxVelocityGlyphGridCellCenterShown, 
+			 gridCellCenterShown);
+    SetCheckedNoSignals (checkBoxVelocityGlyphSameSize, sameSize);
+    SetCheckedNoSignals (checkBoxVelocityGlyphColorMapped, colorMapped);
+    SetValueNoSignals (
+	horizontalSliderVelocityGlyphLineWidth, 
+	Value2ExponentIndex (horizontalSliderVelocityGlyphLineWidth,
+			     WidgetGl::TENSOR_LINE_WIDTH_EXP2,
+			     vs.GetVelocityLineWidth ()));
+}
+
+void MainWindow::forceViewToUI ()
+{
+    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
+    const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+    const Simulation& simulation = m_simulationGroup.GetSimulation (
+	*m_settings, viewNumber);
+    SetCheckedNoSignals (
+	checkBoxForceNetwork, vs.IsForceNetworkShown (), 
+	simulation.ForcesUsed ());
+    SetCheckedNoSignals (
+	checkBoxForcePressure, 
+	vs.IsForcePressureShown (), simulation.ForcesUsed ());
+    SetCheckedNoSignals (
+	checkBoxForceResult, vs.IsForceResultShown (), simulation.ForcesUsed ());
+    SetValueNoSignals (
+	horizontalSliderForceTorqueSize, 
+	Value2ExponentIndex (horizontalSliderForceTorqueSize,
+		   WidgetGl::FORCE_SIZE_EXP2, vs.GetForceTorqueSize ()));
+    SetValueNoSignals (
+	horizontalSliderForceTorqueLineWidth, 
+	Value2ExponentIndex (horizontalSliderForceTorqueLineWidth,
+		   WidgetGl::TENSOR_LINE_WIDTH_EXP2,
+		   vs.GetForceTorqueLineWidth ()));
+}
+
+void MainWindow::t1sPDEViewToUI ()
+{
+    bool kernelTextureSizeShown = false;
+    size_t kernelTextureSize = 0;
+    float kernelIntervalPerPixel = 0;
+    float kernelSigma = 0;
+    if (DATA_PROPERTIES.Is2D ())
+    {
+	const T1sPDE& kde = widgetGl->GetViewAverage ().GetT1sPDE ();
+	kernelTextureSizeShown = kde.IsKernelTextureSizeShown ();
+	kernelTextureSize = kde.GetKernelTextureSize ();
+	kernelIntervalPerPixel = kde.GetKernelIntervalPerPixel ();
+	kernelSigma = kde.GetKernelSigma ();
+    }
+    SetCheckedNoSignals (checkBoxTextureSizeShown, kernelTextureSizeShown);
+    SetValueNoSignals (
+	horizontalSliderT1sKernelTextureSize,
+	Value2Index (horizontalSliderT1sKernelTextureSize,
+		     T1sPDE::KERNEL_TEXTURE_SIZE, kernelTextureSize));
+    SetValueNoSignals (
+	horizontalSliderT1sKernelIntervalPerPixel,
+	Value2Index(horizontalSliderT1sKernelIntervalPerPixel,
+		    T1sPDE::KERNEL_INTERVAL_PER_PIXEL, kernelIntervalPerPixel));
+    SetValueNoSignals (
+	horizontalSliderT1sKernelSigma,
+	Value2Index (horizontalSliderT1sKernelSigma,
+		     T1sPDE::KERNEL_SIGMA, kernelSigma));
+}
 
 void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 {
