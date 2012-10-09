@@ -178,8 +178,22 @@ public:
     {
 	m_velocityLineWidth = value;
     }
-
-
+    double GetStreamlineMaxPropagation () const
+    {
+        return m_streamlineMaxPropagation;
+    }
+    void SetStreamlineMaxPropagation (double value)
+    {
+        m_streamlineMaxPropagation = value;
+    }
+    int GetStreamlineMaxSteps () const
+    {
+        return m_streamlineMaxSteps;
+    }
+    void SetStreamlineMaxSteps (int steps)
+    {
+        m_streamlineMaxSteps = steps;
+    }
     // @}
 
     /**
@@ -760,6 +774,8 @@ private:
     bool m_histogramShown;
     HistogramType::Options m_histogramOptions;
     bool m_domainClipped;
+    double m_streamlineMaxPropagation;
+    int m_streamlineMaxSteps;
 };
 
 

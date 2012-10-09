@@ -168,10 +168,8 @@ WidgetGl::WidgetGl(QWidget *parent)
     initTexture ();
     initQuadrics ();
     initDisplayView ();
+    initStreamlines ();
     createActions ();
-
-    for (size_t i = 0; i < m_streamlineSeeds.size (); ++i)
-        m_streamlineSeeds[i] = vtkSmartPointer<vtkPolyData>::New();
 }
 
 
@@ -184,6 +182,15 @@ WidgetGl::~WidgetGl()
     glDeleteLists (m_listFacesNormal[0], m_listFacesNormal.size ());
     glDeleteTextures (m_colorBarTexture.size (), &m_colorBarTexture[0]);
     glDeleteTextures (m_overlayBarTexture.size (), &m_overlayBarTexture[0]);
+}
+
+
+void WidgetGl::initStreamlines ()
+{
+    for (size_t i = 0; i < m_streamlineSeeds.size (); ++i)
+        m_streamlineSeeds[i] = vtkSmartPointer<vtkPolyData>::New();
+    m_rungeKutta = vtkSmartPointer<vtkRungeKutta4>::New ();
+    m_streamer = vtkSmartPointer<vtkStreamTracer>::New ();
 }
 
 
@@ -2922,42 +2929,20 @@ void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
     AllTransformAverage (viewNumber, 0);
     m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
         GetAverageCache ());
-
-    VTK_CREATE (vtkXMLImageDataWriter, writer);
-    writer->SetFileName ("velocity.vti");
-    writer->SetInput (GetAverageCache ()->GetVelocity ());
-    writer->Write ();
         
-    //VTK_CREATE (vtkRungeKutta45, rk);
-    VTK_CREATE (vtkRungeKutta4, rk);
-    VTK_CREATE (vtkStreamTracer, streamer);
-    streamer->SetInput (GetAverageCache ()->GetVelocity ());
-    //streamer->SetStartPosition (0.5, 0.25, 0);
-    streamer->SetSource (m_streamlineSeeds[viewNumber]);
-    streamer->SetMaximumPropagation (.2);
-    streamer->SetIntegrationStepUnit (vtkStreamTracer::LENGTH_UNIT);
-    //streamer->SetMinimumIntegrationStep (0.001);
-    //streamer->SetMaximumIntegrationStep (1.0);
-    streamer->SetInitialIntegrationStep (0.005);
-    streamer->SetIntegrationDirection (vtkStreamTracer::FORWARD);
-    streamer->SetIntegrator (rk);
-    streamer->SetRotationScale (0.5);
-    streamer->SetMaximumError (1.0e-8);
-    streamer->Update ();
-
-/*
-    VTK_CREATE (vtkStripper, stripper);
-    stripper->SetInput (streamer->GetOutput ());
-
-    VTK_CREATE (vtkCleanPolyData, cleanPoly);
-    cleanPoly->SetInput (stripper->GetOutput ());
-    cleanPoly->Update ();
-*/
-
-
-
+    m_streamer->SetInput (GetAverageCache ()->GetVelocity ());
+    m_streamer->SetSource (m_streamlineSeeds[viewNumber]);
+    m_streamer->SetMaximumPropagation (.2);
+    m_streamer->SetMaximumNumberOfSteps (10);
+    m_streamer->SetIntegrationStepUnit (vtkStreamTracer::LENGTH_UNIT);
+    m_streamer->SetInitialIntegrationStep (0.005);
+    m_streamer->SetIntegrationDirection (vtkStreamTracer::FORWARD);
+    m_streamer->SetIntegrator (m_rungeKutta);
+    m_streamer->SetRotationScale (0.5);
+    m_streamer->SetMaximumError (1.0e-8);
+    m_streamer->Update ();
     m_streamline[viewNumber] = 
-        vtkPolyData::SafeDownCast (streamer->GetOutput ());
+        vtkPolyData::SafeDownCast (m_streamer->GetOutput ());
 }
 
 
@@ -4450,6 +4435,16 @@ void WidgetGl::ValueChangedAngleOfView (int angleOfView)
     CompileUpdate ();
 }
 
+
+void WidgetGl::ValueChangedStreamlineMaxPropagation (double value)
+{
+    
+}
+
+void WidgetGl::ValueChangedStreamlineMaxSteps (int steps)
+{
+    
+}
 
 // Template instantiations
 // ======================================================================

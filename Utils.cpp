@@ -594,8 +594,8 @@ void SetValueNoSignals (T* t, size_t value)
     t->blockSignals (false);
 }
 
-template<typename T>
-void SetValueAndMaxNoSignals (T* t, size_t value, size_t max)
+template<typename Control, typename T>
+void SetValueAndMaxNoSignals (Control* t, T value, T max)
 {
     t->blockSignals (true);
     t->setMaximum (max);

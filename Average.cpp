@@ -34,7 +34,6 @@ Average::Average (
 void Average::AverageInit ()
 {
     m_currentTimeWindow = 0;
-    m_timeWindow = GetSimulation ().GetFoams ().size ();
 }
 
 void Average::loopOperation (Operation op, size_t currentTime)

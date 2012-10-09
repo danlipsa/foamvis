@@ -204,8 +204,8 @@ template<typename T>
 void SetCheckedNoSignals (T* checkBox, bool checked, bool enabled = true);
 template<typename T>
 void SetValueNoSignals (T* slider, size_t value);
-template<typename T>
-void SetValueAndMaxNoSignals (T* slider, size_t value, size_t max);
+template<typename Control, typename T>
+void SetValueAndMaxNoSignals (Control* slider, T value, T max);
 float IndexExponent2Value (const QSlider* slider, 
 			   const pair<float,float>& minMax);
 int Value2ExponentIndex (QSlider* slider, 

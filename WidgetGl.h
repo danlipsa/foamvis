@@ -280,6 +280,9 @@ public Q_SLOTS:
     void CurrentIndexChangedAxesOrder (int index);
     void CurrentIndexChangedSelectedLight (int selectedLight);
 
+
+    void ValueChangedStreamlineMaxSteps (int steps);
+    void ValueChangedStreamlineMaxPropagation (double value);
     void ValueChangedNoiseStart (int i);
     void ValueChangedNoiseAmplitude (int i);
     void ValueChangedNoiseFrequency (int i);
@@ -480,6 +483,7 @@ private:
     G3D::Vector3 calculateViewingVolumeScaledExtent (
 	ViewNumber::Enum viewNumber) const;
     void initQuadrics ();
+    void initStreamlines ();
     void calculateCameraDistance (ViewNumber::Enum viewNumber);
     /**
      * Generates a display list for edges
@@ -731,6 +735,8 @@ private:
                  ViewNumber::COUNT> m_streamline;
     boost::array<vtkSmartPointer<vtkPolyData>, 
                  ViewNumber::COUNT> m_streamlineSeeds;
+    vtkSmartPointer<vtkRungeKutta4> m_rungeKutta;
+    vtkSmartPointer<vtkStreamTracer> m_streamer;
 };
 
 
