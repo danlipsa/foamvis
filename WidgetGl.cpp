@@ -1083,8 +1083,8 @@ void WidgetGl::translateGrid (
     G3D::Vector3 translationRatio = calculateTranslationRatio (
 	viewNumber, position, G3D::Vector3::X_AXIS, G3D::Vector3::Y_AXIS);
     G3D::Vector3 extent = calculateViewingVolumeScaledExtent (viewNumber);
-    vs.SetGridTranslation (
-	vs.GetGridTranslation () + (translationRatio * extent));
+    vs.SetGridTranslation (vs.GetGridTranslation () + 
+                           vs.GetScaleRatio () * translationRatio * extent);
     updateStreamlineSeeds (viewNumber);
     CalculateStreamline (viewNumber);
 }
@@ -2991,7 +2991,7 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
 	glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT);
 
         VTK_CREATE(vtkIdList, points);
-        /*
+        
         glPushMatrix ();
         rotateAverageAroundStreamlines (
             viewNumber, vs.IsAverageAroundRotationShown ());
@@ -3012,7 +3012,7 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
             glEnd ();
         }
         glPopMatrix ();
-        */
+        
         
         // display the seeds as points
         glPushMatrix ();

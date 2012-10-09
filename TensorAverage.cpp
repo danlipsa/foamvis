@@ -192,7 +192,7 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
     *onePixelInObjectSpace = GetOnePixelInObjectSpace () * scaleRatio;
     *lineWidth = *onePixelInObjectSpace * CALL_MEMBER (vs, m_lineWidthRatio) ();
 
-    *gridTranslation = (vs.GetGridTranslation () * scaleRatio).xy ();
+    *gridTranslation = vs.GetGridTranslation ().xy ();
     *gridCellLength = widgetGl.GetBubbleSize (this->GetViewNumber ()) * 
         gridScaleRatio;
     *enclosingRect = toRect2D (
