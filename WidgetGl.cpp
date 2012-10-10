@@ -1870,8 +1870,8 @@ void WidgetGl::displayT1sTimestep (
 		  GL_CURRENT_BIT | GL_POLYGON_BIT);
     glDisable (GL_DEPTH_TEST);
     glPointSize (m_t1sSize);
-    glColor (GetSettings ()->GetHighlightColor (
-                 viewNumber, HighlightNumber::H0));
+    glColor (GetSettings ()->GetHighlightColor (viewNumber, 
+                                                HighlightNumber::H1));
     glBegin (GL_POINTS);
     BOOST_FOREACH (const G3D::Vector3 t1Pos, 
 		   GetSimulation (viewNumber).GetT1s (timeStep, 
@@ -2993,7 +2993,8 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
         vtkSmartPointer<vtkPolyData> streamline = m_streamline[viewNumber];
         vtkSmartPointer<vtkCellArray> lines = streamline->GetLines ();
         lines->InitTraversal ();
-        glColor (Qt::black);
+        glColor (GetSettings ()->GetHighlightColor (viewNumber, 
+                                                    HighlightNumber::H0));
         while (lines->GetNextCell (points))
         {
             // each cell represents a streamline

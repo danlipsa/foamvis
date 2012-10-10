@@ -210,7 +210,7 @@ void ColorBarModel::setupPaletteDiverging (size_t c)
 	    /* purple to orange */
 	    {{0.436, 0.308, 0.631},
 	     {0.759, 0.334, 0.046},
-	     {0, 0, 0}, {1, 1, 0}, {0, 0, 1}
+	     {0, 0, 0}, {0, 1, 0}, {0, 0, 1}
 	    },
 
 	    /* green to purple */
