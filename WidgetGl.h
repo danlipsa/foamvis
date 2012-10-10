@@ -247,6 +247,7 @@ public Q_SLOTS:
     void ToggledTorusDomainClipped (bool checked);
     void ToggledTorusDomainShown (bool checked);
     void ToggledT1sShown (bool checked);
+    void ToggledT1sAllTimesteps (bool checked);
     void ToggledT1sShiftLower (bool checked);
     void ToggledMissingPressureShown (bool checked);
     void ToggledMissingVolumeShown (bool checked);
@@ -281,8 +282,8 @@ public Q_SLOTS:
     void CurrentIndexChangedSelectedLight (int selectedLight);
 
 
-    void ValueChangedStreamlineMaxSteps (int steps);
-    void ValueChangedStreamlineMaxPropagation (double value);
+    void ValueChangedStreamlineStepLength (double steps);
+    void ValueChangedStreamlineLength (double value);
     void ValueChangedNoiseStart (int i);
     void ValueChangedNoiseAmplitude (int i);
     void ValueChangedNoiseFrequency (int i);
@@ -531,8 +532,9 @@ private:
     void displayBodyVelocity (ViewNumber::Enum viewNumber) const;
     void displayDeformation (ViewNumber::Enum viewNumber) const;
     void displayVelocity (ViewNumber::Enum viewNumber) const;
-    void displayT1sDot (ViewNumber::Enum view) const;
-    void displayT1sDot (ViewNumber::Enum view, size_t timeStep) const;
+    void displayT1sAllTimesteps (ViewNumber::Enum view) const;
+    void displayT1s (ViewNumber::Enum view) const;
+    void displayT1sTimestep (ViewNumber::Enum view, size_t timeStep) const;    
     void displayCenterPaths (ViewNumber::Enum view) const;
     void compileCenterPaths (ViewNumber::Enum view) const;
 
@@ -718,6 +720,7 @@ private:
     boost::shared_ptr<SelectBodiesById> m_selectBodiesByIdList;
     QLabel *m_labelStatusBar;
     bool m_t1sShown;
+    bool m_t1sAllTimesteps;
     double m_t1sSize;
     size_t m_highlightLineWidth;
     bool m_averageAroundMarked;

@@ -178,21 +178,21 @@ public:
     {
 	m_velocityLineWidth = value;
     }
-    double GetStreamlineMaxPropagation () const
+    double GetStreamlineLength () const
     {
-        return m_streamlineMaxPropagation;
+        return m_streamlineLength;
     }
-    void SetStreamlineMaxPropagation (double value)
+    void SetStreamlineLength (double value)
     {
-        m_streamlineMaxPropagation = value;
+        m_streamlineLength = value;
     }
-    int GetStreamlineMaxSteps () const
+    double GetStreamlineStepLength () const
     {
-        return m_streamlineMaxSteps;
+        return m_streamlineStepLength;
     }
-    void SetStreamlineMaxSteps (int steps)
+    void SetStreamlineStepLength (double steps)
     {
-        m_streamlineMaxSteps = steps;
+        m_streamlineStepLength = steps;
     }
     // @}
 
@@ -668,6 +668,10 @@ public:
     }
     //@}
 
+public:
+    static const double STREAMLINE_LENGTH;
+    static const double STREAMLINE_STEP_LENGTH;
+
 Q_SIGNALS:
     void SelectionChanged ();
 
@@ -774,8 +778,8 @@ private:
     bool m_histogramShown;
     HistogramType::Options m_histogramOptions;
     bool m_domainClipped;
-    double m_streamlineMaxPropagation;
-    int m_streamlineMaxSteps;
+    double m_streamlineLength;
+    double m_streamlineStepLength;
 };
 
 

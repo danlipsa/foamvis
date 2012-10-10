@@ -156,6 +156,7 @@ WidgetGl::WidgetGl(QWidget *parent)
       m_timeDisplacement (0.0),
       m_selectBodiesByIdList (new SelectBodiesById (this)),
       m_t1sShown (false),
+      m_t1sAllTimesteps (false),
       m_t1sSize (1.0),
       m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
       m_averageAroundMarked (true),
@@ -799,6 +800,8 @@ void WidgetGl::initializeGL()
 	glClearColor (Qt::white);
 	glEnable(GL_DEPTH_TEST);
 	glEnable (GL_MULTISAMPLE);
+        glEnable (GL_LINE_SMOOTH);
+        glEnable (GL_POINT_SMOOTH);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	cdbg << "Compiling shaders..." << endl;
 	ScalarAverage::InitShaders ();
@@ -1842,13 +1845,24 @@ void WidgetGl::displayBodiesNeighbors () const
     }
 }
 
-void WidgetGl::displayT1sDot (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayT1s (ViewNumber::Enum viewNumber) const
 {
-    for (size_t i = 0; i < GetSimulation (viewNumber).GetT1sTimeSteps (); ++i)
-	displayT1sDot (viewNumber, i);
+    if (m_t1sShown)
+    {
+        if (m_t1sAllTimesteps)
+            displayT1sAllTimesteps (viewNumber);
+        else
+            displayT1sTimestep (viewNumber, GetCurrentTime (viewNumber));    
+    }
 }
 
-void WidgetGl::displayT1sDot (
+void WidgetGl::displayT1sAllTimesteps (ViewNumber::Enum viewNumber) const
+{
+    for (size_t i = 0; i < GetSimulation (viewNumber).GetT1sTimeSteps (); ++i)
+	displayT1sTimestep (viewNumber, i);
+}
+
+void WidgetGl::displayT1sTimestep (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -2099,8 +2113,7 @@ void WidgetGl::compileFacesNormal (ViewNumber::Enum viewNumber) const
     displayStandaloneFaces ();    
     displayDeformation (viewNumber);
     displayVelocity (viewNumber);
-    if (m_t1sShown)
-	displayT1sDot (viewNumber, GetCurrentTime (viewNumber));
+    displayT1s (viewNumber);
     GetViewAverage (viewNumber).GetForceAverage ().DisplayOneTimeStep ();
     //glEndList ();
 }
@@ -2163,8 +2176,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	isAverageAroundRotationShown);
     displayStreamline (viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (foam);
-    if (m_t1sShown)
-	displayT1sDot (viewNumber);
+    displayT1s (viewNumber);
     displayAverageAroundBodies (viewNumber, isAverageAroundRotationShown);
     displayContextBodies (viewNumber);
     displayContextBox (viewNumber, isAverageAroundRotationShown);
@@ -2932,10 +2944,9 @@ void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
         
     m_streamer->SetInput (GetAverageCache ()->GetVelocity ());
     m_streamer->SetSource (m_streamlineSeeds[viewNumber]);
-    m_streamer->SetMaximumPropagation (.2);
-    m_streamer->SetMaximumNumberOfSteps (10);
+    m_streamer->SetMaximumPropagation (vs.GetStreamlineLength ());
     m_streamer->SetIntegrationStepUnit (vtkStreamTracer::LENGTH_UNIT);
-    m_streamer->SetInitialIntegrationStep (0.005);
+    m_streamer->SetInitialIntegrationStep (vs.GetStreamlineStepLength ());
     m_streamer->SetIntegrationDirection (vtkStreamTracer::FORWARD);
     m_streamer->SetIntegrator (m_rungeKutta);
     m_streamer->SetRotationScale (0.5);
@@ -2973,8 +2984,7 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::STREAMLINE)
     {
-	glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT);
-
+	glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT );
         VTK_CREATE(vtkIdList, points);
         
         glPushMatrix ();
@@ -4054,6 +4064,13 @@ void WidgetGl::ToggledT1sShown (bool checked)
     CompileUpdate ();
 }
 
+void WidgetGl::ToggledT1sAllTimesteps (bool checked)
+{
+    makeCurrent ();
+    m_t1sAllTimesteps = checked;
+    CompileUpdate ();
+}
+
 void WidgetGl::ToggledT1sShiftLower (bool checked)
 {
     makeCurrent ();
@@ -4436,14 +4453,20 @@ void WidgetGl::ValueChangedAngleOfView (int angleOfView)
 }
 
 
-void WidgetGl::ValueChangedStreamlineMaxPropagation (double value)
+void WidgetGl::ValueChangedStreamlineLength (double value)
 {
-    
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetStreamlineLength (value);
+    CalculateStreamline (GetViewNumber ());
+    update ();
 }
 
-void WidgetGl::ValueChangedStreamlineMaxSteps (int steps)
+void WidgetGl::ValueChangedStreamlineStepLength (double stepLength)
 {
-    
+    ViewSettings& vs = GetViewSettings ();    
+    vs.SetStreamlineStepLength (stepLength);
+    CalculateStreamline (GetViewNumber ());
+    update ();    
 }
 
 // Template instantiations

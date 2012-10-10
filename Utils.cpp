@@ -729,8 +729,13 @@ void RemoveLayout (QWidget* widget)
 template void SetCheckedNoSignals<QCheckBox> (QCheckBox*, bool, bool);
 template void SetCheckedNoSignals<QRadioButton> (QRadioButton*, bool, bool);
 template void SetValueNoSignals<QSlider>(QSlider*, unsigned long);
+
 template void SetValueAndMaxNoSignals<QSpinBox>(
     QSpinBox*, unsigned long, unsigned long);
+template void SetValueAndMaxNoSignals<QDoubleSpinBox>(
+    QDoubleSpinBox*, double, double);
+
+
 
 template int polyCentroid2D<double>(
     double*, double*, unsigned long, double*, double*, double*);

@@ -34,6 +34,12 @@ boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
     return idBodySelector;
 }
 
+// Fields
+// ======================================================================
+const double ViewSettings::STREAMLINE_LENGTH (0.2);
+const double ViewSettings::STREAMLINE_STEP_LENGTH (0.005);
+
+
 
 // Methods
 // ======================================================================
@@ -85,8 +91,8 @@ ViewSettings::ViewSettings () :
     m_histogramShown (false),
     m_histogramOptions (HistogramType::UNICOLOR_TIME_STEP),
     m_domainClipped (false),
-    m_streamlineMaxPropagation (1),
-    m_streamlineMaxSteps (2000)
+    m_streamlineLength (STREAMLINE_LENGTH),
+    m_streamlineStepLength (STREAMLINE_STEP_LENGTH)
 {
     setInitialLightParameters ();
     for (size_t i = 0; i < m_averageAroundBodyId.size (); ++i)

@@ -898,7 +898,7 @@ void MainWindow::currentIndexChangedFaceColor (
     const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
     boost::array<QWidget*, 3> widgetsVisible = {{
 	    checkBoxHistogramShown, checkBoxHistogramColorMapped, 
-	    checkBoxHistogramAllTimestepsShown}};
+	    checkBoxHistogramAllTimesteps}};
     boost::array<QWidget*, 1> widgetsEnabled = {{
 	    radioButtonAverage}};
     size_t simulationIndex = vs.GetSimulationIndex ();
@@ -1121,7 +1121,7 @@ void MainWindow::ToggledHistogramColorMapped (bool checked)
 			     WidgetHistogram::KEEP_MAX_VALUE);
 }
 
-void MainWindow::ToggledHistogramAllTimestepsShown (bool checked)
+void MainWindow::ToggledHistogramAllTimesteps (bool checked)
 {
     ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
     ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
@@ -1604,6 +1604,7 @@ void MainWindow::velocityViewToUI ()
 
     SetCheckedNoSignals (checkBoxVelocityShown, vs.IsVelocityShown ());
     SetCheckedNoSignals (buttonGroupVelocityVis, vs.GetVelocityVis (), true);
+    // glyphs
     SetCheckedNoSignals (checkBoxVelocityGlyphGridShown, gridShown);
     SetCheckedNoSignals (checkBoxVelocityGlyphClampingShown, clampingShown);
     SetCheckedNoSignals (checkBoxVelocityGlyphGridCellCenterShown, 
@@ -1615,6 +1616,14 @@ void MainWindow::velocityViewToUI ()
 	Value2ExponentIndex (horizontalSliderVelocityGlyphLineWidth,
 			     WidgetGl::TENSOR_LINE_WIDTH_EXP2,
 			     vs.GetVelocityLineWidth ()));
+    // streamlines
+    const int ratio = 5;
+    SetValueAndMaxNoSignals (doubleSpinBoxStreamlineLength,
+			     vs.GetStreamlineLength (), 
+                             ratio * ViewSettings::STREAMLINE_LENGTH);
+    SetValueAndMaxNoSignals (doubleSpinBoxStreamlineStepLength,
+			     vs.GetStreamlineStepLength (),
+                             ratio * ViewSettings::STREAMLINE_STEP_LENGTH);
 }
 
 void MainWindow::forceViewToUI ()
@@ -1692,7 +1701,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 	checkBoxHistogramColorMapped, 
 	vs.HasHistogramOption(HistogramType::COLOR_MAPPED));
     SetCheckedNoSignals (
-	checkBoxHistogramAllTimestepsShown,
+	checkBoxHistogramAllTimesteps,
 	vs.HasHistogramOption(HistogramType::ALL_TIME_STEPS_SHOWN));
     SetCheckedNoSignals (checkBoxDomainClipped, vs.DomainClipped ());
 

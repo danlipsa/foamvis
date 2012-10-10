@@ -64,7 +64,7 @@ public Q_SLOTS:
     void ToggledHistogramGridShown (bool checked);
     void ToggledHistogramShown (bool checked);
     void ToggledHistogramColorMapped (bool checked);
-    void ToggledHistogramAllTimestepsShown (bool checked);
+    void ToggledHistogramAllTimesteps (bool checked);
 
     void ButtonClickedViewType (int viewType);
     void ButtonClickedVelocityVis (int velocityVis);

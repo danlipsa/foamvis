@@ -143,10 +143,11 @@ void main (void)
 	
         (u_gridShown && isOnGrid (gridCoordFract)) ||
 
-	(u_gridCellCenterShown && 
-	 isOnGridCellCenter (gridCoordFract, gridCoordFloor)) ||
+	(u_gridShown && isOnGridCenter (gridCoord)) ||
 
-	isOnGridCenter (gridCoord))
+	(u_gridCellCenterShown && 
+	 isOnGridCellCenter (gridCoordFract, gridCoordFloor))
+        )
     {
 	if (u_colorMapped)
 	{
