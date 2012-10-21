@@ -199,7 +199,8 @@ void DisplayBodyVelocity::display (boost::shared_ptr<Body> body)
     }
     else
     {
-	float size = m_velocitySizeInitialRatio * vs.GetVelocityClampingRatio ();
+	float size = 
+            m_velocitySizeInitialRatio * vs.GetVelocityClampingRatio ();
 	displayVelocity = clamp (velocity * size, m_bubbleSize, &clamped);
     }
     if (GetFocusContext (body) == FOCUS)

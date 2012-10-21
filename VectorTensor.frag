@@ -15,7 +15,9 @@ uniform float u_sizeRatio;
 // deformation tensors are stored here.
 uniform sampler2D u_tensorAverageTexUnit;
 // scalar averages are stored here (sum, count, min, max). We use count.
+// for vectors, the average is (x, y, count, 0).
 uniform sampler2D u_scalarAverageTexUnit;
+uniform int u_countIndex;
 uniform float u_minValue;
 uniform float u_maxValue;
 uniform sampler1D u_overlayBarTexUnit;

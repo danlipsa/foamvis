@@ -71,8 +71,8 @@ public:
     static const pair<float, float> KERNEL_INTERVAL_PER_PIXEL;
 
 protected:
-    virtual void writeStepValues (ViewNumber::Enum view, size_t timeStep, 
-				  size_t subStep);
+    virtual void writeStepValues (
+        ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep);
     virtual size_t getStepSize (size_t timeStep) const;
 
 private:

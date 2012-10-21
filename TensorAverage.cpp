@@ -37,7 +37,8 @@ TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
     m_enclosingRectHighLocation = uniformLocation ("u_enclosingRect.m_high");
     m_rotationCenterLocation = uniformLocation ("u_rotationCenter");
     m_tensorAverageTexUnitLocation = uniformLocation("u_tensorAverageTexUnit");
-    m_scalarAverageTexUnitLocation = uniformLocation("u_scalarAverageTexUnit");
+    m_scalarAverageTexUnitLocation = uniformLocation ("u_scalarAverageTexUnit");
+    m_countIndexLocation = uniformLocation ("u_countIndex");
     m_minValueLocation = uniformLocation ("u_minValue");
     m_maxValueLocation = uniformLocation ("u_maxValue");
     m_overlayBarTexUnitLocation = uniformLocation ("u_overlayBarTexUnit");
@@ -55,7 +56,7 @@ void TensorDisplay::Bind (
     bool sameSize, bool colorMapped,
     float noiseStart, float noiseFrequency, float noiseAmplitude,
     float ellipseSizeRatio, G3D::Rect2D enclosingRect, 
-    G3D::Vector2 rotationCenter, float minValue, float maxValue,
+    G3D::Vector2 rotationCenter, int countIndex, float minValue, float maxValue,
     bool gridShown, bool clampingShown, bool gridCellCenterShown,
     float onePixelInObjectSpace, bool glyphShown)
 {
@@ -80,6 +81,7 @@ void TensorDisplay::Bind (
 	m_tensorAverageTexUnitLocation, GetTensorAverageTexUnit ());
     setUniformValue (
 	m_scalarAverageTexUnitLocation, GetScalarAverageTexUnit ());
+    setUniformValue (m_countIndexLocation, countIndex);
     setUniformValue (m_minValueLocation, minValue);
     setUniformValue (m_maxValueLocation, maxValue);
     setUniformValue (
@@ -125,7 +127,7 @@ template<typename Setter>
 void TensorAverageTemplate<Setter>::rotateAndDisplay (
     GLfloat minValue, GLfloat maxValue,
     StatisticsType::Enum displayType, 
-    typename ImageBasedAverage<Setter>::TensorScalarFbo srcFbo,
+    typename ImageBasedAverage<Setter>::FbosCountFbos srcFbo,
     ViewingVolumeOperation::Enum enclose,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
@@ -144,7 +146,7 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
 	gridTranslation, gridCellLength, lineWidth, m_sameSize, m_colorMapped,
 	m_noiseStart, m_noiseFrequency,
 	m_noiseAmplitude,
-	sizeRatio, enclosingRect, rotationCenter,
+	sizeRatio, enclosingRect, rotationCenter, this->m_countIndex,
 	minMax.first, minMax.second,
 	m_gridShown, m_clampingShown, m_gridCellCenterShown,
 	onePixelInObjectSpace, m_glyphShown);
@@ -154,7 +156,7 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
 	TextureEnum (m_displayShaderProgram->GetTensorAverageTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, srcFbo.first->texture ());
 
-    // bind "scalar average" to texture unit 2
+    // bind "scalar average" (count) to texture unit 2
     this->glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetScalarAverageTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, srcFbo.second->texture ());
@@ -213,7 +215,7 @@ TensorAverage::TensorAverage (ViewNumber::Enum viewNumber,
 	&WidgetGl::GetDeformationSizeInitialRatio,
 	&ViewSettings::GetDeformationSize,
 	&ViewSettings::GetDeformationLineWidth,
-	countFbos)
+	countFbos, 1)
 {
 }
 

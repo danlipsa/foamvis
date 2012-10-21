@@ -12,7 +12,7 @@ varying vec4 fValue;
 void main(void)
 {
     gl_Position = ftransform();	
-    fValue = vec4 (vValue, 0, 0);
+    fValue = vec4 (vValue, 1, 0);
 }
 
 // Local Variables:

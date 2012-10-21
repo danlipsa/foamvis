@@ -25,7 +25,8 @@ public:
 	float noiseStart, float noiseFrequency,
 	float noiseAmplitude,
 	float elipseSizeRatio, G3D::Rect2D enclosingRect,
-	G3D::Vector2 rotationCenter, float minValue, float maxValue,
+	G3D::Vector2 rotationCenter, int countIndex, 
+        float minValue, float maxValue,
 	bool gridShown, bool clampingShown,
 	bool gridCellCenterShown, float onePixelInObjectSpace, 
         bool glyphShown);
@@ -58,6 +59,7 @@ private:
     int m_rotationCenterLocation;
     int m_tensorAverageTexUnitLocation;
     int m_scalarAverageTexUnitLocation;
+    int m_countIndexLocation;
     int m_minValueLocation;
     int m_maxValueLocation;
     int m_overlayBarTexUnitLocation;
@@ -82,10 +84,11 @@ public:
         const WidgetGl& widgetGl, WidgetGlFloatFunction sizeInitialRatio,
 	ViewSettingsFloatFunction sizeRatio, 
         ViewSettingsFloatFunction lineWidthRatio,
-        FramebufferObjects& countFbos) :
+        FramebufferObjects& countFbos, size_t countIndex) :
 
-	ImageBasedAverage<Setter> (viewNumber,
-	    widgetGl, "tensor", QColor (0, 0, 0, 0), countFbos),
+	ImageBasedAverage<Setter> (
+            viewNumber,
+            widgetGl, "tensor", QColor (0, 0, 0, 0), countFbos, countIndex),
 	m_gridShown (false),
 	m_clampingShown (false),
 	m_gridCellCenterShown (false),
@@ -168,7 +171,7 @@ protected:
     virtual void rotateAndDisplay (
 	GLfloat minValue, GLfloat maxValue,
 	StatisticsType::Enum displayType, 
-	typename ImageBasedAverage<Setter>::TensorScalarFbo srcFbo,
+	typename ImageBasedAverage<Setter>::FbosCountFbos srcFbo,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
@@ -176,8 +179,8 @@ protected:
 private:
     void calculateShaderParameters (
 	G3D::Vector2 rotationCenter, 
-	G3D::Vector2* gridTranslation, float* gridCellLength, float* lineWidth, 	
-	float* elipseSizeRatio, G3D::Rect2D* srcRect, 
+	G3D::Vector2* gridTranslation, float* gridCellLength, 
+        float* lineWidth, float* elipseSizeRatio, G3D::Rect2D* srcRect, 
 	float* onePixelInObjectSpace) const;
 
 protected:

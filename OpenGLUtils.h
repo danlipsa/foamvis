@@ -112,6 +112,8 @@ inline GLenum TextureEnum (GLint texture)
     return GL_TEXTURE0 + texture;
 }
 
+GLenum GetColorComponent (size_t index);
+
 void DisplayBox (const OOBox& oobox);
 void DisplayBox (const G3D::AABox& aabb, const QColor& color,
 		 GLfloat lineWidth = 1.0);

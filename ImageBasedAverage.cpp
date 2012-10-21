@@ -32,10 +32,10 @@ size_t getNumberOfComponents (GLenum format)
     switch (format)
     {
     case GL_RED:
-        // read a scalar
-        return 1;
     case GL_GREEN:
-        // read the count
+    case GL_BLUE:
+    case GL_ALPHA:
+        // read a scalar or the count
         return 1;
     case GL_RGB:
         // read a 2D vector (RG contain the vector components)
@@ -69,10 +69,12 @@ template<typename PropertySetter>
 ImageBasedAverage<PropertySetter>::ImageBasedAverage (
     ViewNumber::Enum viewNumber,
     const WidgetGl& widgetGl, string id, QColor stepClearColor,
-    FramebufferObjects& countFbos) :
+    FramebufferObjects& countFbos, size_t countIndex) :
     Average (viewNumber, 
 	     *widgetGl.GetSettings (), widgetGl.GetSimulationGroup ()), 
-    m_countFbos (countFbos), m_id (id),
+    m_countFbos (countFbos), 
+    m_countIndex (countIndex),
+    m_id (id),
     m_stepClearColor (stepClearColor),
     m_widgetGl (widgetGl)
 {
@@ -209,7 +211,7 @@ void ImageBasedAverage<PropertySetter>::removeStep (
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (timeStep, subStep);
     //save (viewNumber, 
-    //TensorScalarFbo (*m_step, *m_scalarAverage.m_step), 
+    //FbosCountFbos (*m_step, *m_scalarAverage.m_step), 
     // "step", timeStep, minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     currentIsPreviousMinusStep ();
@@ -221,7 +223,7 @@ void ImageBasedAverage<PropertySetter>::removeStep (
 
     copyCurrentToPrevious ();
     //save (viewNumber, 
-    //TensorScalarFbo (*m_previous, *m_scalarAverage.m_previous), 
+    //FbosCountFbos (*m_previous, *m_scalarAverage.m_previous), 
     //"previous", timeStep + 1,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
 
@@ -241,7 +243,7 @@ void ImageBasedAverage<PropertySetter>::renderToStep (
     GetWidgetGl ().AllTransformAverage (GetViewNumber (), timeStep);
     m_fbos.m_step->bind ();
     ClearColorStencilBuffers (getStepClearColor (), 0);
-    writeStepValues (timeStep, subStep);
+    writeStepValues (GetViewNumber (), timeStep, subStep);
     m_fbos.m_step->release ();
 
     glMatrixMode (GL_PROJECTION);
@@ -336,10 +338,10 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
 
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::writeStepValues (
-    size_t timeStep, size_t subStep)
+    ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep)
 {
     (void)subStep;
-    ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
+    ViewSettings& vs = GetSettings ().GetViewSettings (viewNumber);
     const Foam& foam = GetFoam (timeStep);
     const Foam::Bodies& bodies = foam.GetBodies ();
     m_storeShaderProgram->Bind ();
@@ -353,7 +355,7 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
 	PropertySetter> (
 	    GetSettings (), vs.GetBodySelector (), 
 	    PropertySetter (GetSettings (), 
-			    GetViewNumber (), m_storeShaderProgram.get (),
+			    viewNumber, m_storeShaderProgram.get (),
 			    m_storeShaderProgram->GetVValueLocation ()),
 	    DisplayElement::INVISIBLE_CONTEXT));
     glPopAttrib ();
@@ -408,8 +410,10 @@ void ImageBasedAverage<PropertySetter>::save (
                 d = data->GetComponent (y * windowCoord.width () + x, 0);
             else
             {
-                float one = data->GetComponent (y * windowCoord.width () + x, 0);
-                float two = data->GetComponent (y * windowCoord.width () + x, 1);
+                float one = data->GetComponent (
+                    y * windowCoord.width () + x, 0);
+                float two = data->GetComponent (
+                    y * windowCoord.width () + x, 1);
                 d = sqrt (one * one + two * two);
             }
             color.setRgbF (d / maxValue, d / maxValue, d / maxValue);
@@ -422,14 +426,14 @@ void ImageBasedAverage<PropertySetter>::save (
 
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::save (
-    TensorScalarFbo fbo, const char* postfix, size_t timeStep, size_t subStep,
+    FbosCountFbos fbo, const char* postfix, size_t timeStep, size_t subStep,
     GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
 {
     // render to the debug buffer
     m_fbos.m_debug->bind ();
     ClearColorBuffer (Qt::white);
-    rotateAndDisplay (
-	minValue, maxValue, displayType, fbo, ViewingVolumeOperation::ENCLOSE2D);
+    rotateAndDisplay (minValue, maxValue, displayType, fbo, 
+                      ViewingVolumeOperation::ENCLOSE2D);
     m_fbos.m_debug->release ();
     ostringstream ostr;
     ostr << "images/" 

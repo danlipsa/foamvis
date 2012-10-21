@@ -113,7 +113,6 @@ INCLUDEPATH += /usr/local/Trolltech/Qt-4.7.0/include
 LIBS += -L/usr/local/lib
 LIBS += -L/usr/local/qwt-5.2.1/lib
 LIBS += -L/usr/local/lib/vtk-5.10
-LIBS += -L/usr/local/Trolltech/Qt-4.7.0/lib
 
 LIBS += "-lGLG3D" 
 LIBS += "-lG3D" 

@@ -33,7 +33,7 @@ public:
 			   const WidgetGl& widgetGl, string id, 
 			   QColor stepClearColor) :
 	ImageBasedAverage<PropertySetter> (
-	    viewNumber, widgetGl, id, stepClearColor, this->m_fbos)
+	    viewNumber, widgetGl, id, stepClearColor, this->m_fbos, 1)
     {
     }
     
@@ -46,7 +46,7 @@ protected:
     virtual void rotateAndDisplay (
 	GLfloat minValue, GLfloat maxValue,
 	StatisticsType::Enum displayType, 
-	typename ImageBasedAverage<PropertySetter>::TensorScalarFbo fbo,
+	typename ImageBasedAverage<PropertySetter>::FbosCountFbos fbo,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;

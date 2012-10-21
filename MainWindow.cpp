@@ -1217,7 +1217,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
         widgetHistogram->Update (getColorBarModel (viewNumber),
                                  WidgetHistogram::KEEP_SELECTION, 
                                  WidgetHistogram::KEEP_MAX_VALUE);
-        if (viewType == ViewType::AVERAGE)
+        if (viewType == ViewType::AVERAGE || viewType == ViewType::T1S_PDE)
         {
             if (DATA_PROPERTIES.Is3D ())
                 widgetVtk->Average3dUpdateViewAverage (viewNumber, direction);
@@ -1610,7 +1610,7 @@ void MainWindow::velocityViewToUI ()
     SetCheckedNoSignals (checkBoxVelocityGlyphGridCellCenterShown, 
 			 gridCellCenterShown);
     SetCheckedNoSignals (checkBoxVelocityGlyphSameSize, sameSize);
-    SetCheckedNoSignals (checkBoxVelocityGlyphColorMapped, colorMapped);
+    SetCheckedNoSignals (checkBoxVelocityColorMapped, colorMapped);
     SetValueNoSignals (
 	horizontalSliderVelocityGlyphLineWidth, 
 	Value2ExponentIndex (horizontalSliderVelocityGlyphLineWidth,

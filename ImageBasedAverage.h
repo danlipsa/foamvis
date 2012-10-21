@@ -62,7 +62,7 @@ public:
     ImageBasedAverage (
 	ViewNumber::Enum viewNumber,
 	const WidgetGl& widgetGl, string id, QColor stepClearColor,
-	FramebufferObjects& countFbos);
+	FramebufferObjects& countFbos, size_t countIndex);
     void AverageRelease ();
     void AverageRotateAndDisplay (	
 	StatisticsType::Enum displayType = StatisticsType::AVERAGE,	
@@ -86,16 +86,17 @@ public:
 protected:
     typedef pair<boost::shared_ptr<QGLFramebufferObject>, 
 		 boost::shared_ptr<QGLFramebufferObject> > 
-	TensorScalarFbo;
+	FbosCountFbos;
     virtual void addStep (size_t timeStep, size_t subStep);
     virtual void removeStep (size_t timeStep, size_t subStep);
     virtual void rotateAndDisplay (
 	GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType, TensorScalarFbo fbo,
+	StatisticsType::Enum displayType, FbosCountFbos fbo,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const = 0;
-    virtual void writeStepValues (size_t timeStep, size_t subStep);
+    virtual void writeStepValues (ViewNumber::Enum viewNumber,
+                                  size_t timeStep, size_t subStep);
 
     void glActiveTexture (GLenum texture) const;
     QColor getStepClearColor ()
@@ -110,7 +111,7 @@ protected:
     static boost::shared_ptr<StoreShaderProgram> m_storeShaderProgram;
     static boost::shared_ptr<AddShaderProgram> m_addShaderProgram;
     static boost::shared_ptr<AddShaderProgram> m_removeShaderProgram;
-    void save (TensorScalarFbo fbo, 
+    void save (FbosCountFbos fbo, 
 	       const char* fileName, size_t timeStep, size_t subStep,
 	       GLfloat minValue, 
 	       GLfloat maxValue, StatisticsType::Enum displayType);
@@ -119,8 +120,9 @@ protected:
                size_t components, float maxValue) const;
 
 
-    FramebufferObjects& m_countFbos;
     FramebufferObjects m_fbos;
+    FramebufferObjects& m_countFbos;
+    size_t m_countIndex;
 
 private:
     void clear ();

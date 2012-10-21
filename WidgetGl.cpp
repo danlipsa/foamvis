@@ -1725,7 +1725,7 @@ void WidgetGl::displayDeformation (ViewNumber::Enum viewNumber) const
     glPopAttrib ();    
 }
 
-void WidgetGl::displayVelocity (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayVelocityGlyphs (ViewNumber::Enum viewNumber) const
 {
     const Foam& foam = 
 	GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
@@ -2112,7 +2112,7 @@ void WidgetGl::compileFacesNormal (ViewNumber::Enum viewNumber) const
     displayContextBox (viewNumber);
     displayStandaloneFaces ();    
     displayDeformation (viewNumber);
-    displayVelocity (viewNumber);
+    displayVelocityGlyphs (viewNumber);
     displayT1s (viewNumber);
     GetViewAverage (viewNumber).GetForceAverage ().DisplayOneTimeStep ();
     //glEndList ();
@@ -2174,7 +2174,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
 
     GetViewAverage (viewNumber).GetForceAverage ().Display (
 	isAverageAroundRotationShown);
-    displayStreamline (viewNumber);
+    displayVelocityStreamline (viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (foam);
     displayT1s (viewNumber);
     displayAverageAroundBodies (viewNumber, isAverageAroundRotationShown);
@@ -2567,16 +2567,17 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
 	displayTextureColorBar (
 	    m_colorBarTexture[viewNumber], viewNumber, viewColorBarRect);
     }
-    if (vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::GLYPH)
+    if (vs.IsVelocityShown ())
     {
-	if (GetViewAverage (viewNumber).GetVelocityAverage ().IsColorMapped ())
-	    displayTextureColorBar (
-		m_overlayBarTexture[viewNumber],
-		viewNumber, Settings::GetViewOverlayBarRect (viewRect));
-	else if ( 
-	    ! GetViewAverage (viewNumber).GetVelocityAverage ().IsSameSize ())
-	    displayOverlayBar (
-		viewNumber, Settings::GetViewOverlayBarRect (viewRect));
+        const VectorAverage& va = 
+            GetViewAverage (viewNumber).GetVelocityAverage ();
+        if (va.IsColorMapped ())
+            displayTextureColorBar (
+                m_overlayBarTexture[viewNumber],
+                viewNumber, Settings::GetViewOverlayBarRect (viewRect));
+        else if (vs.GetVelocityVis () == VectorVis::GLYPH && ! va.IsSameSize ())
+            displayOverlayBar (
+                viewNumber, Settings::GetViewOverlayBarRect (viewRect));
     }
     displayViewTitle (viewNumber);
     if (viewNumber == GetViewNumber () && 
@@ -2979,14 +2980,22 @@ void WidgetGl::rotateAverageAroundStreamlines (
 
 
 
-void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayVelocityStreamline (ViewNumber::Enum viewNumber) const
 {    
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::STREAMLINE)
     {
-	glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT );
-        VTK_CREATE(vtkIdList, points);
-        
+	glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT | GL_ENABLE_BIT);
+        const VectorAverage& va = 
+            GetViewAverage (viewNumber).GetVelocityAverage ();
+        if (va.IsColorMapped ())
+        {
+            glEnable(GL_TEXTURE_1D);
+            glBindTexture (GL_TEXTURE_1D, m_overlayBarTexture[viewNumber]);
+            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+        }
+
+        VTK_CREATE(vtkIdList, points);        
         glPushMatrix ();
         rotateAverageAroundStreamlines (
             viewNumber, vs.IsAverageAroundRotationShown ());
@@ -3003,6 +3012,13 @@ void WidgetGl::displayStreamline (ViewNumber::Enum viewNumber) const
             {
                 double point[3];
                 streamline->GetPoint (points->GetId (i), point);
+
+                double value = velocity.length ();
+                float texCoord = vs.GetOverlayBarModel ()->TexCoord (value);
+                glTexCoord1f (texCoord); 
+                glColor (
+                    m_settings.GetHighlightColor (viewNumber, 
+                                                  HighlightNumber::H0));
                 glVertex2dv (point);
             }
             glEnd ();

@@ -403,6 +403,12 @@ void printOpenGLInfo (ostream& ostr)
 	      boost::bind (&OpenGLFeature::print, _1, &ostr));
 }
 
+GLenum GetColorComponent (size_t index)
+{
+    GLenum v[] = {GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA};
+    RuntimeAssert (index < 4, "There are 4 components in a RGBA color", index);
+    return v[index];
+}
 
 void DisplayOpositeFaces (G3D::Vector3 origin,
 			  G3D::Vector3 faceFirst,

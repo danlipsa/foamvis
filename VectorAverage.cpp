@@ -18,14 +18,12 @@
 #include "ViewSettings.h"
 
 VectorAverage::VectorAverage (ViewNumber::Enum viewNumber, 
-			      const WidgetGl& widgetGl, 
-			      FramebufferObjects& countFbos) :
+			      const WidgetGl& widgetGl) :
     TensorAverageTemplate<SetterVelocity> (
 	viewNumber, widgetGl,
 	&WidgetGl::GetVelocitySizeInitialRatio,
 	&ViewSettings::GetVelocityClampingRatio,
-	&ViewSettings::GetVelocityLineWidth,
-	countFbos)
+	&ViewSettings::GetVelocityLineWidth, this->m_fbos, 2)
 {
 }
 
@@ -53,20 +51,16 @@ vtkSmartPointer<vtkImageData> VectorAverage::getData () const
         windowCoord, GluUnProjectZOperation::SET0);
     BodyAttribute::Enum attribute = BodyAttribute::VELOCITY;
 
-    // opengl gets 3 componens from the hardware
+    // read (x, y, count) from opengl
     vtkSmartPointer<vtkFloatArray> velocity = 
         ImageBasedAverage<SetterVelocity>::getData (
             this->m_fbos.m_current, windowCoord, GL_RGB);
     velocity->SetName (BodyAttribute::ToString (attribute));    
-    vtkSmartPointer<vtkFloatArray> count = 
-        ImageBasedAverage<SetterVelocity>::getData (
-            this->m_countFbos.m_current, windowCoord, GL_GREEN);
-    //save (count, windowCoord, 1, 5);        
 
     // vector / count
     for (vtkIdType i = 0; i < velocity->GetNumberOfTuples (); ++i)
     {
-        float c = count->GetComponent (i, 0);
+        float c = velocity->GetComponent (i, m_countIndex);
         if (c != 0)
         {
             velocity->SetComponent (i, 0, 
@@ -79,7 +73,7 @@ vtkSmartPointer<vtkImageData> VectorAverage::getData () const
             velocity->SetComponent (i, 0, 0);
             velocity->SetComponent (i, 1, 0);
         }
-        velocity->SetComponent (i, 2, 0);
+        velocity->SetComponent (i, m_countIndex, 0);
     }
     int extent[6] = {0, windowCoord.width () - 1,
                      0, windowCoord.height () -1,

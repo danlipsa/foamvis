@@ -460,7 +460,7 @@ private:
 			     bool useZPos = false) const;
     void displayRotationCenter (ViewNumber::Enum viewNumber) const;
     void displayFaceCenters (ViewNumber::Enum viewNumber) const;
-    void displayStreamline (ViewNumber::Enum viewNumber) const;
+    void displayVelocityStreamline (ViewNumber::Enum viewNumber) const;
     void updateStreamlineSeeds (ViewNumber::Enum viewNumber);
     void displayViewDecorations (ViewNumber::Enum viewNumber);
     void displayViewFocus (ViewNumber::Enum viewNumber);
@@ -531,7 +531,7 @@ private:
     void displayBodyDeformation (ViewNumber::Enum viewNumber) const;
     void displayBodyVelocity (ViewNumber::Enum viewNumber) const;
     void displayDeformation (ViewNumber::Enum viewNumber) const;
-    void displayVelocity (ViewNumber::Enum viewNumber) const;
+    void displayVelocityGlyphs (ViewNumber::Enum viewNumber) const;
     void displayT1sAllTimesteps (ViewNumber::Enum view) const;
     void displayT1s (ViewNumber::Enum view) const;
     void displayT1sTimestep (ViewNumber::Enum view, size_t timeStep) const;    

@@ -34,7 +34,7 @@ ViewAverage::ViewAverage (ViewNumber::Enum viewNumber,
     m_deformationAverage (
 	new TensorAverage (viewNumber, widgetGl, m_scalarAverage->GetFbos ())),
     m_velocityAverage (
-	new VectorAverage (viewNumber, widgetGl, m_scalarAverage->GetFbos ())),
+	new VectorAverage (viewNumber, widgetGl)),
     m_forceAverage (new ForceAverage (viewNumber, *widgetGl.GetSettings (),
 				      widgetGl.GetSimulationGroup ())),
     m_viewSettings (viewSettings)
@@ -81,6 +81,7 @@ void ViewAverage::AverageStep (int direction)
 	
     case ViewType::T1S_PDE:
 	GetT1sPDE ().AverageStep (direction);
+	GetVelocityAverage ().AverageStep (direction);
 	break;
     default:
 	break;
@@ -99,14 +100,6 @@ void ViewAverage::AverageRotateAndDisplay (
 	if (m_viewSettings.IsDeformationShown ())
 	    GetDeformationAverage ().AverageRotateAndDisplay (
 		displayType, rotationCenter, angleDegrees);
-	if (m_viewSettings.IsVelocityShown ())
-        {
-            VectorAverage& velocityAverage = GetVelocityAverage ();
-            velocityAverage.SetGlyphShown (
-                m_viewSettings.GetVelocityVis () == VectorVis::GLYPH);
-            velocityAverage.AverageRotateAndDisplay (
-		displayType, rotationCenter, angleDegrees);
-        }
 	break;
 	
     case ViewType::T1S_PDE:
@@ -115,6 +108,14 @@ void ViewAverage::AverageRotateAndDisplay (
 	break;
     default:
 	break;
+    }
+    if (m_viewSettings.IsVelocityShown ())
+    {
+        VectorAverage& velocityAverage = GetVelocityAverage ();
+        velocityAverage.SetGlyphShown (
+            m_viewSettings.GetVelocityVis () == VectorVis::GLYPH);
+        velocityAverage.AverageRotateAndDisplay (
+            displayType, rotationCenter, angleDegrees);
     }
 }
 
