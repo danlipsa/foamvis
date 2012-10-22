@@ -2988,6 +2988,13 @@ void WidgetGl::displayVelocityStreamline (ViewNumber::Enum viewNumber) const
 	glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT | GL_ENABLE_BIT);
         const VectorAverage& va = 
             GetViewAverage (viewNumber).GetVelocityAverage ();
+        vtkSmartPointer<vtkImageData> velocityData = 
+            GetAverageCache ()->GetVelocity ();
+        vtkSmartPointer<vtkFloatArray> velocityAttribute = 
+            vtkFloatArray::SafeDownCast (
+                velocityData->GetPointData ()->GetArray (
+                    BodyAttribute::ToString (BodyAttribute::VELOCITY)));
+
         if (va.IsColorMapped ())
         {
             glEnable(GL_TEXTURE_1D);
@@ -3004,6 +3011,8 @@ void WidgetGl::displayVelocityStreamline (ViewNumber::Enum viewNumber) const
         lines->InitTraversal ();
         glColor (GetSettings ()->GetHighlightColor (viewNumber, 
                                                     HighlightNumber::H0));
+        double tol2 = velocityData->GetLength ();
+        tol2 = tol2 * tol2 / 1000.0;
         while (lines->GetNextCell (points))
         {
             // each cell represents a streamline
@@ -3011,14 +3020,33 @@ void WidgetGl::displayVelocityStreamline (ViewNumber::Enum viewNumber) const
             for (vtkIdType i = 0; i < points->GetNumberOfIds (); ++i)
             {
                 double point[3];
+                double pcoords[3];
+                double weights[4];
+                int subId;
                 streamline->GetPoint (points->GetId (i), point);
 
+                vtkSmartPointer<vtkCell> cell = velocityData->FindAndGetCell (
+                    point, NULL, -1, tol2, subId, pcoords, weights);
+                G3D::Vector2 velocity;
+                for (int pointIndex = 0; pointIndex < cell->GetNumberOfPoints ();
+                     ++pointIndex)
+                {
+                    vtkIdType pointId = cell->GetPointId (pointIndex);
+                    G3D::Vector2 v (
+                        velocityAttribute->GetComponent (pointId, 0),
+                        velocityAttribute->GetComponent (pointId, 1));
+                    velocity +=  v * weights[pointIndex];
+                }
+
                 double value = velocity.length ();
-                float texCoord = vs.GetOverlayBarModel ()->TexCoord (value);
-                glTexCoord1f (texCoord); 
+                if (vs.GetOverlayBarModel ()->GetInterval ().contains (value))
+                {
+                    float texCoord = vs.GetOverlayBarModel ()->TexCoord (value);
+                    glTexCoord1f (texCoord); 
+                }
                 glColor (
-                    m_settings.GetHighlightColor (viewNumber, 
-                                                  HighlightNumber::H0));
+                    GetSettings ()->GetHighlightColor (viewNumber, 
+                                                       HighlightNumber::H0));
                 glVertex2dv (point);
             }
             glEnd ();

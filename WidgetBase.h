@@ -64,7 +64,7 @@ public:
     {
 	return *m_simulationGroup;
     }
-    AverageCache* GetAverageCache ()
+    AverageCache* GetAverageCache () const
     {
         return m_averageCache;
     }
