@@ -281,7 +281,7 @@ public:
 
 	CENTER_PATHS,
 	AVERAGE,
-	T1S_PDE,
+	T1S_KDE,
         COUNT
     };
     static Enum FromSizeT (size_t i);
@@ -374,8 +374,7 @@ struct ViewCount
 {
     enum Enum
     {
-	ZERO = 0,
-	ONE,
+	ONE = 1,
 	TWO,
 	THREE,
 	FOUR,
@@ -503,7 +502,7 @@ struct ColorBarType
     {
 	PROPERTY,
 	STATISTICS_COUNT,
-	T1S_PDE,
+	T1S_KDE,
 	NONE
     };
 };

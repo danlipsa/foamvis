@@ -1,13 +1,13 @@
 /**
- * @file   T1sPDE.h
+ * @file   T1sKDE.h
  * @author Dan R. Lipsa
  * @date  31 Aug. 2011
  *
- * Interface for the T1sPDE class
+ * Interface for the T1sKDE class
  */
 
-#ifndef __T1S_PDE_H__
-#define __T1S_PDE_H__
+#ifndef __T1S_KDE_H__
+#define __T1S_KDE_H__
 
 #include "ScalarAverage.h"
 
@@ -23,12 +23,12 @@ class GaussianStoreShaderProgram;
  * one step. step = (0, 0, maxFloat, -maxFloat) if there is no 
  * value for that pixel.
  */
-class T1sPDE : public ScalarAverageTemplate<SetterNop>
+class T1sKDE : public ScalarAverageTemplate<SetterNop>
 {
 public:
     static void InitShaders ();
     
-    T1sPDE (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl);
+    T1sKDE (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl);
     virtual void AverageInit ();
     float GetKernelIntervalPerPixel () const
     {
@@ -93,7 +93,7 @@ private:
     bool m_kernelTextureSizeShown;
 };
 
-#endif //__T1S_PDE_H__
+#endif //__T1S_KDE_H__
 
 // Local Variables:
 // mode: c++

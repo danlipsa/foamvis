@@ -24,7 +24,7 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	QuadraticEdge.h RegularGridAverage.h\
 	RestrictedRangeSlider.h Simulation.h\
 	stable.h StripIterator.h SystemDifferences.h ScalarDisplay.h \
-	T1sPDE.h TensorAverage.h TransferFunctionHistogram.h \
+	T1sKDE.h TensorAverage.h TransferFunctionHistogram.h \
 	TimeStepsSlider.h Utils.h VectorAverage.h \
 	Vertex.h ViewAverage.h ViewSettings.h
 SOURCES += Application.cpp ApproximationEdge.cpp\
@@ -55,7 +55,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	PropertySetter.cpp ShaderProgram.cpp\
 	QuadraticEdge.cpp RegularGridAverage.cpp\
 	RestrictedRangeSlider.cpp Simulation.cpp\
-	StripIterator.cpp ScalarDisplay.cpp T1sPDE.cpp TimeStepsSlider.cpp \
+	StripIterator.cpp ScalarDisplay.cpp T1sKDE.cpp TimeStepsSlider.cpp \
 	TransferFunctionHistogram.cpp TensorAverage.cpp \
 	Utils.cpp VectorAverage.cpp Vertex.cpp \
 	ViewAverage.cpp ViewSettings.cpp

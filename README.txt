@@ -10,7 +10,9 @@ Release log
         - fix regression: deselected objects are not transparent
         - save cache files in ~/.foamvis instead of the original data folder.
         - warning message in automatically generaged fragment shaders
-        
+        - add color mapped streamlines.
+        - allow color map copy between T1s KDE with the same sigma 
+          for different simulations.
 0.8.2553
         - bug fixes (dataset fluctuates because is centered at foam center 
           instead of simulation center)

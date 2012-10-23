@@ -112,35 +112,6 @@ void WidgetBase::addCopyMenu (
     }
 }
 
-void WidgetBase::addCopyCompatibleMenu (
-    QMenu* menu, const char* nameOp, 
-    const boost::shared_ptr<QAction>* actionCopyOp) const
-{
-    size_t viewCount = GetSettings ()->GetViewCount ();
-    bool actions = false;
-    QMenu* menuOp = menu->addMenu (nameOp);
-    if (viewCount > 1)
-    {
-        const ViewSettings& vs = GetSettings ()->GetViewSettings ();
-	size_t currentProperty = vs.GetBodyOrFaceScalar ();
-	for (size_t i = 0; i < viewCount; ++i)
-	{
-	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	    const ViewSettings& otherVs = GetViewSettings (viewNumber);
-	    if (viewNumber == GetViewNumber () ||
-		GetSettings ()->GetColorBarType (
-                    GetViewNumber ()) != 
-                GetSettings ()->GetColorBarType (viewNumber) ||
-		currentProperty != otherVs.GetBodyOrFaceScalar () ||
-		vs.GetSimulationIndex () != otherVs.GetSimulationIndex ())
-		continue;
-	    menuOp->addAction (actionCopyOp[i].get ());
-	    actions = true;
-	}
-    }
-    if (! actions)
-	menuOp->setDisabled (true);    
-}
 
 void WidgetBase::initCopy (
     boost::array<boost::shared_ptr<QAction>, ViewNumber::COUNT>& actionCopyOp,

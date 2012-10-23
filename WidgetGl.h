@@ -158,10 +158,10 @@ public:
 	ViewNumber::Enum viewNumber) const;
     pair<float, float> GetRangeCount (ViewNumber::Enum viewNumber) const;
     pair<float, float> GetRangeCount () const;
-    pair<float, float> GetRangeT1sPDE (ViewNumber::Enum viewNumber) const;
-    pair<float, float> GetRangeT1sPDE () const
+    pair<float, float> GetRangeT1sKDE (ViewNumber::Enum viewNumber) const;
+    pair<float, float> GetRangeT1sKDE () const
     {
-	return GetRangeT1sPDE (GetViewNumber ());
+	return GetRangeT1sKDE (GetViewNumber ());
     }
     pair<size_t, ViewNumber::Enum> LinkedTimeMaxSteps () const;
     void SetForceDifferenceShown (bool forceDifference);
@@ -415,6 +415,9 @@ private:
     typedef void (WidgetGl::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    void addCopyCompatibleMenu (
+        QMenu* menuCopy, const char* nameOp, 
+        const boost::shared_ptr<QAction>* actionCopyOp) const;
 
     void rotateAverageAroundStreamlines (ViewNumber::Enum viewNumber,
                                          bool isIsAverageAroundShown) const;
@@ -460,7 +463,10 @@ private:
 			     bool useZPos = false) const;
     void displayRotationCenter (ViewNumber::Enum viewNumber) const;
     void displayFaceCenters (ViewNumber::Enum viewNumber) const;
-    void displayVelocityStreamline (ViewNumber::Enum viewNumber) const;
+    void displayVelocityStreamlines (ViewNumber::Enum viewNumber) const;
+    void displayVelocityStreamline (
+        ViewNumber::Enum viewNumber, vtkSmartPointer<vtkIdList> points) const;
+    void displayVelocityStreamlineSeeds (ViewNumber::Enum viewNumber) const;
     void updateStreamlineSeeds (ViewNumber::Enum viewNumber);
     void displayViewDecorations (ViewNumber::Enum viewNumber);
     void displayViewFocus (ViewNumber::Enum viewNumber);

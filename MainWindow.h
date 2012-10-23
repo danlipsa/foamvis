@@ -186,7 +186,7 @@ private:
 	size_t simulationIndex, ViewNumber::Enum viewNumber);
     void setupColorBarModelVelocityVector (
 	size_t simulationIndex, ViewNumber::Enum viewNumber);
-    void setupColorBarModelT1sPDE (
+    void setupColorBarModelT1sKDE (
 	size_t simulationIndex, ViewNumber::Enum viewNumber);
 
     void setupColorBarModel (
@@ -266,7 +266,7 @@ private:
 		     ViewNumber::COUNT> > m_colorBarModelDomainHistogram;
     // index order: simulation index, view number
     vector <boost::array<boost::shared_ptr<ColorBarModel>,
-			 ViewNumber::COUNT> > m_colorBarModelT1sPDE;
+			 ViewNumber::COUNT> > m_colorBarModelT1sKDE;
     boost::shared_ptr<EditColorMap> m_editColorMap;
     /**
      * True if the program displays data in a loop, false

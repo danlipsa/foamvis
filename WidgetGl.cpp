@@ -32,7 +32,7 @@
 #include "OrientedFace.h"
 #include "SelectBodiesById.h"
 #include "Settings.h"
-#include "T1sPDE.h"
+#include "T1sKDE.h"
 #include "TensorAverage.h"
 #include "Utils.h"
 #include "Vertex.h"
@@ -807,7 +807,7 @@ void WidgetGl::initializeGL()
 	ScalarAverage::InitShaders ();
 	TensorAverage::InitShaders ();
 	VectorAverage::InitShaders ();
-	T1sPDE::InitShaders ();
+	T1sKDE::InitShaders ();
 	initializeLighting ();
 	GetSettings ()->SetViewNumber (ViewNumber::VIEW0);
 	WarnOnOpenGLError ("initializeGL");
@@ -853,7 +853,6 @@ void WidgetGl::displayViews ()
     ViewCount::Enum viewCount = GetSettings ()->GetViewCount ();
     switch (viewCount)
     {
-    case ViewCount::ZERO:
     case ViewCount::COUNT:
 	RuntimeAssert (false, "Invalid view count:", viewCount);
 	break;
@@ -1885,7 +1884,7 @@ void WidgetGl::DisplayT1Quad (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t t1Index) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    T1sPDE& t1sPDE = GetViewAverage (viewNumber).GetT1sPDE ();
+    T1sKDE& t1sPDE = GetViewAverage (viewNumber).GetT1sKDE ();
     float rectSize = t1sPDE.GetKernelTextureSize () * 
 	GetOnePixelInObjectSpace ();
     float half = rectSize / 2;
@@ -1925,8 +1924,8 @@ pair<float, float> WidgetGl::GetRange (ViewNumber::Enum viewNumber) const
 	    maxValue = simulation.GetMax (bodyProperty);
 	}
 	break;
-    case ViewType::T1S_PDE:
-	return GetRangeT1sPDE (viewNumber);
+    case ViewType::T1S_KDE:
+	return GetRangeT1sKDE (viewNumber);
     default:
 	break;
     }
@@ -1954,9 +1953,9 @@ pair<float, float> WidgetGl::GetRangeCount () const
     return GetRangeCount (GetViewNumber ());
 }
 
-pair<float, float> WidgetGl::GetRangeT1sPDE (ViewNumber::Enum viewNumber) const
+pair<float, float> WidgetGl::GetRangeT1sKDE (ViewNumber::Enum viewNumber) const
 {
-    T1sPDE& t1sPDE = GetViewAverage (viewNumber).GetT1sPDE ();
+    T1sKDE& t1sPDE = GetViewAverage (viewNumber).GetT1sKDE ();
     float sigma = t1sPDE.GetKernelSigma ();
     return pair<float, float> (0.0, 1 / (2 * M_PI * sigma * sigma));
 }
@@ -2174,14 +2173,14 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
 
     GetViewAverage (viewNumber).GetForceAverage ().Display (
 	isAverageAroundRotationShown);
-    displayVelocityStreamline (viewNumber);
+    displayVelocityStreamlines (viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (foam);
     displayT1s (viewNumber);
     displayAverageAroundBodies (viewNumber, isAverageAroundRotationShown);
     displayContextBodies (viewNumber);
     displayContextBox (viewNumber, isAverageAroundRotationShown);
-    T1sPDE& t1sPDE = GetViewAverage (viewNumber).GetT1sPDE ();
-    if (vs.GetViewType () == ViewType::T1S_PDE &&
+    T1sKDE& t1sPDE = GetViewAverage (viewNumber).GetT1sKDE ();
+    if (vs.GetViewType () == ViewType::T1S_KDE &&
 	t1sPDE.IsKernelTextureSizeShown ())
     {
 	size_t timeStep = GetCurrentTime (viewNumber);
@@ -2458,7 +2457,7 @@ size_t WidgetGl::GetTimeSteps (ViewNumber::Enum viewNumber) const
     ViewType::Enum viewType = vs.GetViewType ();
     size_t simulationIndex = vs.GetSimulationIndex ();
     const Simulation& simulation = GetSimulation (simulationIndex);
-    return (viewType == ViewType::T1S_PDE) ?
+    return (viewType == ViewType::T1S_KDE) ?
 	simulation.GetT1sTimeSteps () :
 	simulation.GetTimeSteps ();
 }
@@ -2548,6 +2547,49 @@ void WidgetGl::contextMenuEventView (QMenu* menu) const
 	menuShow->addAction (m_actionShowReset.get ());
     }
 }
+
+void WidgetGl::addCopyCompatibleMenu (
+    QMenu* menu, const char* nameOp, 
+    const boost::shared_ptr<QAction>* actionCopyOp) const
+{
+    size_t viewCount = GetSettings ()->GetViewCount ();
+    bool actions = false;
+    QMenu* menuOp = menu->addMenu (nameOp);
+    if (viewCount > 1)
+    {
+        ViewNumber::Enum currentViewNumber = GetViewNumber ();
+        const ViewSettings& vs = GetSettings ()->GetViewSettings ();
+	size_t currentProperty = vs.GetBodyOrFaceScalar ();
+        ColorBarType::Enum currentColorBarType = 
+            GetSettings ()->GetColorBarType (currentViewNumber);
+	for (size_t i = 0; i < viewCount; ++i)
+	{
+	    ViewNumber::Enum otherViewNumber = ViewNumber::Enum (i);
+	    const ViewSettings& otherVs = GetViewSettings (otherViewNumber);
+	    if (otherViewNumber != currentViewNumber &&
+
+		currentColorBarType == 
+                GetSettings ()->GetColorBarType (otherViewNumber) &&
+                
+                ((currentColorBarType == ColorBarType::T1S_KDE && 
+                  GetViewAverage (currentViewNumber).GetT1sKDE ().
+                  GetKernelSigma () ==
+                  GetViewAverage (otherViewNumber).GetT1sKDE ().
+                  GetKernelSigma ()) 
+                 ||
+                 (currentProperty == otherVs.GetBodyOrFaceScalar () &&
+                  vs.GetSimulationIndex () == otherVs.GetSimulationIndex ()))
+                )
+            {
+                menuOp->addAction (actionCopyOp[i].get ());
+                actions = true;
+            }
+	}
+    }
+    if (! actions)
+	menuOp->setDisabled (true);    
+}
+
 
 void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
 {
@@ -2793,36 +2835,36 @@ void WidgetGl::SetForceDifferenceShown (bool value)
 
 void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
 {
-    T1sPDE& t1sPDE = GetViewAverage (viewNumber).GetT1sPDE ();
+    T1sKDE& t1sPDE = GetViewAverage (viewNumber).GetT1sKDE ();
     t1sPDE.SetKernelSigma (
-	Index2Value (static_cast<QSlider*> (sender ()), T1sPDE::KERNEL_SIGMA));
+	Index2Value (static_cast<QSlider*> (sender ()), T1sKDE::KERNEL_SIGMA));
     t1sPDE.AverageInitStep ();
 }
 
 void WidgetGl::valueChangedT1sKernelTextureSize (
     ViewNumber::Enum viewNumber)
 {
-    T1sPDE& t1sPDE = GetViewAverage (viewNumber).GetT1sPDE ();
+    T1sKDE& t1sPDE = GetViewAverage (viewNumber).GetT1sKDE ();
     t1sPDE.SetKernelTextureSize (
 	Index2Value (static_cast<QSlider*> (sender ()), 
-		     T1sPDE::KERNEL_TEXTURE_SIZE));
+		     T1sKDE::KERNEL_TEXTURE_SIZE));
     t1sPDE.AverageInitStep ();    
 }
 
 void WidgetGl::toggledT1sKernelTextureSizeShown (ViewNumber::Enum viewNumber)
 {
     bool checked = static_cast<QCheckBox*> (sender ())->isChecked ();
-    GetViewAverage (viewNumber).GetT1sPDE ().SetKernelTextureSizeShown (checked);
+    GetViewAverage (viewNumber).GetT1sKDE ().SetKernelTextureSizeShown (checked);
 }
 
 
 void WidgetGl::valueChangedT1sKernelIntervalPerPixel (
     ViewNumber::Enum viewNumber)
 {
-    T1sPDE& t1sPDE = GetViewAverage (viewNumber).GetT1sPDE ();
+    T1sKDE& t1sPDE = GetViewAverage (viewNumber).GetT1sKDE ();
     t1sPDE.SetKernelIntervalPerPixel (
 	Index2Value (static_cast<QSlider*> (sender ()), 
-		     T1sPDE::KERNEL_INTERVAL_PER_PIXEL));
+		     T1sKDE::KERNEL_INTERVAL_PER_PIXEL));
     t1sPDE.AverageInitStep ();
 }
 
@@ -2978,9 +3020,76 @@ void WidgetGl::rotateAverageAroundStreamlines (
     glTranslate (-center);    
 }
 
+void WidgetGl::displayVelocityStreamline (
+    ViewNumber::Enum viewNumber,
+    vtkSmartPointer<vtkIdList> points) const
+{
+    vtkSmartPointer<vtkPolyData> streamline = m_streamline[viewNumber];
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    vtkSmartPointer<vtkImageData> velocityData = 
+        GetAverageCache ()->GetVelocity ();
+    vtkSmartPointer<vtkFloatArray> velocityAttribute = 
+        vtkFloatArray::SafeDownCast (
+            velocityData->GetPointData ()->GetArray (
+                BodyAttribute::ToString (BodyAttribute::VELOCITY)));
+    double tol2 = velocityData->GetLength ();
+    tol2 = tol2 * tol2 / 1000.0;
+    glBegin (GL_LINE_STRIP);
+    for (vtkIdType i = 0; i < points->GetNumberOfIds (); ++i)
+    {
+        double point[3];
+        double pcoords[3];
+        double weights[4];
+        int subId;
+        streamline->GetPoint (points->GetId (i), point);
+
+        vtkSmartPointer<vtkCell> cell = velocityData->FindAndGetCell (
+            point, NULL, -1, tol2, subId, pcoords, weights);
+        G3D::Vector2 velocity;
+        for (int pointIndex = 0; pointIndex < cell->GetNumberOfPoints ();
+             ++pointIndex)
+        {
+            vtkIdType pointId = cell->GetPointId (pointIndex);
+            G3D::Vector2 v (
+                velocityAttribute->GetComponent (pointId, 0),
+                velocityAttribute->GetComponent (pointId, 1));
+            velocity +=  v * weights[pointIndex];
+        }
+
+        double value = velocity.length ();
+        if (vs.GetOverlayBarModel ()->GetInterval ().contains (value))
+        {
+            float texCoord = vs.GetOverlayBarModel ()->TexCoord (value);
+            glTexCoord1f (texCoord); 
+        }
+        glVertex2dv (point);
+    }
+    glEnd ();
+    
+}
 
 
-void WidgetGl::displayVelocityStreamline (ViewNumber::Enum viewNumber) const
+
+void WidgetGl::displayVelocityStreamlineSeeds (ViewNumber::Enum viewNumber) const
+{
+    glPushMatrix ();
+    glColor (Qt::black);
+    rotateAverageAroundStreamlines (viewNumber, false);
+    VTK_CREATE(vtkIdList, points);
+    m_streamlineSeeds[viewNumber]->GetVerts ()->GetCell (0, points);
+    glPointSize (4.0);
+    glBegin (GL_POINTS);
+    for (vtkIdType i = 0; i < points->GetNumberOfIds (); ++i)
+    {
+        double point[3];
+        m_streamlineSeeds[viewNumber]->GetPoint (points->GetId (i), point);
+        glVertex2dv (point);
+    }
+    glEnd ();
+    glPopMatrix ();
+}
+
+void WidgetGl::displayVelocityStreamlines (ViewNumber::Enum viewNumber) const
 {    
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::STREAMLINE)
@@ -2988,13 +3097,6 @@ void WidgetGl::displayVelocityStreamline (ViewNumber::Enum viewNumber) const
 	glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT | GL_ENABLE_BIT);
         const VectorAverage& va = 
             GetViewAverage (viewNumber).GetVelocityAverage ();
-        vtkSmartPointer<vtkImageData> velocityData = 
-            GetAverageCache ()->GetVelocity ();
-        vtkSmartPointer<vtkFloatArray> velocityAttribute = 
-            vtkFloatArray::SafeDownCast (
-                velocityData->GetPointData ()->GetArray (
-                    BodyAttribute::ToString (BodyAttribute::VELOCITY)));
-
         if (va.IsColorMapped ())
         {
             glEnable(GL_TEXTURE_1D);
@@ -3002,7 +3104,6 @@ void WidgetGl::displayVelocityStreamline (ViewNumber::Enum viewNumber) const
             glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
         }
 
-        VTK_CREATE(vtkIdList, points);        
         glPushMatrix ();
         rotateAverageAroundStreamlines (
             viewNumber, vs.IsAverageAroundRotationShown ());
@@ -3011,66 +3112,11 @@ void WidgetGl::displayVelocityStreamline (ViewNumber::Enum viewNumber) const
         lines->InitTraversal ();
         glColor (GetSettings ()->GetHighlightColor (viewNumber, 
                                                     HighlightNumber::H0));
-        double tol2 = velocityData->GetLength ();
-        tol2 = tol2 * tol2 / 1000.0;
+        VTK_CREATE(vtkIdList, points);
         while (lines->GetNextCell (points))
-        {
-            // each cell represents a streamline
-            glBegin (GL_LINE_STRIP);
-            for (vtkIdType i = 0; i < points->GetNumberOfIds (); ++i)
-            {
-                double point[3];
-                double pcoords[3];
-                double weights[4];
-                int subId;
-                streamline->GetPoint (points->GetId (i), point);
-
-                vtkSmartPointer<vtkCell> cell = velocityData->FindAndGetCell (
-                    point, NULL, -1, tol2, subId, pcoords, weights);
-                G3D::Vector2 velocity;
-                for (int pointIndex = 0; pointIndex < cell->GetNumberOfPoints ();
-                     ++pointIndex)
-                {
-                    vtkIdType pointId = cell->GetPointId (pointIndex);
-                    G3D::Vector2 v (
-                        velocityAttribute->GetComponent (pointId, 0),
-                        velocityAttribute->GetComponent (pointId, 1));
-                    velocity +=  v * weights[pointIndex];
-                }
-
-                double value = velocity.length ();
-                if (vs.GetOverlayBarModel ()->GetInterval ().contains (value))
-                {
-                    float texCoord = vs.GetOverlayBarModel ()->TexCoord (value);
-                    glTexCoord1f (texCoord); 
-                }
-                glColor (
-                    GetSettings ()->GetHighlightColor (viewNumber, 
-                                                       HighlightNumber::H0));
-                glVertex2dv (point);
-            }
-            glEnd ();
-        }
+            displayVelocityStreamline (viewNumber, points);
         glPopMatrix ();
-        
-        /*
-        // display the seeds as points
-        glPushMatrix ();
-        glColor (Qt::black);
-        rotateAverageAroundStreamlines (viewNumber, false);
-        m_streamlineSeeds[viewNumber]->GetVerts ()->GetCell (0, points);
-        glPointSize (4.0);
-        glBegin (GL_POINTS);
-        for (vtkIdType i = 0; i < points->GetNumberOfIds (); ++i)
-        {
-            double point[3];
-            m_streamlineSeeds[viewNumber]->GetPoint (points->GetId (i), point);
-            glVertex2dv (point);
-        }
-        glEnd ();
-        glPopMatrix ();
-        */
-        
+        //displayVelocityStreamlineSeeds (viewNumber);
         glPopAttrib ();
     }
 }
@@ -4282,7 +4328,7 @@ void WidgetGl::ClickedEnd ()
 void WidgetGl::ValueChangedT1sTimeWindow (int timeSteps)
 {
     makeCurrent ();
-    GetViewAverage ().GetT1sPDE ().AverageSetTimeWindow (timeSteps);
+    GetViewAverage ().GetT1sKDE ().AverageSetTimeWindow (timeSteps);
 }
 
 void WidgetGl::ValueChangedTimeDisplacement (int timeDisplacement)

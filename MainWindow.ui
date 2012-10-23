@@ -1648,7 +1648,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QRadioButton" name="radioButtonT1sPDE">
+              <widget class="QRadioButton" name="radioButtonT1sKDE">
                <property name="enabled">
                 <bool>false</bool>
                </property>

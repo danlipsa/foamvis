@@ -18,7 +18,7 @@
     <file>TensorStore.frag</file>
     <file>TensorStore.vert</file>
 
-    <file>T1sPDEInit.frag</file>
+    <file>T1sKDEInit.frag</file>
 
     <file>VectorStore.vert</file>
     <file>VectorDisplay.frag</file>

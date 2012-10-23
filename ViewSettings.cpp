@@ -681,8 +681,8 @@ ColorBarType::Enum ViewSettings::GetColorBarType (
 {
     switch (viewType)
     {
-    case ViewType::T1S_PDE:
-	return ColorBarType::T1S_PDE;
+    case ViewType::T1S_KDE:
+	return ColorBarType::T1S_KDE;
     case ViewType::AVERAGE:
 	if (statisticsType == StatisticsType::COUNT)
 	    return ColorBarType::STATISTICS_COUNT;

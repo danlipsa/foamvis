@@ -14,7 +14,7 @@
 
 class ForceAverage;
 class ScalarAverage;
-class T1sPDE;
+class T1sKDE;
 class TensorAverage;
 class WidgetGl;
 class VectorAverage;
@@ -31,7 +31,7 @@ public:
 	return *m_scalarAverage;
     }
     
-    T1sPDE& GetT1sPDE () const
+    T1sKDE& GetT1sKDE () const
     {
 	return *m_t1sPDE;
     }
@@ -61,7 +61,7 @@ public:
 
 private:
     boost::shared_ptr<ScalarAverage> m_scalarAverage;
-    boost::shared_ptr<T1sPDE> m_t1sPDE;
+    boost::shared_ptr<T1sKDE> m_t1sPDE;
     boost::shared_ptr<TensorAverage> m_deformationAverage;
     boost::shared_ptr<VectorAverage> m_velocityAverage;
     boost::shared_ptr<ForceAverage> m_forceAverage;

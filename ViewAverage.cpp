@@ -9,7 +9,7 @@
 #include "ForceAverage.h"
 #include "ScalarAverage.h"
 #include "Simulation.h"
-#include "T1sPDE.h"
+#include "T1sKDE.h"
 #include "TensorAverage.h"
 #include "VectorAverage.h"
 #include "ViewAverage.h"
@@ -30,7 +30,7 @@ ViewAverage::ViewAverage (ViewNumber::Enum viewNumber,
 			  const ViewSettings& viewSettings) :
     AverageInterface (viewNumber),
     m_scalarAverage (new ScalarAverage (viewNumber, widgetGl)),
-    m_t1sPDE (new T1sPDE (viewNumber, widgetGl)),
+    m_t1sPDE (new T1sKDE (viewNumber, widgetGl)),
     m_deformationAverage (
 	new TensorAverage (viewNumber, widgetGl, m_scalarAverage->GetFbos ())),
     m_velocityAverage (
@@ -47,7 +47,7 @@ void ViewAverage::AverageInit ()
     GetDeformationAverage ().AverageInit ();
     GetVelocityAverage ().AverageInit ();
     GetForceAverage ().AverageInit ();
-    GetT1sPDE ().AverageInit ();
+    GetT1sKDE ().AverageInit ();
 }
 
 void ViewAverage::AverageRelease ()
@@ -56,7 +56,7 @@ void ViewAverage::AverageRelease ()
     GetDeformationAverage ().AverageRelease ();
     GetVelocityAverage ().AverageRelease ();
     GetForceAverage ().AverageRelease ();
-    GetT1sPDE ().AverageRelease ();
+    GetT1sKDE ().AverageRelease ();
 }
 
 
@@ -79,8 +79,8 @@ void ViewAverage::AverageStep (int direction)
 	GetForceAverage ().AverageStep (direction);
 	break;
 	
-    case ViewType::T1S_PDE:
-	GetT1sPDE ().AverageStep (direction);
+    case ViewType::T1S_KDE:
+	GetT1sKDE ().AverageStep (direction);
 	GetVelocityAverage ().AverageStep (direction);
 	break;
     default:
@@ -102,8 +102,8 @@ void ViewAverage::AverageRotateAndDisplay (
 		displayType, rotationCenter, angleDegrees);
 	break;
 	
-    case ViewType::T1S_PDE:
-	GetT1sPDE ().AverageRotateAndDisplay (
+    case ViewType::T1S_KDE:
+	GetT1sKDE ().AverageRotateAndDisplay (
 	    displayType, rotationCenter, angleDegrees);
 	break;
     default:
@@ -121,9 +121,9 @@ void ViewAverage::AverageRotateAndDisplay (
 
 
 //@todo remove this and replace with AverageInit
-//@todo overwrite AverageInit for T1sPDE
+//@todo overwrite AverageInit for T1sKDE
 void ViewAverage::SetSimulation (const Simulation& simulation)
 {
     AverageSetTimeWindow (simulation.GetTimeSteps ());
-    GetT1sPDE ().AverageSetTimeWindow (simulation.GetT1sTimeSteps ());
+    GetT1sKDE ().AverageSetTimeWindow (simulation.GetT1sTimeSteps ());
 }

@@ -310,7 +310,7 @@ bool ViewType::IsTimeDependent (ViewType::Enum t)
     {
     case CENTER_PATHS:
     case AVERAGE:
-    case T1S_PDE:
+    case T1S_KDE:
 	return true;
     default:
 	return false;
@@ -333,8 +333,8 @@ const char* ViewType::ToString (ViewType::Enum t)
 	return "Center paths";
     case AVERAGE:
 	return "Average";
-    case T1S_PDE:
-	return "T1s PDE";
+    case T1S_KDE:
+	return "T1s KDE";
     default:
 	return "Invalid ViewType";
     }

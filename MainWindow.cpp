@@ -21,7 +21,7 @@
 #include "ProcessBodyTorus.h"
 #include "Settings.h"
 #include "SystemDifferences.h"
-#include "T1sPDE.h"
+#include "T1sKDE.h"
 #include "TensorAverage.h"
 #include "Utils.h"
 #include "OpenGLUtils.h"
@@ -137,7 +137,6 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     configureInterfaceDataDependent (simulationGroup);    
     ValueChangedSliderTimeSteps (0);
     ButtonClickedViewType (ViewType::FACES);
-    CurrentIndexChangedViewCount (0); //ViewCount::ONE
     widgetSave->resize (720, 480);
     widgetSave->updateGeometry ();
 }
@@ -163,7 +162,7 @@ void MainWindow::configureInterfaceDataDependent (
     if (simulation.T1sAvailable ())
     {
 	checkBoxT1sShown->setEnabled (true);	
-	radioButtonT1sPDE->setEnabled (true);
+	radioButtonT1sKDE->setEnabled (true);
     }
     if (! simulation.IsTorus ())
     {
@@ -208,7 +207,7 @@ void MainWindow::configureInterfaceDataDependent (
     size_t viewCount = min (simulationGroup.size (), 
 			    size_t (ViewCount::COUNT - 1));
     if (simulationGroup.size () > 1)
-	comboBoxViewCount->setCurrentIndex (ViewCount::FromSizeT (viewCount));
+	comboBoxViewCount->setCurrentIndex (viewCount - 1);
     for (size_t i = 1; i < viewCount; ++i)
     {
 	m_settings->SetViewNumber (ViewNumber::Enum (i));
@@ -365,7 +364,7 @@ void MainWindow::setupButtonGroups ()
     buttonGroupViewType->setId (radioButtonBubblesPaths, ViewType::CENTER_PATHS);
     buttonGroupViewType->setId (radioButtonAverage, 
 				ViewType::AVERAGE);
-    buttonGroupViewType->setId (radioButtonT1sPDE, ViewType::T1S_PDE);
+    buttonGroupViewType->setId (radioButtonT1sKDE, ViewType::T1S_KDE);
     
 
     buttonGroupInteractionObject->setId (
@@ -656,9 +655,9 @@ MainWindow::HistogramInfo MainWindow::getHistogramInfo (
 			      histogramStatistics.GetMaxCountPerBin ());
     }
     
-    case ColorBarType::T1S_PDE:
+    case ColorBarType::T1S_KDE:
 	return createHistogramInfo (
-	    widgetGl->GetRangeT1sPDE (), simulation.GetT1sSize ());
+	    widgetGl->GetRangeT1sKDE (), simulation.GetT1sSize ());
 
     default:
 	ThrowException ("Invalid call to getHistogramInfo");
@@ -687,7 +686,7 @@ void MainWindow::setupColorBarModels ()
     m_colorBarModelBodyScalar.resize (simulationCount);
     m_overlayBarModelVelocityVector.resize (simulationCount);
     m_colorBarModelDomainHistogram.resize (simulationCount);
-    m_colorBarModelT1sPDE.resize (simulationCount);
+    m_colorBarModelT1sKDE.resize (simulationCount);
     for (size_t simulationIndex = 0; simulationIndex < simulationCount; 
 	 ++simulationIndex)
 	for (size_t vn = 0; vn < ViewNumber::COUNT; ++vn)
@@ -704,7 +703,7 @@ void MainWindow::setupColorBarModels (size_t simulationIndex,
     }
     setupColorBarModelVelocityVector (simulationIndex, viewNumber);
     setupColorBarModelDomainHistogram (simulationIndex, viewNumber);
-    setupColorBarModelT1sPDE (simulationIndex, viewNumber);
+    setupColorBarModelT1sKDE (simulationIndex, viewNumber);
 }
 
 
@@ -720,16 +719,16 @@ void MainWindow::setupViews ()
     }
 }
 
-void MainWindow::setupColorBarModelT1sPDE (
+void MainWindow::setupColorBarModelT1sKDE (
     size_t simulationIndex,
     ViewNumber::Enum viewNumber)
 {
     boost::shared_ptr<ColorBarModel>& colorBarModel = 
-	m_colorBarModelT1sPDE[simulationIndex][viewNumber];
+	m_colorBarModelT1sKDE[simulationIndex][viewNumber];
     colorBarModel.reset (new ColorBarModel ());
     colorBarModel->SetTitle ("T1s PDE");
     colorBarModel->SetInterval (
-	toQwtDoubleInterval (widgetGl->GetRangeT1sPDE (viewNumber)));
+	toQwtDoubleInterval (widgetGl->GetRangeT1sKDE (viewNumber)));
     colorBarModel->SetupPalette (
 	Palette (PaletteType::SEQUENTIAL, PaletteSequential::BLACK_BODY));
 }
@@ -833,8 +832,8 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
 	viewType, property, statisticsType);
     switch (colorBarType)
     {
-    case ColorBarType::T1S_PDE:
-	return m_colorBarModelT1sPDE[simulationIndex][viewNumber];
+    case ColorBarType::T1S_KDE:
+	return m_colorBarModelT1sKDE[simulationIndex][viewNumber];
     case ColorBarType::STATISTICS_COUNT:
 	return m_colorBarModelDomainHistogram[simulationIndex][viewNumber];
     case ColorBarType::PROPERTY:
@@ -1197,8 +1196,8 @@ void MainWindow::ValueChangedT1sKernelSigma (int index)
 	ViewNumber::Enum viewNumber = vn[i];
 	size_t simulationIndex = 
 	    widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
-	m_colorBarModelT1sPDE[simulationIndex][viewNumber]->SetInterval (
-	    toQwtDoubleInterval (widgetGl->GetRangeT1sPDE (viewNumber)));
+	m_colorBarModelT1sKDE[simulationIndex][viewNumber]->SetInterval (
+	    toQwtDoubleInterval (widgetGl->GetRangeT1sKDE (viewNumber)));
     }
 }
 
@@ -1217,7 +1216,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
         widgetHistogram->Update (getColorBarModel (viewNumber),
                                  WidgetHistogram::KEEP_SELECTION, 
                                  WidgetHistogram::KEEP_MAX_VALUE);
-        if (viewType == ViewType::AVERAGE || viewType == ViewType::T1S_PDE)
+        if (viewType == ViewType::AVERAGE || viewType == ViewType::T1S_KDE)
         {
             if (DATA_PROPERTIES.Is3D ())
                 widgetVtk->Average3dUpdateViewAverage (viewNumber, direction);
@@ -1302,14 +1301,14 @@ void MainWindow::ButtonClickedViewType (int vt)
 		BodyScalar::ToString (BodyScalar::FromSizeT (property)));
 	    break;
 
-	case ViewType::T1S_PDE:
+	case ViewType::T1S_KDE:
 	    sliderTimeSteps->setMaximum (simulation.GetT1sTimeSteps () - 1);
 	    break;
 
 	default:
 	    break;
 	}
-	if (oldViewType == ViewType::T1S_PDE)
+	if (oldViewType == ViewType::T1S_KDE)
 	    sliderTimeSteps->setMaximum (simulation.GetTimeSteps () - 1);
     }
     widgetGl->ButtonClickedViewType (oldViewType);
@@ -1659,7 +1658,7 @@ void MainWindow::t1sPDEViewToUI ()
     float kernelSigma = 0;
     if (DATA_PROPERTIES.Is2D ())
     {
-	const T1sPDE& kde = widgetGl->GetViewAverage ().GetT1sPDE ();
+	const T1sKDE& kde = widgetGl->GetViewAverage ().GetT1sKDE ();
 	kernelTextureSizeShown = kde.IsKernelTextureSizeShown ();
 	kernelTextureSize = kde.GetKernelTextureSize ();
 	kernelIntervalPerPixel = kde.GetKernelIntervalPerPixel ();
@@ -1669,15 +1668,15 @@ void MainWindow::t1sPDEViewToUI ()
     SetValueNoSignals (
 	horizontalSliderT1sKernelTextureSize,
 	Value2Index (horizontalSliderT1sKernelTextureSize,
-		     T1sPDE::KERNEL_TEXTURE_SIZE, kernelTextureSize));
+		     T1sKDE::KERNEL_TEXTURE_SIZE, kernelTextureSize));
     SetValueNoSignals (
 	horizontalSliderT1sKernelIntervalPerPixel,
 	Value2Index(horizontalSliderT1sKernelIntervalPerPixel,
-		    T1sPDE::KERNEL_INTERVAL_PER_PIXEL, kernelIntervalPerPixel));
+		    T1sKDE::KERNEL_INTERVAL_PER_PIXEL, kernelIntervalPerPixel));
     SetValueNoSignals (
 	horizontalSliderT1sKernelSigma,
 	Value2Index (horizontalSliderT1sKernelSigma,
-		     T1sPDE::KERNEL_SIGMA, kernelSigma));
+		     T1sKDE::KERNEL_SIGMA, kernelSigma));
 }
 
 void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
@@ -1728,7 +1727,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     {
 	const ViewAverage& va = widgetGl->GetViewAverage (viewNumber);	
 	scalarAverageTimeWindow = va.GetScalarAverage ().GetTimeWindow ();
-	t1sPdeTimeWindow = va.GetT1sPDE ().GetTimeWindow ();
+	t1sPdeTimeWindow = va.GetT1sKDE ().GetTimeWindow ();
     }
     else
     {

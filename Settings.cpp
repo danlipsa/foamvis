@@ -14,7 +14,7 @@
 #include "Simulation.h"
 #include "Utils.h"
 #include "ViewSettings.h"
-#include "T1sPDE.h"
+#include "T1sKDE.h"
 
 // Private functions and classes
 // ======================================================================
@@ -517,7 +517,6 @@ G3D::Rect2D Settings::GetViewRect (
 		   "Invalid view number ViewNumber::COUNT");
     switch (viewCount)
     {
-    case ViewCount::ZERO:
     case ViewCount::COUNT:
 	RuntimeAssert (false, "Invalid view count:", viewCount);
 	return G3D::Rect2D ();
