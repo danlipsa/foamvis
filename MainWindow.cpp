@@ -932,7 +932,7 @@ void MainWindow::setStackedWidget (ViewType::Enum viewType)
 	    pageTimeStepEmpty,
 	    pageFacesNormal,
 
-	    pageCenterPath,
+	    pageBubblePaths,
 	    pageAverage,
 	    pageT1sProbabilityDensity
 	};
@@ -1297,7 +1297,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 	    break;
 
 	case ViewType::CENTER_PATHS:
-	    labelCenterPathColor->setText (
+	    labelBubblePathsColor->setText (
 		BodyScalar::ToString (BodyScalar::FromSizeT (property)));
 	    break;
 
@@ -1367,9 +1367,9 @@ void MainWindow::CurrentIndexChangedStatisticsType (int value)
 				 getColorBarModel ());
 }
 
-void MainWindow::ToggledCenterPathLineUsed (bool checked)
+void MainWindow::ToggledBubblePathsLineUsed (bool checked)
 {
-    checkBoxTubeCenterPathUsed->setEnabled (! checked);        
+    checkBoxBubblePathsTubeUsed->setEnabled (! checked);        
 }
 
 
@@ -1650,7 +1650,7 @@ void MainWindow::forceViewToUI ()
 		   vs.GetForceTorqueLineWidth ()));
 }
 
-void MainWindow::t1sPDEViewToUI ()
+void MainWindow::t1sKDEViewToUI ()
 {
     bool kernelTextureSizeShown = false;
     size_t kernelTextureSize = 0;
@@ -1678,6 +1678,31 @@ void MainWindow::t1sPDEViewToUI ()
 	Value2Index (horizontalSliderT1sKernelSigma,
 		     T1sKDE::KERNEL_SIGMA, kernelSigma));
 }
+
+void MainWindow::bubblePathsViewToUI ()
+{
+    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
+    const ViewSettings& vs = m_settings->GetViewSettings ();
+    int property = vs.GetBodyOrFaceScalar ();
+    const Simulation& simulation = m_simulationGroup.GetSimulation (
+	*m_settings);
+
+    labelBubblePathsColor->setText (FaceScalar::ToString (property));
+    SetCheckedNoSignals (checkBoxBubblePathsPartialPathHidden, 
+                         vs.IsPartialPathHidden ());    
+    SetValueNoSignals (horizontalSliderBubblePathsTimeDisplacement,
+                       widgetGl->TimeDisplacementToSlider (
+                           vs.GetTimeDisplacement (), 
+                           *horizontalSliderBubblePathsTimeDisplacement,
+                           simulation));
+    SetValueAndMaxNoSignals (spinBoxBubblePathsTimeBegin,
+			     vs.GetBubblePathsTimeBegin (), 
+			     widgetGl->GetTimeSteps (viewNumber));
+    SetValueAndMaxNoSignals (spinBoxBubblePathsTimeEnd,
+			     vs.GetBubblePathsTimeEnd (), 
+			     widgetGl->GetTimeSteps (viewNumber));
+}
+
 
 void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 {
@@ -1711,13 +1736,13 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 
     SetCheckedNoSignals (checkBoxSelectionContextShown, 
 			 vs.IsSelectionContextShown ());
-    SetCheckedNoSignals (checkBoxPartialPathHidden, vs.IsPartialPathHidden ());
     SetCheckedNoSignals (checkBoxT1sShiftLower, vs.T1sShiftLower ());
 
     deformationViewToUI ();
     velocityViewToUI ();
     forceViewToUI ();
-    t1sPDEViewToUI ();
+    t1sKDEViewToUI ();
+    bubblePathsViewToUI ();
 
     SetValueNoSignals (horizontalSliderAngleOfView, vs.GetAngleOfView ());
     
@@ -1762,7 +1787,6 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     }
 
     labelAverageColor->setText (FaceScalar::ToString (property));
-    labelCenterPathColor->setText (FaceScalar::ToString (property));
 
     ostringstream ostr;
     ostr << vs.GetLinkedTimeBegin ();

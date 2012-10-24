@@ -158,16 +158,16 @@ private:
  */
 template<typename PropertySetter = SetterTextureCoordinate,
 	 typename DisplayEdge = DisplaySegment>
-class DisplayCenterPath : public DisplayBodyBase<PropertySetter>
+class DisplayBubblePaths : public DisplayBodyBase<PropertySetter>
 {
 public:
     /**
      * Constructor
      */
-    DisplayCenterPath (
+    DisplayBubblePaths (
 	const Settings& settings, ViewNumber::Enum view, 
 	const BodySelector& bodySelector, GLUquadricObj* quadric, 
-	const Simulation& simulation,
+	const Simulation& simulation, size_t begin, size_t end,
 	bool useTimeDisplacement = false, 
 	double timeDisplacement = 0);
 
@@ -227,6 +227,8 @@ private:
     vector< boost::shared_ptr<FocusColorSegment> > m_focusColorSegments;
     vector< boost::shared_ptr<ContextSegment> > m_contextSegments;
     const Simulation& m_simulation;
+    size_t m_timeBegin;
+    size_t m_timeEnd;
 };
 
 

@@ -300,15 +300,15 @@ display (boost::shared_ptr<Body> b)
 }
 
 
-// DisplayCenterPath
+// DisplayBubblePaths
 // ======================================================================
 
 template<typename PropertySetter, typename DisplaySegment>
-DisplayCenterPath<PropertySetter, DisplaySegment>::
-DisplayCenterPath (
+DisplayBubblePaths<PropertySetter, DisplaySegment>::
+DisplayBubblePaths (
     const Settings& settings, ViewNumber::Enum view,
     const BodySelector& bodySelector, GLUquadricObj* quadric,
-    const Simulation& simulation,
+    const Simulation& simulation, size_t timeBegin, size_t timeEnd,
     bool useTimeDisplacement,
     double timeDisplacement) :
 
@@ -316,16 +316,18 @@ DisplayCenterPath (
 	settings, bodySelector, PropertySetter (settings, view),
 	useTimeDisplacement, timeDisplacement),
     m_displaySegment (quadric,
-		      this->m_settings.IsCenterPathLineUsed () ?
+		      this->m_settings.IsBubblePathsLineUsed () ?
 		      this->m_settings.GetEdgeWidth () :
 		      this->m_settings.GetEdgeRadius ()),
-    m_simulation (simulation)
+    m_simulation (simulation),
+    m_timeBegin (timeBegin),
+    m_timeEnd (timeEnd)
 {
 }
 
 
 template<typename PropertySetter, typename DisplaySegment>
-void DisplayCenterPath<PropertySetter, DisplaySegment>::
+void DisplayBubblePaths<PropertySetter, DisplaySegment>::
 operator () (size_t bodyId)
 {
     m_focusTextureSegments.resize (0);
@@ -334,12 +336,13 @@ operator () (size_t bodyId)
     const BodyAlongTime& bat = m_simulation.GetBodyAlongTime (bodyId);
     StripIterator it = bat.GetStripIterator (m_simulation);
     it.ForEachSegment (
-	boost::bind (&DisplayCenterPath::valueStep, this, _1, _2, _3, _4));
+	boost::bind (&DisplayBubblePaths::valueStep, this, _1, _2, _3, _4),
+        m_timeBegin, m_timeEnd);
     displaySegments ();
 }
 
 template<typename PropertySetter, typename DisplaySegment>
-void DisplayCenterPath<PropertySetter, DisplaySegment>::
+void DisplayBubblePaths<PropertySetter, DisplaySegment>::
 valueStep (
     const StripIteratorPoint& beforeBegin,
     const StripIteratorPoint& begin,
@@ -371,7 +374,7 @@ valueStep (
 
 
  template<typename PropertySetter, typename DisplaySegment>
- void DisplayCenterPath<PropertySetter, DisplaySegment>::
+ void DisplayBubblePaths<PropertySetter, DisplaySegment>::
  halfValueStep (const StripIteratorPoint& p, const Segment& segment)
  {
      bool focus = this->IsFocus (p.m_body);
@@ -394,12 +397,12 @@ valueStep (
     }
     else
 	storeContextSegment (
-	    this->m_settings.GetCenterPathContextColor (), segment);
+	    this->m_settings.GetBubblePathsContextColor (), segment);
 }
 
 
 template<typename PropertySetter, typename DisplaySegment>
-void DisplayCenterPath<PropertySetter, DisplaySegment>::
+void DisplayBubblePaths<PropertySetter, DisplaySegment>::
 displaySegments ()
 {
     ViewSettings& vs = this->m_settings.GetViewSettings (
@@ -410,14 +413,14 @@ displaySegments ()
         m_focusTextureSegments.size () + m_focusColorSegments.size();
     for_each (
 	m_focusTextureSegments.begin (), m_focusTextureSegments.end (),
-	boost::bind (&DisplayCenterPath<PropertySetter, DisplaySegment>::
+	boost::bind (&DisplayBubblePaths<PropertySetter, DisplaySegment>::
 		     displayFocusTextureSegment, this, _1));
     if (m_focusColorSegments.size () > 0)
     {
 	glDisable (GL_TEXTURE_1D);
 	for_each (
 	    m_focusColorSegments.begin (), m_focusColorSegments.end (),
-	    boost::bind (&DisplayCenterPath<PropertySetter, DisplaySegment>::
+	    boost::bind (&DisplayBubblePaths<PropertySetter, DisplaySegment>::
 			 displayFocusColorSegment, this, _1));
 	glEnable (GL_TEXTURE_1D);
     }
@@ -431,7 +434,7 @@ displaySegments ()
 	DisplayBodyBase<>::BeginContext ();
 	for_each (
 	    m_contextSegments.begin (), m_contextSegments.end (),
-	    boost::bind (&DisplayCenterPath<PropertySetter, DisplaySegment>::
+	    boost::bind (&DisplayBubblePaths<PropertySetter, DisplaySegment>::
 			 displayContextSegment, this, _1));
 	DisplayBodyBase<>::EndContext ();
 	glEnable (GL_TEXTURE_1D);
@@ -439,7 +442,7 @@ displaySegments ()
 }
 
 template<typename PropertySetter, typename DisplaySegment>
-G3D::Vector3 DisplayCenterPath<PropertySetter, DisplaySegment>::
+G3D::Vector3 DisplayBubblePaths<PropertySetter, DisplaySegment>::
 getPoint (StripIteratorPoint p) const
 {
     if (this->m_useZPos)
@@ -453,7 +456,7 @@ getPoint (StripIteratorPoint p) const
 }
 
 template<typename PropertySetter, typename DisplaySegment>
-void DisplayCenterPath<PropertySetter, DisplaySegment>::
+void DisplayBubblePaths<PropertySetter, DisplaySegment>::
 storeFocusSegment (double value, const Segment& segment)
 {
     double textureCoordinate = 
@@ -466,7 +469,7 @@ storeFocusSegment (double value, const Segment& segment)
 }
 
 template<typename PropertySetter, typename DisplaySegment>
-void DisplayCenterPath<PropertySetter, DisplaySegment>::
+void DisplayBubblePaths<PropertySetter, DisplaySegment>::
 storeFocusSegment (const QColor& color, const Segment& segment)
 {
     boost::shared_ptr<FocusColorSegment> fs = 
@@ -477,7 +480,7 @@ storeFocusSegment (const QColor& color, const Segment& segment)
 
 
 template<typename PropertySetter, typename DisplaySegment>
-void DisplayCenterPath<PropertySetter, DisplaySegment>::
+void DisplayBubblePaths<PropertySetter, DisplaySegment>::
 storeContextSegment (
     const QColor& color, const Segment& segment)
 {
@@ -487,7 +490,7 @@ storeContextSegment (
 }
 
 template<typename PropertySetter, typename DisplaySegment>
-void DisplayCenterPath<PropertySetter, DisplaySegment>::
+void DisplayBubblePaths<PropertySetter, DisplaySegment>::
 displayContextSegment (
     const boost::shared_ptr<ContextSegment>& contextSegment)
 {
@@ -496,7 +499,7 @@ displayContextSegment (
 }
 
 template<typename PropertySetter, typename DisplaySegment>
-void DisplayCenterPath<PropertySetter, DisplaySegment>::
+void DisplayBubblePaths<PropertySetter, DisplaySegment>::
 displayFocusTextureSegment (
     const boost::shared_ptr<FocusTextureSegment>& segment)
 {
@@ -506,7 +509,7 @@ displayFocusTextureSegment (
 }
 
 template<typename PropertySetter, typename DisplaySegment>
-void DisplayCenterPath<PropertySetter, DisplaySegment>::
+void DisplayBubblePaths<PropertySetter, DisplaySegment>::
 displayFocusColorSegment (const boost::shared_ptr<FocusColorSegment>& segment)
 {
     glColor (segment->m_color);
@@ -566,9 +569,10 @@ template class DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H1, Displa
 
 template class DisplayBody<DisplayFaceBodyScalarColor<SetterDeformation>, SetterDeformation>;
 
-// DisplayCenterPath
+// DisplayBubblePaths
 // ======================================================================
 
-template class DisplayCenterPath<SetterTextureCoordinate, DisplaySegmentTube>;
-template class DisplayCenterPath<SetterTextureCoordinate, DisplaySegmentQuadric>;
-template class DisplayCenterPath<SetterTextureCoordinate, DisplaySegment>;
+template class DisplayBubblePaths<SetterTextureCoordinate, DisplaySegmentTube>;
+template class DisplayBubblePaths<SetterTextureCoordinate, 
+                                  DisplaySegmentQuadric>;
+template class DisplayBubblePaths<SetterTextureCoordinate, DisplaySegment>;

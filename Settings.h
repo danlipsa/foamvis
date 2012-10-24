@@ -252,23 +252,23 @@ public:
     {
 	m_objectVelocityShown = shown;
     }
-    bool IsCenterPathLineUsed () const
+    bool IsBubblePathsLineUsed () const
     {
 	return m_centerPathLineUsed;
     }
-    bool IsCenterPathTubeUsed () const
+    bool IsBubblePathsTubeUsed () const
     {
 	return m_centerPathTubeUsed;
     }
-    void SetCenterPathTubeUsed (bool used)
+    void SetBubblePathsTubeUsed (bool used)
     {
 	m_centerPathTubeUsed = used;
     }
-    void SetCenterPathLineUsed (bool used)
+    void SetBubblePathsLineUsed (bool used)
     {
 	m_centerPathLineUsed = used;
     }
-    QColor GetCenterPathContextColor () const;
+    QColor GetBubblePathsContextColor () const;
     bool IsTitleShown () const
     {
 	return m_titleShown;

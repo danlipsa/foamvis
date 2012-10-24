@@ -33,7 +33,7 @@ public:
     
     T1sKDE& GetT1sKDE () const
     {
-	return *m_t1sPDE;
+	return *m_t1sKDE;
     }
 
     TensorAverage& GetDeformationAverage () const
@@ -61,7 +61,7 @@ public:
 
 private:
     boost::shared_ptr<ScalarAverage> m_scalarAverage;
-    boost::shared_ptr<T1sKDE> m_t1sPDE;
+    boost::shared_ptr<T1sKDE> m_t1sKDE;
     boost::shared_ptr<TensorAverage> m_deformationAverage;
     boost::shared_ptr<VectorAverage> m_velocityAverage;
     boost::shared_ptr<ForceAverage> m_forceAverage;

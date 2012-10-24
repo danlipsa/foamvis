@@ -147,13 +147,12 @@ WidgetGl::WidgetGl(QWidget *parent)
       m_bodyCenterShown (false),
       m_bodyNeighborsShown (false),
       m_faceCenterShown (false),
-      m_centerPathBodyShown (false),
+      m_bubblePathsBodyShown (false),
       m_boundingBoxSimulationShown (false),
       m_boundingBoxFoamShown (false),
       m_boundingBoxBodyShown (false),
       m_axesShown (false),
       m_standaloneElementsShown (true),
-      m_timeDisplacement (0.0),
       m_selectBodiesByIdList (new SelectBodiesById (this)),
       m_t1sShown (false),
       m_t1sAllTimesteps (false),
@@ -179,7 +178,7 @@ WidgetGl::~WidgetGl()
     makeCurrent();
     gluDeleteQuadric (m_quadric);
     m_quadric = 0;
-    glDeleteLists (m_listCenterPaths[0], m_listCenterPaths.size ());
+    glDeleteLists (m_listBubblePaths[0], m_listBubblePaths.size ());
     glDeleteLists (m_listFacesNormal[0], m_listFacesNormal.size ());
     glDeleteTextures (m_colorBarTexture.size (), &m_colorBarTexture[0]);
     glDeleteTextures (m_overlayBarTexture.size (), &m_overlayBarTexture[0]);
@@ -224,7 +223,7 @@ void WidgetGl::initList (boost::array<GLuint, ViewNumber::COUNT>* list)
 
 void WidgetGl::initList ()
 {
-    initList (&m_listCenterPaths);
+    initList (&m_listBubblePaths);
     initList (&m_listFacesNormal);
 }
 
@@ -471,7 +470,7 @@ void WidgetGl::initDisplayView ()
 	  &WidgetGl::displayEdgesTorus,
 	  &WidgetGl::displayFacesTorus,
 	  &WidgetGl::displayFacesNormal,
-	  &WidgetGl::displayCenterPathsWithBodies,
+	  &WidgetGl::displayBubblePathsWithBodies,
 	  &WidgetGl::displayFacesAverage,
 	  &WidgetGl::displayFacesAverage,
 	    }};
@@ -671,9 +670,10 @@ void WidgetGl::translateAndScale (
     const G3D::Vector3& translation, bool contextView) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     glScale (scaleRatio);
     // if 2D, the back plane stays in the same place
-    if (simulation.Is2D () && ! IsTimeDisplacementUsed ())
+    if (simulation.Is2D () && ! vs.IsTimeDisplacementUsed ())
     {
 	G3D::AABox boundingBox = simulation.GetBoundingBox ();
 	float zTranslation = boundingBox.center ().z - boundingBox.low ().z;
@@ -1884,8 +1884,8 @@ void WidgetGl::DisplayT1Quad (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t t1Index) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    T1sKDE& t1sPDE = GetViewAverage (viewNumber).GetT1sKDE ();
-    float rectSize = t1sPDE.GetKernelTextureSize () * 
+    T1sKDE& t1sKDE = GetViewAverage (viewNumber).GetT1sKDE ();
+    float rectSize = t1sKDE.GetKernelTextureSize () * 
 	GetOnePixelInObjectSpace ();
     float half = rectSize / 2;
     G3D::Rect2D srcTexRect = G3D::Rect2D::xyxy (0., 0., 1., 1.);
@@ -1955,8 +1955,8 @@ pair<float, float> WidgetGl::GetRangeCount () const
 
 pair<float, float> WidgetGl::GetRangeT1sKDE (ViewNumber::Enum viewNumber) const
 {
-    T1sKDE& t1sPDE = GetViewAverage (viewNumber).GetT1sKDE ();
-    float sigma = t1sPDE.GetKernelSigma ();
+    T1sKDE& t1sKDE = GetViewAverage (viewNumber).GetT1sKDE ();
+    float sigma = t1sKDE.GetKernelSigma ();
     return pair<float, float> (0.0, 1 / (2 * M_PI * sigma * sigma));
 }
 
@@ -2038,7 +2038,7 @@ void WidgetGl::displayBodyCenters (
 	const Simulation& simulation = GetSimulation (viewNumber);
 	const BodySelector& bodySelector = vs.GetBodySelector ();
 	double zPos = (vs.GetViewType () == ViewType::CENTER_PATHS) ?
-	    currentTime * GetTimeDisplacement () : 0;
+	    currentTime * vs.GetTimeDisplacement () : 0;
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
 	glPointSize (4.0);
@@ -2179,15 +2179,15 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     displayAverageAroundBodies (viewNumber, isAverageAroundRotationShown);
     displayContextBodies (viewNumber);
     displayContextBox (viewNumber, isAverageAroundRotationShown);
-    T1sKDE& t1sPDE = GetViewAverage (viewNumber).GetT1sKDE ();
+    T1sKDE& t1sKDE = GetViewAverage (viewNumber).GetT1sKDE ();
     if (vs.GetViewType () == ViewType::T1S_KDE &&
-	t1sPDE.IsKernelTextureSizeShown ())
+	t1sKDE.IsKernelTextureSizeShown ())
     {
 	size_t timeStep = GetCurrentTime (viewNumber);
 	size_t stepSize = GetSimulation (viewNumber).GetT1s (
 	    timeStep, vs.T1sShiftLower ()).size ();
 	for (size_t i = 0; i < stepSize; ++i)
-	    t1sPDE.DisplayTextureSize (viewNumber, timeStep, i);
+	    t1sKDE.DisplayTextureSize (viewNumber, timeStep, i);
     }
     glPopAttrib ();
 }
@@ -2321,22 +2321,22 @@ void WidgetGl::displayFacesTorusLines () const
     glPopAttrib ();
 }
 
-void WidgetGl::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayBubblePathsWithBodies (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     size_t currentTime = GetCurrentTime (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
     const BodySelector& bodySelector = vs.GetBodySelector ();
-    displayCenterPaths (viewNumber);
+    displayBubblePaths (viewNumber);
     
     glPushAttrib (GL_ENABLE_BIT);
     if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
-    if (IsCenterPathBodyShown ())
+    if (IsBubblePathsBodyShown ())
     {
 	const Foam::Bodies& bodies = 
 	    simulation.GetFoam (currentTime).GetBodies ();
-	double zPos = currentTime * GetTimeDisplacement ();
+	double zPos = currentTime * vs.GetTimeDisplacement ();
 	for_each (
 	    bodies.begin (), bodies.end (),
 	    DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H0,
@@ -2344,32 +2344,32 @@ void WidgetGl::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
 	    DisplayElement::DONT_DISPLAY_TESSELLATION_EDGES> > > > (
 		*GetSettings (), bodySelector, 
                 DisplayElement::USER_DEFINED_CONTEXT,
-		viewNumber, IsTimeDisplacementUsed (), zPos));
+		viewNumber, vs.IsTimeDisplacementUsed (), zPos));
     }
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (
 	simulation.GetFoam (currentTime), viewNumber, true, 0);
-    if (GetTimeDisplacement () != 0)
+    if (vs.GetTimeDisplacement () != 0)
     {
 
 	displayStandaloneEdges< DisplayEdgePropertyColor<> > (
 	    simulation.GetFoam (currentTime), viewNumber,
-	    IsTimeDisplacementUsed (),
-	    (simulation.GetTimeSteps () - 1) * GetTimeDisplacement ());
+	    vs.IsTimeDisplacementUsed (),
+	    (simulation.GetTimeSteps () - 1) * vs.GetTimeDisplacement ());
     }
     glPopAttrib ();
 }
 
 
-void WidgetGl::displayCenterPaths (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayBubblePaths (ViewNumber::Enum viewNumber) const
 {
-    glCallList (m_listCenterPaths[viewNumber]);
+    glCallList (m_listBubblePaths[viewNumber]);
 }
 
-void WidgetGl::compileCenterPaths (ViewNumber::Enum viewNumber) const
+void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const BodySelector& bodySelector = vs.GetBodySelector ();
-    glNewList (m_listCenterPaths[viewNumber], GL_COMPILE);
+    glNewList (m_listBubblePaths[viewNumber], GL_COMPILE);
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT | 
 		  GL_POLYGON_BIT | GL_LINE_BIT);
     glEnable(GL_TEXTURE_1D);
@@ -2382,35 +2382,38 @@ void WidgetGl::compileCenterPaths (ViewNumber::Enum viewNumber) const
     const BodiesAlongTime::BodyMap& bats = 
 	GetSimulation ().GetBodiesAlongTime ().GetBodyMap ();
     if (GetSettings ()->GetEdgeRadiusRatio () > 0 && 
-	! GetSettings ()->IsCenterPathLineUsed ())
+	! GetSettings ()->IsBubblePathsLineUsed ())
     {
-	if (GetSettings ()->IsCenterPathTubeUsed ())
+	if (GetSettings ()->IsBubblePathsTubeUsed ())
 	    for_each (
 		bats.begin (), bats.end (),
-		DisplayCenterPath<
+		DisplayBubblePaths<
 		SetterTextureCoordinate, DisplaySegmentTube> (
 		    *GetSettings (), 
 		    GetViewNumber (), bodySelector, GetQuadricObject (),
 		    GetSimulation (viewNumber),
-		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
+                    vs.GetBubblePathsTimeBegin (), vs.GetBubblePathsTimeEnd (),
+		    vs.IsTimeDisplacementUsed (), vs.GetTimeDisplacement ()));
 	else
 	    for_each (
 		bats.begin (), bats.end (),
-		DisplayCenterPath<
+		DisplayBubblePaths<
 		SetterTextureCoordinate, DisplaySegmentQuadric> (
 		    *GetSettings (), 
 		    GetViewNumber (), bodySelector, GetQuadricObject (),
 		    GetSimulation (viewNumber),
-		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
+                    vs.GetBubblePathsTimeBegin (), vs.GetBubblePathsTimeEnd (),
+		    vs.IsTimeDisplacementUsed (), vs.GetTimeDisplacement ()));
     }
     else
 	for_each (bats.begin (), bats.end (),
-		  DisplayCenterPath<SetterTextureCoordinate, 
+		  DisplayBubblePaths<SetterTextureCoordinate, 
 		  DisplaySegment> (
 		      *GetSettings (), 
 		      GetViewNumber (), bodySelector, GetQuadricObject (),
 		      GetSimulation (viewNumber),
-		      IsTimeDisplacementUsed (), GetTimeDisplacement ()));
+                      vs.GetBubblePathsTimeBegin (), vs.GetBubblePathsTimeEnd (),
+		      vs.IsTimeDisplacementUsed (), vs.GetTimeDisplacement ()));
     glPopAttrib ();
     glEndList ();
 }
@@ -2743,11 +2746,6 @@ void WidgetGl::displayOverlayBar (
 }
 
 
-bool WidgetGl::IsTimeDisplacementUsed () const
-{
-    return GetTimeDisplacement () > 0;
-}
-
 /**
  * Activate a shader for each fragment where the Quad is drawn on destRect. 
  * Rotate the Quad if angleDegrees != 0.
@@ -2835,20 +2833,20 @@ void WidgetGl::SetForceDifferenceShown (bool value)
 
 void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
 {
-    T1sKDE& t1sPDE = GetViewAverage (viewNumber).GetT1sKDE ();
-    t1sPDE.SetKernelSigma (
+    T1sKDE& t1sKDE = GetViewAverage (viewNumber).GetT1sKDE ();
+    t1sKDE.SetKernelSigma (
 	Index2Value (static_cast<QSlider*> (sender ()), T1sKDE::KERNEL_SIGMA));
-    t1sPDE.AverageInitStep ();
+    t1sKDE.AverageInitStep ();
 }
 
 void WidgetGl::valueChangedT1sKernelTextureSize (
     ViewNumber::Enum viewNumber)
 {
-    T1sKDE& t1sPDE = GetViewAverage (viewNumber).GetT1sKDE ();
-    t1sPDE.SetKernelTextureSize (
+    T1sKDE& t1sKDE = GetViewAverage (viewNumber).GetT1sKDE ();
+    t1sKDE.SetKernelTextureSize (
 	Index2Value (static_cast<QSlider*> (sender ()), 
 		     T1sKDE::KERNEL_TEXTURE_SIZE));
-    t1sPDE.AverageInitStep ();    
+    t1sKDE.AverageInitStep ();    
 }
 
 void WidgetGl::toggledT1sKernelTextureSizeShown (ViewNumber::Enum viewNumber)
@@ -2861,11 +2859,11 @@ void WidgetGl::toggledT1sKernelTextureSizeShown (ViewNumber::Enum viewNumber)
 void WidgetGl::valueChangedT1sKernelIntervalPerPixel (
     ViewNumber::Enum viewNumber)
 {
-    T1sKDE& t1sPDE = GetViewAverage (viewNumber).GetT1sKDE ();
-    t1sPDE.SetKernelIntervalPerPixel (
+    T1sKDE& t1sKDE = GetViewAverage (viewNumber).GetT1sKDE ();
+    t1sKDE.SetKernelIntervalPerPixel (
 	Index2Value (static_cast<QSlider*> (sender ()), 
 		     T1sKDE::KERNEL_INTERVAL_PER_PIXEL));
-    t1sPDE.AverageInitStep ();
+    t1sKDE.AverageInitStep ();
 }
 
 template<typename T>
@@ -3180,7 +3178,7 @@ void WidgetGl::CompileUpdate (ViewNumber::Enum viewNumber)
     switch (vs.GetViewType ())
     {
     case ViewType::CENTER_PATHS:
-	compileCenterPaths (viewNumber);
+	compileBubblePaths (viewNumber);
 	break;
 /*
     case ViewType::FACES:
@@ -4048,10 +4046,10 @@ void WidgetGl::ToggledConstraintPointsShown (bool checked)
     CompileUpdate ();
 }
 
-void WidgetGl::ToggledCenterPathBodyShown (bool checked)
+void WidgetGl::ToggledBubblePathsBodyShown (bool checked)
 {
     makeCurrent ();
-    m_centerPathBodyShown = checked;
+    m_bubblePathsBodyShown = checked;
     CompileUpdate ();
 }
 
@@ -4116,19 +4114,19 @@ void WidgetGl::ToggledEdgesTessellationShown (bool checked)
 
 
 
-void WidgetGl::ToggledCenterPathTubeUsed (bool checked)
+void WidgetGl::ToggledBubblePathsTubeUsed (bool checked)
 {
     cdbg << "center path tube used: " << checked << endl;
     makeCurrent ();
-    GetSettings ()->SetCenterPathTubeUsed (checked);
+    GetSettings ()->SetBubblePathsTubeUsed (checked);
     CompileUpdate ();
 }
 
-void WidgetGl::ToggledCenterPathLineUsed (bool checked)
+void WidgetGl::ToggledBubblePathsLineUsed (bool checked)
 {
     cdbg << "center path line used: " << checked << endl;
     makeCurrent ();
-    GetSettings ()->SetCenterPathLineUsed (checked);
+    GetSettings ()->SetBubblePathsLineUsed (checked);
     CompileUpdate ();
 }
 
@@ -4331,15 +4329,38 @@ void WidgetGl::ValueChangedT1sTimeWindow (int timeSteps)
     GetViewAverage ().GetT1sKDE ().AverageSetTimeWindow (timeSteps);
 }
 
-void WidgetGl::ValueChangedTimeDisplacement (int timeDisplacement)
+float WidgetGl::timeDisplacementMultiplier (
+    const QSlider& slider,
+    const Simulation& simulation) const
 {
+    size_t maximum = slider.maximum ();
+    G3D::AABox bb = simulation.GetBoundingBox ();
+    return (bb.high () - bb.low ()).z  / simulation.GetTimeSteps () / maximum;
+}
+
+
+float WidgetGl::SliderToTimeDisplacement (
+    const QSlider& slider,
+    const Simulation& simulation) const
+{
+    return timeDisplacementMultiplier (slider, simulation) * slider.value ();
+}
+
+int WidgetGl::TimeDisplacementToSlider (
+    float timeDisplacement,
+    const QSlider& slider,
+    const Simulation& simulation) const
+{
+    return timeDisplacement / timeDisplacementMultiplier (slider, simulation);
+}
+
+void WidgetGl::ValueChangedTimeDisplacement (int time)
+{
+    (void)time;
     makeCurrent ();
-    QSlider* slider = static_cast<QSlider*> (sender ());
-    size_t maximum = slider->maximum ();
-    G3D::AABox bb = GetSimulation ().GetBoundingBox ();
-    m_timeDisplacement =
-	(bb.high () - bb.low ()).z * timeDisplacement /
-	GetSimulation ().GetTimeSteps () / maximum;
+    GetViewSettings ().SetTimeDisplacement (
+        SliderToTimeDisplacement (*static_cast<QSlider*>(sender ()), 
+                                  GetSimulation ()));
     CompileUpdate ();
 }
 
@@ -4351,6 +4372,17 @@ void WidgetGl::ValueChangedT1Size (int index)
     CompileUpdate ();
 }
 
+void WidgetGl::ValueChangedBubblePathsTimeBegin (int time)
+{
+    GetViewSettings ().SetBubblePathsTimeBegin (time);
+    CompileUpdate ();
+}
+
+void WidgetGl::ValueChangedBubblePathsTimeEnd (int time)
+{
+    GetViewSettings ().SetBubblePathsTimeEnd (time);
+    CompileUpdate ();
+}
 
 void WidgetGl::ValueChangedT1sKernelIntervalPerPixel (int index)
 {

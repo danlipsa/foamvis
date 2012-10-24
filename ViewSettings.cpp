@@ -92,7 +92,10 @@ ViewSettings::ViewSettings () :
     m_histogramOptions (HistogramType::UNICOLOR_TIME_STEP),
     m_domainClipped (false),
     m_streamlineLength (STREAMLINE_LENGTH),
-    m_streamlineStepLength (STREAMLINE_STEP_LENGTH)
+    m_streamlineStepLength (STREAMLINE_STEP_LENGTH),
+    m_timeDisplacement (0.0),
+    m_bubblePathsTimeBegin (0),
+    m_bubblePathsTimeEnd (0)
 {
     setInitialLightParameters ();
     for (size_t i = 0; i < m_averageAroundBodyId.size (); ++i)
@@ -606,6 +609,7 @@ void ViewSettings::SetSimulation (int i, const Simulation& simulation,
     SetScaleCenter (viewingVolumeCenter.xy ());
     SetRotationCenter (viewingVolumeCenter);
     setTimeSteps (simulation.GetTimeSteps ());
+    SetBubblePathsTimeEnd (simulation.GetTimeSteps ());
 }
 
 void ViewSettings::RotateAndTranslateAverageAround (

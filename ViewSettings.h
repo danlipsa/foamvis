@@ -582,6 +582,35 @@ public:
     {
 	return m_syncViewTimeEnd - m_syncViewTimeBegin + 1;
     }
+    bool IsTimeDisplacementUsed () const
+    {
+        return GetTimeDisplacement () > 0;
+    }
+
+    float GetTimeDisplacement () const
+    {
+	return m_timeDisplacement;
+    }
+    void SetTimeDisplacement (double time)
+    {
+        m_timeDisplacement = time;
+    }    
+    size_t GetBubblePathsTimeBegin () const
+    {
+        return m_bubblePathsTimeBegin;
+    }
+    void SetBubblePathsTimeBegin (size_t time)
+    {
+        m_bubblePathsTimeBegin = time;
+    }
+    size_t GetBubblePathsTimeEnd () const
+    {
+        return m_bubblePathsTimeEnd;
+    }
+    void SetBubblePathsTimeEnd (size_t time)
+    {
+        m_bubblePathsTimeEnd = time;
+    }
     // @}
 
 
@@ -780,6 +809,9 @@ private:
     bool m_domainClipped;
     double m_streamlineLength;
     double m_streamlineStepLength;
+    float m_timeDisplacement;
+    size_t m_bubblePathsTimeBegin;
+    size_t m_bubblePathsTimeEnd;
 };
 
 

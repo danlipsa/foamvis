@@ -61,7 +61,8 @@ public:
     StripIteratorPoint Next ();    
 
     template <typename ProcessSegment> 
-    void ForEachSegment (ProcessSegment processSegment);
+    void ForEachSegment (ProcessSegment processSegment, 
+                         size_t timeBegin, size_t timeEnd);
 
 public:
     static SegmentPerpendicularEnd::Enum GetSegmentPerpendicularEnd (

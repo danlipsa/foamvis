@@ -30,7 +30,7 @@ ViewAverage::ViewAverage (ViewNumber::Enum viewNumber,
 			  const ViewSettings& viewSettings) :
     AverageInterface (viewNumber),
     m_scalarAverage (new ScalarAverage (viewNumber, widgetGl)),
-    m_t1sPDE (new T1sKDE (viewNumber, widgetGl)),
+    m_t1sKDE (new T1sKDE (viewNumber, widgetGl)),
     m_deformationAverage (
 	new TensorAverage (viewNumber, widgetGl, m_scalarAverage->GetFbos ())),
     m_velocityAverage (

@@ -111,7 +111,7 @@ void T1sKDE::InitShaders ()
 
 T1sKDE::T1sKDE (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
     ScalarAverageTemplate<SetterNop> (viewNumber, widgetGl, 
-				      "t1sPDE", QColor (0, 255, 0, 0)),
+				      "t1sKDE", QColor (0, 255, 0, 0)),
     m_kernelIntervalPerPixel (KERNEL_INTERVAL_PER_PIXEL.first),
     m_kernelSigma (KERNEL_SIGMA.first),
     m_kernelTextureSize (KERNEL_TEXTURE_SIZE.first),

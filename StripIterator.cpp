@@ -47,7 +47,8 @@ StripIterator::StripIterator (
 }
 
 template <typename ProcessSegment> 
-void StripIterator::ForEachSegment (ProcessSegment processSegment)
+void StripIterator::ForEachSegment (ProcessSegment processSegment,
+                                    size_t timeBegin, size_t timeEnd)
 {
     StripIteratorPoint beforeBegin;
     StripIteratorPoint begin = Next ();
@@ -59,7 +60,9 @@ void StripIterator::ForEachSegment (ProcessSegment processSegment)
 	if (// middle or end of a segment
 	    end.m_location != StripPointLocation::BEGIN &&
 	    // the segment is not between two strips
-	    begin.m_location != StripPointLocation::END)
+	    begin.m_location != StripPointLocation::END &&
+            begin.m_timeStep >= timeBegin &&
+            end.m_timeStep <= timeEnd)
 	    processSegment (beforeBegin, begin, end, afterEnd);
 	beforeBegin = begin;
 	begin = end;
@@ -134,12 +137,11 @@ SegmentPerpendicularEnd::Enum StripIterator::GetSegmentPerpendicularEnd (
 // Template instantiations
 // ======================================================================
 /// @cond
-template void StripIterator::ForEachSegment<boost::_bi::bind_t<void, boost::_mfi::mf4<void, DisplayCenterPath<SetterTextureCoordinate, DisplaySegmentQuadric>, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<DisplayCenterPath<SetterTextureCoordinate, DisplaySegmentQuadric>*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > > > (boost::_bi::bind_t<void, boost::_mfi::mf4<void, DisplayCenterPath<SetterTextureCoordinate, DisplaySegmentQuadric>, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<DisplayCenterPath<SetterTextureCoordinate, DisplaySegmentQuadric>*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > >);
+template void StripIterator::ForEachSegment<boost::_bi::bind_t<void, boost::_mfi::mf4<void, DisplayBubblePaths<SetterTextureCoordinate, DisplaySegmentTube>, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<DisplayBubblePaths<SetterTextureCoordinate, DisplaySegmentTube>*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > > >(boost::_bi::bind_t<void, boost::_mfi::mf4<void, DisplayBubblePaths<SetterTextureCoordinate, DisplaySegmentTube>, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<DisplayBubblePaths<SetterTextureCoordinate, DisplaySegmentTube>*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > >, unsigned long, unsigned long);
 
-template void StripIterator::ForEachSegment<boost::_bi::bind_t<void, boost::_mfi::mf4<void, DisplayCenterPath<SetterTextureCoordinate, DisplaySegment>, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<DisplayCenterPath<SetterTextureCoordinate, DisplaySegment>*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > > >
-(boost::_bi::bind_t<void, boost::_mfi::mf4<void, DisplayCenterPath<SetterTextureCoordinate, DisplaySegment>, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<DisplayCenterPath<SetterTextureCoordinate, DisplaySegment>*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > >);
+template void StripIterator::ForEachSegment<boost::_bi::bind_t<void, boost::_mfi::mf4<void, Simulation, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<Simulation*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > > >(boost::_bi::bind_t<void, boost::_mfi::mf4<void, Simulation, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<Simulation*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > >, unsigned long, unsigned long);
 
-template void StripIterator::ForEachSegment<boost::_bi::bind_t<void, boost::_mfi::mf4<void, Simulation, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<Simulation*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > > > (boost::_bi::bind_t<void, boost::_mfi::mf4<void, Simulation, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<Simulation*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > >);
+template void StripIterator::ForEachSegment<boost::_bi::bind_t<void, boost::_mfi::mf4<void, DisplayBubblePaths<SetterTextureCoordinate, DisplaySegmentQuadric>, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<DisplayBubblePaths<SetterTextureCoordinate, DisplaySegmentQuadric>*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > > >(boost::_bi::bind_t<void, boost::_mfi::mf4<void, DisplayBubblePaths<SetterTextureCoordinate, DisplaySegmentQuadric>, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<DisplayBubblePaths<SetterTextureCoordinate, DisplaySegmentQuadric>*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > >, unsigned long, unsigned long);
 
-template void StripIterator::ForEachSegment<boost::_bi::bind_t<void, boost::_mfi::mf4<void, DisplayCenterPath<SetterTextureCoordinate, DisplaySegmentTube>, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<DisplayCenterPath<SetterTextureCoordinate, DisplaySegmentTube>*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > > >(boost::_bi::bind_t<void, boost::_mfi::mf4<void, DisplayCenterPath<SetterTextureCoordinate, DisplaySegmentTube>, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<DisplayCenterPath<SetterTextureCoordinate, DisplaySegmentTube>*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > >);
+template void StripIterator::ForEachSegment<boost::_bi::bind_t<void, boost::_mfi::mf4<void, DisplayBubblePaths<SetterTextureCoordinate, DisplaySegment>, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<DisplayBubblePaths<SetterTextureCoordinate, DisplaySegment>*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > > >(boost::_bi::bind_t<void, boost::_mfi::mf4<void, DisplayBubblePaths<SetterTextureCoordinate, DisplaySegment>, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<DisplayBubblePaths<SetterTextureCoordinate, DisplaySegment>*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > >, unsigned long, unsigned long);
 /// @endcond

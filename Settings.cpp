@@ -328,7 +328,7 @@ bool Settings::IsMissingPropertyShown (BodyScalar::Enum bodyProperty) const
     }
 }
 
-QColor Settings::GetCenterPathContextColor () const
+QColor Settings::GetBubblePathsContextColor () const
 {
     QColor returnColor (Qt::black);
     returnColor.setAlphaF (GetContextAlpha ());

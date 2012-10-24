@@ -77,15 +77,7 @@ public:
     }
     size_t GetTimeSteps (ViewNumber::Enum viewNumber) const;
 
-    bool IsMissingPropertyShown (BodyScalar::Enum bodyProperty) const;
-
-    bool IsTimeDisplacementUsed () const;
-
-    double GetTimeDisplacement () const
-    {
-	return m_timeDisplacement;
-    }
-    
+    bool IsMissingPropertyShown (BodyScalar::Enum bodyProperty) const;    
 
     GLUquadricObj* GetQuadricObject () const 
     {
@@ -97,9 +89,9 @@ public:
 	return m_edgesShown;
     }
 
-    bool IsCenterPathBodyShown () const
+    bool IsBubblePathsBodyShown () const
     {
-	return m_centerPathBodyShown;
+	return m_bubblePathsBodyShown;
     }
 
 
@@ -204,7 +196,13 @@ public:
     void GetGridParams (
         ViewNumber::Enum viewNumber, 
         G3D::Vector2* gridOrigin, float* gridCellLength) const;
-        
+    float SliderToTimeDisplacement (
+        const QSlider& slider,
+        const Simulation& simulation) const;
+    int TimeDisplacementToSlider (
+        float timeDisplacement,
+        const QSlider& slider,
+        const Simulation& simulation) const;
     
 Q_SIGNALS:
     void PaintEnd ();
@@ -224,9 +222,9 @@ public Q_SLOTS:
     void ToggledAverageAroundMarked (bool checked);
     void ToggledConstraintsShown (bool checked);
     void ToggledConstraintPointsShown (bool checked);
-    void ToggledCenterPathBodyShown (bool checked);
-    void ToggledCenterPathLineUsed (bool checked);
-    void ToggledCenterPathTubeUsed (bool checked);
+    void ToggledBubblePathsBodyShown (bool checked);
+    void ToggledBubblePathsLineUsed (bool checked);
+    void ToggledBubblePathsTubeUsed (bool checked);
     void ToggledContextView (bool checked);
     void ToggledForceNetworkShown (bool checked);
     void ToggledForcePressureShown (bool checked);
@@ -282,6 +280,8 @@ public Q_SLOTS:
     void CurrentIndexChangedSelectedLight (int selectedLight);
 
 
+    void ValueChangedBubblePathsTimeBegin (int time);
+    void ValueChangedBubblePathsTimeEnd (int time);
     void ValueChangedStreamlineStepLength (double steps);
     void ValueChangedStreamlineLength (double value);
     void ValueChangedNoiseStart (int i);
@@ -415,6 +415,9 @@ private:
     typedef void (WidgetGl::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    float timeDisplacementMultiplier (
+        const QSlider& slider,
+        const Simulation& simulation) const;
     void addCopyCompatibleMenu (
         QMenu* menuCopy, const char* nameOp, 
         const boost::shared_ptr<QAction>* actionCopyOp) const;
@@ -530,7 +533,7 @@ private:
     void calculateRotationParams (
         ViewNumber::Enum viewNumber, size_t timeStep, 
         G3D::Vector3* rotationCenter, float* angleDegrees) const;
-    void displayCenterPathsWithBodies (ViewNumber::Enum view) const;
+    void displayBubblePathsWithBodies (ViewNumber::Enum view) const;
     void displayTorusDomain (ViewNumber::Enum viewNumber) const;
     void displayBodyNeighbors (ViewNumber::Enum viewNumber) const;
     void displayBodiesNeighbors () const;
@@ -541,8 +544,8 @@ private:
     void displayT1sAllTimesteps (ViewNumber::Enum view) const;
     void displayT1s (ViewNumber::Enum view) const;
     void displayT1sTimestep (ViewNumber::Enum view, size_t timeStep) const;    
-    void displayCenterPaths (ViewNumber::Enum view) const;
-    void compileCenterPaths (ViewNumber::Enum view) const;
+    void displayBubblePaths (ViewNumber::Enum view) const;
+    void compileBubblePaths (ViewNumber::Enum view) const;
 
     void displayBoundingBox (ViewNumber::Enum viewNumber) const;
     void displayFocusBox (ViewNumber::Enum viewNumber) const;
@@ -664,7 +667,7 @@ private:
     bool m_bodyCenterShown;
     bool m_bodyNeighborsShown;
     bool m_faceCenterShown;
-    bool m_centerPathBodyShown;
+    bool m_bubblePathsBodyShown;
     bool m_boundingBoxSimulationShown;    
     bool m_boundingBoxFoamShown;
     bool m_boundingBoxBodyShown;
@@ -722,7 +725,6 @@ private:
     boost::array<boost::shared_ptr<QAction>, 
 		 ViewNumber::COUNT> m_actionCopyColorMap;
     boost::shared_ptr<QSignalMapper> m_signalMapperCopyColorBar;
-    double m_timeDisplacement;
     boost::shared_ptr<SelectBodiesById> m_selectBodiesByIdList;
     QLabel *m_labelStatusBar;
     bool m_t1sShown;
@@ -735,7 +737,7 @@ private:
     size_t m_showBodyId;
     boost::array<
 	boost::shared_ptr<ViewAverage>, ViewNumber::COUNT> m_viewAverage;
-    boost::array<GLuint, ViewNumber::COUNT> m_listCenterPaths;
+    boost::array<GLuint, ViewNumber::COUNT> m_listBubblePaths;
     boost::array<GLuint, ViewNumber::COUNT> m_listFacesNormal;
     boost::array<GLuint, ViewNumber::COUNT> m_colorBarTexture;
     boost::array<GLuint, ViewNumber::COUNT> m_overlayBarTexture;

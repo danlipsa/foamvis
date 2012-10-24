@@ -341,7 +341,8 @@ void Simulation::calculateVelocityBody (
     const BodyAlongTime& bat = *p.second;
     StripIterator stripIt = bat.GetStripIterator (*this);
     stripIt.ForEachSegment (boost::bind (&Simulation::storeVelocity,
-					 this, _1, _2, _3, _4));    
+					 this, _1, _2, _3, _4),
+                            0, bat.GetTimeEnd ());    
 }
 
 void Simulation::calculateVelocity ()
