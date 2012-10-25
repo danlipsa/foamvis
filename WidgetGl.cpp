@@ -2089,8 +2089,7 @@ void WidgetGl::displayContextMenuPos (ViewNumber::Enum viewNumber) const
 
 void WidgetGl::displayFacesNormal (ViewNumber::Enum viewNumber) const
 {
-    //glCallList (m_listFacesNormal[viewNumber]);
-    compileFacesNormal (viewNumber);
+    glCallList (m_listFacesNormal[viewNumber]);
 }
 
 
@@ -2101,7 +2100,7 @@ void WidgetGl::compileFacesNormal (ViewNumber::Enum viewNumber) const
 	GetSimulation (viewNumber).GetFoam (vs.GetCurrentTime ());
     const Foam::Bodies& bodies = foam.GetBodies ();
 
-    //glNewList (m_listFacesNormal[viewNumber], GL_COMPILE);
+    glNewList (m_listFacesNormal[viewNumber], GL_COMPILE);
     if (EdgesShown ())
 	displayFacesContour (bodies, viewNumber);
     displayFacesInterior (bodies, viewNumber);
@@ -2114,7 +2113,7 @@ void WidgetGl::compileFacesNormal (ViewNumber::Enum viewNumber) const
     displayVelocityGlyphs (viewNumber);
     displayT1s (viewNumber);
     GetViewAverage (viewNumber).GetForceAverage ().DisplayOneTimeStep ();
-    //glEndList ();
+    glEndList ();
 }
 
 
@@ -2321,19 +2320,14 @@ void WidgetGl::displayFacesTorusLines () const
     glPopAttrib ();
 }
 
-void WidgetGl::displayBubblePathsWithBodies (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayBubblePathsBody (ViewNumber::Enum viewNumber) const
 {
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    size_t currentTime = GetCurrentTime (viewNumber);
-    const Simulation& simulation = GetSimulation (viewNumber);
-    const BodySelector& bodySelector = vs.GetBodySelector ();
-    displayBubblePaths (viewNumber);
-    
-    glPushAttrib (GL_ENABLE_BIT);
-    if (vs.IsLightingEnabled ())
-	glDisable (GL_LIGHTING);
     if (IsBubblePathsBodyShown ())
     {
+        const ViewSettings& vs = GetViewSettings (viewNumber);
+        const BodySelector& bodySelector = vs.GetBodySelector ();
+        const Simulation& simulation = GetSimulation (viewNumber);
+        size_t currentTime = GetCurrentTime (viewNumber);
 	const Foam::Bodies& bodies = 
 	    simulation.GetFoam (currentTime).GetBodies ();
 	double zPos = currentTime * vs.GetTimeDisplacement ();
@@ -2346,6 +2340,21 @@ void WidgetGl::displayBubblePathsWithBodies (ViewNumber::Enum viewNumber) const
                 DisplayElement::USER_DEFINED_CONTEXT,
 		viewNumber, vs.IsTimeDisplacementUsed (), zPos));
     }
+}
+
+
+void WidgetGl::displayBubblePathsWithBodies (ViewNumber::Enum viewNumber) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    size_t currentTime = GetCurrentTime (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
+    displayBubblePaths (viewNumber);
+    
+    glPushAttrib (GL_ENABLE_BIT);
+    if (vs.IsLightingEnabled ())
+	glDisable (GL_LIGHTING);
+    displayBubblePathsBody (viewNumber);
+    displayT1s (viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (
 	simulation.GetFoam (currentTime), viewNumber, true, 0);
     if (vs.GetTimeDisplacement () != 0)
@@ -3180,10 +3189,8 @@ void WidgetGl::CompileUpdate (ViewNumber::Enum viewNumber)
     case ViewType::CENTER_PATHS:
 	compileBubblePaths (viewNumber);
 	break;
-/*
     case ViewType::FACES:
 	compileFacesNormal (viewNumber);
-*/
     default:
 	break;
     }

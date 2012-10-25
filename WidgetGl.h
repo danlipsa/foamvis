@@ -534,6 +534,7 @@ private:
         ViewNumber::Enum viewNumber, size_t timeStep, 
         G3D::Vector3* rotationCenter, float* angleDegrees) const;
     void displayBubblePathsWithBodies (ViewNumber::Enum view) const;
+    void displayBubblePathsBody (ViewNumber::Enum viewNumber) const;
     void displayTorusDomain (ViewNumber::Enum viewNumber) const;
     void displayBodyNeighbors (ViewNumber::Enum viewNumber) const;
     void displayBodiesNeighbors () const;
