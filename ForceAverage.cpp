@@ -149,7 +149,7 @@ void ForceAverage::displayForcesOneObject (
 {
     ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
     const Simulation& simulation = GetSimulation ();
-    float bubbleSize = simulation.GetBubbleSize ();
+    float bubbleSize = simulation.GetBubbleDiameter ();
     float unitForceTorqueSize = vs.GetForceTorqueSize () * bubbleSize / count;
     G3D::Vector2 center = forcesOneObject.m_body->GetCenter ().xy ();
 
@@ -183,7 +183,7 @@ void ForceAverage::displayTorqueOneObject (
     G3D::Vector2 center = forcesOneObject.m_body->GetCenter ().xy ();
     const Foam& foam = GetFoam (
 	GetSettings ().GetCurrentTime (GetViewNumber ()));
-    float bubbleSize = simulation.GetBubbleSize ();
+    float bubbleSize = simulation.GetBubbleDiameter ();
     float unitForceTorqueSize = vs.GetForceTorqueSize () * bubbleSize / count;
 
     boost::array<HighlightNumber::Enum, 3> highlight = {{

@@ -220,7 +220,7 @@ public:
     {
 	m_reflectAxis = axis;
     }
-    float GetBubbleSize () const;
+    float GetBubbleDiameter () const;
     size_t GetRegularGridResolution () const
     {
 	return m_regularGridResolution;
@@ -310,7 +310,7 @@ public:
 	return m_simulation;
     }
     string ToString () const;
-    float GetBubbleSize () const;    
+    float GetBubbleDiameter () const;    
 
 private:
     vector<Simulation> m_simulation;

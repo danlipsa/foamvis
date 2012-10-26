@@ -627,11 +627,14 @@ void Simulation::ParseDMPs (
     copy (foams.constBegin (), foams.constEnd (), GetFoams ().begin () + 1);
 }
 
-float Simulation::GetBubbleSize () const
+float Simulation::GetBubbleDiameter () const
 {
     const G3D::AABox& box = GetFoam (0).GetBody (0).GetBoundingBox ();
     G3D::Vector3 e = box.extent ();
-    return (e.x + e.y + e.z) / 3;
+    if (DATA_PROPERTIES.Is2D ())
+        return (e.x + e.y) / 2;
+    else
+        return (e.x + e.y + e.z) / 3;
 }
 
 const BodyAlongTime& Simulation::GetBodyAlongTime (size_t id) const
@@ -653,12 +656,12 @@ string SimulationGroup::ToString () const
     return ostr.str ();
 }
 
-float SimulationGroup::GetBubbleSize () const
+float SimulationGroup::GetBubbleDiameter () const
 {
     acc::accumulator_set<float, acc::features<acc::tag::min> > a;
     BOOST_FOREACH (const Simulation& simulation, GetSimulations ())
     {
-	a (simulation.GetBubbleSize ());
+	a (simulation.GetBubbleDiameter ());
     }
     return acc::min (a);
 }

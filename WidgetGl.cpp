@@ -498,14 +498,14 @@ void WidgetGl::Init (
     update ();
 }
 
-float WidgetGl::GetBubbleSize (ViewNumber::Enum defaultViewNumber) const
+float WidgetGl::GetBubbleDiameter (ViewNumber::Enum defaultViewNumber) const
 {    
     vector<ViewNumber::Enum> vn = 
 	GetSettings ()->GetSplitHalfViewNumbers (defaultViewNumber);
-    float size = GetSimulation (vn[0]).GetBubbleSize ();
+    float size = GetSimulation (vn[0]).GetBubbleDiameter ();
     for (size_t i = 1; i < vn.size (); ++i)
     {
-	float s = GetSimulation (vn[i]).GetBubbleSize ();
+	float s = GetSimulation (vn[i]).GetBubbleDiameter ();
 	size = min (size, s);
     }
     return size;
@@ -515,14 +515,14 @@ float WidgetGl::GetDeformationSizeInitialRatio (
     ViewNumber::Enum viewNumber) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
-    float gridCellLength = GetBubbleSize (viewNumber);
+    float gridCellLength = GetBubbleDiameter (viewNumber);
     return gridCellLength / (2 * simulation.GetMaxDeformationEigenValue ());
 }
 
 float WidgetGl::GetVelocitySizeInitialRatio (
     ViewNumber::Enum viewNumber) const
 {
-    float gridCellLength = GetBubbleSize (viewNumber);
+    float gridCellLength = GetBubbleDiameter (viewNumber);
     float velocityMagnitude = 
 	GetSimulation (viewNumber).GetMax (BodyScalar::VELOCITY_MAGNITUDE);
     return gridCellLength / velocityMagnitude;
@@ -1746,7 +1746,7 @@ void WidgetGl::displayVelocityGlyphs (ViewNumber::Enum viewNumber) const
 	bodies.begin (), bodies.end (),
 	DisplayBodyVelocity (
 	    *GetSettings (), viewNumber,
-	    vs.GetBodySelector (), GetBubbleSize (viewNumber), 
+	    vs.GetBodySelector (), GetBubbleDiameter (viewNumber), 
 	    GetVelocitySizeInitialRatio (viewNumber),
 	    GetOnePixelInObjectSpace (), 
 	    va.IsSameSize (), va.IsClampingShown ()));
@@ -1795,7 +1795,7 @@ void WidgetGl::displayBodyVelocity (
 	DisplayBodyVelocity (
 	    *GetSettings (), viewNumber,
 	    vs.GetBodySelector (), 
-	    GetBubbleSize (viewNumber), 
+	    GetBubbleDiameter (viewNumber), 
 	    GetVelocitySizeInitialRatio (viewNumber),
 	    GetOnePixelInObjectSpace (), va.IsSameSize (), 
 	    va.IsClampingShown ()) (*foam.FindBody (m_showBodyId));
@@ -2917,7 +2917,7 @@ void WidgetGl::GetGridParams (
     G3D::Vector2 gridTranslation = ToMatrix2 (m).inverse () *
         vs.GetGridTranslation ().xy ();
 
-    *gridCellLength = GetBubbleSize (viewNumber) * vs.GetGridScaleRatio ();
+    *gridCellLength = GetBubbleDiameter (viewNumber) * vs.GetGridScaleRatio ();
     *gridOrigin = rotationCenter.xy () + gridTranslation;
 }
 

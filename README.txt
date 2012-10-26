@@ -13,6 +13,10 @@ Release log
         - add color mapped streamlines.
         - allow color map copy between T1s KDE with the same sigma 
           for different simulations.
+        - added user option 'time interval' for bubble paths
+        - Remove user options 'Texture Size', 'Interval / Pixel' and set 
+          them authomatically based on 'Sigma'.
+
 0.8.2553
         - bug fixes (dataset fluctuates because is centered at foam center 
           instead of simulation center)

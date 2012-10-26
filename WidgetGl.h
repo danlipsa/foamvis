@@ -140,7 +140,7 @@ public:
     void ActivateViewShader (ViewNumber::Enum viewNumber,
 			     ViewingVolumeOperation::Enum enclose,
 			     G3D::Rect2D& srcRect) const;
-    float GetBubbleSize (ViewNumber::Enum viewNumber) const;
+    float GetBubbleDiameter (ViewNumber::Enum viewNumber) const;
     float GetDeformationSizeInitialRatio (ViewNumber::Enum viewNumber) const;
     float GetVelocitySizeInitialRatio (ViewNumber::Enum viewNumber) const;
     void DisplayT1Quad (ViewNumber::Enum view, 

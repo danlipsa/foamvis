@@ -84,7 +84,7 @@ void GaussianStoreShaderProgram::Bind ()
 const pair<size_t, size_t> T1sKDE::KERNEL_TEXTURE_SIZE = 
     pair<size_t, size_t> (32, 128);
 const pair<float, float> T1sKDE::KERNEL_INTERVAL_PER_PIXEL = 
-    pair<float, float> (5.0/32.0, 10.0/32.0);
+    pair<float, float> (2.0/32.0, 10.0/32.0);
 const pair<float, float> T1sKDE::KERNEL_SIGMA = pair<float, float> (1.0, 7.0);
 boost::shared_ptr<
     GaussianInitShaderProgram> T1sKDE::m_gaussianInitShaderProgram;

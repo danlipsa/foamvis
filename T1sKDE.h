@@ -27,9 +27,11 @@ class T1sKDE : public ScalarAverageTemplate<SetterNop>
 {
 public:
     static void InitShaders ();
-    
+
+public:    
     T1sKDE (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl);
     virtual void AverageInit ();
+
     float GetKernelIntervalPerPixel () const
     {
 	return m_kernelIntervalPerPixel;
@@ -39,6 +41,7 @@ public:
 	m_kernelIntervalPerPixel = kernelIntervalMargin;
 	initKernel ();
     }
+
     float GetKernelSigma () const
     {
 	return m_kernelSigma;
@@ -48,11 +51,13 @@ public:
 	m_kernelSigma = kernelSigma;
 	initKernel ();
     }
+
     size_t GetKernelTextureSize () const
     {
 	return m_kernelTextureSize;
     }
     void SetKernelTextureSize (size_t kernelTextureSize);
+
     bool IsKernelTextureSizeShown () const
     {
 	return m_kernelTextureSizeShown;
