@@ -1955,9 +1955,8 @@ pair<float, float> WidgetGl::GetRangeCount () const
 
 pair<float, float> WidgetGl::GetRangeT1sKDE (ViewNumber::Enum viewNumber) const
 {
-    T1sKDE& t1sKDE = GetViewAverage (viewNumber).GetT1sKDE ();
-    float sigma = t1sKDE.GetKernelSigma ();
-    return pair<float, float> (0.0, 1 / (2 * M_PI * sigma * sigma));
+    return pair<float, float> (
+        0.0, 1 / GetViewAverage (viewNumber).GetT1sKDE ().GetMax ());
 }
 
 void WidgetGl::displayEdgesTorus (ViewNumber::Enum viewNumber) const
