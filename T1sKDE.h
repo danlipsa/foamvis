@@ -16,9 +16,6 @@ class GaussianStoreShaderProgram;
 
 /**
  * Calculate T1s average, over a time window.
- * It averages a gaussian over each T1s position.
- * f (x, s, m) = (1 / s * sqrt (2 * pi)) * e ^ (- (1/2) * ((x - m)/s)^2)
- * s = sigma (standard deviation), m = miu (expected value)
  * It uses three framebuffer objects: step, previous, current.
  * current = (sum,count,min,max) up to and including the current step
  * previous = (sum, count, min, max) up to and including the previous step.
