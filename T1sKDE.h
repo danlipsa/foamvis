@@ -56,10 +56,6 @@ public:
     void DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep, 
 			     size_t subStep) const;
 
-public:
-    static const pair<size_t, size_t> KERNEL_TEXTURE_SIZE;
-    static const pair<float, float> KERNEL_SIGMA;
-
 protected:
     virtual void writeStepValues (
         ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep);

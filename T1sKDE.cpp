@@ -74,10 +74,6 @@ void GaussianStoreShaderProgram::Bind ()
 // T1sKDE Methods and static fields
 // ======================================================================
 
-const pair<size_t, size_t> T1sKDE::KERNEL_TEXTURE_SIZE = 
-    pair<size_t, size_t> (32, 128);
-// this this expressed in bubble diameters
-const pair<float, float> T1sKDE::KERNEL_SIGMA = pair<float, float> (1.0, 7.0);
 boost::shared_ptr<
     GaussianInitShaderProgram> T1sKDE::m_gaussianInitShaderProgram;
 boost::shared_ptr<GaussianStoreShaderProgram
@@ -101,10 +97,13 @@ void T1sKDE::InitShaders ()
 				       (RESOURCE ("GaussianStore.frag")));
 }
 
+const float s_kernelSigmaInBubbleDiameters = 3;
+
 T1sKDE::T1sKDE (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
     ScalarAverageTemplate<SetterNop> (viewNumber, widgetGl, 
 				      "t1sKDE", QColor (0, 255, 0, 0)),
-    m_kernelSigma (KERNEL_SIGMA.first * GetWidgetGl ().GetBubbleDiameter ()),
+    m_kernelSigma (s_kernelSigmaInBubbleDiameters * 
+                   GetWidgetGl ().GetBubbleDiameter ()),
     m_kernelTextureShown (false)
 {
 }
