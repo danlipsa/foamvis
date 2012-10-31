@@ -16,7 +16,7 @@ Release log
         - added user option 'time interval' for bubble paths
         - Remove user options for T1sKDE: 
           'Texture Size', 'Interval / Pixel' and set them automatically 
-          based on 'Sigma'.
+          based on 'Sigma'. Sigma is expressed in terms of bubble size.
 0.8.2553
         - bug fixes (dataset fluctuates because is centered at foam center 
           instead of simulation center)

@@ -160,7 +160,8 @@ WidgetGl::WidgetGl(QWidget *parent)
       m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
       m_averageAroundMarked (true),
       m_contextBoxShown (true),
-      m_showType (SHOW_NOTHING)
+      m_showType (SHOW_NOTHING),
+      m_seedsShown (false)
 {
     makeCurrent ();
     fill (m_duplicateDomain.begin (), m_duplicateDomain.end (), false);
@@ -3103,7 +3104,8 @@ void WidgetGl::displayVelocityStreamlines (ViewNumber::Enum viewNumber) const
         while (lines->GetNextCell (points))
             displayVelocityStreamline (viewNumber, points);
         glPopMatrix ();
-        //displayVelocityStreamlineSeeds (viewNumber);
+        if (m_seedsShown)
+            displayVelocityStreamlineSeeds (viewNumber);
         glPopAttrib ();
     }
 }
@@ -3754,7 +3756,15 @@ void WidgetGl::OverlayBarClampClear ()
     Q_EMIT OverlayBarModelChanged (viewNumber, colorBarModel);
 }
 
+void WidgetGl::ToggledKDESeeds (bool toggled)
+{
+}
 
+void WidgetGl::ToggledSeedsShown (bool shown)
+{
+    m_seedsShown = shown;
+    update ();
+}
 
 void WidgetGl::ToggledDirectionalLightEnabled (bool checked)
 {
@@ -4241,6 +4251,16 @@ void WidgetGl::SetOverlayBarModel (
     vs.SetOverlayBarModel (overlayBarModel);
     setTexture (overlayBarModel, m_overlayBarTexture[viewNumber]);
     CompileUpdate ();
+}
+
+void WidgetGl::ValueChangedKDEValue (double value)
+{
+    
+}
+
+void WidgetGl::ValueChangedKDEMultiplier (int multiplier)
+{
+    
 }
 
 void WidgetGl::ValueChangedNoiseStart (int index)

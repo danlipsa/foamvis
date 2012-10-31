@@ -218,6 +218,8 @@ Q_SIGNALS:
 	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 public Q_SLOTS:
+    void ToggledKDESeeds (bool toggled);
+    void ToggledSeedsShown (bool shown);
     void ToggledStandaloneElementsShown (bool checked);
     void ToggledAxesShown (bool checked);
     void ToggledBoundingBoxSimulation (bool checked);
@@ -284,6 +286,8 @@ public Q_SLOTS:
     void CurrentIndexChangedSelectedLight (int selectedLight);
 
 
+    void ValueChangedKDEMultiplier (int multiplier);
+    void ValueChangedKDEValue (double value);
     void ValueChangedBubblePathsTimeBegin (int time);
     void ValueChangedBubblePathsTimeEnd (int time);
     void ValueChangedStreamlineStepLength (double steps);
@@ -749,6 +753,7 @@ private:
                  ViewNumber::COUNT> m_streamlineSeeds;
     vtkSmartPointer<vtkRungeKutta4> m_rungeKutta;
     vtkSmartPointer<vtkStreamTracer> m_streamer;
+    bool m_seedsShown;
 };
 
 
