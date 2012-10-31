@@ -3,7 +3,7 @@ const float pi = 3.14159265359;
 
 void main(void)
 {   
-    float intervalPerTexture = 5 * u_sigma;
+    float intervalPerTexture = 5.0 * u_sigma;
     // x varies between [0, 1]
     vec2 x = gl_TexCoord[0].st - vec2 (0.5, 0.5);
     x = intervalPerTexture * x;
