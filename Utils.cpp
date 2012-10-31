@@ -586,8 +586,8 @@ void SetCheckedNoSignals (T* checkBox, bool checked, bool enabled)
     checkBox->blockSignals (false);    
 }
 
-template<typename T>
-void SetValueNoSignals (T* t, size_t value)
+template<typename ControlType, typename ValueType>
+void SetValueNoSignals (ControlType* t, ValueType value)
 {
     t->blockSignals (true);
     t->setValue (value);
@@ -725,11 +725,21 @@ void RemoveLayout (QWidget* widget)
 //======================================================================
 
 /// @cond
-
+// SetCheckedNoSignals
 template void SetCheckedNoSignals<QCheckBox> (QCheckBox*, bool, bool);
 template void SetCheckedNoSignals<QRadioButton> (QRadioButton*, bool, bool);
-template void SetValueNoSignals<QSlider>(QSlider*, unsigned long);
 
+// SetValueNoSignals
+template void SetValueNoSignals<QSlider, unsigned long>(
+    QSlider*, unsigned long);
+template void SetValueNoSignals<QSlider, int>(
+    QSlider*, int);
+template void SetValueNoSignals<QSlider, double>(
+    QSlider*, double);
+template void SetValueNoSignals<QDoubleSpinBox, float> (
+    QDoubleSpinBox*, float);
+
+// SetValueAndMaxNoSignals
 template void SetValueAndMaxNoSignals<QSpinBox>(
     QSpinBox*, unsigned long, unsigned long);
 template void SetValueAndMaxNoSignals<QDoubleSpinBox>(

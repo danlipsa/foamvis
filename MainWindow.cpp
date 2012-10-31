@@ -1187,9 +1187,9 @@ void MainWindow::ValueChangedFontSize (int fontSize)
     m_editColorMap->SetDefaultFont ();
 }
 
-void MainWindow::ValueChangedT1sKernelSigma (int index)
+void MainWindow::ValueChangedT1sKernelSigma (double value)
 {
-    (void)index;
+    (void)value;
     vector<ViewNumber::Enum> vn = m_settings->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
@@ -1652,31 +1652,19 @@ void MainWindow::forceViewToUI ()
 
 void MainWindow::t1sKDEViewToUI ()
 {
-    bool kernelTextureSizeShown = false;
+    bool kernelTextureShown = false;
     size_t kernelTextureSize = 0;
-    float kernelIntervalPerPixel = 0;
     float kernelSigma = 0;
     if (DATA_PROPERTIES.Is2D ())
     {
 	const T1sKDE& kde = widgetGl->GetViewAverage ().GetT1sKDE ();
-	kernelTextureSizeShown = kde.IsKernelTextureSizeShown ();
+	kernelTextureShown = kde.IsKernelTextureShown ();
 	kernelTextureSize = kde.GetKernelTextureSize ();
-	kernelIntervalPerPixel = kde.GetKernelIntervalPerPixel ();
 	kernelSigma = kde.GetKernelSigma ();
+        SetCheckedNoSignals (checkBoxTextureShown, kernelTextureShown);
+        SetValueNoSignals (
+            doubleSpinBoxKernelSigma, kde.GetKernelSigmaInBubbleDiameters ());
     }
-    SetCheckedNoSignals (checkBoxTextureSizeShown, kernelTextureSizeShown);
-    SetValueNoSignals (
-	horizontalSliderT1sKernelTextureSize,
-	Value2Index (horizontalSliderT1sKernelTextureSize,
-		     T1sKDE::KERNEL_TEXTURE_SIZE, kernelTextureSize));
-    SetValueNoSignals (
-	horizontalSliderT1sKernelIntervalPerPixel,
-	Value2Index(horizontalSliderT1sKernelIntervalPerPixel,
-		    T1sKDE::KERNEL_INTERVAL_PER_PIXEL, kernelIntervalPerPixel));
-    SetValueNoSignals (
-	horizontalSliderT1sKernelSigma,
-	Value2Index (horizontalSliderT1sKernelSigma,
-		     T1sKDE::KERNEL_SIGMA, kernelSigma));
 }
 
 void MainWindow::bubblePathsViewToUI ()

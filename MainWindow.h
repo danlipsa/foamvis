@@ -122,7 +122,7 @@ public Q_SLOTS:
     void ValueChangedHistogramHeight (int value);
     void ValueChangedSliderTimeSteps (int value);
     void ValueChangedAverageTimeWindow (int timeSteps);
-    void ValueChangedT1sKernelSigma (int index);
+    void ValueChangedT1sKernelSigma (double value);
     void ViewToUI (ViewNumber::Enum prevViewNumber);
     void SetHistogramColorBarModel (
 	ViewNumber::Enum viewNumber,

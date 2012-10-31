@@ -22,6 +22,8 @@ class GaussianStoreShaderProgram;
  * step = (x, 1, x, x) for (sum, count, min, max) where x is the value for
  * one step. step = (0, 0, maxFloat, -maxFloat) if there is no 
  * value for that pixel.
+ * Gaussian 2D is a product of 1D Gaussians.
+ * g_2D (x,y,s) = 1 / (2 * pi * s^2) * e ^ (0.5 * (x^2 + y^2) / s^2)
  */
 class T1sKDE : public ScalarAverageTemplate<SetterNop>
 {
@@ -32,41 +34,23 @@ public:
     T1sKDE (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl);
     virtual void AverageInit ();
 
-    float GetKernelIntervalPerPixel () const
-    {
-	return m_kernelIntervalPerPixel;
-    }
-    void SetKernelIntervalPerPixel (float kernelIntervalMargin)
-    {
-	m_kernelIntervalPerPixel = kernelIntervalMargin;
-	initKernel ();
-    }
-
     float GetKernelSigma () const
     {
 	return m_kernelSigma;
     }
-    void SetKernelSigma (float kernelSigma)
-    {
-	m_kernelSigma = kernelSigma;
-	initKernel ();
-    }
-
+    float GetKernelSigmaInBubbleDiameters () const;    
+    void SetKernelSigmaInBubbleDiameters (float kernelSigmaInBubbleDiameters);
     float GetMax () const;
 
-    size_t GetKernelTextureSize () const
-    {
-	return m_kernelTextureSize;
-    }
-    void SetKernelTextureSize (size_t kernelTextureSize);
+    size_t GetKernelTextureSize () const;
 
-    bool IsKernelTextureSizeShown () const
+    bool IsKernelTextureShown () const
     {
-	return m_kernelTextureSizeShown;
+	return m_kernelTextureShown;
     }
-    void SetKernelTextureSizeShown (bool kernelTextureSizeShown)
+    void SetKernelTextureShown (bool kernelTextureShown)
     {
-	m_kernelTextureSizeShown = kernelTextureSizeShown;
+	m_kernelTextureShown = kernelTextureShown;
     }
 
     void DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep, 
@@ -75,7 +59,6 @@ public:
 public:
     static const pair<size_t, size_t> KERNEL_TEXTURE_SIZE;
     static const pair<float, float> KERNEL_SIGMA;
-    static const pair<float, float> KERNEL_INTERVAL_PER_PIXEL;
 
 protected:
     virtual void writeStepValues (
@@ -94,10 +77,8 @@ private:
 
 
     boost::shared_ptr<QGLFramebufferObject> m_kernel;
-    float m_kernelIntervalPerPixel;
     float m_kernelSigma;
-    size_t m_kernelTextureSize;
-    bool m_kernelTextureSizeShown;
+    bool m_kernelTextureShown;
 };
 
 #endif //__T1S_KDE_H__

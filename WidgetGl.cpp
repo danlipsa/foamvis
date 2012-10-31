@@ -498,10 +498,10 @@ void WidgetGl::Init (
     update ();
 }
 
-float WidgetGl::GetBubbleDiameter (ViewNumber::Enum defaultViewNumber) const
+float WidgetGl::GetBubbleDiameter (ViewNumber::Enum viewNumber) const
 {    
     vector<ViewNumber::Enum> vn = 
-	GetSettings ()->GetSplitHalfViewNumbers (defaultViewNumber);
+	GetSettings ()->GetSplitHalfViewNumbers (viewNumber);
     float size = GetSimulation (vn[0]).GetBubbleDiameter ();
     for (size_t i = 1; i < vn.size (); ++i)
     {
@@ -1956,7 +1956,7 @@ pair<float, float> WidgetGl::GetRangeCount () const
 pair<float, float> WidgetGl::GetRangeT1sKDE (ViewNumber::Enum viewNumber) const
 {
     return pair<float, float> (
-        0.0, 1 / GetViewAverage (viewNumber).GetT1sKDE ().GetMax ());
+        0.0, GetViewAverage (viewNumber).GetT1sKDE ().GetMax ());
 }
 
 void WidgetGl::displayEdgesTorus (ViewNumber::Enum viewNumber) const
@@ -2179,7 +2179,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     displayContextBox (viewNumber, isAverageAroundRotationShown);
     T1sKDE& t1sKDE = GetViewAverage (viewNumber).GetT1sKDE ();
     if (vs.GetViewType () == ViewType::T1S_KDE &&
-	t1sKDE.IsKernelTextureSizeShown ())
+	t1sKDE.IsKernelTextureShown ())
     {
 	size_t timeStep = GetCurrentTime (viewNumber);
 	size_t stepSize = GetSimulation (viewNumber).GetT1s (
@@ -2842,37 +2842,18 @@ void WidgetGl::SetForceDifferenceShown (bool value)
 void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
 {
     T1sKDE& t1sKDE = GetViewAverage (viewNumber).GetT1sKDE ();
-    t1sKDE.SetKernelSigma (
-	Index2Value (static_cast<QSlider*> (sender ()), T1sKDE::KERNEL_SIGMA));
+    t1sKDE.SetKernelSigmaInBubbleDiameters (
+	static_cast<QDoubleSpinBox*> (sender ())->value ());
     t1sKDE.AverageInitStep ();
 }
 
-void WidgetGl::valueChangedT1sKernelTextureSize (
-    ViewNumber::Enum viewNumber)
-{
-    T1sKDE& t1sKDE = GetViewAverage (viewNumber).GetT1sKDE ();
-    t1sKDE.SetKernelTextureSize (
-	Index2Value (static_cast<QSlider*> (sender ()), 
-		     T1sKDE::KERNEL_TEXTURE_SIZE));
-    t1sKDE.AverageInitStep ();    
-}
-
-void WidgetGl::toggledT1sKernelTextureSizeShown (ViewNumber::Enum viewNumber)
+void WidgetGl::toggledT1sKernelTextureShown (ViewNumber::Enum viewNumber)
 {
     bool checked = static_cast<QCheckBox*> (sender ())->isChecked ();
-    GetViewAverage (viewNumber).GetT1sKDE ().SetKernelTextureSizeShown (checked);
+    GetViewAverage (viewNumber).GetT1sKDE ().SetKernelTextureShown (checked);
 }
 
 
-void WidgetGl::valueChangedT1sKernelIntervalPerPixel (
-    ViewNumber::Enum viewNumber)
-{
-    T1sKDE& t1sKDE = GetViewAverage (viewNumber).GetT1sKDE ();
-    t1sKDE.SetKernelIntervalPerPixel (
-	Index2Value (static_cast<QSlider*> (sender ()), 
-		     T1sKDE::KERNEL_INTERVAL_PER_PIXEL));
-    t1sKDE.AverageInitStep ();
-}
 
 template<typename T>
 void WidgetGl::SetOneOrTwoViews (T* t, void (T::*f) (ViewNumber::Enum))
@@ -4390,33 +4371,19 @@ void WidgetGl::ValueChangedBubblePathsTimeEnd (int time)
     CompileUpdate ();
 }
 
-void WidgetGl::ValueChangedT1sKernelIntervalPerPixel (int index)
-{
-    makeCurrent ();
-    (void)index;
-    SetOneOrTwoViews (this,
-		      &WidgetGl::valueChangedT1sKernelIntervalPerPixel);
-}
 
-void WidgetGl::ValueChangedT1sKernelSigma (int index)
+void WidgetGl::ValueChangedT1sKernelSigma (double value)
 {
+    (void)value;
     makeCurrent ();
-    (void)index;
     SetOneOrTwoViews (this, &WidgetGl::valueChangedT1sKernelSigma);
 }
 
-void WidgetGl::ValueChangedT1sKernelTextureSize (int index)
-{
-    makeCurrent ();
-    (void)index;
-    SetOneOrTwoViews (this, &WidgetGl::valueChangedT1sKernelTextureSize);
-}
-
-void WidgetGl::ToggledT1sKernelTextureSizeShown (bool checked)
+void WidgetGl::ToggledT1sKernelTextureShown (bool checked)
 {
     makeCurrent ();
     (void)checked;
-    SetOneOrTwoViews (this, &WidgetGl::toggledT1sKernelTextureSizeShown);
+    SetOneOrTwoViews (this, &WidgetGl::toggledT1sKernelTextureShown);
 }
 
 void WidgetGl::ValueChangedDeformationSizeExp (int index)

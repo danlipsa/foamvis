@@ -26,29 +26,22 @@ class GaussianInitShaderProgram : public ShaderProgram
 {
 public:
     GaussianInitShaderProgram (const char* frag);
-    void Bind (float kernelSigma, float kernelIntervalMargin);
+    void Bind (float kernelSigma);
 protected:
     float m_sigmaLocation;
-    float m_intervalMarginLocation;
 };
 
 GaussianInitShaderProgram::GaussianInitShaderProgram (const char* frag) :
     ShaderProgram (0, frag)
 {
-    m_intervalMarginLocation = uniformLocation("u_intervalMargin");
-    RuntimeAssert (m_intervalMarginLocation != -1, 
-		   "Invalid location: u_intervalMargin");
-
     m_sigmaLocation = uniformLocation("u_sigma");
     RuntimeAssert (m_sigmaLocation != -1, "Invalid location: u_sigma");
 }
 
-void GaussianInitShaderProgram::Bind (float sigma,
-				      float intervalMargin)
+void GaussianInitShaderProgram::Bind (float sigma)
 {
     ShaderProgram::Bind ();
     setUniformValue (m_sigmaLocation, sigma);
-    setUniformValue (m_intervalMarginLocation, intervalMargin);
 }
 
 
@@ -83,8 +76,7 @@ void GaussianStoreShaderProgram::Bind ()
 
 const pair<size_t, size_t> T1sKDE::KERNEL_TEXTURE_SIZE = 
     pair<size_t, size_t> (32, 128);
-const pair<float, float> T1sKDE::KERNEL_INTERVAL_PER_PIXEL = 
-    pair<float, float> (5.0/32.0, 10.0/32.0);
+// this this expressed in bubble diameters
 const pair<float, float> T1sKDE::KERNEL_SIGMA = pair<float, float> (1.0, 7.0);
 boost::shared_ptr<
     GaussianInitShaderProgram> T1sKDE::m_gaussianInitShaderProgram;
@@ -112,12 +104,16 @@ void T1sKDE::InitShaders ()
 T1sKDE::T1sKDE (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
     ScalarAverageTemplate<SetterNop> (viewNumber, widgetGl, 
 				      "t1sKDE", QColor (0, 255, 0, 0)),
-    m_kernelIntervalPerPixel (KERNEL_INTERVAL_PER_PIXEL.first),
-    m_kernelSigma (KERNEL_SIGMA.first),
-    m_kernelTextureSize (KERNEL_TEXTURE_SIZE.first),
-    m_kernelTextureSizeShown (false)
+    m_kernelSigma (KERNEL_SIGMA.first * GetWidgetGl ().GetBubbleDiameter ()),
+    m_kernelTextureShown (false)
 {
 }
+
+size_t T1sKDE::GetKernelTextureSize () const
+{
+    return m_kernelSigma / GetOnePixelInObjectSpace ();
+}
+
 
 void T1sKDE::AverageInit ()
 {
@@ -133,28 +129,33 @@ void T1sKDE::AverageInit ()
 // h: bandwidth is equal with standard deviation
 void T1sKDE::initKernel ()
 {
-    QSize size (m_kernelTextureSize, m_kernelTextureSize);
+    float kernelTextureSize = GetKernelTextureSize ();
+    QSize size (kernelTextureSize, kernelTextureSize);
     m_kernel.reset (
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, 
 	    GL_RGBA32F));
     RuntimeAssert (m_kernel->isValid (), 
 		   "Framebuffer initialization failed:" + GetId ());
-    m_kernel->bind ();
-    m_gaussianInitShaderProgram->Bind (
-	m_kernelSigma, m_kernelIntervalPerPixel * m_kernelTextureSize);
+    m_kernel->bind ();    
+    m_gaussianInitShaderProgram->Bind (m_kernelSigma);
     ActivateShader (
-	G3D::Rect2D (G3D::Vector2 (m_kernelTextureSize, m_kernelTextureSize)));
+	G3D::Rect2D (G3D::Vector2 (kernelTextureSize, kernelTextureSize)));
     m_gaussianInitShaderProgram->release ();
     m_kernel->release ();
 }
 
-void T1sKDE::SetKernelTextureSize (size_t kernelTextureSize)
+void T1sKDE::SetKernelSigmaInBubbleDiameters (float kernelSigmaInBubbleDiameters)
 {
-    m_kernelTextureSize = kernelTextureSize;
+    m_kernelSigma = kernelSigmaInBubbleDiameters * 
+        GetWidgetGl ().GetBubbleDiameter ();
     initKernel ();
 }
 
+float T1sKDE::GetKernelSigmaInBubbleDiameters () const
+{
+    return m_kernelSigma / GetWidgetGl ().GetBubbleDiameter ();
+}
 
 void T1sKDE::writeStepValues (ViewNumber::Enum viewNumber, size_t timeStep, 
 			      size_t subStep)
@@ -193,5 +194,5 @@ size_t T1sKDE::getStepSize (size_t timeStep) const
 
 float T1sKDE::GetMax () const
 {
-    return m_kernelSigma * sqrt (2 * M_PI);
+    return 1 / (m_kernelSigma * m_kernelSigma * 2 * M_PI);
 }

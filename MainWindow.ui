@@ -1422,7 +1422,7 @@
          <item>
           <widget class="QTabWidget" name="tabWidget">
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tabTimeStep">
             <attribute name="title">
@@ -1907,69 +1907,44 @@
                  <property name="fieldGrowthPolicy">
                   <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
                  </property>
-                 <item row="0" column="0">
-                  <widget class="QLabel" name="label_28">
-                   <property name="text">
-                    <string>Texture Size</string>
-                   </property>
-                  </widget>
-                 </item>
                  <item row="0" column="1">
-                  <widget class="QSlider" name="horizontalSliderT1sKernelTextureSize">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="1">
-                  <widget class="QCheckBox" name="checkBoxTextureSizeShown">
+                  <widget class="QCheckBox" name="checkBoxTextureShown">
                    <property name="text">
-                    <string>Shown</string>
+                    <string>Texture shown</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="1">
-                  <widget class="QSlider" name="horizontalSliderT1sKernelIntervalPerPixel">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="0">
+                 <item row="1" column="0">
                   <widget class="QLabel" name="label_31">
                    <property name="text">
                     <string>Sigma</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="1">
-                  <widget class="QSlider" name="horizontalSliderT1sKernelSigma">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                  </widget>
-                 </item>
                  <item row="2" column="0">
-                  <widget class="QLabel" name="label_30">
-                   <property name="text">
-                    <string>Interval / Pixel</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="0">
                   <widget class="QLabel" name="labelAverageTimeWindow_2">
                    <property name="text">
                     <string>Time window</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="1">
+                 <item row="2" column="1">
                   <widget class="QSpinBox" name="spinBoxT1sTimeWindow">
                    <property name="minimum">
                     <number>1</number>
                    </property>
                    <property name="value">
                     <number>1</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QDoubleSpinBox" name="doubleSpinBoxKernelSigma">
+                   <property name="minimum">
+                    <double>1.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>7.000000000000000</double>
                    </property>
                   </widget>
                  </item>
@@ -2622,7 +2597,6 @@
     <slot>ToggledStandaloneFaceShown(bool)</slot>
     <slot>ToggledStandaloneEdgeShown(bool)</slot>
     <slot>ValueChangedT1sKernelTextureSize(int)</slot>
-    <slot>ValueChangedT1sKernelIntervalMargin(int)</slot>
     <slot>ValueChangedT1sKernelSigma(int)</slot>
     <slot>ToggledShowDeformationGrid(bool)</slot>
     <slot>ToggledShowDeformationGridCellCenter(bool)</slot>
@@ -2697,6 +2671,8 @@
     <slot>ToggledBubblePathsHidden(bool)</slot>
     <slot>ValueChangedBubblePathsTimeBegin(int)</slot>
     <slot>ValueChangedBubblePathsTimeEnd(int)</slot>
+    <slot>ToggledT1sKernelTextureShown(bool)</slot>
+    <slot>ValueChangedT1sKernelSigma(double)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -2906,8 +2882,8 @@
    <slot>CurrentIndexChangedStatisticsType(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>802</x>
-     <y>406</y>
+     <x>989</x>
+     <y>433</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -2922,8 +2898,8 @@
    <slot>CurrentIndexChangedStatisticsType(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>802</x>
-     <y>406</y>
+     <x>989</x>
+     <y>433</y>
     </hint>
     <hint type="destinationlabel">
      <x>874</x>
@@ -3002,8 +2978,8 @@
    <slot>ValueChangedForceTorqueSize(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>784</x>
-     <y>299</y>
+     <x>802</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3018,8 +2994,8 @@
    <slot>ToggledForcePressureShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>775</x>
-     <y>319</y>
+     <x>802</x>
+     <y>330</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3034,8 +3010,8 @@
    <slot>ToggledForceNetworkShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>719</x>
-     <y>319</y>
+     <x>802</x>
+     <y>330</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3050,8 +3026,8 @@
    <slot>ToggledForceResultShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>719</x>
-     <y>318</y>
+     <x>802</x>
+     <y>330</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3220,54 +3196,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>horizontalSliderT1sKernelTextureSize</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedT1sKernelTextureSize(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>802</x>
-     <y>406</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>585</x>
-     <y>236</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSliderT1sKernelIntervalPerPixel</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedT1sKernelIntervalPerPixel(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>802</x>
-     <y>406</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>602</x>
-     <y>286</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSliderT1sKernelSigma</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedT1sKernelSigma(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>802</x>
-     <y>406</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>602</x>
-     <y>316</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkBoxDeformationGridShown</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
@@ -3300,10 +3228,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxTextureSizeShown</sender>
+   <sender>checkBoxTextureShown</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledT1sKernelTextureSizeShown(bool)</slot>
+   <slot>ToggledT1sKernelTextureShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>802</x>
@@ -3312,22 +3240,6 @@
     <hint type="destinationlabel">
      <x>602</x>
      <y>371</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSliderT1sKernelSigma</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ValueChangedT1sKernelSigma(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>802</x>
-     <y>406</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1039</x>
-     <y>348</y>
     </hint>
    </hints>
   </connection>
@@ -3386,8 +3298,8 @@
    <slot>ValueChangedAverageTimeWindow(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>802</x>
-     <y>406</y>
+     <x>989</x>
+     <y>465</y>
     </hint>
     <hint type="destinationlabel">
      <x>1040</x>
@@ -3514,8 +3426,8 @@
    <slot>ToggledForceDifference(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>775</x>
-     <y>318</y>
+     <x>802</x>
+     <y>330</y>
     </hint>
     <hint type="destinationlabel">
      <x>1039</x>
@@ -3530,8 +3442,8 @@
    <slot>ToggledTorqueNetworkShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>719</x>
-     <y>324</y>
+     <x>802</x>
+     <y>335</y>
     </hint>
     <hint type="destinationlabel">
      <x>665</x>
@@ -3546,8 +3458,8 @@
    <slot>ToggledTorquePressureShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>775</x>
-     <y>324</y>
+     <x>802</x>
+     <y>335</y>
     </hint>
     <hint type="destinationlabel">
      <x>665</x>
@@ -3562,8 +3474,8 @@
    <slot>ToggledTorqueResultShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>719</x>
-     <y>323</y>
+     <x>802</x>
+     <y>335</y>
     </hint>
     <hint type="destinationlabel">
      <x>665</x>
@@ -3578,8 +3490,8 @@
    <slot>ValueChangedTorqueDistance(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>775</x>
-     <y>323</y>
+     <x>802</x>
+     <y>335</y>
     </hint>
     <hint type="destinationlabel">
      <x>665</x>
@@ -3594,8 +3506,8 @@
    <slot>ValueChangedT1sTimeWindow(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>802</x>
-     <y>406</y>
+     <x>980</x>
+     <y>470</y>
     </hint>
     <hint type="destinationlabel">
      <x>665</x>
@@ -3754,8 +3666,8 @@
    <slot>ToggledLightNumberShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>784</x>
-     <y>301</y>
+     <x>802</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
      <x>424</x>
@@ -3834,8 +3746,8 @@
    <slot>ToggledDirectionalLightEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>770</x>
-     <y>301</y>
+     <x>802</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -3898,8 +3810,8 @@
    <slot>ToggledLightEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>770</x>
-     <y>297</y>
+     <x>802</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -4442,8 +4354,8 @@
    <slot>ToggledVelocityShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>753</x>
-     <y>305</y>
+     <x>843</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
      <x>1018</x>
@@ -4506,8 +4418,8 @@
    <slot>ValueChangedBubblePathsTimeBegin(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>860</x>
-     <y>503</y>
+     <x>989</x>
+     <y>517</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -4522,12 +4434,44 @@
    <slot>ValueChangedBubblePathsTimeEnd(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>845</x>
-     <y>539</y>
+     <x>989</x>
+     <y>555</y>
     </hint>
     <hint type="destinationlabel">
      <x>622</x>
      <y>499</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doubleSpinBoxKernelSigma</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedT1sKernelSigma(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>836</x>
+     <y>414</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>636</x>
+     <y>296</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doubleSpinBoxKernelSigma</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ValueChangedT1sKernelSigma(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>884</x>
+     <y>431</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1016</x>
+     <y>571</y>
     </hint>
    </hints>
   </connection>
@@ -4551,7 +4495,7 @@
   <slot>CurrentIndexChangedInteractionMode(int)</slot>
   <slot>ButtonClickedViewType(int)</slot>
   <slot>ButtonClickedVelocityVis(int)</slot>
-  <slot>ValueChangedT1sKernelSigma(int)</slot>
+  <slot>ValueChangedT1sKernelSigma(double)</slot>
   <slot>CurrentIndexChangedSimulation(int)</slot>
   <slot>ValueChangedAverageTimeWindow(int)</slot>
   <slot>ToggledReflectedHalfView(bool)</slot>

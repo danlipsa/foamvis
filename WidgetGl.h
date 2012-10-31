@@ -141,6 +141,10 @@ public:
 			     ViewingVolumeOperation::Enum enclose,
 			     G3D::Rect2D& srcRect) const;
     float GetBubbleDiameter (ViewNumber::Enum viewNumber) const;
+    float GetBubbleDiameter () const
+    {
+        return GetBubbleDiameter (GetViewNumber ());
+    }
     float GetDeformationSizeInitialRatio (ViewNumber::Enum viewNumber) const;
     float GetVelocitySizeInitialRatio (ViewNumber::Enum viewNumber) const;
     void DisplayT1Quad (ViewNumber::Enum view, 
@@ -260,7 +264,7 @@ public Q_SLOTS:
     void ToggledVelocitySameSize (bool checked);
     void ToggledVelocityColorMapped (bool checked);
     void ToggledContextBoxShown (bool checked);
-    void ToggledT1sKernelTextureSizeShown (bool checked);
+    void ToggledT1sKernelTextureShown (bool checked);
     void ToggledAverageAroundAllowRotation (bool checked);
     void ButtonClickedTimeLinkage (int id);
     void ButtonClickedInteractionObject (int id);
@@ -306,9 +310,7 @@ public Q_SLOTS:
     void ValueChangedT1sTimeWindow (int timeSteps);
     void ValueChangedTimeDisplacement (int timeDisplacement);
     void ValueChangedT1Size (int index);
-    void ValueChangedT1sKernelIntervalPerPixel (int index);
-    void ValueChangedT1sKernelSigma (int index);
-    void ValueChangedT1sKernelTextureSize (int index);
+    void ValueChangedT1sKernelSigma (double value);
     void ValueChangedDeformationSizeExp (int index);
     void ValueChangedDeformationLineWidthExp (int index);
     void ValueChangedVelocityLineWidthExp (int index);
@@ -434,10 +436,8 @@ private:
     void setSimulation (int i, ViewNumber::Enum viewNumber);
     void initTransformViewport ();
     void cleanupTransformViewport ();
-    void valueChangedT1sKernelTextureSize (ViewNumber::Enum viewNumber);
-    void toggledT1sKernelTextureSizeShown (ViewNumber::Enum viewNumber);
+    void toggledT1sKernelTextureShown (ViewNumber::Enum viewNumber);
     void valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber);
-    void valueChangedT1sKernelIntervalPerPixel (ViewNumber::Enum viewNumber);
     bool linkedTimesValid (size_t timeBegin, size_t timeEnd);
     bool linkedTimesValid ();
     void contextMenuEventColorBar (QMenu* menu) const;
