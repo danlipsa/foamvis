@@ -17,10 +17,6 @@
 #include "StripIterator.h"
 #include "Utils.h"
 
-//#define __LOG__(code) code
-#define __LOG__(code)
-
-
 StripIterator::StripIterator (
     const BodyAlongTime& bodyAlongTime,
     const Simulation& simulation) : 

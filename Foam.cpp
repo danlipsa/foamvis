@@ -24,8 +24,6 @@
 #include "Vertex.h"
 #include "Simulation.h"
 
-//#define __LOG__(code) code
-#define __LOG__(code)
 
 
 // Private Functions

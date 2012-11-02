@@ -122,10 +122,11 @@ bool isOnArrow (vec2 x, vec2 texCoordCenter, out float magnitude)
         vec2 p2 = p1 - rotate (v, arrowAngle) * arrowLength;
         vec2 p3 = p1 - rotate (v, -arrowAngle) * arrowLength;
         return 
-            isOnLine (xToMiddle , n, lineWidthPerc, magnitude) ||
+            isOnLine (xToMiddle , n, lineWidthPerc, magnitude) /*||
             isOnTriangle (x, p1, p2, p3) ||
             (u_clampingShown && clamped && 
-             isOnLine (xToMiddle, v, lineWidthPerc, arrowLength));
+            isOnLine (xToMiddle, v, lineWidthPerc, arrowLength))*/
+            ;
     }
     else
         return false;

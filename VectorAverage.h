@@ -26,7 +26,7 @@ public:
 
 private:
     vtkSmartPointer<vtkImageData> getData () const;
-
+    
 };
 
 

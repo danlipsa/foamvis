@@ -194,6 +194,35 @@ public:
     {
         m_streamlineStepLength = steps;
     }
+    bool SeedsShown () const
+    {
+        return m_seedsShown;
+    }
+    void SetSeedsShown (bool shown)
+    {
+        m_seedsShown = shown;
+    }
+    bool KDESeedsEnabled () const
+    {
+        return m_kdeSeedsEnabled;
+    }
+    void SetKDESeedsEnabled (bool enabled)
+    {
+        m_kdeSeedsEnabled = enabled;
+    }
+    float GetKDEValue () const
+    {
+        return m_kdeValue;
+    }
+    void SetKDEValue (float value)
+    {
+        m_kdeValue = value;
+    }
+    int GetKDEMultiplier () const;
+    void SetKDEMultiplier (int multiplier)
+    {
+        m_kdeMultiplier = multiplier;
+    }
     // @}
 
     /**
@@ -812,6 +841,10 @@ private:
     float m_timeDisplacement;
     size_t m_bubblePathsTimeBegin;
     size_t m_bubblePathsTimeEnd;
+    bool m_seedsShown;
+    bool m_kdeSeedsEnabled;
+    float m_kdeValue;
+    int m_kdeMultiplier;
 };
 
 

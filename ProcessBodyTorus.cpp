@@ -18,9 +18,6 @@
 #include "Utils.h"
 #include "Vertex.h"
 
-//#define __LOG__(code) code
-#define __LOG__(code)
-
 ProcessBodyTorus::ProcessBodyTorus (const Foam& foam, 
 				    const boost::shared_ptr<Body>& body) : 
     m_foam (foam), m_body (body), m_traversed (body->size (), false)
@@ -126,20 +123,17 @@ void ProcessBodyTorus::restrictFacesAroundAnEdge (
 	 it != aofs.end (); ++it)
     {
 	const AdjacentOrientedFace& nextAof = *it;
-	    __LOG__ (
-		cdbg << "nextFace: " << nextAof << endl);
+        __LOG__ (cdbg << "nextFace: " << nextAof << endl;);
 
 	if (nextAof.IsStandalone ())
 	{
-	    __LOG__ (
-		cdbg << "standalone face" << endl;);
+	    __LOG__ (cdbg << "standalone face" << endl;);
 	    continue;
 	}
 	
 	if (bodyId != nextAof.GetBodyId ())
 	{
-	    __LOG__ (
-		cdbg << "wrong body" << endl;);
+	    __LOG__ (cdbg << "wrong body" << endl;);
 	    continue;
 	}
 	if (oe.IsReversed () != nextAof.IsOrientedEdgeReversed ())

@@ -81,29 +81,12 @@ public:
 public:
     TensorAverageTemplate (
         ViewNumber::Enum viewNumber,
-        const WidgetGl& widgetGl, WidgetGlFloatFunction sizeInitialRatio,
+        const WidgetGl& widgetGl, string id,
+        WidgetGlFloatFunction sizeInitialRatio,
 	ViewSettingsFloatFunction sizeRatio, 
         ViewSettingsFloatFunction lineWidthRatio,
-        FramebufferObjects& countFbos, size_t countIndex) :
+        FramebufferObjects& countFbos, size_t countIndex);
 
-	ImageBasedAverage<Setter> (
-            viewNumber,
-            widgetGl, "tensor", QColor (0, 0, 0, 0), countFbos, countIndex),
-	m_gridShown (false),
-	m_clampingShown (false),
-	m_gridCellCenterShown (false),
-	m_sameSize (false),
-	m_colorMapped(false),
-        m_glyphShown (true),
-	
-        /*m_noiseAmplitude (10.0),*/ m_noiseAmplitude (0),
-	m_noiseStart (0.5),
-	m_noiseFrequency (317),
-	m_sizeInitialRatio (sizeInitialRatio),
-	m_sizeRatio (sizeRatio),
-	m_lineWidthRatio (lineWidthRatio)
-    {
-    }
     static void InitShaders ();
     void SetGridShown (bool shown)
     {

@@ -22,9 +22,6 @@
 #include "ProcessBodyTorus.h"
 #include "Vertex.h"
 
-//#define __LOG__(code) code
-#define __LOG__(code)
-
 
 // Private Classes/Functions
 // ======================================================================
@@ -626,7 +623,7 @@ void Body::CalculateDeformationTensor (const OOBox& originalDomain)
 	ostream_iterator<G3D::Vector3> ov (cdbg, "\n");
 	copy (m_deformationEigenVectors.begin (), 
 	      m_deformationEigenVectors.end (), ov);
-	);
+	)
     if (bubbleNeighborsCount == 0)
 	m_object = true;
 }

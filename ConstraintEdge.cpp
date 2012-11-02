@@ -14,9 +14,6 @@
 #include "Utils.h"
 #include "Vertex.h"
 
-//#define __LOG__(code) code
-#define __LOG__(code)
-
 
 // Private Functions and Classes
 // ======================================================================

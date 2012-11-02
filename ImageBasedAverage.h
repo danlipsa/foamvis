@@ -84,9 +84,20 @@ public:
     G3D::Rect2D GetWindowCoord () const;
 
 protected:
-    typedef pair<boost::shared_ptr<QGLFramebufferObject>, 
-		 boost::shared_ptr<QGLFramebufferObject> > 
-	FbosCountFbos;
+    struct FbosCountFbos
+    {
+        FbosCountFbos (
+            boost::shared_ptr<QGLFramebufferObject> fbos,
+            boost::shared_ptr<QGLFramebufferObject> countFbos,
+            size_t countIndex) :
+            m_fbos (fbos), m_countFbos (countFbos), m_countIndex (countIndex)
+        {
+        }
+        boost::shared_ptr<QGLFramebufferObject> m_fbos;
+        boost::shared_ptr<QGLFramebufferObject> m_countFbos;
+        size_t m_countIndex;
+    };
+
     virtual void addStep (size_t timeStep, size_t subStep);
     virtual void removeStep (size_t timeStep, size_t subStep);
     virtual void rotateAndDisplay (

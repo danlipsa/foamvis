@@ -15,9 +15,6 @@
 #include "Simulation.h"
 #include "ViewSettings.h"
 
-//#define __LOG__(code) code
-#define __LOG__(code)
-
 
 // Private Classes/Functions
 // ======================================================================
@@ -120,7 +117,6 @@ void RegularGridAverage::AverageInit ()
                                     simulation.GetBoundingBox ());
     m_average = CreateEmptyRegularGrid (
 	GetBodyAttribute (), extent, simulation.GetBoundingBox ());
-    __LOG__ (cdbg << "RegularGridAverage::AverageInit: " << viewNumber << endl;)
 }
 
 void RegularGridAverage::AverageRelease ()

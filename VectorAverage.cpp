@@ -17,15 +17,6 @@
 #include "Utils.h"
 #include "ViewSettings.h"
 
-VectorAverage::VectorAverage (ViewNumber::Enum viewNumber, 
-			      const WidgetGl& widgetGl) :
-    TensorAverageTemplate<SetterVelocity> (
-	viewNumber, widgetGl,
-	&WidgetGl::GetVelocitySizeInitialRatio,
-	&ViewSettings::GetVelocityClampingRatio,
-	&ViewSettings::GetVelocityLineWidth, this->m_fbos, 2)
-{
-}
 
 void VectorAverage::InitShaders ()
 {
@@ -42,6 +33,17 @@ void VectorAverage::InitShaders ()
     m_displayShaderProgram.reset (
 	new TensorDisplay (RESOURCE("TensorDisplay.vert"),
 			   RESOURCE("VectorDisplay.frag")));
+}
+
+VectorAverage::VectorAverage (ViewNumber::Enum viewNumber, 
+			      const WidgetGl& widgetGl) :
+
+    TensorAverageTemplate<SetterVelocity> (
+	viewNumber, widgetGl, "vector",
+	&WidgetGl::GetVelocitySizeInitialRatio,
+	&ViewSettings::GetVelocityClampingRatio,
+	&ViewSettings::GetVelocityLineWidth, this->m_fbos, 2)
+{
 }
 
 vtkSmartPointer<vtkImageData> VectorAverage::getData () const

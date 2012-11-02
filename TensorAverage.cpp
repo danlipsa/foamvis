@@ -1,9 +1,9 @@
 /**
- * @file   ScalarAverage.h
+ * @file   TensorAverage.cpp
  * @author Dan R. Lipsa
  * @date  25 Jul. 2011
  *
- * Implementation for the ScalarAverage class 
+ * Implementation for the TensorAverage class 
  *
  */
 
@@ -123,6 +123,35 @@ void TensorAverageTemplate<Setter>::InitShaders ()
 			   RESOURCE("TensorDisplay.frag")));
 }
 
+
+template<typename Setter>
+TensorAverageTemplate<Setter>::TensorAverageTemplate (
+    ViewNumber::Enum viewNumber,
+    const WidgetGl& widgetGl, string id,
+    WidgetGlFloatFunction sizeInitialRatio,
+    ViewSettingsFloatFunction sizeRatio, 
+    ViewSettingsFloatFunction lineWidthRatio,
+    FramebufferObjects& countFbos, size_t countIndex) :
+    
+    ImageBasedAverage<Setter> (
+        viewNumber,
+        widgetGl, id, QColor (0, 0, 0, 0), countFbos, countIndex),
+    m_gridShown (false),
+    m_clampingShown (false),
+    m_gridCellCenterShown (false),
+    m_sameSize (false),
+	m_colorMapped(false),
+    m_glyphShown (true),
+    
+    /*m_noiseAmplitude (10.0),*/ m_noiseAmplitude (0),
+    m_noiseStart (0.5),
+    m_noiseFrequency (317),
+    m_sizeInitialRatio (sizeInitialRatio),
+    m_sizeRatio (sizeRatio),
+    m_lineWidthRatio (lineWidthRatio)
+{
+}
+
 template<typename Setter>
 void TensorAverageTemplate<Setter>::rotateAndDisplay (
     GLfloat minValue, GLfloat maxValue,
@@ -154,12 +183,12 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
     // bind "tensor average" to texture unit 1
     this->glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetTensorAverageTexUnit ()));
-    glBindTexture (GL_TEXTURE_2D, srcFbo.first->texture ());
+    glBindTexture (GL_TEXTURE_2D, srcFbo.m_fbos->texture ());
 
     // bind "scalar average" (count) to texture unit 2
     this->glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetScalarAverageTexUnit ()));
-    glBindTexture (GL_TEXTURE_2D, srcFbo.second->texture ());
+    glBindTexture (GL_TEXTURE_2D, srcFbo.m_countFbos->texture ());
     
     // bind "overlay bar" to texture unit 0
     this->glActiveTexture (
@@ -210,8 +239,9 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
 TensorAverage::TensorAverage (ViewNumber::Enum viewNumber, 
 			      const WidgetGl& widgetGl,
 			      FramebufferObjects& countFbos) :
+
     TensorAverageTemplate<SetterDeformation> (
-	viewNumber, widgetGl, 
+	viewNumber, widgetGl, "tensor",
 	&WidgetGl::GetDeformationSizeInitialRatio,
 	&ViewSettings::GetDeformationSize,
 	&ViewSettings::GetDeformationLineWidth,

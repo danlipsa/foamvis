@@ -47,6 +47,18 @@ void ScalarAverageTemplate<PropertySetter>::InitShaders ()
 }
 
 template<typename PropertySetter>
+ScalarAverageTemplate<PropertySetter>::ScalarAverageTemplate (
+    ViewNumber::Enum viewNumber, 
+    const WidgetGl& widgetGl, string id, 
+    QColor stepClearColor) :
+
+    ImageBasedAverage<PropertySetter> (
+        viewNumber, widgetGl, id, stepClearColor, this->m_fbos, 1)
+{
+}
+
+
+template<typename PropertySetter>
 void ScalarAverageTemplate<PropertySetter>::rotateAndDisplay (
     GLfloat minValue, GLfloat maxValue,
     StatisticsType::Enum displayType, 
@@ -58,7 +70,7 @@ void ScalarAverageTemplate<PropertySetter>::rotateAndDisplay (
     // activate texture unit 1 - scalar average
     this->glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetScalarAverageTexUnit ()));
-    glBindTexture (GL_TEXTURE_2D, srcFbo.second->texture ());
+    glBindTexture (GL_TEXTURE_2D, srcFbo.m_countFbos->texture ());
     this->GetWidgetGl ().ActivateViewShader (
 	this->GetViewNumber (), enclose,
 	rotationCenter, angleDegrees);

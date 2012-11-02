@@ -726,7 +726,7 @@ void MainWindow::setupColorBarModelT1sKDE (
     boost::shared_ptr<ColorBarModel>& colorBarModel = 
 	m_colorBarModelT1sKDE[simulationIndex][viewNumber];
     colorBarModel.reset (new ColorBarModel ());
-    colorBarModel->SetTitle ("T1s PDE");
+    colorBarModel->SetTitle ("T1s KDE");
     colorBarModel->SetInterval (
 	toQwtDoubleInterval (widgetGl->GetRangeT1sKDE (viewNumber)));
     colorBarModel->SetupPalette (
@@ -1735,12 +1735,12 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     SetValueNoSignals (horizontalSliderAngleOfView, vs.GetAngleOfView ());
     
     size_t scalarAverageTimeWindow = 0;
-    size_t t1sPdeTimeWindow = 0;
+    size_t t1sKdeTimeWindow = 0;
     if (DATA_PROPERTIES.Is2D ())
     {
 	const ViewAverage& va = widgetGl->GetViewAverage (viewNumber);	
 	scalarAverageTimeWindow = va.GetScalarAverage ().GetTimeWindow ();
-	t1sPdeTimeWindow = va.GetT1sKDE ().GetTimeWindow ();
+	t1sKdeTimeWindow = va.GetT1sKDE ().GetTimeWindow ();
     }
     else
     {
@@ -1752,7 +1752,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 			     scalarAverageTimeWindow, 
 			     widgetGl->GetTimeSteps (viewNumber));
     SetValueAndMaxNoSignals (spinBoxT1sTimeWindow,
-			     t1sPdeTimeWindow, 
+			     t1sKdeTimeWindow, 
 			     widgetGl->GetTimeSteps (viewNumber));
     if (m_settings->GetTimeLinkage () == TimeLinkage::INDEPENDENT)
     {

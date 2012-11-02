@@ -121,6 +121,9 @@ void ThrowException (const string& message, const T1& t1, const T2& t2,
     RuntimeAssert (false, message, t1, t2, t3);
 }
 
+#define __LOG__(code) if (__LOGGED__) {code}
+#define __ENABLE_LOGGING__ const bool __LOGGED__ = true
+const bool __LOGGED__ = false;
 
 #endif  //__DEBUG_H__
 

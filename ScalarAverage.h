@@ -31,12 +31,7 @@ public:
 
     ScalarAverageTemplate (ViewNumber::Enum viewNumber, 
 			   const WidgetGl& widgetGl, string id, 
-			   QColor stepClearColor) :
-	ImageBasedAverage<PropertySetter> (
-	    viewNumber, widgetGl, id, stepClearColor, this->m_fbos, 1)
-    {
-    }
-    
+			   QColor stepClearColor);    
     void CacheData (
         AverageCache* averageCache,
         const G3D::Rect2D& objectCoord, BodyScalar::Enum property) const;

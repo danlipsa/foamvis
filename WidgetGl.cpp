@@ -40,9 +40,6 @@
 #include "ViewAverage.h"
 #include "VectorAverage.h"
 
-#define __LOG__(code) code
-//#define __LOG__(code)
-
 
 // Private Classes/Functions
 // ======================================================================
@@ -160,8 +157,7 @@ WidgetGl::WidgetGl(QWidget *parent)
       m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
       m_averageAroundMarked (true),
       m_contextBoxShown (true),
-      m_showType (SHOW_NOTHING),
-      m_seedsShown (false)
+      m_showType (SHOW_NOTHING)
 {
     makeCurrent ();
     fill (m_duplicateDomain.begin (), m_duplicateDomain.end (), false);
@@ -3104,7 +3100,7 @@ void WidgetGl::displayVelocityStreamlines (ViewNumber::Enum viewNumber) const
         while (lines->GetNextCell (points))
             displayVelocityStreamline (viewNumber, points);
         glPopMatrix ();
-        if (m_seedsShown)
+        if (vs.SeedsShown ())
             displayVelocityStreamlineSeeds (viewNumber);
         glPopAttrib ();
     }
@@ -3664,7 +3660,9 @@ void WidgetGl::ResetTransformGrid ()
 	ViewSettings& vs = GetViewSettings (viewNumber);
 	vs.SetGridScaleRatio (1);
 	vs.SetGridTranslation (G3D::Vector3::zero ());
-    }
+        updateStreamlineSeeds (viewNumber);
+        CalculateStreamline (viewNumber);
+    }    
     update ();
 }
 
@@ -3756,13 +3754,18 @@ void WidgetGl::OverlayBarClampClear ()
     Q_EMIT OverlayBarModelChanged (viewNumber, colorBarModel);
 }
 
-void WidgetGl::ToggledKDESeeds (bool toggled)
+void WidgetGl::ToggledKDESeeds (bool enabled)
 {
+    makeCurrent ();
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetKDESeedsEnabled (enabled);
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledSeedsShown (bool shown)
 {
-    m_seedsShown = shown;
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetSeedsShown (shown);
     update ();
 }
 
@@ -4255,12 +4258,18 @@ void WidgetGl::SetOverlayBarModel (
 
 void WidgetGl::ValueChangedKDEValue (double value)
 {
-    
+    makeCurrent ();
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetKDEValue (value);
+    CompileUpdate ();
 }
 
 void WidgetGl::ValueChangedKDEMultiplier (int multiplier)
 {
-    
+    makeCurrent ();
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetKDEMultiplier (multiplier);
+    CompileUpdate ();    
 }
 
 void WidgetGl::ValueChangedNoiseStart (int index)

@@ -753,7 +753,6 @@ private:
                  ViewNumber::COUNT> m_streamlineSeeds;
     vtkSmartPointer<vtkRungeKutta4> m_rungeKutta;
     vtkSmartPointer<vtkStreamTracer> m_streamer;
-    bool m_seedsShown;
 };
 
 

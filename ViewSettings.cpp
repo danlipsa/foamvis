@@ -95,7 +95,11 @@ ViewSettings::ViewSettings () :
     m_streamlineStepLength (STREAMLINE_STEP_LENGTH),
     m_timeDisplacement (0.0),
     m_bubblePathsTimeBegin (0),
-    m_bubblePathsTimeEnd (0)
+    m_bubblePathsTimeEnd (0),
+    m_seedsShown (false),
+    m_kdeSeedsEnabled (false),
+    m_kdeValue (0),
+    m_kdeMultiplier (3)
 {
     setInitialLightParameters ();
     for (size_t i = 0; i < m_averageAroundBodyId.size (); ++i)
@@ -108,6 +112,8 @@ ViewSettings::~ViewSettings ()
 
 float ViewSettings::GetVelocityClampingRatio () const
 {
+    if (m_velocityOverlayBarModel == 0)
+        return numeric_limits<float>::max ();
     QwtDoubleInterval values = m_velocityOverlayBarModel->GetInterval ();
     double interval = values.maxValue () - values.minValue ();
     QwtDoubleInterval clampValues = m_velocityOverlayBarModel->GetClampValues ();

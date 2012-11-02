@@ -13,10 +13,6 @@
 #include "OpenGLUtils.h"
 #include "Utils.h"
 
-//#define __LOG__(code) code
-#define __LOG__(code)
-
-
 // Private Classes
 // ======================================================================
 
