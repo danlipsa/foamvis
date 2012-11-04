@@ -16,10 +16,14 @@ bool getVector (vec2 texCoordCenter, out vec2 v)
 {
     float count = texture2D (
         u_scalarAverageTexUnit, texCoordCenter)[u_countIndex];
+    // debug
+    // count = 1.0;
     if (count == 0.0)
 	return false;
     v = texture2D (u_tensorAverageTexUnit, texCoordCenter).xy;
     v = v / count;
+    // debug
+    // v[0] = 0.06;v[1] = 0.06;
     return true;
 }
 
@@ -40,7 +44,7 @@ vec2 rotate (vec2 v, float deg)
 
 // position: pixel postion relative to the center of the line
 bool isOnLine (vec2 position, vec2 n, float width, 
-	     float lengthLeft, float lengthRight)
+               float lengthLeft, float lengthRight)
 {
     width = width / 2;
     return 
@@ -122,10 +126,10 @@ bool isOnArrow (vec2 x, vec2 texCoordCenter, out float magnitude)
         vec2 p2 = p1 - rotate (v, arrowAngle) * arrowLength;
         vec2 p3 = p1 - rotate (v, -arrowAngle) * arrowLength;
         return 
-            isOnLine (xToMiddle , n, lineWidthPerc, magnitude) /*||
+            isOnLine (xToMiddle , n, lineWidthPerc, magnitude) ||
             isOnTriangle (x, p1, p2, p3) ||
             (u_clampingShown && clamped && 
-            isOnLine (xToMiddle, v, lineWidthPerc, arrowLength))*/
+             isOnLine (xToMiddle, v, lineWidthPerc, arrowLength))
             ;
     }
     else

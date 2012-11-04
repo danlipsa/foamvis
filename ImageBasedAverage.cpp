@@ -199,11 +199,11 @@ void ImageBasedAverage<PropertySetter>::addStep (size_t timeStep, size_t subStep
               minMax.first, minMax.second, StatisticsType::AVERAGE););
         
     copyCurrentToPrevious ();
-    __LOG__ (save 
-             (FbosCountFbos (m_fbos.m_previous, m_countFbos.m_previous, 
-                             m_countIndex), 
-              "previous", timeStep + 1, subStep,
-              minMax.first, minMax.second, StatisticsType::AVERAGE););
+    __LOG__ (save (
+                 FbosCountFbos (m_fbos.m_previous, m_countFbos.m_previous, 
+                                m_countIndex), 
+                 "previous", timeStep + 1, subStep,
+                 minMax.first, minMax.second, StatisticsType::AVERAGE););
     glPopAttrib ();
     WarnOnOpenGLError ("ImageBasedAverage::addStep:" + m_id);
 }

@@ -11,8 +11,12 @@ varying vec4 fValue;
 
 void main(void)
 {
-    gl_Position = ftransform();	
-    fValue = vec4 (vValue, 1, 0);
+    const float MAX_FLOAT = 3.40282e+38;
+    gl_Position = ftransform();
+    if (vValue[0] == MAX_FLOAT && vValue[1] == MAX_FLOAT)
+        fValue = vec4 (0, 0, 0, 0);
+    else
+        fValue = vec4 (vValue, 1, 0);
 }
 
 // Local Variables:

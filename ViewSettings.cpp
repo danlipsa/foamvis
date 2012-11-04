@@ -112,8 +112,6 @@ ViewSettings::~ViewSettings ()
 
 float ViewSettings::GetVelocityClampingRatio () const
 {
-    if (m_velocityOverlayBarModel == 0)
-        return numeric_limits<float>::max ();
     QwtDoubleInterval values = m_velocityOverlayBarModel->GetInterval ();
     double interval = values.maxValue () - values.minValue ();
     QwtDoubleInterval clampValues = m_velocityOverlayBarModel->GetClampValues ();

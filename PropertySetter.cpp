@@ -16,6 +16,11 @@
 #include "Utils.h"
 #include "ViewSettings.h"
 
+// max_float
+// WARNING: has to be the same as ScalarStore.frag and VectorStore.vert
+const GLfloat MAX_FLOAT = 3.40282e+38;
+
+
 // SetterTextureCoordinate
 // ======================================================================
 
@@ -63,10 +68,7 @@ void SetterVertexAttribute::operator () (
 
 void SetterVertexAttribute::operator () ()
 {
-    // max_float
-    // WARNING: has to be the same as ScalarStore.frag
-    GLfloat maxFloat = 3.40282e+38;
-    m_program->setAttributeValue (m_attributeLocation, maxFloat);
+    m_program->setAttributeValue (m_attributeLocation, MAX_FLOAT);
 }
 
 
@@ -107,7 +109,7 @@ void SetterVelocity::operator () (const boost::shared_ptr<Body>& body)
 
 void SetterVelocity::operator () ()
 {
-    m_program->setAttributeValue (m_attributeLocation, 0, 0);
+    m_program->setAttributeValue (m_attributeLocation, MAX_FLOAT, MAX_FLOAT);
 }
 
 int SetterVelocity::GetBodyOrFaceScalar () const

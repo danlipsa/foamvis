@@ -8,6 +8,7 @@
  */
 
 #include "AverageShaders.h"
+#include "Debug.h"
 #include "DebugStream.h"
 #include "WidgetGl.h"
 #include "OpenGLUtils.h"
@@ -48,6 +49,7 @@ VectorAverage::VectorAverage (ViewNumber::Enum viewNumber,
 
 vtkSmartPointer<vtkImageData> VectorAverage::getData () const
 {
+    __ENABLE_LOGGING__;
     G3D::Rect2D windowCoord = GetWindowCoord ();
     G3D::Rect2D objectCoord = gluUnProject (
         windowCoord, GluUnProjectZOperation::SET0);
@@ -80,7 +82,7 @@ vtkSmartPointer<vtkImageData> VectorAverage::getData () const
     int extent[6] = {0, windowCoord.width () - 1,
                      0, windowCoord.height () -1,
                      0, 0};
-    //save (velocity, windowCoord, 3, 0.28);
+    __LOG__ (save (velocity, windowCoord, 3, 0.008););
     vtkSmartPointer<vtkImageData> image = CreateRegularGridNoAttributes (
         G3D::AABox (G3D::Vector3 (objectCoord.x0y0 (), 0),
                     G3D::Vector3 (objectCoord.x1y1 (), 0)), extent);

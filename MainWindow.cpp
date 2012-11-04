@@ -213,6 +213,7 @@ void MainWindow::configureInterfaceDataDependent (
 	m_settings->SetViewNumber (ViewNumber::Enum (i));
 	comboBoxSimulation->setCurrentIndex (i);
     }
+    initOverlayBarModel ();
 }
 
 
@@ -1076,7 +1077,7 @@ void MainWindow::ToggledViewFocusShown (bool checked)
     widgetHistogram->UpdateFocus ();
 }
 
-void MainWindow::ToggledVelocityShown (bool shown)
+void MainWindow::initOverlayBarModel ()
 {
     vector<ViewNumber::Enum> vn = m_settings->GetSplitHalfViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -1087,7 +1088,13 @@ void MainWindow::ToggledVelocityShown (bool shown)
 	boost::shared_ptr<ColorBarModel> overlayBarModel = 
 	    m_overlayBarModelVelocityVector[simulationIndex][viewNumber];
 	Q_EMIT OverlayBarModelChanged (viewNumber, overlayBarModel);
-    }
+    }    
+}
+
+
+void MainWindow::ToggledVelocityShown (bool shown)
+{
+    initOverlayBarModel ();
     radioButtonVelocityGlyph->setEnabled (shown);
     radioButtonVelocityStreamline->setEnabled (shown);
     radioButtonVelocityPathline->setEnabled (shown);

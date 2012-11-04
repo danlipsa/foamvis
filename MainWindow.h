@@ -129,6 +129,7 @@ public Q_SLOTS:
 	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 private:
+    void initOverlayBarModel ();
     static void clearStretch (QWidget* widget);
     static void updateStretch (QWidget* widget, 
 			       ViewLayout::Enum layout,
