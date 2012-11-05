@@ -321,14 +321,14 @@ void WidgetGl::createActions ()
 	tr("&Body"), this);
     m_actionAverageAroundBody->setStatusTip(tr("Averaged around body"));
     connect(m_actionAverageAroundBody.get (), SIGNAL(triggered()),
-	    this, SLOT(AverageAroundBody ()));
+	    this, SLOT(SetAverageAroundBody ()));
 
     m_actionAverageAroundSecondBody = boost::make_shared<QAction> (
 	tr("&Second Body"), this);
     m_actionAverageAroundSecondBody->setStatusTip(
 	tr("Averaged around second body"));
     connect(m_actionAverageAroundSecondBody.get (), SIGNAL(triggered()),
-	    this, SLOT(AverageAroundSecondBody ()));
+	    this, SLOT(SetAverageAroundSecondBody ()));
 
     m_actionAverageAroundReset = boost::make_shared<QAction> (
 	tr("&Reset"), this);
@@ -1509,6 +1509,8 @@ void WidgetGl::mouseMoveTranslate (QMouseEvent *event,
     case InteractionObject::FOCUS:
 	translate (viewNumber, event->pos (), event->modifiers ());
 	GetViewAverage (viewNumber).AverageInitStep ();
+        updateStreamlineSeeds (viewNumber);
+        CalculateStreamline (viewNumber);
 	break;
     case InteractionObject::LIGHT:
     {
@@ -1530,6 +1532,8 @@ void WidgetGl::mouseMoveScale (QMouseEvent *event, ViewNumber::Enum viewNumber)
     case InteractionObject::FOCUS:
 	scale (viewNumber, event->pos ());
 	GetViewAverage (viewNumber).AverageInitStep ();
+        updateStreamlineSeeds (viewNumber);
+        CalculateStreamline (viewNumber);
 	break;
     case InteractionObject::CONTEXT:
 	scaleContext (viewNumber, event->pos ());
@@ -2899,36 +2903,13 @@ void WidgetGl::GetGridParams (
 }
 
 
-// see doc/updateStreamlineSeeds.png
-// the seeds sample foam (0)
-void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
-{    
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    if (! vs.IsVelocityShown () || 
-        ! vs.GetVelocityVis () == VectorVis::STREAMLINE)
-        return;
-
-    G3D::Vector2 gridOrigin; float gridCellLength;
-    GetGridParams (viewNumber, &gridOrigin, &gridCellLength);
-    const Simulation& simulation = GetSimulation ();
-
+void WidgetGl::updateStreamlineSeeds (
+    ViewNumber::Enum viewNumber,     
+    vtkSmartPointer<vtkPoints> points, vtkSmartPointer<vtkIdList> cellVertices,
+    const G3D::Rect2D& r, G3D::Vector2 gridOrigin, float gridCellLength)
+{
+    const Simulation& simulation = GetSimulation (viewNumber);
     G3D::Vector2 center = simulation.GetBoundingBox ().center ().xy ();
-
-    G3D::Rect2D rect = gluUnProject (
-        m_viewAverage[viewNumber]->GetVelocityAverage ().GetWindowCoord (),
-        GluUnProjectZOperation::SET0);
-    
-    rect = (rect - gridOrigin) / gridCellLength;
-    G3D::Rect2D r = G3D::Rect2D::xyxy (
-        floor (rect.x0 () + 0.5),
-        floor (rect.y0 () + 0.5),
-        floor (rect.x1 () + 0.5),
-        floor (rect.y1 () + 0.5));
-    VTK_CREATE (vtkPoints, points);
-    points->SetNumberOfPoints (r.width () * r.height ());
-    VTK_CREATE (vtkCellArray, vertices);
-    VTK_CREATE (vtkIdList, v);
-    v->SetNumberOfIds (r.width () * r.height ());
     for (int y = r.y0 () ; y < r.y1 (); ++y)
         for (int x = r.x0 (); x < r.x1 (); ++x)
         {
@@ -2943,10 +2924,42 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
 
             vtkIdType pointId = (x - r.x0 ()) + (y - r.y0 ()) * r.width ();
             points->SetPoint (pointId, p.x, p.y, 0);
-            v->SetId (pointId, pointId);
+            cellVertices->SetId (pointId, pointId);
         }
+}
+
+
+
+// see doc/updateStreamlineSeeds.png
+// the seeds sample foam (0)
+void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
+{    
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    if (! vs.IsVelocityShown () || 
+        ! vs.GetVelocityVis () == VectorVis::STREAMLINE)
+        return;
+
+    G3D::Vector2 gridOrigin; float gridCellLength;
+    GetGridParams (viewNumber, &gridOrigin, &gridCellLength);
+
+    G3D::Rect2D rect = gluUnProject (
+        m_viewAverage[viewNumber]->GetVelocityAverage ().GetWindowCoord (),
+        GluUnProjectZOperation::SET0);    
+    rect = (rect - gridOrigin) / gridCellLength;
+    rect = G3D::Rect2D::xyxy (floor (rect.x0 () + 0.5),
+                              floor (rect.y0 () + 0.5),
+                              floor (rect.x1 () + 0.5),
+                              floor (rect.y1 () + 0.5));
+
+    VTK_CREATE (vtkPoints, points);
+    points->SetNumberOfPoints (rect.width () * rect.height ());
+    VTK_CREATE (vtkCellArray, vertices);
+    VTK_CREATE (vtkIdList, cellVertices);
+    cellVertices->SetNumberOfIds (rect.width () * rect.height ());
+    updateStreamlineSeeds (viewNumber, points, cellVertices, 
+                           rect, gridOrigin, gridCellLength);
+    vertices->InsertNextCell (cellVertices);
     m_streamlineSeeds[viewNumber]->SetPoints (points);
-    vertices->InsertNextCell (v);    
     m_streamlineSeeds[viewNumber]->SetVerts (vertices);
 }
 
@@ -3048,8 +3061,7 @@ void WidgetGl::displayVelocityStreamline (
         }
         glVertex2dv (point);
     }
-    glEnd ();
-    
+    glEnd ();   
 }
 
 
@@ -3203,7 +3215,7 @@ void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
     CompileUpdate ();
 }
 
-void WidgetGl::AverageAroundBody ()
+void WidgetGl::SetAverageAroundBody ()
 {
     makeCurrent ();
     ViewNumber::Enum viewNumber = GetViewNumber ();
@@ -3234,7 +3246,7 @@ void WidgetGl::AverageAroundBody ()
     }
 }
 
-void WidgetGl::AverageAroundSecondBody ()
+void WidgetGl::SetAverageAroundSecondBody ()
 {
     makeCurrent ();
     ViewSettings& vs = GetViewSettings ();

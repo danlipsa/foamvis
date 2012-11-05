@@ -150,6 +150,10 @@ public:
     void DisplayT1Quad (ViewNumber::Enum view, 
 			size_t timeStep, size_t t1Index) const;
     pair<float, float> GetRange (ViewNumber::Enum viewNumber) const;
+    pair<float, float> GetRange () const
+    {
+        return GetRange (GetViewNumber ());
+    }
     pair<float, float> GetVelocityMagnitudeRange (
 	ViewNumber::Enum viewNumber) const;
     pair<float, float> GetRangeCount (ViewNumber::Enum viewNumber) const;
@@ -336,8 +340,8 @@ public Q_SLOTS:
     void DeselectAll ();
     void SelectBodiesByIdList ();
     void SelectThisBodyOnly ();
-    void AverageAroundBody ();
-    void AverageAroundSecondBody ();
+    void SetAverageAroundBody ();
+    void SetAverageAroundSecondBody ();
     void AverageAroundReset ();
     void ContextDisplayBody ();
     void ContextDisplayReset ();
@@ -475,6 +479,11 @@ private:
         ViewNumber::Enum viewNumber, vtkSmartPointer<vtkIdList> points) const;
     void displayVelocityStreamlineSeeds (ViewNumber::Enum viewNumber) const;
     void updateStreamlineSeeds (ViewNumber::Enum viewNumber);
+    void updateStreamlineSeeds (ViewNumber::Enum viewNumber, 
+                                vtkSmartPointer<vtkPoints> points,
+                                vtkSmartPointer<vtkIdList> v,
+                                const G3D::Rect2D& r, 
+                                G3D::Vector2 gridOrigin, float gridCellLength);
     void displayViewDecorations (ViewNumber::Enum viewNumber);
     void displayViewFocus (ViewNumber::Enum viewNumber);
     void displayTextureColorBar (GLuint texture,

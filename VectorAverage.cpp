@@ -82,7 +82,8 @@ vtkSmartPointer<vtkImageData> VectorAverage::getData () const
     int extent[6] = {0, windowCoord.width () - 1,
                      0, windowCoord.height () -1,
                      0, 0};
-    __LOG__ (save (velocity, windowCoord, 3, 0.008););
+    __LOG__ (save (velocity, windowCoord, 3, 
+                   GetWidgetGl ().GetRange ().second););
     vtkSmartPointer<vtkImageData> image = CreateRegularGridNoAttributes (
         G3D::AABox (G3D::Vector3 (objectCoord.x0y0 (), 0),
                     G3D::Vector3 (objectCoord.x1y1 (), 0)), extent);
@@ -90,6 +91,14 @@ vtkSmartPointer<vtkImageData> VectorAverage::getData () const
     image->GetPointData ()->SetActiveAttribute (
 	BodyAttribute::ToString (attribute), 
         BodyAttribute::GetType (attribute));
+
+    __LOG__ 
+        (
+            double* b;
+            b = image->GetBounds ();
+            cdbg << "bounds: " << b[0] << ", " 
+                 << b[1] << ", " << b[2] << ", " << b[3] << endl;
+            );
     return image;
 }
 
