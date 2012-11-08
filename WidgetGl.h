@@ -194,12 +194,16 @@ public:
     void ButtonClickedViewType (ViewType::Enum oldViewType);
     void SetViewTypeAndCameraDistance (ViewNumber::Enum viewNumber);
     void CalculateStreamline (ViewNumber::Enum viewNumber);
+    void CacheUpdateSeedsCalculateStreamline (ViewNumber::Enum viewNumber);
+    void CacheCalculateStreamline (ViewNumber::Enum viewNumber);
     void AllTransformAverage (
-        ViewNumber::Enum viewNumber, size_t timeStep) const;
+        ViewNumber::Enum viewNumber, size_t timeStep,
+        RotateForAxisOrder rotateForAxisOrder) const;
     void AllTransformAverage (
         ViewNumber::Enum viewNumber) const
     {
-        return AllTransformAverage (viewNumber, GetCurrentTime (viewNumber));
+        return AllTransformAverage (
+            viewNumber, GetCurrentTime (viewNumber), ROTATE_FOR_AXIS_ORDER);
     }
     void GetGridParams (
         ViewNumber::Enum viewNumber, 

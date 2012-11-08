@@ -49,7 +49,6 @@ VectorAverage::VectorAverage (ViewNumber::Enum viewNumber,
 
 vtkSmartPointer<vtkImageData> VectorAverage::getData () const
 {
-    __ENABLE_LOGGING__;
     G3D::Rect2D windowCoord = GetWindowCoord ();
     G3D::Rect2D objectCoord = gluUnProject (
         windowCoord, GluUnProjectZOperation::SET0);
@@ -91,14 +90,6 @@ vtkSmartPointer<vtkImageData> VectorAverage::getData () const
     image->GetPointData ()->SetActiveAttribute (
 	BodyAttribute::ToString (attribute), 
         BodyAttribute::GetType (attribute));
-
-    __LOG__ 
-        (
-            double* b;
-            b = image->GetBounds ();
-            cdbg << "bounds: " << b[0] << ", " 
-                 << b[1] << ", " << b[2] << ", " << b[3] << endl;
-            );
     return image;
 }
 

@@ -1266,7 +1266,7 @@ void MainWindow::ButtonClickedVelocityVis (int vv)
     ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
     vs.SetVelocityVis (velocityVis);
     if (vs.GetVelocityVis () == VectorVis::STREAMLINE)
-        widgetGl->CalculateStreamline (viewNumber);
+        widgetGl->CacheCalculateStreamline (viewNumber);
     widgetGl->update ();
 }
 

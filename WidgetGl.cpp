@@ -947,14 +947,15 @@ void WidgetGl::allTransform (ViewNumber::Enum viewNumber) const
  * The same as allTransform but with larger viewing volume and viewport
  */
 void WidgetGl::AllTransformAverage (
-    ViewNumber::Enum viewNumber, size_t timeStep) const
+    ViewNumber::Enum viewNumber, size_t timeStep, 
+    RotateForAxisOrder rotateForAxisOrder) const
 {
     G3D::Rect2D destRect = EncloseRotation (GetViewRect (viewNumber));
     glViewport (0, 0, destRect.width (), destRect.height ());
     glMatrixMode (GL_PROJECTION);
     ProjectionTransform (viewNumber, ViewingVolumeOperation::ENCLOSE2D);
     glMatrixMode (GL_MODELVIEW);
-    modelViewTransform (viewNumber, timeStep, ROTATE_FOR_AXIS_ORDER);
+    modelViewTransform (viewNumber, timeStep, rotateForAxisOrder);
 }
 
 
@@ -1091,8 +1092,7 @@ void WidgetGl::translateGrid (
     G3D::Vector3 extent = calculateViewingVolumeScaledExtent (viewNumber);
     vs.SetGridTranslation (vs.GetGridTranslation () + 
                            vs.GetScaleRatio () * translationRatio * extent);
-    updateStreamlineSeeds (viewNumber);
-    CalculateStreamline (viewNumber);
+    CacheUpdateSeedsCalculateStreamline (viewNumber);
 }
 
 void WidgetGl::scale (ViewNumber::Enum viewNumber, const QPoint& position)
@@ -1110,8 +1110,7 @@ void WidgetGl::scaleGrid (ViewNumber::Enum viewNumber, const QPoint& position)
     ViewSettings& vs = GetViewSettings (viewNumber);
     float ratio = ratioFromScaleCenter (viewNumber, position);
     vs.SetGridScaleRatio (vs.GetGridScaleRatio () * ratio);
-    updateStreamlineSeeds (viewNumber);
-    CalculateStreamline (viewNumber);
+    CacheUpdateSeedsCalculateStreamline (viewNumber);
 }
 
 
@@ -1509,8 +1508,7 @@ void WidgetGl::mouseMoveTranslate (QMouseEvent *event,
     case InteractionObject::FOCUS:
 	translate (viewNumber, event->pos (), event->modifiers ());
 	GetViewAverage (viewNumber).AverageInitStep ();
-        updateStreamlineSeeds (viewNumber);
-        CalculateStreamline (viewNumber);
+        CacheUpdateSeedsCalculateStreamline (viewNumber);
 	break;
     case InteractionObject::LIGHT:
     {
@@ -1532,8 +1530,7 @@ void WidgetGl::mouseMoveScale (QMouseEvent *event, ViewNumber::Enum viewNumber)
     case InteractionObject::FOCUS:
 	scale (viewNumber, event->pos ());
 	GetViewAverage (viewNumber).AverageInitStep ();
-        updateStreamlineSeeds (viewNumber);
-        CalculateStreamline (viewNumber);
+        CacheUpdateSeedsCalculateStreamline (viewNumber);
 	break;
     case InteractionObject::CONTEXT:
 	scaleContext (viewNumber, event->pos ());
@@ -2876,7 +2873,7 @@ void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
         m_viewAverage[viewNumber]->AverageStep (direction);
         if (GetViewSettings (viewNumber).GetVelocityVis () == 
             VectorVis::STREAMLINE)
-            CalculateStreamline (viewNumber);
+            CacheCalculateStreamline (viewNumber);
     }
 }
 
@@ -2892,12 +2889,20 @@ void WidgetGl::GetGridParams (
     calculateRotationParams (viewNumber, 0, 
                              &rotationCenter, &angleDegrees);
 
+
+    const Simulation& simulation = GetSimulation (viewNumber);
+    G3D::Vector3 center = simulation.GetBoundingBox ().center ();
+    rotationCenter -= center;
+    rotationCenter = GetRotationForAxesOrder (viewNumber) * rotationCenter;
+    rotationCenter += center;
+
+
     G3D::Matrix4 m;
     G3D::glGetMatrix (GL_MODELVIEW_MATRIX, m);
-
-    G3D::Vector2 gridTranslation = ToMatrix2 (m).inverse () *
-        vs.GetGridTranslation ().xy ();
-
+    G3D::Matrix2 currentMV = ToMatrix2 (m);
+    G3D::Matrix2 currentMVInverse = currentMV.inverse ();
+    G3D::Vector2 gridTranslation =  
+        currentMVInverse * vs.GetGridTranslation ().xy ();
     *gridCellLength = GetBubbleDiameter (viewNumber) * vs.GetGridScaleRatio ();
     *gridOrigin = rotationCenter.xy () + gridTranslation;
 }
@@ -2914,14 +2919,7 @@ void WidgetGl::updateStreamlineSeeds (
         for (int x = r.x0 (); x < r.x1 (); ++x)
         {
             G3D::Vector2 p (0.5 + x, 0.5 + y);
-            p = p * gridCellLength + gridOrigin;
-            
-            // @todo fix this
-            // rotate the seeds with with GetRotationForAxesOrder ()
-            p -= center;
-            p = ToMatrix2 (GetRotationForAxesOrder (viewNumber)) * p;
-            p += center;
-
+            p = p * gridCellLength + gridOrigin;            
             vtkIdType pointId = (x - r.x0 ()) + (y - r.y0 ()) * r.width ();
             points->SetPoint (pointId, p.x, p.y, 0);
             cellVertices->SetId (pointId, pointId);
@@ -2942,9 +2940,10 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
     G3D::Vector2 gridOrigin; float gridCellLength;
     GetGridParams (viewNumber, &gridOrigin, &gridCellLength);
 
-    G3D::Rect2D rect = gluUnProject (
-        m_viewAverage[viewNumber]->GetVelocityAverage ().GetWindowCoord (),
-        GluUnProjectZOperation::SET0);    
+    double* b = GetAverageCache ()->GetVelocity ()->GetBounds ();
+    G3D::Rect2D rect = G3D::Rect2D::xyxy (b[0], b[2], b[1], b[3]);
+    
+    __LOG__ (cdbg << rect << endl;);
     rect = (rect - gridOrigin) / gridCellLength;
     rect = G3D::Rect2D::xyxy (floor (rect.x0 () + 0.5),
                               floor (rect.y0 () + 0.5),
@@ -2961,13 +2960,57 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
     vertices->InsertNextCell (cellVertices);
     m_streamlineSeeds[viewNumber]->SetPoints (points);
     m_streamlineSeeds[viewNumber]->SetVerts (vertices);
+    __LOG__ 
+        (
+            double* b;
+            b = m_streamlineSeeds[viewNumber]->GetBounds ();
+            cdbg << "bounds: " << b[0] << ", " 
+            << b[1] << ", " << b[2] << ", " << b[3] << endl;
+            );
 }
 
-/**
- *
- * @todo: Save data and streamlines without rotation 
- *        with GetRotationForAxesOrder ()
- */
+void WidgetGl::CacheUpdateSeedsCalculateStreamline (ViewNumber::Enum viewNumber)
+{
+    makeCurrent ();
+    glMatrixMode (GL_PROJECTION);
+    glPushMatrix ();
+    glMatrixMode (GL_MODELVIEW);
+    glPushMatrix ();
+
+    AllTransformAverage (viewNumber, 0, DONT_ROTATE_FOR_AXIS_ORDER);
+    m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
+        GetAverageCache ());
+    updateStreamlineSeeds (viewNumber);
+    CalculateStreamline (viewNumber);
+
+    glMatrixMode (GL_PROJECTION);
+    glPopMatrix ();
+    glMatrixMode (GL_MODELVIEW);
+    glPopMatrix ();
+
+}
+
+void WidgetGl::CacheCalculateStreamline (ViewNumber::Enum viewNumber)
+{
+    makeCurrent ();
+    glMatrixMode (GL_PROJECTION);
+    glPushMatrix ();
+    glMatrixMode (GL_MODELVIEW);
+    glPushMatrix ();
+
+    AllTransformAverage (viewNumber, 0, DONT_ROTATE_FOR_AXIS_ORDER);
+    m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
+        GetAverageCache ());
+    updateStreamlineSeeds (viewNumber);
+    CalculateStreamline (viewNumber);
+
+    glMatrixMode (GL_PROJECTION);
+    glPopMatrix ();
+    glMatrixMode (GL_MODELVIEW);
+    glPopMatrix ();
+}
+
+
 void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -2977,10 +3020,6 @@ void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
 
     if (m_streamlineSeeds[viewNumber]->GetNumberOfVerts () == 0)
         updateStreamlineSeeds (viewNumber);
-    makeCurrent ();
-    AllTransformAverage (viewNumber, 0);
-    m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
-        GetAverageCache ());
         
     m_streamer->SetInput (GetAverageCache ()->GetVelocity ());
     m_streamer->SetSource (m_streamlineSeeds[viewNumber]);
@@ -3068,9 +3107,11 @@ void WidgetGl::displayVelocityStreamline (
 
 void WidgetGl::displayVelocityStreamlineSeeds (ViewNumber::Enum viewNumber) const
 {
-    glPushMatrix ();
     glColor (Qt::black);
-    rotateAverageAroundStreamlines (viewNumber, false);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    glPushMatrix ();
+    rotateAverageAroundStreamlines (
+        viewNumber, vs.IsAverageAroundRotationShown ());
     VTK_CREATE(vtkIdList, points);
     m_streamlineSeeds[viewNumber]->GetVerts ()->GetCell (0, points);
     glPointSize (4.0);
@@ -3234,8 +3275,7 @@ void WidgetGl::SetAverageAroundBody ()
 	    vs.SetAverageAroundPositions (simulation);
 	else
 	    vs.SetAverageAroundPositions (simulation, bodyId);
-        updateStreamlineSeeds (viewNumber);
-        CalculateStreamline (viewNumber);
+        CacheUpdateSeedsCalculateStreamline (viewNumber);
 	CompileUpdate ();
     }
     else
@@ -3292,8 +3332,7 @@ void WidgetGl::AverageAroundReset ()
     vs.SetAverageAround (false);
     vs.SetAverageAroundBodyId (INVALID_INDEX);
     vs.SetAverageAroundSecondBodyId (INVALID_INDEX);
-    updateStreamlineSeeds (viewNumber);
-    CalculateStreamline (viewNumber);
+    CacheUpdateSeedsCalculateStreamline (viewNumber);
     CompileUpdate ();
 }
 
@@ -3672,8 +3711,7 @@ void WidgetGl::ResetTransformGrid ()
 	ViewSettings& vs = GetViewSettings (viewNumber);
 	vs.SetGridScaleRatio (1);
 	vs.SetGridTranslation (G3D::Vector3::zero ());
-        updateStreamlineSeeds (viewNumber);
-        CalculateStreamline (viewNumber);
+        CacheUpdateSeedsCalculateStreamline (viewNumber);
     }    
     update ();
 }

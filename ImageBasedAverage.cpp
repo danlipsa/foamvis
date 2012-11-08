@@ -245,7 +245,8 @@ void ImageBasedAverage<PropertySetter>::renderToStep (
     glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
 
-    GetWidgetGl ().AllTransformAverage (GetViewNumber (), timeStep);
+    GetWidgetGl ().AllTransformAverage (GetViewNumber (), timeStep, 
+                                        WidgetGl::ROTATE_FOR_AXIS_ORDER);
     m_fbos.m_step->bind ();
     ClearColorStencilBuffers (getStepClearColor (), 0);
     writeStepValues (GetViewNumber (), timeStep, subStep);
