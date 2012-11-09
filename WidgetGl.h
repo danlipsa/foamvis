@@ -206,8 +206,8 @@ public:
             viewNumber, GetCurrentTime (viewNumber), ROTATE_FOR_AXIS_ORDER);
     }
     void GetGridParams (
-        ViewNumber::Enum viewNumber, 
-        G3D::Vector2* gridOrigin, float* gridCellLength) const;
+        ViewNumber::Enum viewNumber, G3D::Vector2* gridOrigin, 
+        float* gridCellLength, float* angleDegrees) const;
     float SliderToTimeDisplacement (
         const QSlider& slider,
         const Simulation& simulation) const;
@@ -487,7 +487,8 @@ private:
                                 vtkSmartPointer<vtkPoints> points,
                                 vtkSmartPointer<vtkIdList> v,
                                 const G3D::Rect2D& r, 
-                                G3D::Vector2 gridOrigin, float gridCellLength);
+                                G3D::Vector2 gridOrigin, float gridCellLength,
+                                float angleDegrees);
     void displayViewDecorations (ViewNumber::Enum viewNumber);
     void displayViewFocus (ViewNumber::Enum viewNumber);
     void displayTextureColorBar (GLuint texture,
