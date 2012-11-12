@@ -869,7 +869,7 @@ void WidgetGl::displayViews ()
 void WidgetGl::displayAllViewTransforms (ViewNumber::Enum viewNumber)
 {
     const OOBox& domain = GetSimulation (viewNumber).
-        GetFoam(GetCurrentTime ()).GetTorusDomain ();
+        GetFoam(GetCurrentTime (viewNumber)).GetTorusDomain ();
     // WARNING: use the same order as DuplicateDomain::Enum
     const boost::array<G3D::Vector3, DuplicateDomain::COUNT> 
         duplicateDomainTranslation = {{
