@@ -210,7 +210,8 @@ void MainWindow::configureInterfaceDataDependent (
 	comboBoxViewCount->setCurrentIndex (viewCount - 1);
     for (size_t i = 1; i < viewCount; ++i)
     {
-	m_settings->SetViewNumber (ViewNumber::Enum (i));
+        ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	m_settings->SetViewNumber (viewNumber);
 	comboBoxSimulation->setCurrentIndex (i);
     }
     initOverlayBarModel ();
@@ -713,9 +714,11 @@ void MainWindow::setupViews ()
     for (size_t i = 0; i < m_settings->GetViewSettingsSize (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+        const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
 	widgetGl->SetBodyOrFaceScalar (
 	    viewNumber, 
-	    m_colorBarModelBodyScalar[0][viewNumber][BodyScalar::PRESSURE], 
+	    m_colorBarModelBodyScalar
+            [vs.GetSimulationIndex ()][viewNumber][BodyScalar::PRESSURE], 
 	    BodyScalar::PRESSURE);
     }
 }

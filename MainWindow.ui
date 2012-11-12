@@ -3297,22 +3297,6 @@
   <connection>
    <sender>comboBoxSimulation</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>CurrentIndexChangedSimulation(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1002</x>
-     <y>211</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>602</x>
-     <y>148</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBoxSimulation</sender>
-   <signal>currentIndexChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>CurrentIndexChangedSimulation(int)</slot>
    <hints>
@@ -3323,6 +3307,22 @@
     <hint type="destinationlabel">
      <x>1039</x>
      <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxSimulation</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>CurrentIndexChangedSimulation(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1002</x>
+     <y>211</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>602</x>
+     <y>148</y>
     </hint>
    </hints>
   </connection>
