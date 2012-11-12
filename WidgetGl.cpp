@@ -3982,7 +3982,7 @@ void WidgetGl::ToggledObjectVelocityShown (bool checked)
 {
     makeCurrent ();
     GetSettings ()->SetObjectVelocityShown (checked);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledLightNumberShown (bool checked)

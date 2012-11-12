@@ -274,7 +274,7 @@ void Body::GetEdgeSet (EdgeSet* edgeSet) const
 }
 
 bool Body::HasScalarValue (BodyScalar::Enum property, 
-				bool* deduced) const
+                           bool* deduced) const
 {
     setPointerValue (deduced, false);
     if (IsObject ())
