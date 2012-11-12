@@ -113,9 +113,8 @@ public:
      * translated toward negative Z with m_cameraDistance.
      */
     void ProjectionTransform (
-	ViewNumber::Enum viewNumber, 
-	ViewingVolumeOperation::Enum enclose = 
-	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
+	ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose =
+        ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     size_t GetBodyOrFaceScalar () const
     {
 	return GetBodyOrFaceScalar (GetViewNumber ());

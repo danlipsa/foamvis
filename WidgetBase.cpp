@@ -46,10 +46,9 @@ void WidgetBase::ForAllHiddenViews (boost::function <void (ViewNumber::Enum)> f)
 
 
 G3D::AABox WidgetBase::CalculateViewingVolume (
-    ViewNumber::Enum viewNumber, 
+    ViewNumber::Enum viewNumber, const Simulation& simulation,
     ViewingVolumeOperation::Enum enclose) const
 {
-    const Simulation& simulation = GetSimulation (viewNumber);
     vector<ViewNumber::Enum> mapping;
     ViewCount::Enum viewCount = 
 	CALL_MEMBER (*GetSettings (), m_getViewCount) (&mapping);

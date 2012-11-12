@@ -211,7 +211,8 @@ void WidgetVtk::Average3dAddView (
     const Foam& foam = m_average[viewNumber]->GetFoam ();
     m_pipeline[viewNumber] = m_pipelineAverage3d[viewNumber];
     PipelineAverage3d& pipeline = *m_pipelineAverage3d[viewNumber];
-    G3D::AABox vv = CalculateViewingVolume (viewNumber);
+    G3D::AABox vv = CalculateViewingVolume (
+        viewNumber, GetSimulation (viewNumber));
     average->AverageInitStep ();
     int direction = 0;
     pipeline.UpdateAverage (average, direction);

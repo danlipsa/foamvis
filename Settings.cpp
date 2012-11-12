@@ -8,7 +8,7 @@
 
 #include "ColorBarModel.h"
 #include "Debug.h"
-
+#include "DebugStream.h"
 #include "Edge.h"
 #include "Settings.h"
 #include "Simulation.h"
@@ -176,7 +176,7 @@ void Settings::initViewSettings (
 	}
 	vs->CalculateCameraDistance (
 	    CalculateCenteredViewingVolume (
-		viewNumber, viewCount, simulation, w / h,
+		viewNumber, viewCount, simulation, w, h,
 		ViewingVolumeOperation::DONT_ENCLOSE2D));
 	viewNumber = ViewNumber::Enum (viewNumber + 1);
     }
@@ -425,6 +425,9 @@ G3D::AABox Settings::CalculateViewingVolume (
 	vv = ExtendAlongZFor3D (vv, vs.GetScaleRatio ());
     if (enclose == ViewingVolumeOperation::ENCLOSE2D)
 	vv = EncloseRotation2D (vv);
+    RuntimeAssert (IsFuzzyZero (bb.center () - vv.center ()), 
+                   "Simulation center different than viewing volume center: ", 
+                   bb.center (), vv.center ());
     return vv;
 }
 

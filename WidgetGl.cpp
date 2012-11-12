@@ -625,7 +625,8 @@ G3D::Vector3 WidgetGl::calculateViewingVolumeScaledExtent (
     ViewNumber::Enum viewNumber) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    return CalculateViewingVolume (viewNumber).extent () / vs.GetScaleRatio ();
+    return CalculateViewingVolume (
+        viewNumber, GetSimulation (viewNumber)).extent () / vs.GetScaleRatio ();
 }
 
 
@@ -726,6 +727,7 @@ void WidgetGl::ProjectionTransform (
     ViewNumber::Enum viewNumber,
     ViewingVolumeOperation::Enum enclose) const
 {
+    //__ENABLE_LOGGING__;
     const ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::AABox vv = calculateEyeViewingVolume (viewNumber, enclose);
     G3D::Vector3 low = vv.low (), high = vv.high ();
@@ -734,16 +736,17 @@ void WidgetGl::ProjectionTransform (
 	glOrtho (low.x, high.x, low.y, high.y, -high.z, -low.z);
     else
 	glFrustum (low.x, high.x, low.y, high.y, -high.z, -low.z);
-    //cdbg << "ProjectionTransform" << vv << endl;
+    __LOG__(cdbg << "ProjectionTransform" << vv << endl;);
 }
 
 
 
 void WidgetGl::viewportTransform (ViewNumber::Enum viewNumber) const
 {
+    //__ENABLE_LOGGING__;
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     glViewport (viewRect);
-    //cdbg << viewRect << endl;
+    __LOG__ (cdbg << viewRect << endl;);
 }
 
 string WidgetGl::infoSelectedBody ()
@@ -2138,7 +2141,7 @@ void WidgetGl::calculateRotationParams (
     else
     {
 	*rotationCenter = 
-            simulation.GetFoam(0).GetBoundingBoxTorus ().center ();
+            simulation.GetFoam (0).GetBoundingBoxTorus ().center ();
 	*angleDegrees = 0;
     }
 }
@@ -2824,7 +2827,7 @@ void WidgetGl::ActivateViewShader (
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
     G3D::Rect2D srcRect = 
-	toRect2D (CalculateViewingVolume (viewNumber,
+	toRect2D (CalculateViewingVolume (viewNumber, GetSimulation (viewNumber),
 					  ViewingVolumeOperation::ENCLOSE2D));
     activateViewShader (viewNumber, enclose, srcRect, 
 			rotationCenter, angleDegrees);
@@ -3769,7 +3772,8 @@ void WidgetGl::RotationCenterFoam ()
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::Vector3 center = CalculateViewingVolume (
-	viewNumber, ViewingVolumeOperation::DONT_ENCLOSE2D).center ();
+	viewNumber, GetSimulation (viewNumber),
+        ViewingVolumeOperation::DONT_ENCLOSE2D).center ();
     vs.SetRotationCenter (center);
     vs.SetRotationCenterType (ViewSettings::ROTATION_CENTER_FOAM);
 }
@@ -4252,7 +4256,8 @@ void WidgetGl::CurrentIndexChangedSimulation (int i)
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (i);
-    G3D::Vector3 center = CalculateViewingVolume (viewNumber).center ();
+    G3D::Vector3 center = 
+        CalculateViewingVolume (viewNumber, simulation).center ();
     vs.SetSimulation (i, simulation, center, vs.T1sShiftLower ());
     m_viewAverage[viewNumber]->SetSimulation (simulation);
     CompileUpdate ();
