@@ -27,6 +27,8 @@ public:
 	ViewNumber::Enum viewNumber) const;
     typedef ViewCount::Enum (Settings::*GetViewCountType) (
 	vector<ViewNumber::Enum>* mapping) const;
+    typedef boost::array<boost::shared_ptr<AverageCache>, 
+                         ViewNumber::COUNT> AverageCaches;
 
 public:
     WidgetBase (QWidget* widget,
@@ -42,7 +44,7 @@ public:
 
     void Init (boost::shared_ptr<Settings> settings,
 	       const SimulationGroup* simulationGroup, 
-               AverageCache* averageCache);
+               AverageCaches* averageCache);
 
     void ForAllViews (boost::function <void (ViewNumber::Enum)> f);
     void ForAllHiddenViews (boost::function <void (ViewNumber::Enum)> f);
@@ -64,9 +66,10 @@ public:
     {
 	return *m_simulationGroup;
     }
-    AverageCache* GetAverageCache () const
+    boost::shared_ptr<AverageCache> GetAverageCache (
+        ViewNumber::Enum viewNumber) const
     {
-        return m_averageCache;
+        return (*m_averageCache)[viewNumber];
     }
     
     ViewNumber::Enum GetViewNumber () const;
@@ -123,7 +126,7 @@ protected:
 private:
     boost::shared_ptr<Settings> m_settings;
     const SimulationGroup* m_simulationGroup;
-    AverageCache* m_averageCache;    
+    AverageCaches* m_averageCache;
     QWidget* m_widget;
     IsViewType m_isView;
     GetViewCountType m_getViewCount;

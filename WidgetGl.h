@@ -64,7 +64,7 @@ public:
      */
     QSize sizeHint() ;
     void Init (boost::shared_ptr<Settings> settings,
-	       SimulationGroup* dataAlongTime, AverageCache* averageCache);
+	       SimulationGroup* dataAlongTime, AverageCaches* averageCache);
 
     size_t GetHighlightLineWidth () const
     {
@@ -214,6 +214,7 @@ public:
         float timeDisplacement,
         const QSlider& slider,
         const Simulation& simulation) const;
+    void CurrentIndexChangedSimulation (int index);
     
 Q_SIGNALS:
     void PaintEnd ();
@@ -287,7 +288,6 @@ public Q_SLOTS:
 			   boost::shared_ptr<ColorBarModel> colorBarModel);
     void SetOverlayBarModel (ViewNumber::Enum viewNumber, 
 			     boost::shared_ptr<ColorBarModel> colorBarModel);
-    void CurrentIndexChangedSimulation (int index);
     void CurrentIndexChangedStatisticsType (int index);
     void CurrentIndexChangedAxesOrder (int index);
     void CurrentIndexChangedSelectedLight (int selectedLight);

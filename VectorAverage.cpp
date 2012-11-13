@@ -94,7 +94,7 @@ vtkSmartPointer<vtkImageData> VectorAverage::getData () const
 }
 
 void VectorAverage::CacheData (
-    AverageCache* averageCache) const
+    boost::shared_ptr<AverageCache> averageCache) const
 {
     vtkSmartPointer<vtkImageData> data = getData ();
     averageCache->SetVelocity (data);

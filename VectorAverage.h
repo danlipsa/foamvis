@@ -22,7 +22,7 @@ class VectorAverage : public TensorAverageTemplate<SetterVelocity>
 public:
     VectorAverage (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl);
     static void InitShaders ();
-    void CacheData (AverageCache* averageCache) const;
+    void CacheData (boost::shared_ptr<AverageCache> averageCache) const;
 
 private:
     vtkSmartPointer<vtkImageData> getData () const;

@@ -184,8 +184,11 @@ WidgetGl::~WidgetGl()
 
 void WidgetGl::initStreamlines ()
 {
-    for (size_t i = 0; i < m_streamlineSeeds.size (); ++i)
+    for (size_t i = 0; i < ViewNumber::COUNT; ++i)
+    {
         m_streamlineSeeds[i] = vtkSmartPointer<vtkPolyData>::New();
+        m_streamline[i] = vtkSmartPointer<vtkPolyData>::New ();
+    }
     m_rungeKutta = vtkSmartPointer<vtkRungeKutta4>::New ();
     m_streamer = vtkSmartPointer<vtkStreamTracer>::New ();
 }
@@ -476,7 +479,7 @@ void WidgetGl::initDisplayView ()
 
 void WidgetGl::Init (
     boost::shared_ptr<Settings> settings, SimulationGroup* simulationGroup,
-    AverageCache* averageCache)
+    AverageCaches* averageCache)
 {
     WidgetBase::Init (settings, simulationGroup, averageCache);
     Foam::Bodies bodies = GetSimulation ().GetFoam (0).GetBodies ();
@@ -1233,9 +1236,6 @@ void WidgetGl::displayAverageAroundBodyOne (
     focusBody[0] = *simulation.GetFoam (
         vs.GetCurrentTime ()).FindBody (bodyId);
     displayFacesContour (focusBody, viewNumber, GetHighlightLineWidth ());
-    glEnable (GL_DEPTH_TEST);
-    displayFacesInterior (focusBody, viewNumber);
-    glDisable (GL_DEPTH_TEST);
 	
     // display body center
     glPointSize (4.0);
@@ -1257,9 +1257,7 @@ void WidgetGl::displayAverageAroundBodyTwo (
             FindBody (secondBodyId);
         displayFacesContour (focusBody, viewNumber, 
                              GetHighlightLineWidth ());
-        glEnable (GL_DEPTH_TEST);
-        displayFacesInterior (focusBody, viewNumber);
-    }    
+    }
 }
 
 
@@ -2181,12 +2179,12 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     rotationCenterEye = 
         ObjectToEye (rotationCenterEye) - getEyeTransform (viewNumber);
 
-    displayAverageAroundBodies (viewNumber, isAverageAroundRotationShown);
     GetViewAverage (viewNumber).AverageRotateAndDisplay (
 	vs.GetStatisticsType (), rotationCenterEye.xy (), angleDegrees);
     GetViewAverage (viewNumber).GetForceAverage ().Display (
 	isAverageAroundRotationShown);
     displayVelocityStreamlines (viewNumber);
+    displayAverageAroundBodies (viewNumber, isAverageAroundRotationShown);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (foam);
     displayT1s (viewNumber);
     displayContextBodies (viewNumber);
@@ -2970,7 +2968,7 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
     GetGridParams (viewNumber, &gridOrigin, &gridCellLength, &angleDegrees);
     
 
-    double* b = GetAverageCache ()->GetVelocity ()->GetBounds ();
+    double* b = GetAverageCache (viewNumber)->GetVelocity ()->GetBounds ();
     G3D::Rect2D rect = G3D::Rect2D::xyxy (b[0], b[2], b[1], b[3]);
     
     __LOG__ (cdbg << rect << ", " << angleDegrees << endl;);
@@ -3009,7 +3007,7 @@ void WidgetGl::CacheUpdateSeedsCalculateStreamline (ViewNumber::Enum viewNumber)
 
     AllTransformAverage (viewNumber, 0, DONT_ROTATE_FOR_AXIS_ORDER);
     m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
-        GetAverageCache ());
+        GetAverageCache (viewNumber));
     updateStreamlineSeeds (viewNumber);
     CalculateStreamline (viewNumber);
 
@@ -3031,7 +3029,7 @@ void WidgetGl::CacheCalculateStreamline (ViewNumber::Enum viewNumber)
 
     AllTransformAverage (viewNumber, 0, DONT_ROTATE_FOR_AXIS_ORDER);
     m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
-        GetAverageCache ());
+        GetAverageCache (viewNumber));
     if (vs.IsAverageAround () && vs.IsAverageAroundRotationShown ())
         updateStreamlineSeeds (viewNumber);
     CalculateStreamline (viewNumber);
@@ -3053,7 +3051,7 @@ void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
     if (m_streamlineSeeds[viewNumber]->GetNumberOfVerts () == 0)
         updateStreamlineSeeds (viewNumber);
         
-    m_streamer->SetInput (GetAverageCache ()->GetVelocity ());
+    m_streamer->SetInput (GetAverageCache (viewNumber)->GetVelocity ());
     m_streamer->SetSource (m_streamlineSeeds[viewNumber]);
     m_streamer->SetMaximumPropagation (vs.GetStreamlineLength ());
     m_streamer->SetIntegrationStepUnit (vtkStreamTracer::LENGTH_UNIT);
@@ -3063,8 +3061,8 @@ void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
     m_streamer->SetRotationScale (0.5);
     m_streamer->SetMaximumError (1.0e-8);
     m_streamer->Update ();
-    m_streamline[viewNumber] = 
-        vtkPolyData::SafeDownCast (m_streamer->GetOutput ());
+    m_streamline[viewNumber]->DeepCopy (
+        vtkPolyData::SafeDownCast (m_streamer->GetOutput ()));
 }
 
 
@@ -3099,7 +3097,7 @@ void WidgetGl::displayVelocityStreamline (
     vtkSmartPointer<vtkPolyData> streamline = m_streamline[viewNumber];
     const ViewSettings& vs = GetViewSettings (viewNumber);
     vtkSmartPointer<vtkImageData> velocityData = 
-        GetAverageCache ()->GetVelocity ();
+        GetAverageCache (viewNumber)->GetVelocity ();
     vtkSmartPointer<vtkFloatArray> velocityAttribute = 
         vtkFloatArray::SafeDownCast (
             velocityData->GetPointData ()->GetArray (

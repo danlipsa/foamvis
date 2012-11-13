@@ -17,7 +17,7 @@
 
 void WidgetBase::Init (
     boost::shared_ptr<Settings> settings,
-    const SimulationGroup* simulationGroup, AverageCache* averageCache)
+    const SimulationGroup* simulationGroup, AverageCaches* averageCache)
 {
     m_settings = settings;
     m_simulationGroup = simulationGroup;

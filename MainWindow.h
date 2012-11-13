@@ -277,7 +277,8 @@ private:
     bool m_playForward;
     bool m_playReverse;
     const SimulationGroup& m_simulationGroup;
-    boost::shared_ptr<AverageCache> m_averageCache;
+    boost::array<boost::shared_ptr<AverageCache>, 
+                 ViewNumber::COUNT> m_averageCache;
 };
 
 
