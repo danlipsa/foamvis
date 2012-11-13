@@ -179,6 +179,7 @@ public:
 	CompileUpdate (GetViewNumber ());
     }
     void CompileUpdate (ViewNumber::Enum viewNumber);
+    void CompileUpdateAll ();
     void UpdateAverage (ViewNumber::Enum viewNumber, int direction);
     GLuint GetColorBarTexture (ViewNumber::Enum viewNumber) const
     {

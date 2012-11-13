@@ -829,10 +829,6 @@ private:
     float m_torqueDistance;
     float m_forceTorqueLineWidth;
     G3D::Vector2 m_scaleCenter;
-    bool m_missingPressureShown;
-    bool m_missingVolumeShown;
-    bool m_objectVelocityShown;
-
     bool m_histogramShown;
     HistogramType::Options m_histogramOptions;
     bool m_domainClipped;

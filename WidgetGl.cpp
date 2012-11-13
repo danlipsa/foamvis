@@ -3262,6 +3262,12 @@ void WidgetGl::CompileUpdate (ViewNumber::Enum viewNumber)
     update ();
 }
 
+void WidgetGl::CompileUpdateAll ()
+{
+    for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
+        CompileUpdate (ViewNumber::Enum (i));
+}
+
 
 void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
 {
@@ -3980,21 +3986,21 @@ void WidgetGl::ToggledMissingPressureShown (bool checked)
 {
     makeCurrent ();
     GetSettings ()->SetMissingPressureShown (checked);
-    CompileUpdate ();
+    CompileUpdateAll ();
 }
 
 void WidgetGl::ToggledMissingVolumeShown (bool checked)
 {
     makeCurrent ();
     GetSettings ()->SetMissingVolumeShown (checked);
-    CompileUpdate ();
+    CompileUpdateAll ();
 }
 
 void WidgetGl::ToggledObjectVelocityShown (bool checked)
 {
     makeCurrent ();
     GetSettings ()->SetObjectVelocityShown (checked);
-    CompileUpdate ();
+    CompileUpdateAll ();
 }
 
 void WidgetGl::ToggledLightNumberShown (bool checked)
@@ -4121,14 +4127,14 @@ void WidgetGl::ToggledConstraintsShown (bool checked)
 {
     makeCurrent ();
     GetSettings ()->SetConstraintsShown (checked);
-    CompileUpdate ();
+    CompileUpdateAll ();
 }
 
 void WidgetGl::ToggledConstraintPointsShown (bool checked)
 {
     makeCurrent ();
     GetSettings ()->SetConstraintPointsShown (checked);
-    CompileUpdate ();
+    CompileUpdateAll ();
 }
 
 void WidgetGl::ToggledBubblePathsBodyShown (bool checked)
@@ -4157,7 +4163,7 @@ void WidgetGl::ButtonClickedTimeLinkage (int id)
 {
     makeCurrent ();
     GetSettings ()->SetTimeLinkage (TimeLinkage::Enum (id));
-    CompileUpdate ();
+    CompileUpdateAll ();
 }
 
 void WidgetGl::ToggledBodyCenterShown (bool checked)
@@ -4194,7 +4200,7 @@ void WidgetGl::ToggledEdgesTessellationShown (bool checked)
 {
     makeCurrent ();
     GetSettings ()->SetEdgesTessellationShown (checked);
-    CompileUpdate ();
+    CompileUpdateAll ();
 }
 
 
@@ -4204,7 +4210,7 @@ void WidgetGl::ToggledBubblePathsTubeUsed (bool checked)
     cdbg << "center path tube used: " << checked << endl;
     makeCurrent ();
     GetSettings ()->SetBubblePathsTubeUsed (checked);
-    CompileUpdate ();
+    CompileUpdateAll ();
 }
 
 void WidgetGl::ToggledBubblePathsLineUsed (bool checked)
@@ -4212,7 +4218,7 @@ void WidgetGl::ToggledBubblePathsLineUsed (bool checked)
     cdbg << "center path line used: " << checked << endl;
     makeCurrent ();
     GetSettings ()->SetBubblePathsLineUsed (checked);
-    CompileUpdate ();
+    CompileUpdateAll ();
 }
 
 
@@ -4585,7 +4591,7 @@ void WidgetGl::ValueChangedEdgesRadius (int sliderValue)
     GetSettings ()->SetEdgeRadiusRatio (
         static_cast<double>(sliderValue) / maximum);
     GetSettings ()->SetEdgeArrow (GetOnePixelInObjectSpace ());
-    CompileUpdate ();
+    CompileUpdateAll ();
 }
 
 
