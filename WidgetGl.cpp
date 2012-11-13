@@ -1222,6 +1222,47 @@ G3D::Vector3 WidgetGl::toObjectTransform (const QPoint& position) const
     return toObjectTransform (position, GetViewNumber ());
 }
 
+void WidgetGl::displayAverageAroundBodyOne (
+    ViewNumber::Enum viewNumber) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
+    Foam::Bodies focusBody (1);
+    size_t bodyId = vs.GetAverageAroundBodyId ();
+    // display body
+    focusBody[0] = *simulation.GetFoam (
+        vs.GetCurrentTime ()).FindBody (bodyId);
+    displayFacesContour (focusBody, viewNumber, GetHighlightLineWidth ());
+    glEnable (GL_DEPTH_TEST);
+    displayFacesInterior (focusBody, viewNumber);
+    glDisable (GL_DEPTH_TEST);
+	
+    // display body center
+    glPointSize (4.0);
+    glColor (Qt::black);
+    DisplayBodyCenter (
+        *GetSettings (), IdBodySelector (bodyId)) (focusBody[0]);
+}
+
+void WidgetGl::displayAverageAroundBodyTwo (
+    ViewNumber::Enum viewNumber) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    size_t secondBodyId = vs.GetAverageAroundSecondBodyId ();
+    if (secondBodyId != INVALID_INDEX)
+    {
+        const Simulation& simulation = GetSimulation (viewNumber);
+        Foam::Bodies focusBody (1);
+        focusBody[0] = *simulation.GetFoam (vs.GetCurrentTime ()).
+            FindBody (secondBodyId);
+        displayFacesContour (focusBody, viewNumber, 
+                             GetHighlightLineWidth ());
+        glEnable (GL_DEPTH_TEST);
+        displayFacesInterior (focusBody, viewNumber);
+    }    
+}
+
+
 void WidgetGl::displayAverageAroundBodies (
     ViewNumber::Enum viewNumber,
     bool isAverageAroundRotationShown) const
@@ -1229,7 +1270,6 @@ void WidgetGl::displayAverageAroundBodies (
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (m_averageAroundMarked && vs.IsAverageAround ())
     {
-	const Simulation& simulation = GetSimulation (viewNumber);
 	glPushAttrib (GL_CURRENT_BIT |
 		      GL_ENABLE_BIT | GL_LINE_BIT | GL_POINT_BIT);
 	if (isAverageAroundRotationShown)
@@ -1240,33 +1280,8 @@ void WidgetGl::displayAverageAroundBodies (
                 vs.GetCurrentTime (), -1, ViewSettings::DONT_TRANSLATE);
 	}
 	glDisable (GL_DEPTH_TEST);
-	// display focus body 1
-	Foam::Bodies focusBody (1);
-	size_t bodyId = vs.GetAverageAroundBodyId ();
-	focusBody[0] = *simulation.GetFoam (
-	    vs.GetCurrentTime ()).FindBody (bodyId);
-	displayFacesContour (focusBody, viewNumber, GetHighlightLineWidth ());
-	glEnable (GL_DEPTH_TEST);
-	displayFacesInterior (focusBody, viewNumber);
-	glDisable (GL_DEPTH_TEST);
-	
-	// display body center for focus body 1.
-	glPointSize (4.0);
-	glColor (Qt::black);
-	DisplayBodyCenter (
-	    *GetSettings (), IdBodySelector (bodyId)) (focusBody[0]);
-
-	// display focus body 2
-	size_t secondBodyId = vs.GetAverageAroundSecondBodyId ();
-	if (secondBodyId != INVALID_INDEX)
-	{
-	    focusBody[0] = *simulation.GetFoam (vs.GetCurrentTime ()).
-		FindBody (secondBodyId);
-	    displayFacesContour (focusBody, viewNumber, 
-				 GetHighlightLineWidth ());
-	    glEnable (GL_DEPTH_TEST);
-	    displayFacesInterior (focusBody, viewNumber);
-	}
+        displayAverageAroundBodyOne (viewNumber);
+        displayAverageAroundBodyTwo (viewNumber);
 
 	if (isAverageAroundRotationShown)
 	    glPopMatrix ();
@@ -2166,15 +2181,14 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     rotationCenterEye = 
         ObjectToEye (rotationCenterEye) - getEyeTransform (viewNumber);
 
+    displayAverageAroundBodies (viewNumber, isAverageAroundRotationShown);
     GetViewAverage (viewNumber).AverageRotateAndDisplay (
 	vs.GetStatisticsType (), rotationCenterEye.xy (), angleDegrees);
-
     GetViewAverage (viewNumber).GetForceAverage ().Display (
 	isAverageAroundRotationShown);
     displayVelocityStreamlines (viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (foam);
     displayT1s (viewNumber);
-    displayAverageAroundBodies (viewNumber, isAverageAroundRotationShown);
     displayContextBodies (viewNumber);
     displayContextBox (viewNumber, isAverageAroundRotationShown);
     T1sKDE& t1sKDE = GetViewAverage (viewNumber).GetT1sKDE ();

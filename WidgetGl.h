@@ -528,6 +528,8 @@ private:
     void displayAverageAroundBodies (
 	ViewNumber::Enum view, 
 	bool isAverageAroundRotationShown = false) const;
+    void displayAverageAroundBodyOne (ViewNumber::Enum viewNumber) const;
+    void displayAverageAroundBodyTwo (ViewNumber::Enum viewNumber) const;
 
     void displayEdgesNormal (ViewNumber::Enum view) const;
     template<typename displayEdge>
