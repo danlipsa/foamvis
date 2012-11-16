@@ -2884,10 +2884,15 @@ void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
 {
     if (direction != 0)
     {
+        const ViewSettings& vs = GetViewSettings (viewNumber);
         m_viewAverage[viewNumber]->AverageStep (direction);
-        if (GetViewSettings (viewNumber).GetVelocityVis () == 
-            VectorVis::STREAMLINE)
-            CacheCalculateStreamline (viewNumber);
+        if (vs.GetVelocityVis () == VectorVis::STREAMLINE)
+        {
+            if (vs.KDESeedsEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
+                CacheUpdateSeedsCalculateStreamline (viewNumber);
+            else
+                CacheCalculateStreamline (viewNumber);
+        }
     }
 }
 
