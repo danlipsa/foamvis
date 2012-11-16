@@ -720,6 +720,34 @@ void RemoveLayout (QWidget* widget)
     }
 }
 
+double* InterpolateAttribute (
+    vtkSmartPointer<vtkImageData> data, double point[3], 
+    const char* name, vector<double>* attribute)
+{
+    double pcoords[3];
+    double weights[4];
+    int subId;
+    double tol2 = data->GetLength ();
+    tol2 = tol2 * tol2 / 1000.0;
+
+    vtkSmartPointer<vtkCell> cell = data->FindAndGetCell (
+        point, NULL, -1, tol2, subId, pcoords, weights);
+    vtkSmartPointer<vtkFloatArray> attributes = 
+        vtkFloatArray::SafeDownCast (
+            data->GetPointData ()->GetArray (name));
+    fill (attribute->begin (), attribute->end (), 0.0);
+    for (int pointIndex = 0; pointIndex < cell->GetNumberOfPoints ();
+         ++pointIndex)
+    {
+        vtkIdType pointId = cell->GetPointId (pointIndex);
+        for (size_t i = 0; i < attribute->size (); ++i)
+            (*attribute)[i] += 
+                attributes->GetComponent (pointId, i) * weights[pointIndex];
+    }
+    return &(*attribute)[0];
+}
+
+
 
 // Template instantiations
 //======================================================================

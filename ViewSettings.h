@@ -218,7 +218,16 @@ public:
     {
         m_kdeValue = value;
     }
-    int GetKDEMultiplier () const;
+    /**
+     * Streamlines seeded based on T1s KDE have higher resolution
+     * in grid squares with high KDE value.
+     * The number of seeds of a KDE grid square is 
+     * (2*m + 1)^2 where m is the kde multiplier
+     */
+    int GetKDEMultiplier () const
+    {
+        return m_kdeMultiplier;
+    }
     void SetKDEMultiplier (int multiplier)
     {
         m_kdeMultiplier = multiplier;

@@ -485,10 +485,15 @@ private:
     void updateStreamlineSeeds (ViewNumber::Enum viewNumber);
     void updateStreamlineSeeds (ViewNumber::Enum viewNumber, 
                                 vtkSmartPointer<vtkPoints> points,
-                                vtkSmartPointer<vtkIdList> v,
+                                vtkSmartPointer<vtkCellArray> vertices,
                                 const G3D::Rect2D& r, 
                                 G3D::Vector2 gridOrigin, float gridCellLength,
-                                float angleDegrees);
+                                float angleDegrees, bool useKDESeeds);
+    void updateKDESeeds (
+        ViewNumber::Enum viewNumber,
+        vtkSmartPointer<vtkPoints> points, 
+        vtkSmartPointer<vtkCellArray> vertices, G3D::Vector2 cellCenter,
+        float cellLength);
     void displayViewDecorations (ViewNumber::Enum viewNumber);
     void displayViewFocus (ViewNumber::Enum viewNumber);
     void displayTextureColorBar (GLuint texture,

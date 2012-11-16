@@ -225,6 +225,11 @@ vtkSmartPointer<vtkImageData> CreateEmptyRegularGrid (
     size_t bodyAttribute, int extent[6], G3D::AABox bb);
 vtkSmartPointer<vtkImageData> CreateRegularGridNoAttributes (
     G3D::AABox bb, int extent[6]);
+double* InterpolateAttribute (
+    vtkSmartPointer<vtkImageData> data, double point[3], 
+    const char* name, vector<double>* attribute);
+
+
 /**
  * Fix of G3D version 8.0, 
  * Vector3::isZero () which tests against fuzzyEpsilon instead of 

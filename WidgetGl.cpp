@@ -2923,16 +2923,69 @@ void WidgetGl::GetGridParams (
     *gridOrigin = rotationCenter.xy () + gridTranslation;
 }
 
+void WidgetGl::updateKDESeeds (
+    ViewNumber::Enum viewNumber,
+    vtkSmartPointer<vtkPoints> points, vtkSmartPointer<vtkCellArray> vertices,
+    G3D::Vector2 cellCenter, float cellLength)
+{
+    //__ENABLE_LOGGING__;
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    vector<double> v(1);
+    double p[3] = {cellCenter.x, cellCenter.y, 0};
+    double kdeValue = *InterpolateAttribute (
+        GetAverageCache (viewNumber)->GetT1sKDE (),
+        p, GetViewAverage (viewNumber).GetT1sKDE ().GetId (), &v);
+    if (kdeValue > vs.GetKDEValue ())
+    {
+        VTK_CREATE (vtkIdList, cell);
+        size_t pointsPerSide = 2 * vs.GetKDEMultiplier () + 1;
+        size_t numberOfPoints = pointsPerSide * pointsPerSide;
+        vtkIdType currentId = points->GetNumberOfPoints ();
+        cell->SetNumberOfIds (numberOfPoints);
+        G3D::Vector2 lowerLeft = 
+            cellCenter - G3D::Vector2 (cellLength, cellLength) / 2;        
+        float gap = cellLength / (pointsPerSide - 1);
+        size_t currentIndex = 0;
+        for (size_t y = 0; y < pointsPerSide; ++y)
+            for (size_t x = 0; x < pointsPerSide; ++x)
+            {
+                G3D::Vector2 currentPoint = 
+                    lowerLeft + G3D::Vector2 (x * gap, y * gap);
+                points->InsertPoint (
+                    currentId, currentPoint.x, currentPoint.y, 0);
+                cell->SetId (currentIndex, currentId);                
+                currentIndex++;
+                currentId++;
+            }
+        vertices->InsertNextCell (cell);        
+        __LOG__ (cdbg << "Update KDE Seeds: " << endl <<
+                 "# points: " << points->GetNumberOfPoints () << 
+                 "# points per cell: " << cell->GetNumberOfIds () << endl;);
+        
+        __LOG__ (
+            vertices->InitTraversal ();
+            vtkIdType* points;
+            vtkIdType numberOfPoints;
+            while (vertices->GetNextCell (numberOfPoints, points))
+                cdbg << " # of cell points: " << numberOfPoints << endl;
+            cdbg << endl << endl;);
+    }
+}
+
 
 void WidgetGl::updateStreamlineSeeds (
     ViewNumber::Enum viewNumber,
-    vtkSmartPointer<vtkPoints> points, vtkSmartPointer<vtkIdList> cellVertices,
+    vtkSmartPointer<vtkPoints> points, vtkSmartPointer<vtkCellArray> vertices,
     const G3D::Rect2D& r, G3D::Vector2 gridOrigin, float gridCellLength, 
-    float angleDegrees)
+    float angleDegrees, bool useKDESeeds)
 {
+    //__ENABLE_LOGGING__;
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
     G3D::Vector2 center = simulation.GetBoundingBox ().center ().xy ();
+    points->SetNumberOfPoints (r.width () * r.height ());
+    VTK_CREATE (vtkIdList, mainGridCell);
+    mainGridCell->SetNumberOfIds (r.width () * r.height ());
     for (int y = r.y0 () ; y < r.y1 (); ++y)
         for (int x = r.x0 (); x < r.x1 (); ++x)
         {
@@ -2948,9 +3001,17 @@ void WidgetGl::updateStreamlineSeeds (
             }
 
             vtkIdType pointId = (x - r.x0 ()) + (y - r.y0 ()) * r.width ();
+            __LOG__ (cdbg << pointId << endl;);
             points->SetPoint (pointId, p.x, p.y, 0);
-            cellVertices->SetId (pointId, pointId);
+            mainGridCell->SetId (pointId, pointId);
+
+            if (useKDESeeds)
+                updateKDESeeds (viewNumber, points, vertices, p, gridCellLength);
         }
+    vertices->InsertNextCell (mainGridCell);
+    __LOG__ (cdbg << "# points: " << points->GetNumberOfPoints ()
+             << "# points per main cell: "
+             << mainGridCell->GetNumberOfIds () << endl;);
 }
 
 
@@ -2963,6 +3024,15 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
     if (! vs.IsVelocityShown () || 
         ! vs.GetVelocityVis () == VectorVis::STREAMLINE)
         return;
+
+    bool useKDESeeds = false;
+    if (vs.KDESeedsEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
+    {
+        useKDESeeds = true;
+        if (GetAverageCache (viewNumber)->GetT1sKDE () == 0)
+            m_viewAverage[viewNumber]->GetT1sKDE ().CacheData (
+                GetAverageCache (viewNumber));
+    }
 
     G3D::Vector2 gridOrigin; float gridCellLength; float angleDegrees;
     GetGridParams (viewNumber, &gridOrigin, &gridCellLength, &angleDegrees);
@@ -2979,13 +3049,10 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
                               floor (rect.y1 () + 0.5));
 
     VTK_CREATE (vtkPoints, points);
-    points->SetNumberOfPoints (rect.width () * rect.height ());
     VTK_CREATE (vtkCellArray, vertices);
-    VTK_CREATE (vtkIdList, cellVertices);
-    cellVertices->SetNumberOfIds (rect.width () * rect.height ());
-    updateStreamlineSeeds (viewNumber, points, cellVertices, 
-                           rect, gridOrigin, gridCellLength, angleDegrees);
-    vertices->InsertNextCell (cellVertices);
+    updateStreamlineSeeds (
+        viewNumber, points, vertices, 
+        rect, gridOrigin, gridCellLength, angleDegrees, useKDESeeds);
     m_streamlineSeeds[viewNumber]->SetPoints (points);
     m_streamlineSeeds[viewNumber]->SetVerts (vertices);
     __LOG__ 
@@ -3008,6 +3075,12 @@ void WidgetGl::CacheUpdateSeedsCalculateStreamline (ViewNumber::Enum viewNumber)
     AllTransformAverage (viewNumber, 0, DONT_ROTATE_FOR_AXIS_ORDER);
     m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
         GetAverageCache (viewNumber));
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    if (vs.KDESeedsEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
+    {
+        m_viewAverage[viewNumber]->GetT1sKDE ().CacheData (
+            GetAverageCache (viewNumber));
+    }
     updateStreamlineSeeds (viewNumber);
     CalculateStreamline (viewNumber);
 
@@ -3090,6 +3163,7 @@ void WidgetGl::rotateAverageAroundStreamlines (
     glTranslate (-center);    
 }
 
+
 void WidgetGl::displayVelocityStreamline (
     ViewNumber::Enum viewNumber,
     vtkSmartPointer<vtkIdList> points) const
@@ -3098,34 +3172,17 @@ void WidgetGl::displayVelocityStreamline (
     const ViewSettings& vs = GetViewSettings (viewNumber);
     vtkSmartPointer<vtkImageData> velocityData = 
         GetAverageCache (viewNumber)->GetVelocity ();
-    vtkSmartPointer<vtkFloatArray> velocityAttribute = 
-        vtkFloatArray::SafeDownCast (
-            velocityData->GetPointData ()->GetArray (
-                BodyAttribute::ToString (BodyAttribute::VELOCITY)));
-    double tol2 = velocityData->GetLength ();
-    tol2 = tol2 * tol2 / 1000.0;
     glBegin (GL_LINE_STRIP);
     for (vtkIdType i = 0; i < points->GetNumberOfIds (); ++i)
     {
         double point[3];
-        double pcoords[3];
-        double weights[4];
-        int subId;
         streamline->GetPoint (points->GetId (i), point);
 
-        vtkSmartPointer<vtkCell> cell = velocityData->FindAndGetCell (
-            point, NULL, -1, tol2, subId, pcoords, weights);
-        G3D::Vector2 velocity;
-        for (int pointIndex = 0; pointIndex < cell->GetNumberOfPoints ();
-             ++pointIndex)
-        {
-            vtkIdType pointId = cell->GetPointId (pointIndex);
-            G3D::Vector2 v (
-                velocityAttribute->GetComponent (pointId, 0),
-                velocityAttribute->GetComponent (pointId, 1));
-            velocity +=  v * weights[pointIndex];
-        }
-
+        vector<double> v(2);
+        G3D::Vector2 velocity (
+            InterpolateAttribute (
+                velocityData, point, 
+                BodyAttribute::ToString (BodyAttribute::VELOCITY), &v));
         double value = velocity.length ();
         if (vs.GetOverlayBarModel ()->GetInterval ().contains (value))
         {
@@ -3141,20 +3198,28 @@ void WidgetGl::displayVelocityStreamline (
 
 void WidgetGl::displayVelocityStreamlineSeeds (ViewNumber::Enum viewNumber) const
 {
+    //__ENABLE_LOGGING__;
     glColor (Qt::black);
     const ViewSettings& vs = GetViewSettings (viewNumber);
     glPushMatrix ();
     rotateAverageAroundStreamlines (
         viewNumber, vs.IsAverageAroundRotationShown ());
-    VTK_CREATE(vtkIdList, points);
-    m_streamlineSeeds[viewNumber]->GetVerts ()->GetCell (0, points);
+    vtkCellArray* vertices;
+    vertices = m_streamlineSeeds[viewNumber]->GetVerts ();
     glPointSize (4.0);
     glBegin (GL_POINTS);
-    for (vtkIdType i = 0; i < points->GetNumberOfIds (); ++i)
+    vtkIdType* points;
+    vtkIdType numberOfPoints;
+    vertices->InitTraversal ();
+    while (vertices->GetNextCell (numberOfPoints, points))
     {
-        double point[3];
-        m_streamlineSeeds[viewNumber]->GetPoint (points->GetId (i), point);
-        glVertex2dv (point);
+        __LOG__ (cdbg << " # of cell points: " << numberOfPoints << endl;);
+        for (vtkIdType i = 0; i < numberOfPoints; ++i)
+        {
+            double point[3];
+            m_streamlineSeeds[viewNumber]->GetPoint (points [i], point);
+            glVertex2dv (point);
+        }
     }
     glEnd ();
     glPopMatrix ();
@@ -3848,8 +3913,10 @@ void WidgetGl::OverlayBarClampClear ()
 void WidgetGl::ToggledKDESeeds (bool enabled)
 {
     makeCurrent ();
-    ViewSettings& vs = GetViewSettings ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetKDESeedsEnabled (enabled);
+    CacheUpdateSeedsCalculateStreamline (viewNumber);
     CompileUpdate ();
 }
 
@@ -4351,16 +4418,20 @@ void WidgetGl::SetOverlayBarModel (
 void WidgetGl::ValueChangedKDEValue (double value)
 {
     makeCurrent ();
-    ViewSettings& vs = GetViewSettings ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetKDEValue (value);
+    CacheUpdateSeedsCalculateStreamline (viewNumber);
     CompileUpdate ();
 }
 
 void WidgetGl::ValueChangedKDEMultiplier (int multiplier)
 {
     makeCurrent ();
-    ViewSettings& vs = GetViewSettings ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetKDEMultiplier (multiplier);
+    CacheUpdateSeedsCalculateStreamline (viewNumber);
     CompileUpdate ();    
 }
 

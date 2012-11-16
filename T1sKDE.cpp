@@ -135,7 +135,7 @@ void T1sKDE::initKernel ()
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, 
 	    GL_RGBA32F));
     RuntimeAssert (m_kernel->isValid (), 
-		   "Framebuffer initialization failed:" + GetId ());
+		   string ("Framebuffer initialization failed:") + GetId ());
     m_kernel->bind ();    
     m_gaussianInitShaderProgram->Bind (m_kernelSigma);
     ActivateShader (
@@ -194,4 +194,10 @@ size_t T1sKDE::getStepSize (size_t timeStep) const
 float T1sKDE::GetMax () const
 {
     return 1 / (m_kernelSigma * m_kernelSigma * 2 * M_PI);
+}
+
+void T1sKDE::CacheData (boost::shared_ptr<AverageCache> averageCache) const
+{
+    vtkSmartPointer<vtkImageData> data = getData (GetId ());
+    averageCache->SetT1sKDE (data);
 }

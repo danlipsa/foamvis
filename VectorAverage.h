@@ -25,8 +25,7 @@ public:
     void CacheData (boost::shared_ptr<AverageCache> averageCache) const;
 
 private:
-    vtkSmartPointer<vtkImageData> getData () const;
-    
+    vtkSmartPointer<vtkImageData> getData () const;    
 };
 
 

@@ -31,11 +31,7 @@ public:
 
     ScalarAverageTemplate (ViewNumber::Enum viewNumber, 
 			   const WidgetGl& widgetGl, string id, 
-			   QColor stepClearColor);    
-    void CacheData (
-        AverageCache* averageCache,
-        const G3D::Rect2D& objectCoord, BodyScalar::Enum property) const;
-
+			   QColor stepClearColor);
 
 protected:
     virtual void rotateAndDisplay (
@@ -48,10 +44,7 @@ protected:
 
 protected:
     static boost::shared_ptr<ScalarDisplay> m_displayShaderProgram;
-
-private:
-    vtkSmartPointer<vtkImageData> getData (
-        const G3D::Rect2D& objectCoord, BodyScalar::Enum property) const;
+    vtkSmartPointer<vtkImageData> getData (const char* name) const;
 };
 
 class ScalarAverage : public ScalarAverageTemplate<SetterVertexAttribute>

@@ -414,8 +414,9 @@ void ImageBasedAverage<PropertySetter>::save (
             float d = 0;
             if (components == 1)
                 d = data->GetComponent (y * windowCoord.width () + x, 0);
-            else
+            else if (components == 2)
             {
+                // assume a vector, compute vector length
                 float one = data->GetComponent (
                     y * windowCoord.width () + x, 0);
                 float two = data->GetComponent (

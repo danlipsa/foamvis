@@ -55,6 +55,7 @@ public:
 
     void DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep, 
 			     size_t subStep) const;
+    void CacheData (boost::shared_ptr<AverageCache> averageCache) const;
 
 protected:
     virtual void writeStepValues (

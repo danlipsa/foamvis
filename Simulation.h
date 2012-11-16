@@ -320,14 +320,13 @@ private:
 class AverageCache
 {
 public:
-    void SetScalar (BodyScalar::Enum scalar, 
-                    vtkSmartPointer<vtkImageData> average)
+    void SetT1sKDE (vtkSmartPointer<vtkImageData> average)
     {
-        m_scalarAverage[scalar] = average;
+        m_t1sKDE = average;
     }
-    vtkSmartPointer<vtkImageData> GeScalar (BodyScalar::Enum scalar) const
+    vtkSmartPointer<vtkImageData> GetT1sKDE () const
     {
-        return m_scalarAverage[scalar];
+        return m_t1sKDE;
     }
 
     void SetVelocity (vtkSmartPointer<vtkImageData> average)
@@ -341,8 +340,7 @@ public:
     }
     
 private:
-    boost::array<vtkSmartPointer<vtkImageData>, 
-                 BodyScalar::COUNT> m_scalarAverage;
+    vtkSmartPointer<vtkImageData> m_t1sKDE;
     vtkSmartPointer<vtkImageData> m_velocityAverage;
 };
 

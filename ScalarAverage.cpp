@@ -81,16 +81,15 @@ void ScalarAverageTemplate<PropertySetter>::rotateAndDisplay (
 
 template<typename PropertySetter>
 vtkSmartPointer<vtkImageData> ScalarAverageTemplate<PropertySetter>::getData (
-    const G3D::Rect2D& oc, BodyScalar::Enum property) const
+    const char* name) const
 {
-    G3D::Rect2D windowCoord = rectInside (gluProject (oc));
+    G3D::Rect2D windowCoord = this->GetWindowCoord ();
     G3D::Rect2D objectCoord = gluUnProject (
         windowCoord, GluUnProjectZOperation::SET0);
-
     vtkSmartPointer<vtkFloatArray> scalar = 
         ImageBasedAverage<PropertySetter>::getData (
             this->m_fbos.m_current, windowCoord, GL_RED);
-    scalar->SetName (BodyScalar::ToString (property));
+    scalar->SetName (name);
     
     vtkSmartPointer<vtkFloatArray> count = 
         ImageBasedAverage<PropertySetter>::getData (
@@ -101,24 +100,19 @@ vtkSmartPointer<vtkImageData> ScalarAverageTemplate<PropertySetter>::getData (
         float c = count->GetComponent (i, 0);
         if (c != 0)
             scalar->SetComponent (i, 0, scalar->GetComponent (i, 0) / c);
+        else
+            scalar->SetComponent (i, 0, 0);
     }
     int extent[6] = {0, windowCoord.width () - 1,
                      0, windowCoord.height () -1,
                      0, 0};
-    vtkSmartPointer<vtkImageData> scalarImage = CreateRegularGridNoAttributes (
+    vtkSmartPointer<vtkImageData> image = CreateRegularGridNoAttributes (
         G3D::AABox (G3D::Vector3 (objectCoord.x0y0 (), 0),
                     G3D::Vector3 (objectCoord.x1y1 (), 0)), extent);
-    scalarImage->GetPointData ()->AddArray (scalar);
-    return scalarImage;
-}
-
-template<typename PropertySetter>
-void ScalarAverageTemplate<PropertySetter>::CacheData (
-    AverageCache* averageCache,
-    const G3D::Rect2D& objectCoord, BodyScalar::Enum property) const
-{
-    vtkSmartPointer<vtkImageData> data = getData (objectCoord, property);
-    averageCache->SetScalar (property, data);
+    image->GetPointData ()->SetScalars (scalar);
+    image->GetPointData ()->SetActiveAttribute (
+        name, vtkDataSetAttributes::SCALARS);
+    return image;
 }
 
 

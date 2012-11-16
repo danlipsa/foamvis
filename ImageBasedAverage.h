@@ -73,9 +73,9 @@ public:
 	return m_fbos;
     }
     virtual void AverageInit ();
-    string GetId () const
+    const char* GetId () const
     {
-	return m_id;
+	return m_id.c_str ();
     }    
     const WidgetGl& GetWidgetGl () const
     {

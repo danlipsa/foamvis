@@ -152,6 +152,14 @@ void MainWindow::configureInterface ()
     comboBoxColor->setCurrentIndex (BodyScalar::PRESSURE);
     CurrentIndexChangedInteractionMode (InteractionMode::ROTATE);
     CurrentIndexChangedWindowLayout (ViewLayout::HORIZONTAL);
+    doubleSpinBoxKernelSigma->setToolTip (
+        "Standard deviation in bubble diameters.");
+    doubleSpinBoxKDEValue->setToolTip (
+        "Oversample streamlines for grid cells where the "
+        "center's KDE value is greater than the entered KDE value.");
+    spinBoxKDEMultiplier->setToolTip (
+        "Oversample streamlines. A grid square will "
+        "contain (2*m + 1)^2 seeds where m is the KDE multiplier.");
 }
 
 
@@ -1538,7 +1546,7 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
 	    "Rotate around the X and Y axes<br>"
 	    "press Ctrl to rotate around the X axis<br>"
 	    "press Shift to rotate around the Y axis<br>"
-	    "press Alt (or Ctrl+Shift) to rotate around the Z axis");
+	    "press Alt (or Ctrl+Shift) to rotate around the Z axis.");
 	break;
 
     case InteractionMode::SCALE:
@@ -1554,7 +1562,7 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
 	    "Translate in the X and Y plane<br>"
 	    "press Ctrl to translate along the X axis<br>"
 	    "press Shift to translate along the Y axis<br>"
-	    "press Alt (or Ctrl+Shift) to translate along the Z axis");
+	    "press Alt (or Ctrl+Shift) to translate along the Z axis.");
 	break;
     
     default:
