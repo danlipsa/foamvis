@@ -302,6 +302,7 @@ public:
 	return m_attributesInfoElements;
     }
     void SetCachePath (const string& dmpPath);
+    string GetCacheDir () const;
     string GetDmpName () const;
     void SaveRegularGrid (size_t regularGridResolution) const;
     void StoreConstraintFaces ();

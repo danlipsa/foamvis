@@ -127,13 +127,13 @@ void PipelineAverage3d::UpdateAverage (
     // calculate average
     average->AverageStep (direction);
 
-    m_threshold->SetInput (average->GetAverage ());
+    m_threshold->SetInputDataObject (average->GetAverage ());
 
     Foam::Bodies objects = foam.GetObjects ();
     for (size_t i = 0; i < objects.size (); ++i)
     {
 	vtkDataSetMapper::SafeDownCast (m_object[i]->GetMapper ())
-	    ->SetInput (objects[i]->GetPolyData ());
+	    ->SetInputDataObject (objects[i]->GetPolyData ());
 	if (vs.IsAverageAround ())
 	{
 	    G3D::Vector3 t = average->GetTranslation ();
@@ -146,7 +146,7 @@ void PipelineAverage3d::UpdateAverage (
     BOOST_FOREACH (p, foam.GetConstraintFaces ())
     {
 	vtkDataSetMapper::SafeDownCast (m_constraintSurface[i]->GetMapper ())
-	    ->SetInput (foam.GetConstraintFacesPolyData (p.first));
+	    ->SetInputDataObject (foam.GetConstraintFacesPolyData (p.first));
 	++i;
     }
 }

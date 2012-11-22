@@ -172,8 +172,8 @@ void RegularGridAverage::opStep (size_t timeStep, RegularGridAverage::OpType f)
 		GetBodyAttribute (), extent, 
 		simulation.GetBoundingBox ());
 	VTK_CREATE (vtkProbeFilter, translatedDataProbe);
-	translatedDataProbe->SetSource (regularFoam);
-	translatedDataProbe->SetInput (translatedRegularFoam);
+	translatedDataProbe->SetSourceData (regularFoam);
+	translatedDataProbe->SetInputDataObject (translatedRegularFoam);
 	translatedDataProbe->Update ();
 	regularFoam = 
 	    vtkImageData::SafeDownCast(translatedDataProbe->GetOutput ());

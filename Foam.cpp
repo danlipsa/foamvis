@@ -1107,7 +1107,7 @@ void Foam::SaveRegularGrid (size_t regularGridResolution) const
 	    regularGridResolution);
 	VTK_CREATE (vtkXMLImageDataWriter, writer);
 	writer->SetFileName (getVtiPath ().c_str ());
-	writer->SetInput (id);
+	writer->SetInputDataObject (id);
 	writer->Write ();
     }
 }
@@ -1133,7 +1133,7 @@ vtkSmartPointer<vtkImageData> Foam::calculateRegularGrid (
      vtkSmartPointer<vtkUnstructuredGrid> tetraFoamCell = getTetraGrid ();
 
     VTK_CREATE (vtkCellDataToPointData, cellToPoint);
-    cellToPoint->SetInput (tetraFoamCell);
+    cellToPoint->SetInputDataObject (tetraFoamCell);
     int extent[6] = {0, regularGridResolution -1,
                      0, regularGridResolution -1,
                      0, regularGridResolution -1};
@@ -1142,14 +1142,14 @@ vtkSmartPointer<vtkImageData> Foam::calculateRegularGrid (
 
     VTK_CREATE (vtkProbeFilter, regularProbe);
     regularProbe->SetSourceConnection (cellToPoint->GetOutputPort ());
-    regularProbe->SetInput (regularFoam);
+    regularProbe->SetInputDataObject (regularFoam);
     regularProbe->Update ();
     return vtkImageData::SafeDownCast(regularProbe->GetOutput ());
 }
 
 void Foam::SetCachePath (const string& dmpPath)
 {
-    m_cachePath = Simulation::GetCachePath () + LastDirFile (dmpPath);
+    m_cachePath = Simulation::GetBaseCacheDir () + LastDirFile (dmpPath);
 
     QFileInfo fi (m_cachePath.c_str ());
     QDir parentDir = fi.dir ();
@@ -1157,6 +1157,13 @@ void Foam::SetCachePath (const string& dmpPath)
     {
         QDir::root ().mkpath (parentDir.absolutePath ());
     }
+}
+
+string Foam::GetCacheDir () const
+{
+    QFileInfo fi (m_cachePath.c_str ());
+    QDir parentDir = fi.dir ();
+    return parentDir.absolutePath ().toStdString ();
 }
 
 string Foam::getVtiPath () const

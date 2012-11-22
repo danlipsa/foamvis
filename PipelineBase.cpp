@@ -98,7 +98,7 @@ void PipelineBase::createFocusRect ()
     normCoords->SetCoordinateSystemToNormalizedViewport ();
 
     VTK_CREATE (vtkPolyDataMapper2D, mapper);
-    mapper->SetInput (Grid);
+    mapper->SetInputDataObject (Grid);
     mapper->SetTransformCoordinate (normCoords);
     
     VTK_CREATE (vtkActor2D, focusActor);

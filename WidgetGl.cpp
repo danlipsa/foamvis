@@ -3080,6 +3080,7 @@ void WidgetGl::CacheUpdateSeedsCalculateStreamline (ViewNumber::Enum viewNumber)
     AllTransformAverage (viewNumber, 0, DONT_ROTATE_FOR_AXIS_ORDER);
     m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
         GetAverageCache (viewNumber));
+    saveVelocity (viewNumber, GetAverageCache (viewNumber)->GetVelocity ());
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.KDESeedsEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
     {
@@ -3096,6 +3097,19 @@ void WidgetGl::CacheUpdateSeedsCalculateStreamline (ViewNumber::Enum viewNumber)
 
 }
 
+void WidgetGl::saveVelocity (ViewNumber::Enum viewNumber,
+                             vtkSmartPointer<vtkImageData> velocity) const
+{
+    string cacheDir = GetSimulation (viewNumber).GetCacheDir ();
+    ostringstream ostr;    
+    ostr << cacheDir << "/velocity_" << setw (4) << setfill ('0') 
+         << GetCurrentTime () << ".vti";
+    VTK_CREATE (vtkXMLImageDataWriter, writer);
+    writer->SetFileName (ostr.str ().c_str ());
+    writer->SetInputDataObject (velocity);
+    writer->Write ();
+}
+
 void WidgetGl::CacheCalculateStreamline (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -3108,6 +3122,7 @@ void WidgetGl::CacheCalculateStreamline (ViewNumber::Enum viewNumber)
     AllTransformAverage (viewNumber, 0, DONT_ROTATE_FOR_AXIS_ORDER);
     m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
         GetAverageCache (viewNumber));
+    saveVelocity (viewNumber, GetAverageCache (viewNumber)->GetVelocity ());
     if (vs.IsAverageAround () && vs.IsAverageAroundRotationShown ())
         updateStreamlineSeeds (viewNumber);
     CalculateStreamline (viewNumber);
@@ -3129,8 +3144,9 @@ void WidgetGl::CalculateStreamline (ViewNumber::Enum viewNumber)
     if (m_streamlineSeeds[viewNumber]->GetNumberOfVerts () == 0)
         updateStreamlineSeeds (viewNumber);
         
-    m_streamer->SetInput (GetAverageCache (viewNumber)->GetVelocity ());
-    m_streamer->SetSource (m_streamlineSeeds[viewNumber]);
+    m_streamer->SetInputDataObject (
+        GetAverageCache (viewNumber)->GetVelocity ());
+    m_streamer->SetSourceData (m_streamlineSeeds[viewNumber]);
     m_streamer->SetMaximumPropagation (vs.GetStreamlineLength ());
     m_streamer->SetIntegrationStepUnit (vtkStreamTracer::LENGTH_UNIT);
     m_streamer->SetInitialIntegrationStep (vs.GetStreamlineStepLength ());

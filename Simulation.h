@@ -226,7 +226,8 @@ public:
 	return m_regularGridResolution;
     }
     void SetRegularGridResolution (size_t resolution);
-    static string GetCachePath ();
+    static string GetBaseCacheDir ();
+    string GetCacheDir () const;
 
 private:
     void MapPerFoam (FoamParamMethod* foamMethods, size_t n);

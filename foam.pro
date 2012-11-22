@@ -93,6 +93,7 @@ CONFIG(debug, debug|release) {
 # Profile
 # QMAKE_CXXFLAGS += -pg
 # QMAKE_LFLAGS += -pg
+DEFINES += vtkRenderingCore_AUTOINIT=\"2(vtkInteractionStyle,vtkRenderingOpenGL)\"
 }
 
 win32 {
@@ -138,36 +139,47 @@ LIBS += "-lboost_program_options"
 }
 else:unix {
 INCLUDEPATH += /usr/local/include
-INCLUDEPATH += /usr/local/include/vtk-5.10
+INCLUDEPATH += /usr/local/include/vtk-6.0
 INCLUDEPATH += /usr/local/qwt-5.2.1/include
 INCLUDEPATH += /usr/local/Trolltech/Qt-4.7.0/include
 
 LIBS += -L/usr/local/lib
 LIBS += -L/usr/local/qwt-5.2.1/lib
-LIBS += -L/usr/local/lib/vtk-5.10
 LIBS += -L/usr/local/Trolltech/Qt-4.7.0/lib
 
+# G3D
 LIBS += "-lGLG3D"
 LIBS += "-lG3D"
+
 LIBS += "-lzip"
 LIBS += "-lSDL"
 LIBS += "-ljpeg"
 LIBS += "-lavformat"
 LIBS += "-lavcodec"
 LIBS += "-lavutil"
-LIBS += "-lqwtd"
+LIBS += "-ldl"
 LIBS += "-lz"
 LIBS += "-lpng12"
 LIBS += "-lX11"
-LIBS += "-lvtkFiltering"
-LIBS += "-lvtkCommon"
-LIBS += "-lvtksys"
-LIBS += "-lvtkRendering"
-LIBS += "-lQVTK"
-LIBS += "-ldl"
+
+# Qwt
+LIBS += "-lqwtd"
+
+# VTK
+LIBS += "-lvtkGUISupportQt-6.0"
+LIBS += "-lvtkIOXML-6.0"
+LIBS += "-lvtkFiltersFlowPaths-6.0"
+LIBS += "-lvtkInteractionWidgets-6.0"
+LIBS += "-lvtkRenderingOpenGL-6.0"
+
+# Qt3D
 LIBS += "-lQt3D"
+
+# Gsl
 LIBS += "-lgslcblas"
 LIBS += "-lgsl"
+
+# Boost
 LIBS += "-lboost_program_options"
 }
 

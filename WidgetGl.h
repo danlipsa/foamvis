@@ -429,6 +429,8 @@ private:
     typedef void (WidgetGl::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    void saveVelocity (ViewNumber::Enum viewNumber,
+                       vtkSmartPointer<vtkImageData> velocity) const;
     float timeDisplacementMultiplier (
         const QSlider& slider,
         const Simulation& simulation) const;

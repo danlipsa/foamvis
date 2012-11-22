@@ -140,10 +140,15 @@ Simulation::Simulation () :
     }
 }
 
-string Simulation::GetCachePath ()
+string Simulation::GetBaseCacheDir ()
 {
     return (QDir::home ().absolutePath () + 
             "/" +  CACHE_DIR_NAME + "/").toStdString ();
+}
+
+string Simulation::GetCacheDir () const
+{
+    return GetFoam (0).GetCacheDir ();
 }
 
 

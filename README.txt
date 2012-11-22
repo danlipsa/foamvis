@@ -17,10 +17,10 @@ Release log
         - Remove user options for T1sKDE: 
           'Texture Size', 'Interval / Pixel' and set them automatically 
           based on 'Sigma'. Sigma is expressed in terms of bubble size.
-0.8.2553
+0.8.2553 2012-09-07
         - bug fixes (dataset fluctuates because is centered at foam center 
           instead of simulation center)
-0.8.2552    
+0.8.2552 2012-09-06   
 	- parse and process arrays (for 8balls_5)
 	- allow bubbles to appear in the simulation (for allcrypt2) and 
 	  allow bodies without any attributes (for allcrypt2)

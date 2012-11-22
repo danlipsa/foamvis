@@ -13,7 +13,7 @@
 
 #include "Enums.h"
 
-class VTK_RENDERING_EXPORT FoamvisInteractorStyle : 
+class VTKINTERACTIONSTYLE_EXPORT FoamvisInteractorStyle : 
     public vtkInteractorStyleTrackballCamera
 {
 public:
