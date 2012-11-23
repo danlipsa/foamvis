@@ -9,8 +9,8 @@
 #ifndef __HISTOGRAM_H__
 #define __HISTOGRAM_H__
 
-#include "HistogramItem.h"
-class HistogramHeight;
+class HistogramItem;
+class HistogramSettings;
 
 /**
  * Histogram that allows selection of bins.
@@ -28,35 +28,26 @@ public:
 public:
     Histogram (QWidget* parent = 0);
     bool AreAllItemsSelected () const;
-    double GetMaxValueYAxis () const
-    {
-	return m_histogramItem.getMaxValueYAxis ();
-    }
-    size_t GetMaxValueData () const;
-    double GetMinValueYAxis () const
-    {
-	return m_histogramItem.GetMinValueYAxis ();
-    }
     void GetSelectedIntervals(vector<QwtDoubleInterval>* intervals) const;
     void GetSelectedBins (
-	vector< pair<size_t, size_t> >* intervals, bool selected = true) const
-    {
-	m_histogramItem.getSelectedBins (intervals, selected);
-    }
+	vector< pair<size_t, size_t> >* intervals, bool selected = true) const;
     void SetSelectedBinsNoSignal (const vector< pair<size_t, size_t> >& bins);
-    bool IsLogValueAxis () const
-    {
-	return m_histogramItem.isLogValueAxis ();
-    }
-    void SetColorCoded (bool colorCoded = true)
-    {
-	m_histogramItem.setColorCoded (colorCoded);
-    }
+    void SetColorCoded (bool colorCoded);
     void SetColorTransferFunction (const QwtDoubleInterval& interval, 
 				   const QwtLinearColorMap& colorMap);
     void SetDisplayColorBar (bool displayColorBar = true);
-    void SetMaxValueAxis (double axisMaxValue);
-    void SetLogValueAxis (bool logValueAxis);
+    void SetYAxisLogScale (bool logYAxis);
+    bool IsYAxisLogScale () const;
+    void SetYAxisMaxValue (double axisMaxValue);
+    double GetYAxisMaxValue () const;
+    size_t GetYAxisMaxValueData () const;
+    double GetYAxisMinValue () const;
+
+    void SetXAxisLogScale (bool logYAxis);
+    void SetXAxisMaxValue (double value);
+    double GetXAxisMaxValue () const;
+    void SetXAxisMinValue (double value);
+    double GetXAxisMinValue () const;
     void SetDataKeepBinSelection (
 	const QwtIntervalData& intervalData, double maxValue,
 	const char* axisTitle);
@@ -82,7 +73,7 @@ public Q_SLOTS:
     void SelectionPointMoved (const QPoint& pos);
     void SelectionPointAppended (const QPoint& pos);
     void PolygonSelected (const QwtPolygon& poly);
-    void HistogramHeightDialog ();
+    void HistogramSettingsDialog ();
     void SetGridEnabled (bool enabled);
 
 
@@ -99,12 +90,12 @@ private:
     Q_OBJECT
 
     QwtPlotGrid m_grid;
-    HistogramItem m_histogramItem;
+    boost::shared_ptr<HistogramItem> m_histogramItem;
     QwtPlotPicker m_plotPicker;
     size_t m_beginBinSelection;
     SelectionTool m_selectionTool;
     bool m_displayColorBar;
-    boost::shared_ptr<HistogramHeight> m_histogramHeight;
+    boost::shared_ptr<HistogramSettings> m_histogramHeight;
     QSize m_sizeHint;
 
 private:

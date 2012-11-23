@@ -79,7 +79,7 @@ void AttributeHistogram::createActions ()
 	tr("&Height Settings"), this);
     m_actionHeightSettings->setStatusTip(tr("Height Settings"));
     connect(m_actionHeightSettings.get (), SIGNAL(triggered()),
-	    this, SLOT(HistogramHeightDialog ()));
+	    this, SLOT(HistogramSettingsDialog ()));
 }
 
 void AttributeHistogram::SetColorTransferFunction (

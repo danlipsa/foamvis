@@ -12,7 +12,7 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	Enums.h Foam.h FoamvisInteractorStyle.h \
 	DataProperties.h Face.h ForcesOneObject.h\
 	WidgetBase.h WidgetGl.h WidgetHistogram.h WidgetVtk.h \
-	Hashes.h Histogram.h HistogramItem.h HistogramHeight.h\
+	Hashes.h Histogram.h HistogramItem.h HistogramSettings.h\
 	HistogramStatistics.h Labels.h ListViewChange.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
 	OOBox.h Info.h ObjectPosition.h OpenGLUtils.h OrientedElement.h\
@@ -45,7 +45,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	WidgetBase.cpp WidgetGl.cpp WidgetHistogram.cpp \
 	WidgetSave.cpp WidgetVtk.cpp \
 	Hashes.cpp Histogram.cpp HistogramItem.cpp \
-	HistogramHeight.cpp main.cpp MainWindow.cpp  \
+	HistogramSettings.cpp main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
 	OOBox.cpp OpenGLUtils.cpp OrientedElement.cpp Options.cpp\
 	OrientedEdge.cpp OrientedFace.cpp AdjacentOrientedFace.cpp\
@@ -60,7 +60,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	Utils.cpp VectorAverage.cpp Vertex.cpp \
 	ViewAverage.cpp ViewSettings.cpp
 FORMS += BrowseSimulations.ui SelectBodiesById.ui EditColorMap.ui \
-	 HistogramHeight.ui RestrictedRangeSlider.ui MainWindow.ui Info.ui
+	 HistogramSettings.ui RestrictedRangeSlider.ui MainWindow.ui Info.ui
 LEXSOURCES        += EvolverData.l
 YACCSOURCES       += EvolverData.y
 RESOURCES          = foam.qrc

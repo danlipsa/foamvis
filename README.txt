@@ -10,13 +10,15 @@ Release log
         - fix regression: deselected objects are not transparent
         - save cache files in ~/.foamvis instead of the original data folder.
         - warning message in automatically generaged fragment shaders
-        - add color mapped streamlines.
+        - add color mapped streamlines (colored by velocity magnitude)
         - allow color map copy between T1s KDE with the same sigma 
           for different simulations.
         - added user option 'time interval' for bubble paths
         - Remove user options for T1sKDE: 
           'Texture Size', 'Interval / Pixel' and set them automatically 
           based on 'Sigma'. Sigma is expressed in terms of bubble size.
+        - show streamlines and KDE together and seed based on KDE value
+        - show  min and max values for the color map
 0.8.2553 2012-09-07
         - bug fixes (dataset fluctuates because is centered at foam center 
           instead of simulation center)

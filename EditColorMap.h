@@ -31,7 +31,8 @@ public Q_SLOTS:
     void ClampHigh (double value);
     void ClampLow (double value);
     void ClampClear ();
-    void ToggledColorCodedHistogram(bool checked);
+    void ToggledColorCodedHistogram (bool checked);
+    void ToggledLog10Values (bool checked);
     void CurrentIndexChangedType (int i);
     void ClickedHighlight0 ();
     void ClickedHighlight1 ();

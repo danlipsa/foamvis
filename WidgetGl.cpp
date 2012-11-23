@@ -1618,38 +1618,39 @@ void WidgetGl::displayAxes (ViewNumber::Enum viewNumber)
 {
     if (m_axesShown)
     {
-	const Simulation& simulation = GetSimulation (viewNumber);
-
-	QFont font;
-	float a;
-	QFontMetrics fm (font);
-	ostringstream ostr;
-	ostr << setprecision (4);
 	glPushAttrib (GL_CURRENT_BIT);
-	const G3D::AABox& aabb = simulation.GetBoundingBox ();
-	G3D::Vector3 origin = aabb.low ();
-	G3D::Vector3 diagonal = aabb.high () - origin;
-	G3D::Vector3 first = origin + diagonal.x * G3D::Vector3::unitX ();
-	G3D::Vector3 second = origin + diagonal.y * G3D::Vector3::unitY ();
-	G3D::Vector3 third = origin + diagonal.z * G3D::Vector3::unitZ ();
-
 	DisplayOrientedSegmentQuadric displayOrientedEdge (
 	    GetQuadricObject (), 
 	    GetSettings ()->GetArrowBaseRadius (), 
 	    GetSettings ()->GetEdgeRadius (), GetSettings ()->GetArrowHeight (),
 	    DisplaySegmentArrow1::TOP_END);
 
+	const Simulation& simulation = GetSimulation (viewNumber);
+	QFont font;
+	float a;
+	QFontMetrics fm (font);
+	ostringstream ostr;
+	ostr << setprecision (4);
+	const G3D::AABox& aabb = simulation.GetBoundingBox ();
+	G3D::Vector3 origin = aabb.low ();
+	G3D::Vector3 diagonal = aabb.high () - origin;
+	G3D::Vector3 first = origin + diagonal.x * G3D::Vector3::unitX ();
+	G3D::Vector3 second = origin + diagonal.y * G3D::Vector3::unitY ();
+	G3D::Vector3 third = origin + diagonal.z * G3D::Vector3::unitZ ();
 	a = fm.height () * GetOnePixelInObjectSpace ();
+
+        // Display the X axis
 	glColor (Qt::red);
 	displayOrientedEdge (origin, first);
 	glColor (Qt::black);
 	ostr.str ("");
 	ostr  << first.x;
-	renderText (first.x + a, first.y - a, first.z, ostr.str ().c_str ());
+	renderText (first.x, first.y - a, first.z, ostr.str ().c_str ());
 	ostr.str ("");ostr  << origin.x;
-	renderText (origin.x + a, origin.y - a, origin.z, ostr.str ().c_str ());
+	renderText (origin.x, origin.y - a, origin.z, ostr.str ().c_str ());
 
-	glColor (Qt::green);
+	// Display the Y axis
+        glColor (Qt::green);
 	displayOrientedEdge (origin, second);
 	glColor (Qt::black);
 	ostr.str ("");ostr << second.y;
@@ -1659,6 +1660,7 @@ void WidgetGl::displayAxes (ViewNumber::Enum viewNumber)
 
 	if (! simulation.Is2D ())
 	{
+            // Display the Z axis
 	    glColor (Qt::blue);
 	    displayOrientedEdge (origin, third);
 	    glColor (Qt::black);
@@ -2712,7 +2714,8 @@ void WidgetGl::displayViewFocus (ViewNumber::Enum viewNumber)
     G3D::Vector2 margin (1, 1);
     G3D::Rect2D rect = G3D::Rect2D::xyxy(
 	viewRect.x0y0 () + margin, viewRect.x1y1 () - margin);
-    glColor (GetSettings ()->GetHighlightColor (viewNumber, HighlightNumber::H0));
+    glColor (
+        GetSettings ()->GetHighlightColor (viewNumber, HighlightNumber::H0));
     glPolygonMode (GL_FRONT, GL_LINE);
     DisplayBox (rect);
 }
@@ -2735,10 +2738,49 @@ void WidgetGl::displayTextureColorBar (
     glEnd ();
     glDisable (GL_TEXTURE_1D);
 
-    glColor (GetSettings ()->GetHighlightColor (viewNumber, HighlightNumber::H0));
+    glColor (
+        GetSettings ()->GetHighlightColor (viewNumber, HighlightNumber::H0));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     DisplayBox (colorBarRect);
     glPopAttrib ();
+    displayBarLabels (viewNumber, colorBarRect);
+}
+
+void WidgetGl::displayBarLabels (
+    ViewNumber::Enum viewNumber, const G3D::Rect2D& colorBarRect)
+{
+    float onePixelInObjectSpace = GetOnePixelInObjectSpace ();
+    QFont font;
+    float distance = 5 * onePixelInObjectSpace;
+    QFontMetrics fm (font);
+    ostringstream ostr;
+    ostr << scientific << setprecision (1);
+    G3D::Vector2 minPos = colorBarRect.x1y0 () + G3D::Vector2 (distance, 0);
+    G3D::Vector2 maxPos = colorBarRect.x1y1 () + G3D::Vector2 (distance, 0);
+    boost::shared_ptr<ColorBarModel> cbm = 
+        GetViewSettings (viewNumber).GetColorBarModel ();
+    QwtDoubleInterval interval = cbm->GetInterval ();
+    glColor (cbm->GetHighlightColor (HighlightNumber::H0));
+    ostr.str ("");
+    ostr  << interval.minValue ();
+    renderText (minPos.x, minPos.y, 0, ostr.str ().c_str ());
+    ostr.str ("");ostr  << interval.maxValue ();
+
+    QRect br = fm.tightBoundingRect (ostr.str ().c_str ());
+    maxPos -= G3D::Vector2 (0, br.height () * onePixelInObjectSpace);
+    renderText (maxPos.x, maxPos.y, 0, ostr.str ().c_str ());
+    if (cbm->IsClampedMin ())
+    {
+        ostr.str ("");ostr << cbm->GetClampMin ();
+        minPos += G3D::Vector2 (0, fm.height () * onePixelInObjectSpace);
+        renderText (minPos.x, minPos.y, 0, ostr.str ().c_str ());
+    }
+    if (cbm->IsClampedMax ())
+    {
+        ostr.str ("");ostr << cbm->GetClampMax ();
+        maxPos -= G3D::Vector2 (0, fm.height () * onePixelInObjectSpace);
+        renderText (maxPos.x, maxPos.y, 0, ostr.str ().c_str ());
+    }
 }
 
 void WidgetGl::displayOverlayBar (

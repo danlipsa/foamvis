@@ -17,7 +17,8 @@ const size_t ColorBarModel::COLORS = 256;
 ColorBarModel::ColorBarModel () :
     m_image (COLORS, 1, QImage::Format_RGB32),
     m_interval (0, 1),
-    m_clampValues (0, 1)
+    m_clampInterval (0, 1),
+    m_log10 (false)
 {
     m_ctf = vtkColorTransferFunction::New ();
     m_colorTransferFunction = vtkColorTransferFunction::New ();
@@ -246,14 +247,14 @@ void ColorBarModel::setup ()
 
 void ColorBarModel::adjustColorTransferFunction ()
 {
-    // [0,1] -> m_clampValues 
+    // [0,1] -> m_clampInterval 
     m_colorTransferFunction->SetColorSpace (m_ctf->GetColorSpace ());
     for (int i = 0; i < m_ctf->GetSize (); ++i)
     {
 	double v[6];
 	m_ctf->GetNodeValue (i, v);
-	v[0] = m_clampValues.minValue () +
-	    v[0] * (m_clampValues.maxValue () - m_clampValues.minValue ());
+	v[0] = m_clampInterval.minValue () +
+	    v[0] * (m_clampInterval.maxValue () - m_clampInterval.minValue ());
 	m_colorTransferFunction->AddRGBPoint (
 	    v[0], v[1], v[2], v[3], v[4], v[5]);
     }
@@ -264,8 +265,8 @@ void ColorBarModel::setupColorMap ()
 {
     m_colorMap.setColorInterval (getColor (0), getColor (1));
     double width = m_interval.width ();
-    double low = (m_clampValues.minValue () -  m_interval.minValue ()) / width;
-    double high = (m_clampValues.maxValue () -  m_interval.minValue ()) / width;
+    double low = (m_clampInterval.minValue () -  m_interval.minValue ()) / width;
+    double high = (m_clampInterval.maxValue () -  m_interval.minValue ()) / width;
     if (low != 0)
 	m_colorMap.addColorStop (low, getColor (0));
     if (high != 1)
@@ -284,8 +285,8 @@ void ColorBarModel::setupColorMap ()
 void ColorBarModel::setupImage ()
 {
     double width = m_interval.width ();
-    double low = (m_clampValues.minValue () -  m_interval.minValue ()) / width;
-    double high = (m_clampValues.maxValue () -  m_interval.minValue ()) / width;
+    double low = (m_clampInterval.minValue () -  m_interval.minValue ()) / width;
+    double high = (m_clampInterval.maxValue () -  m_interval.minValue ()) / width;
     size_t colors = COLORS - 1;
     for (size_t i = 0; i <= colors; i++)
     {
@@ -320,6 +321,21 @@ string ColorBarModel::ToString () const
     ostringstream ostr;
     ostr << "palette: " << m_palette
 	 << ", interval: " << m_interval
-	 << ", clamping: " << m_clampValues << endl;
+	 << ", clamping: " << m_clampInterval << endl;
     return ostr.str ();
+}
+
+void ColorBarModel::SetLog10 (bool log10)
+{
+    m_log10 = log10;
+}
+
+bool ColorBarModel::IsClampedMin () const
+{
+    return m_clampInterval.minValue () > m_interval.minValue ();
+}
+
+bool ColorBarModel::IsClampedMax () const
+{
+    return m_clampInterval.maxValue () < m_interval.maxValue ();
 }

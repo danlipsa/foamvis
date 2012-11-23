@@ -9,8 +9,9 @@
 #include "Application.h"
 #include "DebugStream.h"
 #include "Histogram.h"
-#include "HistogramHeight.h"
+#include "HistogramSettings.h"
 #include "HistogramStatistics.h"
+#include "HistogramItem.h"
 
 
 const QSize Histogram::SIZE_HINT (200, 200);
@@ -21,13 +22,14 @@ const QSize Histogram::SIZE_HINT (200, 200);
  */
 Histogram::Histogram (QWidget* parent) :
     QwtPlot (parent), 
+    m_histogramItem (new HistogramItem ()),
     m_plotPicker (QwtPlot::xBottom, QwtPlot::yLeft,
 		  QwtPicker::RectSelection | QwtPicker::DragSelection, 
 		  QwtPlotPicker::NoRubberBand,
 		  QwtPicker::AlwaysOff,
 		  canvas()),
     m_selectionTool (ERASER),
-    m_histogramHeight (new HistogramHeight (this)),
+    m_histogramHeight (new HistogramSettings (this)),
     m_sizeHint (SIZE_HINT)
 {
     setCanvasBackground(QColor(Qt::white));
@@ -42,10 +44,10 @@ Histogram::Histogram (QWidget* parent) :
     m_grid.attach(this);
     SetGridEnabled (true);
 
-    m_histogramItem.setFocusColor(Qt::darkCyan);
-    m_histogramItem.setContextColor(QColor(Qt::lightGray).lighter (110));
-    m_histogramItem.setOutOfBoundsColor(Qt::red);
-    m_histogramItem.attach(this);
+    m_histogramItem->setFocusColor(Qt::darkCyan);
+    m_histogramItem->setContextColor(QColor(Qt::lightGray).lighter (110));
+    m_histogramItem->setOutOfBoundsColor(Qt::red);
+    m_histogramItem->attach(this);
 
     m_plotPicker.setEnabled (false);
 
@@ -82,7 +84,7 @@ void Histogram::alignScales()
 
 size_t Histogram::getBin (double value)
 {
-    const QwtIntervalData& data = m_histogramItem.data ();
+    const QwtIntervalData& data = m_histogramItem->data ();
     size_t binCount = data.size ();
     return HistogramStatistics::GetBin (
 	value, binCount,
@@ -93,7 +95,7 @@ void Histogram::SelectionPointAppended (const QPoint &canvasPos)
 {
     double value = invTransform(QwtPlot::xBottom, canvasPos.x());
     m_beginBinSelection = getBin (value);
-    m_histogramItem.setSelected (m_selectionTool == BRUSH,
+    m_histogramItem->setSelected (m_selectionTool == BRUSH,
 				 m_beginBinSelection, m_beginBinSelection + 1);
 }
 
@@ -104,7 +106,7 @@ void Histogram::SelectionPointMoved (const QPoint& canvasPos)
     size_t end = getBin (value);
     if (begin > end)
 	swap (begin, end);
-    m_histogramItem.setSelected (m_selectionTool == BRUSH, begin, end + 1);
+    m_histogramItem->setSelected (m_selectionTool == BRUSH, begin, end + 1);
 }
 
 void Histogram::PolygonSelected (const QwtPolygon& poly)
@@ -115,7 +117,7 @@ void Histogram::PolygonSelected (const QwtPolygon& poly)
 
 void Histogram::SetAllItemsSelection (bool selected)
 {
-    m_histogramItem.setAllItemsSelected (selected);
+    m_histogramItem->setAllItemsSelected (selected);
     Q_EMIT SelectionChanged ();
 }
 
@@ -125,7 +127,7 @@ bool Histogram::AreAllItemsSelected () const
     GetSelectedBins (&selectedBins);
     return selectedBins.size () == 1 &&
 	selectedBins[0].first == 0 && 
-	selectedBins[0].second == m_histogramItem.data ().size ();
+	selectedBins[0].second == m_histogramItem->data ().size ();
 }
 
 void Histogram::SetSelectionTool (SelectionTool selectionTool)
@@ -174,8 +176,8 @@ void Histogram::SetDataAllBinsSelected (
 void Histogram::SetSelectedBinsNoSignal (
     const vector< pair<size_t, size_t> >& bins)
 {
-    m_histogramItem.setAllItemsSelected (false);
-    m_histogramItem.setSelectedBins (bins);
+    m_histogramItem->setAllItemsSelected (false);
+    m_histogramItem->setSelectedBins (bins);
     replot ();
 }
 
@@ -183,7 +185,7 @@ void Histogram::SetSelectedBinsNoSignal (
 void Histogram::SetDataKeepBinSelection (
     const QwtIntervalData& intervalData, double maxValue, const char* axisTitle)
 {
-    if (m_histogramItem.data ().size () == 0)
+    if (m_histogramItem->data ().size () == 0)
 	SetDataAllBinsSelected (intervalData, maxValue, axisTitle);
     else
     {
@@ -200,18 +202,19 @@ void Histogram::setData (
     const QwtIntervalData& intervalData, double maxValue,
     const vector< pair<size_t, size_t> >* selectedBins)
 {
-    m_histogramItem.setData(intervalData, maxValue, selectedBins);
-    setAxisScale(QwtPlot::yLeft, GetMinValueYAxis (), maxValue);
-    setAxisScale(
-	QwtPlot::xBottom,
-	intervalData.interval (0).minValue (),
-	intervalData.interval (intervalData.size () - 1).maxValue ());
+    m_histogramItem->setData(intervalData, maxValue, selectedBins);
+    setAxisScale(QwtPlot::yLeft, GetYAxisMinValue (), maxValue);
+
+    SetXAxisMinValue (intervalData.interval (0).minValue ());
+    SetXAxisMaxValue (
+        intervalData.interval (intervalData.size () - 1).maxValue ());
+    setAxisScale(QwtPlot::xBottom, GetXAxisMinValue (), GetXAxisMaxValue ());
 }
 
-void Histogram::SetMaxValueAxis (double maxValueAxis)
+void Histogram::SetYAxisMaxValue (double maxValueAxis)
 {
-    m_histogramItem.setMaxValueAxis (maxValueAxis);
-    setAxisScale(QwtPlot::yLeft, GetMinValueYAxis (), maxValueAxis);
+    m_histogramItem->SetYAxisMaxValue (maxValueAxis);
+    setAxisScale(QwtPlot::yLeft, GetYAxisMinValue (), maxValueAxis);
 }
 
 void Histogram::SetGridEnabled (bool enabled)
@@ -230,24 +233,34 @@ bool Histogram::IsGridEnabled () const
 void Histogram::GetSelectedIntervals (
     vector<QwtDoubleInterval>* intervals) const
 {
-    m_histogramItem.getSelectedIntervals (intervals);
+    m_histogramItem->getSelectedIntervals (intervals);
 }
 
-size_t Histogram::GetMaxValueData () const
+size_t Histogram::GetYAxisMaxValueData () const
 {
-    QwtDoubleRect rect = m_histogramItem.boundingRect ();
+    QwtDoubleRect rect = m_histogramItem->boundingRect ();
     return rect.y () + rect.height ();
 }
 
-void Histogram::SetLogValueAxis (bool logValueAxis)
+void Histogram::SetYAxisLogScale (bool logYAxis)
 {
-    m_histogramItem.setLogValueAxis (logValueAxis);
-    SetMaxValueAxis (GetMaxValueYAxis ());
-    if (logValueAxis)
+    m_histogramItem->SetYAxisLogScale (logYAxis);
+    SetYAxisMaxValue (GetYAxisMaxValue ());
+    if (logYAxis)
 	setAxisScaleEngine (QwtPlot::yLeft, new QwtLog10ScaleEngine);
     else
 	setAxisScaleEngine (QwtPlot::yLeft, new QwtLinearScaleEngine);
 }
+
+void Histogram::SetXAxisLogScale (bool logXAxis)
+{
+    m_histogramItem->SetXAxisLogScale (logXAxis);
+    if (logXAxis)
+	setAxisScaleEngine (QwtPlot::xBottom, new QwtLog10ScaleEngine);
+    else
+	setAxisScaleEngine (QwtPlot::xBottom, new QwtLinearScaleEngine);
+}
+
 
 void Histogram::SetDisplayColorBar (bool displayColorBar)
 {    
@@ -259,38 +272,84 @@ void Histogram::SetDisplayColorBar (bool displayColorBar)
 void Histogram::SetColorTransferFunction (const QwtDoubleInterval& interval, 
 					  const QwtLinearColorMap& colorMap)
 {
-    m_histogramItem.setColorMap (colorMap);    
+    m_histogramItem->setColorMap (colorMap);    
     QwtScaleWidget* scaleWidget = axisWidget (QwtPlot::xBottom);
-    scaleWidget->setColorMap (interval, m_histogramItem.getColorMap ());
+    scaleWidget->setColorMap (interval, m_histogramItem->getColorMap ());
 }
 
-void Histogram::HistogramHeightDialog ()
+void Histogram::HistogramSettingsDialog ()
 {
-    m_histogramHeight->SetValue (GetMaxValueYAxis ());
-    m_histogramHeight->SetMaximumValue (GetMaxValueData ());
-    m_histogramHeight->SetLogScale (IsLogValueAxis ());
+    m_histogramHeight->SetYValue (GetYAxisMaxValue ());
+    m_histogramHeight->SetYAxisMaxValue (GetYAxisMaxValueData ());
+    m_histogramHeight->SetYAxisLogScale (IsYAxisLogScale ());
     if (m_histogramHeight->exec () == QDialog::Accepted)
     {
-	SetLogValueAxis (
-	    m_histogramHeight->IsLogScale () ? true : false);
-	SetMaxValueAxis (m_histogramHeight->GetValue ());
+	SetYAxisLogScale (m_histogramHeight->IsYAxisLogScale ());
+	SetYAxisMaxValue (m_histogramHeight->GetYValue ());
     }
 }
 
 void Histogram::SetItemsSelectionHigh (bool selected, double value)
 {
     size_t begin = getBin (value);
-    size_t binCount = m_histogramItem.data ().size ();
-    m_histogramItem.setSelected (selected, begin, binCount);
+    size_t binCount = m_histogramItem->data ().size ();
+    m_histogramItem->setSelected (selected, begin, binCount);
 }
 
 void Histogram::SetItemsSelectionLow (bool selected, double value)
 {
     size_t end = getBin (value);
-    m_histogramItem.setSelected (selected, 0, end + 1);
+    m_histogramItem->setSelected (selected, 0, end + 1);
 }
 
 QSize Histogram::sizeHint () const
 {
     return m_sizeHint;
+}
+
+void Histogram::SetColorCoded (bool colorCoded)
+{
+    m_histogramItem->setColorCoded (colorCoded);
+}
+
+double Histogram::GetYAxisMaxValue () const
+{
+    return m_histogramItem->GetYAxisMaxValue ();
+}
+
+double Histogram::GetYAxisMinValue () const
+{
+    return m_histogramItem->GetYAxisMinValue ();
+}
+
+double Histogram::GetXAxisMaxValue () const
+{
+    return m_histogramItem->GetXAxisMaxValue ();
+}
+
+void Histogram::SetXAxisMaxValue (double value)
+{
+    m_histogramItem->SetXAxisMaxValue (value);
+}
+
+
+double Histogram::GetXAxisMinValue () const
+{
+    return m_histogramItem->GetXAxisMinValue ();
+}
+
+void Histogram::SetXAxisMinValue (double value)
+{
+    m_histogramItem->SetXAxisMinValue (value);
+}
+
+bool Histogram::IsYAxisLogScale () const
+{
+    return m_histogramItem->IsYAxisLogScale ();
+}
+
+void Histogram::GetSelectedBins (
+    vector< pair<size_t, size_t> >* intervals, bool selected) const
+{
+    m_histogramItem->getSelectedBins (intervals, selected);
 }

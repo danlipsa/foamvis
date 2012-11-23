@@ -8,22 +8,28 @@ class HistogramItem::PrivateData
 public:
     PrivateData () :
         attributes (HistogramItem::Auto),
-        maxValueAxis (0),
 	reference (0.0),
-	logValueAxis (false),
+        xAxisLogScale (false),
+        xAxisMaxValue (0),
+        xAxisMinValue (0),
+	yAxisLogScale (false),
+        yAxisMaxValue (0),
 	colorCoded (false)
     {
     }
     
     int attributes;
     QwtIntervalData data;
-    double maxValueAxis;
     QColor focusColor;
     QColor contextColor;
     QColor outOfBoundsColor;
     double reference;
     QBitArray selected;
-    bool logValueAxis;
+    bool xAxisLogScale;
+    double xAxisMaxValue;
+    double xAxisMinValue;
+    bool yAxisLogScale;
+    double yAxisMaxValue;
     bool colorCoded;
     QwtLinearColorMap colorMap;
 };
@@ -70,11 +76,11 @@ double HistogramItem::baseline() const
 
 void HistogramItem::setData(
     const QwtIntervalData &data,
-    double maxValue,
+    double yAxisMaxValue,
     const vector< pair<size_t, size_t> >* selectedBins)
 {
     d_data->data = data;
-    d_data->maxValueAxis = maxValue;
+    d_data->yAxisMaxValue = yAxisMaxValue;
     d_data->selected.resize (data.size ());
 
     if (selectedBins != 0)
@@ -87,14 +93,34 @@ void HistogramItem::setData(
     itemChanged();
 }
 
-void HistogramItem::setMaxValueAxis (double maxValue)
+void HistogramItem::SetYAxisMaxValue (double yAxisMaxValue)
 {
-    d_data->maxValueAxis = maxValue;
+    d_data->yAxisMaxValue = yAxisMaxValue;
 }
 
-double HistogramItem::getMaxValueYAxis () const
+double HistogramItem::GetYAxisMaxValue () const
 {
-    return d_data->maxValueAxis;
+    return d_data->yAxisMaxValue;
+}
+
+void HistogramItem::SetXAxisMaxValue (double xAxisMaxValue)
+{
+    d_data->xAxisMaxValue = xAxisMaxValue;
+}
+
+double HistogramItem::GetXAxisMaxValue () const
+{
+    return d_data->xAxisMaxValue;
+}
+
+void HistogramItem::SetXAxisMinValue (double xAxisMinValue)
+{
+    d_data->xAxisMinValue = xAxisMinValue;
+}
+
+double HistogramItem::GetXAxisMinValue () const
+{
+    return d_data->xAxisMinValue;
 }
 
 void HistogramItem::setAllItemsSelected (bool selected)
@@ -202,10 +228,10 @@ void HistogramItem::drawBar (
     int y2 = yMap.transform(value);
     if ( y2 == y0 )
 	return;
-    y0 = yMap.transform (GetMinValueYAxis ());
-    if (value > d_data->maxValueAxis)
+    y0 = yMap.transform (GetYAxisMinValue ());
+    if (value > d_data->yAxisMaxValue)
     {
-	y2 = yMap.transform (d_data->maxValueAxis);
+	y2 = yMap.transform (d_data->yAxisMaxValue);
 	outside = true;
     }
 
@@ -272,8 +298,8 @@ void HistogramItem::drawDeselectedRegion (
     painter->setPen(Qt::NoPen);
 
     const QwtIntervalData &iData = d_data->data;
-    const int y1 = yMap.transform(GetMinValueYAxis ());
-    const int y2 = yMap.transform(getMaxValueYAxis ());
+    const int y1 = yMap.transform(GetYAxisMinValue ());
+    const int y2 = yMap.transform(GetYAxisMaxValue ());
     int x1 = xMap.transform(iData.interval(beginRegion).minValue());
     int x2 = xMap.transform(iData.interval(endRegion - 1).maxValue());
     QRect paintRect (x1, y1, x2 - x1, y2 - y1);
@@ -369,20 +395,31 @@ void HistogramItem::setOutOfBoundsColor (const QColor& color)
     d_data->outOfBoundsColor = color;
 }
 
-double HistogramItem::GetMinValueYAxis () const
+double HistogramItem::GetYAxisMinValue () const
 {
-    return (d_data->logValueAxis ? logScaleZero : 0);
+    return (d_data->yAxisLogScale ? logScaleZero : 0);
 }
 
-bool HistogramItem::isLogValueAxis () const
+bool HistogramItem::IsYAxisLogScale () const
 {
-    return d_data->logValueAxis;
+    return d_data->yAxisLogScale;
 }
 
-void HistogramItem::setLogValueAxis (bool logValueAxis)
+void HistogramItem::SetYAxisLogScale (bool logYAxis)
 {
-    d_data->logValueAxis = logValueAxis;
+    d_data->yAxisLogScale = logYAxis;
 }
+
+bool HistogramItem::IsXAxisLogScale () const
+{
+    return d_data->xAxisLogScale;
+}
+
+void HistogramItem::SetXAxisLogScale (bool logAxis)
+{
+    d_data->xAxisLogScale = logAxis;
+}
+
 
 void HistogramItem::setColorCoded (bool colorCoded)
 {

@@ -1816,7 +1816,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     {
         const AttributeHistogram& histogram = 
             widgetHistogram->GetHistogram (viewNumber);
-        if (histogram.GetMaxValueYAxis () == 0)
+        if (histogram.GetYAxisMaxValue () == 0)
             sliderTimeSteps->SetFullRange ();
         else
         {

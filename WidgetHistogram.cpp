@@ -147,7 +147,7 @@ void WidgetHistogram::Update (boost::shared_ptr<ColorBarModel> colorBarModel,
     if (maxValueOperation == KEEP_MAX_VALUE)
     {
         // keep max value only if it was set before
-        double myv = m_histogram[viewNumber]->GetMaxValueYAxis ();
+        double myv = m_histogram[viewNumber]->GetYAxisMaxValue ();
         if (myv != 0)
             maxYValue = myv;
     }

@@ -37,11 +37,17 @@ public:
         const QwtScaleMap &yMap, const QRect &) const;
     QColor focusColor () const;
     const QwtLinearColorMap& getColorMap () const;
-    double getMaxValueYAxis () const;
-    double GetMinValueYAxis () const;
-    bool isLogValueAxis () const;
-
-
+    bool IsXAxisLogScale () const;
+    void SetXAxisLogScale (bool logAxis);
+    double GetXAxisMaxValue () const;
+    void SetXAxisMaxValue (double maxValue);
+    double GetXAxisMinValue () const;
+    void SetXAxisMinValue (double minValue);
+    bool IsYAxisLogScale () const;
+    void SetYAxisLogScale (bool logAxis);
+    double GetYAxisMaxValue () const;
+    void SetYAxisMaxValue (double maxValue);
+    double GetYAxisMinValue () const;    
     virtual int rtti () const;
     void setFocusColor (const QColor& color);
     void setContextColor (const QColor& color);
@@ -49,13 +55,11 @@ public:
     void setBaseline (double reference);
     void setData (
 	const QwtIntervalData &data,
-	double maxValue,
+	double yAxisMaxValue,
 	const vector< pair<size_t, size_t> >* selectedBins = 0);
-    void setMaxValueAxis (double maxValue);
     void setHistogramAttribute (HistogramAttribute, bool on = true);
     void setColorCoded (bool enable);
     void setColorMap (const QwtLinearColorMap& colorMap);
-    void setLogValueAxis (bool logValueAxis);
     bool testHistogramAttribute (HistogramAttribute) const;
 
     /**

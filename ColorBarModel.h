@@ -27,9 +27,9 @@ public:
     {
 	return m_image;
     }    
-    const QwtDoubleInterval& GetClampValues () const
+    const QwtDoubleInterval& GetClampInterval () const
     {
-	return m_clampValues;
+	return m_clampInterval;
     }
     const QwtDoubleInterval& GetInterval () const
     {
@@ -46,29 +46,37 @@ public:
     void SetInterval (QwtDoubleInterval interval)
     {
 	m_interval = interval;
-	m_clampValues = interval;
+	m_clampInterval = interval;
     }
-    void SetClampHigh (double clampHigh)
+    void SetClampMax (double clampHigh)
     {
-	m_clampValues.setMaxValue (clampHigh);
+	m_clampInterval.setMaxValue (clampHigh);
     }
-    void SetClampLow (double clampLow)
+    double GetClampMax () const
     {
-	m_clampValues.setMinValue (clampLow);
+        return m_clampInterval.maxValue ();
     }
-    void SetClampValues (const QwtDoubleInterval& clampValues)
+    void SetClampMin (double clampLow)
     {
-	m_clampValues = clampValues;
+	m_clampInterval.setMinValue (clampLow);
+    }
+    double GetClampMin () const
+    {
+        return m_clampInterval.minValue ();
+    }
+    void SetClampInterval (const QwtDoubleInterval& clampValues)
+    {
+	m_clampInterval = clampValues;
     }
     void SetClampClear ()
     {
-	m_clampValues = m_interval;
+	m_clampInterval = m_interval;
 	SetupPalette (GetPalette ());
     }
-    void SetClampHighMinimum ()
+    void SetClampMaxMinimum ()
     {
-	m_clampValues.setMinValue (m_interval.minValue ());
-	m_clampValues.setMaxValue (m_interval.minValue ());
+	m_clampInterval.setMinValue (m_interval.minValue ());
+	m_clampInterval.setMaxValue (m_interval.minValue ());
 	SetupPalette (GetPalette ());
     }
 
@@ -84,6 +92,13 @@ public:
 	m_highlightColor[i] = color;
     }
     double TexCoord (double value) const;
+    void SetLog10 (bool log10);
+    bool IsLog10 () const
+    {
+        return m_log10;
+    }
+    bool IsClampedMin () const;
+    bool IsClampedMax () const;
     string ToString () const;
 
     static const size_t COLORS;
@@ -111,11 +126,12 @@ private:
     QwtLinearColorMap m_colorMap;
     QImage m_image;
     QwtDoubleInterval m_interval;
-    QwtDoubleInterval m_clampValues;
+    QwtDoubleInterval m_clampInterval;
     vtkSmartPointer<vtkColorTransferFunction> m_ctf;
     vtkSmartPointer<vtkColorTransferFunction> m_colorTransferFunction;
     QString m_title;
     boost::array<QColor,HighlightNumber::COUNT> m_highlightColor;
+    bool m_log10;
 };
 
 inline ostream& operator<< (ostream& ostr, const ColorBarModel& b)

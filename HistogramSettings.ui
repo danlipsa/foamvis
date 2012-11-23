@@ -1,58 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>HistogramHeight</class>
- <widget class="QDialog" name="HistogramHeight">
+ <class>HistogramSettings</class>
+ <widget class="QDialog" name="HistogramSettings">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>251</width>
-    <height>185</height>
+    <width>219</width>
+    <height>203</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Histogram Height Settings</string>
+   <string>Histogram Settings</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QCheckBox" name="checkBoxLogScale">
-     <property name="text">
-      <string>Logarithmic Scale</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Axis Height</string>
+      <string>Y Axis</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QRadioButton" name="radioButtonMaxValue">
+       <widget class="QCheckBox" name="checkBoxYAxisLogScale">
         <property name="text">
-         <string>Maximum Value</string>
+         <string>Log scale</string>
         </property>
-        <attribute name="buttonGroup">
-         <string>buttonGroup</string>
-        </attribute>
        </widget>
       </item>
       <item>
-       <widget class="QWidget" name="widget" native="true">
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="title">
+         <string>Maximum value</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <widget class="QRadioButton" name="radioButtonValue">
+          <widget class="QRadioButton" name="radioButtonDataMaxValue">
            <property name="text">
-            <string>Value</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
+            <string>Data maximum value</string>
            </property>
            <attribute name="buttonGroup">
             <string>buttonGroup</string>
@@ -60,7 +44,29 @@
           </widget>
          </item>
          <item>
-          <widget class="LineEditFocus" name="lineEditValue"/>
+          <widget class="QWidget" name="widget" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QRadioButton" name="radioButtonYValue">
+              <property name="text">
+               <string>Value</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+              <attribute name="buttonGroup">
+               <string>buttonGroup</string>
+              </attribute>
+             </widget>
+            </item>
+            <item>
+             <widget class="LineEditFocus" name="lineEditValue"/>
+            </item>
+           </layout>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -91,7 +97,7 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>radioButtonValue</tabstop>
+  <tabstop>radioButtonYValue</tabstop>
   <tabstop>lineEditValue</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
@@ -100,12 +106,12 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>HistogramHeight</receiver>
+   <receiver>HistogramSettings</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>241</x>
-     <y>143</y>
+     <x>209</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -116,12 +122,12 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>HistogramHeight</receiver>
+   <receiver>HistogramSettings</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>241</x>
-     <y>143</y>
+     <x>209</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>250</x>
@@ -130,14 +136,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioButtonMaxValue</sender>
+   <sender>radioButtonDataMaxValue</sender>
    <signal>toggled(bool)</signal>
-   <receiver>HistogramHeight</receiver>
-   <slot>ToggledMaxValue(bool)</slot>
+   <receiver>HistogramSettings</receiver>
+   <slot>ToggledYMaxValue(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>100</x>
-     <y>58</y>
+     <x>143</x>
+     <y>160</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -146,14 +152,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioButtonValue</sender>
+   <sender>radioButtonYValue</sender>
    <signal>toggled(bool)</signal>
-   <receiver>HistogramHeight</receiver>
-   <slot>ToggledValue(bool)</slot>
+   <receiver>HistogramSettings</receiver>
+   <slot>ToggledYValue(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>63</x>
-     <y>88</y>
+     <x>102</x>
+     <y>189</y>
     </hint>
     <hint type="destinationlabel">
      <x>6</x>
@@ -164,12 +170,12 @@
   <connection>
    <sender>lineEditValue</sender>
    <signal>editingFinished()</signal>
-   <receiver>HistogramHeight</receiver>
-   <slot>EditingFinishedValue()</slot>
+   <receiver>HistogramSettings</receiver>
+   <slot>EditingFinishedYValue()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>217</x>
-     <y>90</y>
+     <x>191</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
      <x>7</x>
@@ -180,12 +186,12 @@
   <connection>
    <sender>lineEditValue</sender>
    <signal>focusIn()</signal>
-   <receiver>HistogramHeight</receiver>
-   <slot>FocusInValue()</slot>
+   <receiver>HistogramSettings</receiver>
+   <slot>FocusInYValue()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>232</x>
-     <y>90</y>
+     <x>191</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
      <x>1</x>
@@ -200,24 +206,24 @@
    <slot>selectAll()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>232</x>
-     <y>90</y>
+     <x>191</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
-     <x>232</x>
-     <y>90</y>
+     <x>191</x>
+     <y>192</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxLogScale</sender>
+   <sender>checkBoxYAxisLogScale</sender>
    <signal>toggled(bool)</signal>
-   <receiver>HistogramHeight</receiver>
-   <slot>ToggledLogScale(bool)</slot>
+   <receiver>HistogramSettings</receiver>
+   <slot>ToggledYAxisLogScale(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>143</x>
-     <y>21</y>
+     <x>169</x>
+     <y>108</y>
     </hint>
     <hint type="destinationlabel">
      <x>249</x>
@@ -227,11 +233,12 @@
   </connection>
  </connections>
  <slots>
-  <slot>ToggledMaxValue(bool)</slot>
-  <slot>ToggledValue(bool)</slot>
-  <slot>EditingFinishedValue()</slot>
-  <slot>FocusInValue()</slot>
-  <slot>ToggledLogScale(bool)</slot>
+  <slot>ToggledYMaxValue(bool)</slot>
+  <slot>ToggledYValue(bool)</slot>
+  <slot>EditingFinishedYValue()</slot>
+  <slot>FocusInYValue()</slot>
+  <slot>ToggledYAxisLogScale(bool)</slot>
+  <slot>ToggledXAxisLogScale(bool)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroup"/>

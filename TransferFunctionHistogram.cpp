@@ -8,7 +8,7 @@
 
 #include "DebugStream.h"
 #include "Enums.h"
-#include "HistogramHeight.h"
+#include "HistogramSettings.h"
 #include "TransferFunctionHistogram.h"
 
 TransferFunctionHistogram::TransferFunctionHistogram (QWidget* parent) :
@@ -36,7 +36,7 @@ void TransferFunctionHistogram::createActions ()
 	new QAction (tr("&Height Settings"), this));
     m_actionHeightSettings->setStatusTip(tr("Height Settings"));
     connect(m_actionHeightSettings.get (), SIGNAL(triggered()),
-	    this, SLOT(HistogramHeightDialog ()));
+	    this, SLOT(HistogramSettingsDialog ()));
     
     m_actionClampHigh.reset (
 	new QAction (tr("&Clamp High"), this));

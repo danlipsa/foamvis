@@ -26,23 +26,6 @@
       <property name="margin">
        <number>0</number>
       </property>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Palette</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QComboBox" name="comboBoxPalette"/>
-      </item>
-      <item row="2" column="1">
-       <widget class="QCheckBox" name="checkBoxColorCodedHistogram">
-        <property name="text">
-         <string>Color Coded Histogram</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
@@ -62,6 +45,32 @@
           <string>Divergent</string>
          </property>
         </item>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Palette</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="comboBoxPalette"/>
+      </item>
+      <item row="2" column="1">
+       <widget class="QWidget" name="widget_3" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QCheckBox" name="checkBoxColorCodedHistogram">
+           <property name="text">
+            <string>Color Coded Histogram</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
@@ -195,8 +204,8 @@ p, li { white-space: pre-wrap; }
    <slot>ToggledColorCodedHistogram(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>296</x>
-     <y>196</y>
+     <x>245</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
      <x>408</x>
@@ -259,8 +268,8 @@ p, li { white-space: pre-wrap; }
    <slot>ClampHigh(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>389</x>
-     <y>109</y>
+     <x>398</x>
+     <y>70</y>
     </hint>
     <hint type="destinationlabel">
      <x>386</x>
@@ -275,8 +284,8 @@ p, li { white-space: pre-wrap; }
    <slot>ClampLow(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>377</x>
-     <y>99</y>
+     <x>386</x>
+     <y>70</y>
     </hint>
     <hint type="destinationlabel">
      <x>386</x>
@@ -291,8 +300,8 @@ p, li { white-space: pre-wrap; }
    <slot>ClampClear()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>398</x>
-     <y>109</y>
+     <x>407</x>
+     <y>70</y>
     </hint>
     <hint type="destinationlabel">
      <x>386</x>
@@ -376,5 +385,6 @@ p, li { white-space: pre-wrap; }
   <slot>ClickedHighligh2()</slot>
   <slot>CurrentIndexChangedType(int)</slot>
   <slot>ToggledReversed(bool)</slot>
+  <slot>ToggledLog10Values(bool)</slot>
  </slots>
 </ui>

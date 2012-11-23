@@ -501,6 +501,8 @@ private:
     void displayTextureColorBar (GLuint texture,
 				 ViewNumber::Enum viewNumber, 
 				 const G3D::Rect2D& barRect);
+    void displayBarLabels (
+        ViewNumber::Enum viewNumber, const G3D::Rect2D& colorBarRect);
     void displayOverlayBar (
 	ViewNumber::Enum viewNumber, const G3D::Rect2D& barRect);
     void displayViewTitle (ViewNumber::Enum viewNumber);
