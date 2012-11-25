@@ -120,6 +120,31 @@ void sendQuad (const G3D::Rect2D& srcRect, const G3D::Rect2D& srcTexRect)
     ::glVertex (srcRect.x0y1 ());
 }
 
+class StringsWidth
+{
+public:
+    StringsWidth (const QFontMetrics& fm) :
+        m_fm (fm), m_width (0)
+    {
+    }
+    
+    void StoreMaxWidth (const string& s)
+    {
+        QRect br = m_fm.tightBoundingRect (s.c_str ());
+        if (m_width < br.width ())
+            m_width = br.width ();
+    }
+    float GetMaxWidth () const
+    {
+        return m_width;
+    }
+
+private:
+    const QFontMetrics& m_fm;
+    float m_width;
+};
+
+
 // Static Fields
 // ======================================================================
 
@@ -157,6 +182,7 @@ WidgetGl::WidgetGl(QWidget *parent)
       m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
       m_averageAroundMarked (true),
       m_contextBoxShown (true),
+      m_barLabelsShown (true),
       m_showType (SHOW_NOTHING)
 {
     makeCurrent ();
@@ -501,7 +527,7 @@ void WidgetGl::Init (
 float WidgetGl::GetBubbleDiameter (ViewNumber::Enum viewNumber) const
 {    
     vector<ViewNumber::Enum> vn = 
-	GetSettings ()->GetSplitHalfViewNumbers (viewNumber);
+	GetSettings ()->GetTwoHalvesViewNumbers (viewNumber);
     float size = GetSimulation (vn[0]).GetBubbleDiameter ();
     for (size_t i = 1; i < vn.size (); ++i)
     {
@@ -2615,6 +2641,25 @@ void WidgetGl::addCopyCompatibleMenu (
 	menuOp->setDisabled (true);    
 }
 
+void WidgetGl::displayTwoHalvesLine () const
+{
+    const Settings& settings = *GetSettings ();
+    if (GetViewNumber () == ViewNumber::VIEW0 && 
+        settings.IsTwoHalvesView ())
+    {
+        glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
+
+        G3D::Rect2D rect = GetViewRect (ViewNumber::VIEW0);
+        glPointSize (12.0);
+        glColor (Qt::black);
+        glBegin (GL_LINES);
+        ::glVertex (rect.x0y0 ());
+        ::glVertex (rect.x1y0 ());
+        glEnd ();
+        glPopAttrib ();
+    }
+}
+
 
 void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
 {
@@ -2624,27 +2669,31 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
 	glDisable (GL_LIGHTING);
     glDisable (GL_DEPTH_TEST);
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
+    float xTranslateBar = 0;
+    displayTwoHalvesLine ();
     if (GetSettings ()->GetColorBarType (viewNumber) != ColorBarType::NONE)
     {
-	G3D::Rect2D viewColorBarRect = Settings::GetViewColorBarRect (viewRect);
+	G3D::Rect2D viewColorBarRect = 
+            GetSettings ()->GetViewColorBarRect (viewRect);
 	/*
 	cdbg << viewRect << endl;
 	cdbg << viewColorBarRect << endl;
 	*/
 	displayTextureColorBar (
 	    m_colorBarTexture[viewNumber], viewNumber, viewColorBarRect);
+        xTranslateBar = getBarLabelsWidth (*vs.GetColorBarModel ());
     }
     if (vs.IsVelocityShown ())
     {
         const VectorAverage& va = 
             GetViewAverage (viewNumber).GetVelocityAverage ();
+        G3D::Rect2D barRect = GetSettings ()->GetViewOverlayBarRect (viewRect) + 
+            G3D::Vector2 (xTranslateBar, 0);
         if (va.IsColorMapped ())
             displayTextureColorBar (
-                m_overlayBarTexture[viewNumber],
-                viewNumber, Settings::GetViewOverlayBarRect (viewRect));
+                m_overlayBarTexture[viewNumber], viewNumber, barRect);
         else if (vs.GetVelocityVis () == VectorVis::GLYPH && ! va.IsSameSize ())
-            displayOverlayBar (
-                viewNumber, Settings::GetViewOverlayBarRect (viewRect));
+            displayOverlayBar (viewNumber, barRect);
     }
     displayViewTitle (viewNumber);
     if (viewNumber == GetViewNumber () && 
@@ -2724,6 +2773,7 @@ void WidgetGl::displayTextureColorBar (
     GLuint texture,
     ViewNumber::Enum viewNumber, const G3D::Rect2D& colorBarRect)
 {
+    ViewSettings& vs = GetViewSettings (viewNumber);
     glPushAttrib (GL_POLYGON_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT);
     glDisable (GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_1D);
@@ -2741,14 +2791,48 @@ void WidgetGl::displayTextureColorBar (
     glColor (
         GetSettings ()->GetHighlightColor (viewNumber, HighlightNumber::H0));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glColor (Qt::black);
     DisplayBox (colorBarRect);
     glPopAttrib ();
-    displayBarLabels (viewNumber, colorBarRect);
+    displayBarLabels (*vs.GetColorBarModel (), colorBarRect);
+}
+
+float WidgetGl::getBarLabelsWidth (const ColorBarModel& cbm) const
+{
+    //__ENABLE_LOGGING__;
+    if (! m_barLabelsShown)
+        return 0;
+    QFont font;
+    QFontMetrics fm (font);
+    StringsWidth sw(fm);
+    const float distancePixels = 10;
+    ostringstream ostr;
+    QwtDoubleInterval interval = cbm.GetInterval ();
+    ostr << scientific << setprecision (1);
+    ostr << interval.minValue ();
+    sw.StoreMaxWidth (ostr.str ());
+    ostr.str ("");ostr << interval.maxValue ();
+    sw.StoreMaxWidth (ostr.str ());
+    if (cbm.IsClampedMin ())
+    {
+        ostr.str ("");ostr << cbm.GetClampMin ();
+        sw.StoreMaxWidth (ostr.str ());
+    }
+    if (cbm.IsClampedMax ())
+    {
+        ostr.str ("");ostr << cbm.GetClampMax ();
+        sw.StoreMaxWidth (ostr.str ());
+    }
+    float width = sw.GetMaxWidth () + distancePixels;
+    __LOG__ (cdbg << width << endl;);
+    return width;
 }
 
 void WidgetGl::displayBarLabels (
-    ViewNumber::Enum viewNumber, const G3D::Rect2D& colorBarRect)
+    const ColorBarModel& cbm, const G3D::Rect2D& colorBarRect)
 {
+    if (! m_barLabelsShown)
+        return;
     float onePixelInObjectSpace = GetOnePixelInObjectSpace ();
     QFont font;
     float distance = 5 * onePixelInObjectSpace;
@@ -2757,10 +2841,9 @@ void WidgetGl::displayBarLabels (
     ostr << scientific << setprecision (1);
     G3D::Vector2 minPos = colorBarRect.x1y0 () + G3D::Vector2 (distance, 0);
     G3D::Vector2 maxPos = colorBarRect.x1y1 () + G3D::Vector2 (distance, 0);
-    boost::shared_ptr<ColorBarModel> cbm = 
-        GetViewSettings (viewNumber).GetColorBarModel ();
-    QwtDoubleInterval interval = cbm->GetInterval ();
-    glColor (cbm->GetHighlightColor (HighlightNumber::H0));
+        
+    QwtDoubleInterval interval = cbm.GetInterval ();
+    glColor (cbm.GetHighlightColor (HighlightNumber::H0));
     ostr.str ("");
     ostr  << interval.minValue ();
     renderText (minPos.x, minPos.y, 0, ostr.str ().c_str ());
@@ -2769,15 +2852,15 @@ void WidgetGl::displayBarLabels (
     QRect br = fm.tightBoundingRect (ostr.str ().c_str ());
     maxPos -= G3D::Vector2 (0, br.height () * onePixelInObjectSpace);
     renderText (maxPos.x, maxPos.y, 0, ostr.str ().c_str ());
-    if (cbm->IsClampedMin ())
+    if (cbm.IsClampedMin ())
     {
-        ostr.str ("");ostr << cbm->GetClampMin ();
+        ostr.str ("");ostr << cbm.GetClampMin ();
         minPos += G3D::Vector2 (0, fm.height () * onePixelInObjectSpace);
         renderText (minPos.x, minPos.y, 0, ostr.str ().c_str ());
     }
-    if (cbm->IsClampedMax ())
+    if (cbm.IsClampedMax ())
     {
-        ostr.str ("");ostr << cbm->GetClampMax ();
+        ostr.str ("");ostr << cbm.GetClampMax ();
         maxPos -= G3D::Vector2 (0, fm.height () * onePixelInObjectSpace);
         renderText (maxPos.x, maxPos.y, 0, ostr.str ().c_str ());
     }
@@ -2792,9 +2875,8 @@ void WidgetGl::displayOverlayBar (
     glColor (Qt::white);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     DisplayBox (barRect);
-    glColor (GetSettings ()->GetHighlightColor (
-                 viewNumber, HighlightNumber::H0));
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glColor (Qt::black);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);    
     DisplayBox (barRect);
     float y = 
 	barRect.y0 () + (barRect.y1 () - barRect.y0 ()) / 
@@ -2805,6 +2887,7 @@ void WidgetGl::displayOverlayBar (
     ::glVertex (G3D::Vector2 (barRect.x1 (), y));
     glEnd ();
     glPopAttrib ();
+    displayBarLabels (*vs.GetOverlayBarModel (), barRect);
 }
 
 
@@ -2912,7 +2995,7 @@ void WidgetGl::toggledT1sKernelTextureShown (ViewNumber::Enum viewNumber)
 template<typename T>
 void WidgetGl::SetOneOrTwoViews (T* t, void (T::*f) (ViewNumber::Enum))
 {
-    if (GetSettings ()->IsSplitHalfView ())
+    if (GetSettings ()->IsTwoHalvesView ())
     {
 	CALL_MEMBER (*t, f) (ViewNumber::VIEW0);
 	CALL_MEMBER (*t, f) (ViewNumber::VIEW1);
@@ -3404,7 +3487,7 @@ void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
 	setVisible (false);
     else
     {
-	vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
+	vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
 	for (size_t i = 0; i < vn.size (); ++i)
 	{
 	    ViewNumber::Enum viewNumber = vn[i];
@@ -3767,7 +3850,7 @@ void WidgetGl::mousePressEvent(QMouseEvent *event)
 void WidgetGl::mouseMoveEvent(QMouseEvent *event)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3808,9 +3891,13 @@ void WidgetGl::contextMenuEvent (QContextMenuEvent *event)
     m_contextMenuPosWindow = event->pos ();
     m_contextMenuPosObject = toObjectTransform (m_contextMenuPosWindow);
     QMenu menu (this);
-    G3D::Rect2D colorBarRect = Settings::GetViewColorBarRect (GetViewRect ());
+    G3D::Rect2D colorBarRect = 
+        GetSettings ()->GetViewColorBarRect (GetViewRect ());
+    float xTranslateBar = getBarLabelsWidth (
+        *GetViewSettings ().GetColorBarModel ());
     G3D::Rect2D overlayBarRect = 
-	Settings::GetViewOverlayBarRect (GetViewRect ());
+	GetSettings ()->GetViewOverlayBarRect (GetViewRect ()) + 
+        G3D::Vector2 (xTranslateBar, 0);
     if (colorBarRect.contains (QtToOpenGl (m_contextMenuPosWindow, height ())))
 	contextMenuEventColorBar (&menu);
     else if (overlayBarRect.contains (
@@ -3834,7 +3921,7 @@ void WidgetGl::ResetTransformAll ()
 void WidgetGl::ResetTransformFocus ()
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3854,7 +3941,7 @@ void WidgetGl::ResetTransformFocus ()
 void WidgetGl::ResetTransformContext ()
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3872,7 +3959,7 @@ void WidgetGl::ResetTransformContext ()
 void WidgetGl::ResetTransformGrid ()
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3887,7 +3974,7 @@ void WidgetGl::ResetTransformGrid ()
 void WidgetGl::ResetTransformLight ()
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3973,6 +4060,12 @@ void WidgetGl::OverlayBarClampClear ()
     Q_EMIT OverlayBarModelChanged (viewNumber, colorBarModel);
 }
 
+void WidgetGl::ToggledBarLabelsShown (bool shown)
+{
+    m_barLabelsShown = shown;
+    update ();
+}
+
 void WidgetGl::ToggledKDESeeds (bool enabled)
 {
     makeCurrent ();
@@ -4002,7 +4095,7 @@ void WidgetGl::ToggledDirectionalLightEnabled (bool checked)
 void WidgetGl::ToggledDeformationShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -4015,7 +4108,7 @@ void WidgetGl::ToggledDeformationShown (bool checked)
 void WidgetGl::ToggledDeformationShownGrid (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -4029,7 +4122,7 @@ void WidgetGl::ToggledDeformationShownGrid (bool checked)
 void WidgetGl::ToggledVelocityShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -4042,7 +4135,7 @@ void WidgetGl::ToggledVelocityShown (bool checked)
 void WidgetGl::ToggledVelocityGridShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -4055,7 +4148,7 @@ void WidgetGl::ToggledVelocityGridShown (bool checked)
 void WidgetGl::ToggledVelocityClampingShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -4069,7 +4162,7 @@ void WidgetGl::ToggledVelocityClampingShown (bool checked)
 void WidgetGl::ToggledDeformationGridCellCenterShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -4083,7 +4176,7 @@ void WidgetGl::ToggledDeformationGridCellCenterShown (bool checked)
 void WidgetGl::ToggledVelocityGridCellCenterShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -4097,7 +4190,7 @@ void WidgetGl::ToggledVelocityGridCellCenterShown (bool checked)
 void WidgetGl::ToggledVelocitySameSize (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
 	GetViewAverage (vn[i]).GetVelocityAverage ().SetSameSize (checked);
     CompileUpdate ();    
@@ -4106,7 +4199,7 @@ void WidgetGl::ToggledVelocitySameSize (bool checked)
 void WidgetGl::ToggledVelocityColorMapped (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetSplitHalfViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
 	GetViewAverage (vn[i]).GetVelocityAverage ().SetColorMapped (checked);
     CompileUpdate ();    

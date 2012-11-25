@@ -91,6 +91,7 @@ Settings::Settings (const Simulation& simulation, float w, float h,
     m_splitHalfView (false),
     m_titleShown (false),
     m_viewFocusShown (true),
+    m_barLarge (false),
     m_interactionMode (InteractionMode::ROTATE)
 {
     initViewSettings (simulation, w, h, t1sShiftLower);
@@ -488,9 +489,9 @@ ViewCount::Enum Settings::GetGlCount (vector<ViewNumber::Enum>* mapping) const
     return getViewCount (mapping, &Settings::IsGlView);
 }
 
-ViewType::Enum Settings::SetSplitHalfViewType (ViewType::Enum viewType)
+ViewType::Enum Settings::SetTwoHalvesViewType (ViewType::Enum viewType)
 {
-    vector<ViewNumber::Enum> vn = GetSplitHalfViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetTwoHalvesViewNumbers ();
     ViewType::Enum oldViewType = GetViewSettings (vn[0]).GetViewType ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
@@ -581,19 +582,25 @@ G3D::Rect2D Settings::GetViewRect (
 
 G3D::Rect2D Settings::GetViewColorBarRect (const G3D::Rect2D& viewRect)
 {
-    return G3D::Rect2D::xywh (
-	viewRect.x0 () + 15, viewRect.y0 () + 15,
-	10, max (viewRect.height () / 4, 50.0f));
+    const float d = 15.0;
+    float barHeight = 
+        m_barLarge ? (viewRect.height () - 2 * d) : 
+        max (viewRect.height () / 4, 50.0f);
+    return G3D::Rect2D::xywh (viewRect.x0 () + d, viewRect.y0 () + d,
+                              10, barHeight);
 }
 
 G3D::Rect2D Settings::GetViewOverlayBarRect (const G3D::Rect2D& viewRect)
 {
-    return G3D::Rect2D::xywh (
-	viewRect.x0 () + 15 + 10 + 5, viewRect.y0 () + 15,
-	10, max (viewRect.height () / 4, 50.0f));
+    const float d = 15.0;
+    float barHeight = 
+        m_barLarge ? (viewRect.height () - 2 * d): 
+        max (viewRect.height () / 4, 50.0f);
+    return G3D::Rect2D::xywh (viewRect.x0 () + d + 10 + 5, viewRect.y0 () + d,
+                              10, barHeight);
 }
 
-vector<ViewNumber::Enum> Settings::GetSplitHalfViewNumbers (
+vector<ViewNumber::Enum> Settings::GetTwoHalvesViewNumbers (
     ViewNumber::Enum viewNumber) const
 {
     if (m_splitHalfView)
@@ -611,7 +618,7 @@ vector<ViewNumber::Enum> Settings::GetSplitHalfViewNumbers (
     }
 }
 
-void Settings::SetSplitHalfView (bool reflectedHalfView, 
+void Settings::SetTwoHalvesView (bool reflectedHalfView, 
 				 const Simulation& simulation, float w, float h)
 {
     m_splitHalfView = reflectedHalfView;
@@ -634,7 +641,7 @@ void Settings::setScaleCenter (
 G3D::Vector2 Settings::CalculateScaleCenter (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& rect) const
 {
-    if (! IsSplitHalfView ())
+    if (! IsTwoHalvesView ())
 	return rect.center ();
     else if (viewNumber == ViewNumber::VIEW0)
 	return (rect.x0y0 () + rect.x1y0 ()) / 2;

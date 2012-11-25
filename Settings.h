@@ -31,23 +31,23 @@ public:
 
     /**
      * @{
-     * @name SplitHalf view
+     * @name TwoHalves view
      */
-    vector<ViewNumber::Enum> GetSplitHalfViewNumbers (
+    vector<ViewNumber::Enum> GetTwoHalvesViewNumbers (
 	ViewNumber::Enum viewNumber) const;
-    vector<ViewNumber::Enum> GetSplitHalfViewNumbers () const
+    vector<ViewNumber::Enum> GetTwoHalvesViewNumbers () const
     {
-	return GetSplitHalfViewNumbers (GetViewNumber ());
+	return GetTwoHalvesViewNumbers (GetViewNumber ());
     }
-    bool IsSplitHalfView () const
+    bool IsTwoHalvesView () const
     {
 	return m_splitHalfView;
     }
-    void SetSplitHalfView (bool splitHalfView,
+    void SetTwoHalvesView (bool splitHalfView,
 			   const Simulation& simulation, float w, float h);
     G3D::Vector2 CalculateScaleCenter (
 	ViewNumber::Enum viewNumber, const G3D::Rect2D& rect) const;
-    ViewType::Enum SetSplitHalfViewType (ViewType::Enum viewType);
+    ViewType::Enum SetTwoHalvesViewType (ViewType::Enum viewType);
     //@}
 
 
@@ -285,6 +285,14 @@ public:
     {
 	m_viewFocusShown = shown;
     }
+    bool IsBarLarge () const
+    {
+        return m_barLarge;
+    }
+    void SetBarLarge (bool large)
+    {
+        m_barLarge = large;
+    }
     // @}
     
 
@@ -320,8 +328,8 @@ public:
     {
 	return GetViewRect (w, h, GetViewNumber ());
     }
-    static G3D::Rect2D GetViewColorBarRect (const G3D::Rect2D& viewRect);
-    static G3D::Rect2D GetViewOverlayBarRect (const G3D::Rect2D& viewRect);
+    G3D::Rect2D GetViewColorBarRect (const G3D::Rect2D& viewRect);
+    G3D::Rect2D GetViewOverlayBarRect (const G3D::Rect2D& viewRect);
     // @}
 
 Q_SIGNALS:
@@ -390,6 +398,7 @@ private:
     bool m_splitHalfView;
     bool m_titleShown;
     bool m_viewFocusShown;
+    bool m_barLarge;
     boost::shared_ptr<QSignalMapper> m_signalMapperSelectionChanged;    
     InteractionMode::Enum m_interactionMode;
 };

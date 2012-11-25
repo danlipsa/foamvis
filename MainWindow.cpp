@@ -1081,6 +1081,12 @@ void MainWindow::ValueChangedContextAlpha (int index)
     widgetVtk->Average3dUpdateOpacity ();
 }
 
+void MainWindow::ToggledBarLarge (bool large)
+{
+    m_settings->SetBarLarge (large);
+    widgetGl->update ();
+}
+
 void MainWindow::ToggledViewFocusShown (bool checked)
 {
     m_settings->SetViewFocusShown (checked);
@@ -1091,7 +1097,7 @@ void MainWindow::ToggledViewFocusShown (bool checked)
 
 void MainWindow::initOverlayBarModel ()
 {
-    vector<ViewNumber::Enum> vn = m_settings->GetSplitHalfViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -1209,7 +1215,7 @@ void MainWindow::ValueChangedFontSize (int fontSize)
 void MainWindow::ValueChangedT1sKernelSigma (double value)
 {
     (void)value;
-    vector<ViewNumber::Enum> vn = m_settings->GetSplitHalfViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -1284,9 +1290,9 @@ void MainWindow::ButtonClickedVelocityVis (int vv)
 
 void MainWindow::ButtonClickedViewType (int vt)
 {
-    vector<ViewNumber::Enum> vn = m_settings->GetSplitHalfViewNumbers ();
+    vector<ViewNumber::Enum> vn = m_settings->GetTwoHalvesViewNumbers ();
     ViewType::Enum viewType = ViewType::Enum(vt);
-    ViewType::Enum oldViewType = m_settings->SetSplitHalfViewType (viewType);
+    ViewType::Enum oldViewType = m_settings->SetTwoHalvesViewType (viewType);
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -1393,7 +1399,7 @@ void MainWindow::ToggledBubblePathsLineUsed (bool checked)
 }
 
 
-void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)
+void MainWindow::ToggledTwoHalvesView (bool reflectedHalfView)
 {
     if (reflectedHalfView &&
 	(m_settings->GetViewCount () != ViewCount::TWO || 
@@ -1403,14 +1409,15 @@ void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)
 	msgBox.setText("This feature works only with two views "
 		       "in vertical layout");
 	msgBox.exec();
-	SetCheckedNoSignals (checkBoxReflectedHalfView, false, true);
+	SetCheckedNoSignals (checkBoxTwoHalvesView, false, true);
 	return;
     }
     checkBoxTitleShown->setChecked (false);
-    m_settings->SetSplitHalfView (
+    m_settings->SetTwoHalvesView (
 	reflectedHalfView, 
 	m_simulationGroup.GetSimulation (*m_settings), 
 	widgetGl->width (), widgetGl->height ());
+    widgetGl->CompileUpdate ();
 }
 
 void MainWindow::ToggledTitleShown (bool checked)

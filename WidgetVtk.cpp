@@ -327,7 +327,8 @@ void WidgetVtk::resizeEvent (QResizeEvent * event)
 void WidgetVtk::resizeViewEvent (ViewNumber::Enum viewNumber)
 {
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
-    G3D::Rect2D viewColorBarRect = Settings::GetViewColorBarRect (viewRect);
+    G3D::Rect2D viewColorBarRect = 
+        GetSettings ()->GetViewColorBarRect (viewRect);
     G3D::Rect2D position = G3D::Rect2D::xywh (
         (viewColorBarRect.x0 () - viewRect.x0 ())/ viewRect.width (),
         (viewColorBarRect.y0 () - viewRect.y0 ())/ viewRect.height (),

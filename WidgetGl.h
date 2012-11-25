@@ -227,6 +227,7 @@ Q_SIGNALS:
 	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 public Q_SLOTS:
+    void ToggledBarLabelsShown (bool shown);
     void ToggledKDESeeds (bool toggled);
     void ToggledSeedsShown (bool shown);
     void ToggledStandaloneElementsShown (bool checked);
@@ -475,6 +476,7 @@ private:
 		   LightType::Enum lightType, ColorNumber::Enum colorNumber);
     void averageInitStep (ViewNumber::Enum viewNumber);
     void selectView (const G3D::Vector2& clickedPoint);
+    void displayTwoHalvesLine () const;
     void displayContextMenuPos (ViewNumber::Enum viewNumber) const;
     void displayBodyCenters (ViewNumber::Enum viewNumber, 
 			     bool useZPos = false) const;
@@ -502,7 +504,8 @@ private:
 				 ViewNumber::Enum viewNumber, 
 				 const G3D::Rect2D& barRect);
     void displayBarLabels (
-        ViewNumber::Enum viewNumber, const G3D::Rect2D& colorBarRect);
+        const ColorBarModel& cbm, const G3D::Rect2D& colorBarRect);
+    float getBarLabelsWidth (const ColorBarModel& cbm) const;
     void displayOverlayBar (
 	ViewNumber::Enum viewNumber, const G3D::Rect2D& barRect);
     void displayViewTitle (ViewNumber::Enum viewNumber);
@@ -763,6 +766,7 @@ private:
     size_t m_highlightLineWidth;
     bool m_averageAroundMarked;
     bool m_contextBoxShown;
+    bool m_barLabelsShown;
     ShowType m_showType;
     size_t m_showBodyId;
     boost::array<

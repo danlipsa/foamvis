@@ -56,6 +56,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void SelectionChangedSettings (ViewNumber::Enum viewNumber);
+    void ToggledBarLarge (bool large);
     void ToggledViewFocusShown (bool checked);
     void ToggledTitleShown (bool checked);
     void ToggledBubblePathsLineUsed (bool checked);
@@ -69,7 +70,7 @@ public Q_SLOTS:
     void ButtonClickedViewType (int viewType);
     void ButtonClickedVelocityVis (int velocityVis);
 
-    void ToggledReflectedHalfView (bool checked);
+    void ToggledTwoHalvesView (bool checked);
     void ToggledForceDifference (bool checked);
 
     /**
