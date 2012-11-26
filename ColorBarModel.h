@@ -51,6 +51,7 @@ public:
     void SetClampMax (double clampHigh)
     {
 	m_clampInterval.setMaxValue (clampHigh);
+        SetupPalette (GetPalette ());
     }
     double GetClampMax () const
     {
@@ -59,6 +60,7 @@ public:
     void SetClampMin (double clampLow)
     {
 	m_clampInterval.setMinValue (clampLow);
+        SetupPalette (GetPalette ());
     }
     double GetClampMin () const
     {
@@ -67,6 +69,7 @@ public:
     void SetClampInterval (const QwtDoubleInterval& clampValues)
     {
 	m_clampInterval = clampValues;
+        SetupPalette (GetPalette ());
     }
     void SetClampClear ()
     {

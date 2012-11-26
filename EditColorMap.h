@@ -28,8 +28,8 @@ public:
 
 public Q_SLOTS:
     void HighlightedPalette (int index);
-    void ClampHigh (double value);
-    void ClampLow (double value);
+    void SetClampMax (double value);
+    void SetClampMin (double value);
     void ClampClear ();
     void ToggledColorCodedHistogram (bool checked);
     void ToggledLog10Values (bool checked);

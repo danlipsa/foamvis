@@ -10,11 +10,14 @@
 #include "Debug.h"
 #include "DebugStream.h"
 #include "Edge.h"
+#include "MainWindow.h"
 #include "Settings.h"
 #include "Simulation.h"
+#include "T1sKDE.h"
 #include "Utils.h"
 #include "ViewSettings.h"
-#include "T1sKDE.h"
+#include "WidgetGl.h"
+
 
 // Private functions and classes
 // ======================================================================
@@ -658,3 +661,26 @@ ColorBarType::Enum Settings::GetColorBarType (ViewNumber::Enum viewNumber) const
 {
     return GetViewSettings (viewNumber).GetColorBarType ();
 }
+
+template<typename T>
+void Settings::SetOneOrTwoViews (T* t, void (T::*f) (ViewNumber::Enum))
+{
+    if (IsTwoHalvesView ())
+    {
+	CALL_MEMBER (*t, f) (ViewNumber::VIEW0);
+	CALL_MEMBER (*t, f) (ViewNumber::VIEW1);
+    }
+    else
+	CALL_MEMBER (*t, f) (GetViewNumber ());
+}
+
+// Template instantiations
+// ======================================================================
+/// @cond
+template
+void Settings::SetOneOrTwoViews<MainWindow> (
+    MainWindow* t, void (MainWindow::*f) (ViewNumber::Enum));
+template
+void Settings::SetOneOrTwoViews<WidgetGl> (
+    WidgetGl* t, void (WidgetGl::*f) (ViewNumber::Enum));
+/// @endcond

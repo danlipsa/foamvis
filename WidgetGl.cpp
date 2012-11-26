@@ -2627,7 +2627,9 @@ void WidgetGl::addCopyCompatibleMenu (
                   GetKernelSigma () ==
                   GetViewAverage (otherViewNumber).GetT1sKDE ().
                   GetKernelSigma ()) 
+
                  ||
+
                  (currentProperty == otherVs.GetBodyOrFaceScalar () &&
                   vs.GetSimulationIndex () == otherVs.GetSimulationIndex ()))
                 )
@@ -2641,20 +2643,18 @@ void WidgetGl::addCopyCompatibleMenu (
 	menuOp->setDisabled (true);    
 }
 
-void WidgetGl::displayTwoHalvesLine () const
+void WidgetGl::displayTwoHalvesLine (ViewNumber::Enum viewNumber) const
 {
     const Settings& settings = *GetSettings ();
-    if (GetViewNumber () == ViewNumber::VIEW0 && 
-        settings.IsTwoHalvesView ())
+    if (viewNumber == ViewNumber::VIEW1 && settings.IsTwoHalvesView ())
     {
-        glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
-
-        G3D::Rect2D rect = GetViewRect (ViewNumber::VIEW0);
-        glPointSize (12.0);
+        glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
+        G3D::Rect2D rect = GetViewRect (viewNumber);
+        glLineWidth (7.0);
         glColor (Qt::black);
         glBegin (GL_LINES);
-        ::glVertex (rect.x0y0 ());
-        ::glVertex (rect.x1y0 ());
+        ::glVertex (rect.x0y1 ());
+        ::glVertex (rect.x1y1 ());
         glEnd ();
         glPopAttrib ();
     }
@@ -2670,7 +2670,6 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
     glDisable (GL_DEPTH_TEST);
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     float xTranslateBar = 0;
-    displayTwoHalvesLine ();
     if (GetSettings ()->GetColorBarType (viewNumber) != ColorBarType::NONE)
     {
 	G3D::Rect2D viewColorBarRect = 
@@ -2700,6 +2699,7 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
 	GetSettings ()->IsViewFocusShown () &&
 	GetSettings ()->GetViewCount () != ViewCount::ONE)
 	displayViewFocus (viewNumber);
+    displayTwoHalvesLine (viewNumber);
     cleanupTransformViewport ();
 }
 
@@ -2982,27 +2982,14 @@ void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
     t1sKDE.SetKernelSigmaInBubbleDiameters (
 	static_cast<QDoubleSpinBox*> (sender ())->value ());
     t1sKDE.AverageInitStep ();
+    CompileUpdate (viewNumber);
 }
 
 void WidgetGl::toggledT1sKernelTextureShown (ViewNumber::Enum viewNumber)
 {
     bool checked = static_cast<QCheckBox*> (sender ())->isChecked ();
     GetViewAverage (viewNumber).GetT1sKDE ().SetKernelTextureShown (checked);
-}
-
-
-
-template<typename T>
-void WidgetGl::SetOneOrTwoViews (T* t, void (T::*f) (ViewNumber::Enum))
-{
-    if (GetSettings ()->IsTwoHalvesView ())
-    {
-	CALL_MEMBER (*t, f) (ViewNumber::VIEW0);
-	CALL_MEMBER (*t, f) (ViewNumber::VIEW1);
-    }
-    else
-	CALL_MEMBER (*t, f) (GetViewNumber ());
-    update ();
+    CompileUpdate (viewNumber);
 }
 
 void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
@@ -4393,14 +4380,14 @@ void WidgetGl::ToggledBodyCenterShown (bool checked)
 {
     makeCurrent ();
     m_bodyCenterShown = checked;
-    CompileUpdate ();
+    CompileUpdateAll ();
 }
 
 void WidgetGl::ToggledBodyNeighborsShown (bool checked)
 {
     makeCurrent ();
     m_bodyNeighborsShown = checked;
-    CompileUpdate ();
+    CompileUpdateAll ();
 }
 
 
@@ -4408,7 +4395,7 @@ void WidgetGl::ToggledFaceCenterShown (bool checked)
 {
     makeCurrent ();
     m_faceCenterShown = checked;
-    CompileUpdate ();
+    CompileUpdateAll ();
 }
 
 
@@ -4416,7 +4403,7 @@ void WidgetGl::ToggledEdgesShown (bool checked)
 {
     makeCurrent ();
     m_edgesShown = checked;
-    CompileUpdate ();
+    CompileUpdateAll ();
 }
 
 void WidgetGl::ToggledEdgesTessellationShown (bool checked)
@@ -4548,7 +4535,7 @@ void WidgetGl::SetBodyOrFaceScalar (
     }
     else
 	vs.ResetColorBarModel ();
-    CompileUpdate ();
+    CompileUpdate (viewNumber);
 }
 
 void WidgetGl::SetColorBarModel (ViewNumber::Enum viewNumber, 
@@ -4557,7 +4544,7 @@ void WidgetGl::SetColorBarModel (ViewNumber::Enum viewNumber,
     makeCurrent ();
     GetViewSettings (viewNumber).SetColorBarModel (colorBarModel);
     setTexture (colorBarModel, m_colorBarTexture[viewNumber]);
-    CompileUpdate ();
+    CompileUpdate (viewNumber);
 }
 
 void WidgetGl::SetOverlayBarModel (
@@ -4724,14 +4711,16 @@ void WidgetGl::ValueChangedT1sKernelSigma (double value)
 {
     (void)value;
     makeCurrent ();
-    SetOneOrTwoViews (this, &WidgetGl::valueChangedT1sKernelSigma);
+    GetSettings ()->SetOneOrTwoViews (
+        this, &WidgetGl::valueChangedT1sKernelSigma);
 }
 
 void WidgetGl::ToggledT1sKernelTextureShown (bool checked)
 {
     makeCurrent ();
     (void)checked;
-    SetOneOrTwoViews (this, &WidgetGl::toggledT1sKernelTextureShown);
+    GetSettings ()->SetOneOrTwoViews (
+        this, &WidgetGl::toggledT1sKernelTextureShown);
 }
 
 void WidgetGl::ValueChangedDeformationSizeExp (int index)
@@ -4912,11 +4901,3 @@ void WidgetGl::ValueChangedStreamlineStepLength (double stepLength)
     CalculateStreamline (GetViewNumber ());
     update ();    
 }
-
-// Template instantiations
-// ======================================================================
-/// @cond
-template
-void WidgetGl::SetOneOrTwoViews<MainWindow> (
-    MainWindow* t, void (MainWindow::*f) (ViewNumber::Enum));
-/// @endcond

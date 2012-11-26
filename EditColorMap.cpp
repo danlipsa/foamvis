@@ -150,19 +150,17 @@ void EditColorMap::ClickedHighlight2 ()
     clickedHighlight (HighlightNumber::H2);
 }
 
-void EditColorMap::ClampHigh (double value)
+void EditColorMap::SetClampMax (double value)
 {
     m_colorBarModel.SetClampMax (value);
-    m_colorBarModel.SetupPalette (m_colorBarModel.GetPalette ());
     widgetHistogram->SetColorTransferFunction (
 	m_colorBarModel.GetInterval (), m_colorBarModel.GetColorMap ());
     widgetHistogram->SetItemsSelectionHigh (false, value);
 }
 
-void EditColorMap::ClampLow (double value)
+void EditColorMap::SetClampMin (double value)
 {
     m_colorBarModel.SetClampMin (value);
-    m_colorBarModel.SetupPalette (m_colorBarModel.GetPalette ());
     widgetHistogram->SetColorTransferFunction (
 	m_colorBarModel.GetInterval (), m_colorBarModel.GetColorMap ());
     widgetHistogram->SetItemsSelectionLow (false, value);

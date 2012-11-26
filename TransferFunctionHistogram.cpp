@@ -42,13 +42,13 @@ void TransferFunctionHistogram::createActions ()
 	new QAction (tr("&Clamp High"), this));
     m_actionClampHigh->setStatusTip(tr("Clamp High"));
     connect(m_actionClampHigh.get (), SIGNAL(triggered()),
-	    this, SLOT(ClampHigh ()));
+	    this, SLOT(SetClampMax ()));
 
     m_actionClampLow.reset (
 	new QAction (tr("&Clamp Low"), this));
     m_actionClampLow->setStatusTip(tr("Clamp Low"));
     connect(m_actionClampLow.get (), SIGNAL(triggered()),
-	    this, SLOT(ClampLow ()));
+	    this, SLOT(SetClampMin ()));
 
     m_actionClampClear.reset (
 	new QAction (tr("&Clamp Clear"), this));
@@ -58,16 +58,16 @@ void TransferFunctionHistogram::createActions ()
 }
 
 
-void TransferFunctionHistogram::ClampHigh ()
+void TransferFunctionHistogram::SetClampMax ()
 {
     double value = invTransform (xBottom, m_pos.x ());
-    Q_EMIT ClampHigh (value);
+    Q_EMIT SetClampMax (value);
 }
 
-void TransferFunctionHistogram::ClampLow ()
+void TransferFunctionHistogram::SetClampMin ()
 {
     double value = invTransform (xBottom, m_pos.x ());
-    Q_EMIT ClampLow (value);
+    Q_EMIT SetClampMin (value);
 }
 
 void TransferFunctionHistogram::ClampClearSlot ()

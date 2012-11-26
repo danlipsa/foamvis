@@ -48,6 +48,8 @@ public:
     G3D::Vector2 CalculateScaleCenter (
 	ViewNumber::Enum viewNumber, const G3D::Rect2D& rect) const;
     ViewType::Enum SetTwoHalvesViewType (ViewType::Enum viewType);
+    template<typename T>
+    void SetOneOrTwoViews (T* t,void (T::*f) (ViewNumber::Enum));
     //@}
 
 

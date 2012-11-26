@@ -1365,9 +1365,9 @@ void MainWindow::CurrentIndexChangedSelectedLight (int i)
 void MainWindow::CurrentIndexChangedFaceColor (int value)
 {
     (void)value;
-    widgetGl->SetOneOrTwoViews (this, &MainWindow::currentIndexChangedFaceColor);
+    m_settings->SetOneOrTwoViews (
+        this, &MainWindow::currentIndexChangedFaceColor);
 }
-
 
 void MainWindow::CurrentIndexChangedStatisticsType (int value)
 {

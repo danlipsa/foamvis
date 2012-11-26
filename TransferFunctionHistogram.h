@@ -21,13 +21,13 @@ public:
     TransferFunctionHistogram (QWidget* parent = 0);
 
 Q_SIGNALS:
-    void ClampHigh (double value);
-    void ClampLow (double value);
+    void SetClampMax (double value);
+    void SetClampMin (double value);
     void ClampClear ();
 
 public Q_SLOTS:
-    void ClampHigh ();
-    void ClampLow ();
+    void SetClampMax ();
+    void SetClampMin ();
     void ClampClearSlot ();
 
 

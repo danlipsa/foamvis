@@ -189,8 +189,8 @@ p, li { white-space: pre-wrap; }
    <header>TransferFunctionHistogram.h</header>
    <container>1</container>
    <slots>
-    <signal>ClampHigh(double)</signal>
-    <signal>ClampLow(double)</signal>
+    <signal>SetClampMax(double)</signal>
+    <signal>SetClampMin(double)</signal>
     <signal>ClampClear()</signal>
    </slots>
   </customwidget>
@@ -263,9 +263,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>widgetHistogram</sender>
-   <signal>ClampHigh(double)</signal>
+   <signal>SetClampMax(double)</signal>
    <receiver>EditColorMap</receiver>
-   <slot>ClampHigh(double)</slot>
+   <slot>SetClampMax(double)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>398</x>
@@ -279,9 +279,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>widgetHistogram</sender>
-   <signal>ClampLow(double)</signal>
+   <signal>SetClampMin(double)</signal>
    <receiver>EditColorMap</receiver>
-   <slot>ClampLow(double)</slot>
+   <slot>SetClampMin(double)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>386</x>
@@ -376,8 +376,8 @@ p, li { white-space: pre-wrap; }
  </connections>
  <slots>
   <slot>HighlightedPalette(int)</slot>
-  <slot>ClampHigh(double)</slot>
-  <slot>ClampLow(double)</slot>
+  <slot>SetClampMax(double)</slot>
+  <slot>SetClampMin(double)</slot>
   <slot>ClampClear()</slot>
   <slot>ToggledColorCodedHistogram(bool)</slot>
   <slot>ClickedHighlight0()</slot>

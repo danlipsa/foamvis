@@ -164,8 +164,6 @@ public:
     }
     pair<size_t, ViewNumber::Enum> LinkedTimeMaxSteps () const;
     void SetForceDifferenceShown (bool forceDifference);
-    template<typename T>
-    void SetOneOrTwoViews (T* t,void (T::*f) (ViewNumber::Enum));
     ViewAverage& GetViewAverage (ViewNumber::Enum viewNumber) const
     {
 	return *m_viewAverage[viewNumber];
@@ -476,7 +474,7 @@ private:
 		   LightType::Enum lightType, ColorNumber::Enum colorNumber);
     void averageInitStep (ViewNumber::Enum viewNumber);
     void selectView (const G3D::Vector2& clickedPoint);
-    void displayTwoHalvesLine () const;
+    void displayTwoHalvesLine (ViewNumber::Enum viewNumber) const;
     void displayContextMenuPos (ViewNumber::Enum viewNumber) const;
     void displayBodyCenters (ViewNumber::Enum viewNumber, 
 			     bool useZPos = false) const;
