@@ -110,17 +110,13 @@ ViewSettings::~ViewSettings ()
 {
 }
 
-float ViewSettings::GetVelocityClampingRatio () const
+float ViewSettings::GetVelocitySize () const
 {
-    QwtDoubleInterval values = m_velocityOverlayBarModel->GetInterval ();
-    double interval = values.maxValue () - values.minValue ();
-    QwtDoubleInterval clampValues = 
-        m_velocityOverlayBarModel->GetClampInterval ();
-    double clampInterval = clampValues.maxValue () - clampValues.minValue ();
-    if (clampInterval == 0)
-	return numeric_limits<float>::max ();
+    float clampMaxRatio = m_velocityOverlayBarModel->GetClampMaxRatio ();
+    if (clampMaxRatio == 0)
+        return numeric_limits<float>::max ();
     else
-	return interval / clampInterval;
+        return 1 / clampMaxRatio;
 }
 
 
@@ -269,9 +265,14 @@ bool ViewSettings::IsContextDisplayBody (size_t bodyId) const
     return m_contextBody.find (bodyId) != m_contextBody.end ();
 }
 
-void ViewSettings::CopyColorBar (const ViewSettings& from)
+void ViewSettings::CopyPaletteClamping (const ViewSettings& from)
 {
-    *m_colorBarModel = *from.m_colorBarModel;
+    m_colorBarModel->CopyPaletteClamping (*from.m_colorBarModel);
+}
+
+void ViewSettings::ColorBarToOverlayBarPaletteClamping ()
+{
+    m_velocityOverlayBarModel->CopyPaletteClamping (*m_colorBarModel);
 }
 
 void ViewSettings::SetColorBarModel (

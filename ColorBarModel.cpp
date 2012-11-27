@@ -265,8 +265,10 @@ void ColorBarModel::setupColorMap ()
 {
     m_colorMap.setColorInterval (getColor (0), getColor (1));
     double width = m_interval.width ();
-    double low = (m_clampInterval.minValue () -  m_interval.minValue ()) / width;
-    double high = (m_clampInterval.maxValue () -  m_interval.minValue ()) / width;
+    double low = 
+        (m_clampInterval.minValue () -  m_interval.minValue ()) / width;
+    double high = 
+        (m_clampInterval.maxValue () -  m_interval.minValue ()) / width;
     if (low != 0)
 	m_colorMap.addColorStop (low, getColor (0));
     if (high != 1)
@@ -286,7 +288,8 @@ void ColorBarModel::setupImage ()
 {
     double width = m_interval.width ();
     double low = (m_clampInterval.minValue () -  m_interval.minValue ()) / width;
-    double high = (m_clampInterval.maxValue () -  m_interval.minValue ()) / width;
+    double high = 
+        (m_clampInterval.maxValue () -  m_interval.minValue ()) / width;
     size_t colors = COLORS - 1;
     for (size_t i = 0; i <= colors; i++)
     {
@@ -338,4 +341,30 @@ bool ColorBarModel::IsClampedMin () const
 bool ColorBarModel::IsClampedMax () const
 {
     return m_clampInterval.maxValue () < m_interval.maxValue ();
+}
+
+void ColorBarModel::CopyPaletteClamping (const ColorBarModel& other)
+{
+    m_palette = other.m_palette;
+    QwtDoubleInterval interval = GetInterval ();
+    QwtDoubleInterval clampInterval = interval;
+    double clampMin = other.GetClampMin ();
+    double clampMax = other.GetClampMax ();
+    if (interval.contains (clampMin))
+        clampInterval.setMinValue (clampMin);
+    if (interval.contains (clampMax))
+        clampInterval.setMaxValue (clampMax);
+    SetClampInterval (clampInterval);
+}
+
+float ColorBarModel::GetClampMinRatio () const
+{
+    return (m_clampInterval.minValue () - m_interval.minValue ()) / 
+        (m_interval.maxValue () - m_interval.minValue ());
+}
+
+float ColorBarModel::GetClampMaxRatio () const
+{
+    return (m_clampInterval.maxValue () - m_interval.minValue ()) / 
+        (m_interval.maxValue () - m_interval.minValue ());
 }

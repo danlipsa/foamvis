@@ -27,14 +27,6 @@ public:
     {
 	return m_image;
     }    
-    const QwtDoubleInterval& GetClampInterval () const
-    {
-	return m_clampInterval;
-    }
-    const QwtDoubleInterval& GetInterval () const
-    {
-	return m_interval;
-    }
     const QString& GetTitle () const
     {
 	return m_title;
@@ -47,6 +39,24 @@ public:
     {
 	m_interval = interval;
 	m_clampInterval = interval;
+    }
+    const QwtDoubleInterval& GetInterval () const
+    {
+	return m_interval;
+    }
+    void SetClampInterval (const QwtDoubleInterval& clampValues)
+    {
+	m_clampInterval = clampValues;
+        SetupPalette (GetPalette ());
+    }
+    const QwtDoubleInterval& GetClampInterval () const
+    {
+	return m_clampInterval;
+    }
+    void SetClampClear ()
+    {
+	m_clampInterval = m_interval;
+	SetupPalette (GetPalette ());
     }
     void SetClampMax (double clampHigh)
     {
@@ -65,16 +75,6 @@ public:
     double GetClampMin () const
     {
         return m_clampInterval.minValue ();
-    }
-    void SetClampInterval (const QwtDoubleInterval& clampValues)
-    {
-	m_clampInterval = clampValues;
-        SetupPalette (GetPalette ());
-    }
-    void SetClampClear ()
-    {
-	m_clampInterval = m_interval;
-	SetupPalette (GetPalette ());
     }
     void SetClampMaxMinimum ()
     {
@@ -102,7 +102,10 @@ public:
     }
     bool IsClampedMin () const;
     bool IsClampedMax () const;
+    float GetClampMinRatio () const;
+    float GetClampMaxRatio () const;
     string ToString () const;
+    void CopyPaletteClamping (const ColorBarModel& other);
 
     static const size_t COLORS;
 

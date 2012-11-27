@@ -364,7 +364,8 @@ public Q_SLOTS:
     void OverlayBarClampClear ();
     void CopyTransformationFrom (int viewNumber);
     void CopySelectionFrom (int viewNumber);
-    void CopyColorBarFrom (int viewNumber);
+    void CopyPaletteClamping (int viewNumber);
+    void OverlayBarCopyVelocityMagnitude ();
 
 public:
     const static  size_t DISPLAY_ALL;
@@ -425,7 +426,9 @@ private:
 	SHOW_VELOCITY
     };
 
-    typedef void (WidgetGl::* ViewTypeDisplay) (ViewNumber::Enum view) const;
+    typedef void (WidgetGl::*ViewTypeDisplay) (ViewNumber::Enum view) const;
+    typedef bool (WidgetGl::*IsCopyCompatibleType) (
+        ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
 
 private:
     void saveVelocity (ViewNumber::Enum viewNumber,
@@ -435,7 +438,12 @@ private:
         const Simulation& simulation) const;
     void addCopyCompatibleMenu (
         QMenu* menuCopy, const char* nameOp, 
-        const boost::shared_ptr<QAction>* actionCopyOp) const;
+        const boost::shared_ptr<QAction>* actionCopyOp,
+        IsCopyCompatibleType isCopyCompatible) const;
+    bool isColorBarCopyCompatible (
+        ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
+    bool isSelectionCopyCompatible (
+        ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
 
     void rotateAverageAroundStreamlines (ViewNumber::Enum viewNumber,
                                          bool isIsAverageAroundShown) const;
@@ -506,6 +514,8 @@ private:
     float getBarLabelsWidth (const ColorBarModel& cbm) const;
     void displayOverlayBar (
 	ViewNumber::Enum viewNumber, const G3D::Rect2D& barRect);
+    void displayBarClampLevels (const ColorBarModel& barModel,
+                                const G3D::Rect2D& barRect) const;
     void displayViewTitle (ViewNumber::Enum viewNumber);
     void displayViewText (
 	ViewNumber::Enum viewNumber, const string& text, size_t row);
@@ -749,13 +759,14 @@ private:
     boost::shared_ptr<QAction> m_actionColorBarClampClear;
     boost::shared_ptr<QAction> m_actionEditOverlayMap;
     boost::shared_ptr<QAction> m_actionOverlayBarClampClear;
+    boost::shared_ptr<QAction> m_actionOverlayBarCopyVelocityMagnitude;
     boost::shared_ptr<QAction> m_actionOverlayBarClampHighMinimum;
     boost::array<boost::shared_ptr<QAction>, 
 		 ViewNumber::COUNT> m_actionCopySelection;
     boost::shared_ptr<QSignalMapper> m_signalMapperCopySelection;
     boost::array<boost::shared_ptr<QAction>, 
-		 ViewNumber::COUNT> m_actionCopyColorMap;
-    boost::shared_ptr<QSignalMapper> m_signalMapperCopyColorBar;
+		 ViewNumber::COUNT> m_actionCopyPaletteClamping;
+    boost::shared_ptr<QSignalMapper> m_signalMapperCopyPaletteClamping;
     boost::shared_ptr<SelectBodiesById> m_selectBodiesByIdList;
     QLabel *m_labelStatusBar;
     bool m_t1sShown;

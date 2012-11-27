@@ -169,7 +169,7 @@ public:
     {
         return m_velocityVis;
     }
-    float GetVelocityClampingRatio () const;
+    float GetVelocitySize () const;
     float GetVelocityLineWidth () const
     {
 	return m_velocityLineWidth;
@@ -254,7 +254,8 @@ public:
     {
 	m_colorBarModel.reset ();
     }
-    void CopyColorBar (const ViewSettings& from);
+    void CopyPaletteClamping (const ViewSettings& from);
+    void ColorBarToOverlayBarPaletteClamping ();
     // @}
 
     /**
