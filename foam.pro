@@ -108,15 +108,17 @@ LIBS += "C:\G3D-7.00-vc8\lib\GLG3Dd.lib"
 else:macx {
 INCLUDEPATH += /usr/local/include
 INCLUDEPATH += /usr/local/qwt-5.2.1/include
-INCLUDEPATH += /usr/local/include/vtk-5.10
+INCLUDEPATH += /usr/local/include/vtk-6.0
 INCLUDEPATH += /usr/local/Trolltech/Qt-4.7.0/include
 
 LIBS += -L/usr/local/lib
 LIBS += -L/usr/local/qwt-5.2.1/lib
 LIBS += -L/usr/local/lib/vtk-5.10
 
+# G3D
 LIBS += "-lGLG3D" 
 LIBS += "-lG3D" 
+
 LIBS += "-ljpeg"
 LIBS += "-lz"
 LIBS += "-lzip"
@@ -124,17 +126,25 @@ LIBS += "-lavformat"
 LIBS += "-lavcodec"
 LIBS += "-lavutil"
 LIBS += "-framework Carbon"
+
+# Qwt
 LIBS += "-lqwtd"
-LIBS += "-lvtkFiltering"
-LIBS += "-lvtkCommon"
-LIBS += "-lvtksys"
-LIBS += "-lvtkRendering"
-LIBS += "-lQVTK"
-LIBS += "-lvtkIO"
-LIBS += "-lvtkGraphics"
+
+# VTK
+LIBS += "-lvtkGUISupportQt-6.0"
+LIBS += "-lvtkIOXML-6.0"
+LIBS += "-lvtkFiltersFlowPaths-6.0"
+LIBS += "-lvtkInteractionWidgets-6.0"
+LIBS += "-lvtkRenderingOpenGL-6.0"
+
+# Qt3D
 LIBS += "-lQt3D"
+
+# Gsl
 LIBS += "-lgslcblas"
 LIBS += "-lgsl"
+
+# Boost
 LIBS += "-lboost_program_options"
 }
 else:unix {
