@@ -19,7 +19,10 @@ Release log
           based on 'Sigma'. Sigma is expressed in terms of bubble size.
         - show streamlines and KDE together and seed based on KDE value
         - show  min, max and clamping values for the color map
-        - bug fix: average is reset when click on overlay tab
+        - bug fix: average is reset when click on overlay tab, 
+                   link streamlines for 'two halves', 
+                   switching from 'two halves' to one view does not reset the 
+                             transforms.
 0.8.2553 2012-09-07
         - bug fixes (dataset fluctuates because is centered at foam center 
           instead of simulation center)
