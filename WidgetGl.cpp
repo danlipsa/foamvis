@@ -3255,6 +3255,8 @@ void WidgetGl::CacheUpdateSeedsCalculateStreamline (ViewNumber::Enum viewNumber)
 void WidgetGl::saveVelocity (ViewNumber::Enum viewNumber,
                              vtkSmartPointer<vtkImageData> velocity) const
 {
+    if (! GetSettings ()->IsVelocityFieldSaved ())
+        return;
     string cacheDir = GetSimulation (viewNumber).GetCacheDir ();
     ostringstream ostr;    
     ostr << cacheDir << "/velocity_" << setw (4) << setfill ('0') 
@@ -4095,6 +4097,13 @@ void WidgetGl::OverlayBarClampClear ()
     Q_EMIT OverlayBarModelChanged (viewNumber, colorBarModel);
 }
 
+
+void WidgetGl::ToggledVelocityFieldSaved (bool saved)
+{
+    GetSettings ()->SetVelocityFieldSaved (saved);
+    update ();
+}
+
 void WidgetGl::ToggledBarLabelsShown (bool shown)
 {
     m_barLabelsShown = shown;
@@ -4163,8 +4172,8 @@ void WidgetGl::ToggledVelocityShown (bool checked)
 	ViewNumber::Enum viewNumber = vn[i];
 	ViewSettings& vs = GetViewSettings (viewNumber);
 	vs.SetVelocityShown (checked);
+        CompileUpdate (viewNumber);
     }
-    CompileUpdate ();
 }
 
 void WidgetGl::ToggledVelocityGridShown (bool checked)
@@ -4189,8 +4198,8 @@ void WidgetGl::ToggledVelocityClampingShown (bool checked)
 	ViewNumber::Enum viewNumber = vn[i];
 	VectorAverage& va = GetViewAverage (viewNumber).GetVelocityAverage ();
 	va.SetClampingShown (checked);
+        CompileUpdate (viewNumber);
     }
-    CompileUpdate ();
 }
 
 
@@ -4227,8 +4236,11 @@ void WidgetGl::ToggledVelocitySameSize (bool checked)
     makeCurrent ();
     vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
-	GetViewAverage (vn[i]).GetVelocityAverage ().SetSameSize (checked);
-    CompileUpdate ();    
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	GetViewAverage (viewNumber).GetVelocityAverage ().SetSameSize (checked);
+        CompileUpdate (viewNumber);
+    }
 }
 
 void WidgetGl::ToggledVelocityColorMapped (bool checked)
@@ -4236,8 +4248,12 @@ void WidgetGl::ToggledVelocityColorMapped (bool checked)
     makeCurrent ();
     vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
-	GetViewAverage (vn[i]).GetVelocityAverage ().SetColorMapped (checked);
-    CompileUpdate ();    
+    {
+        ViewNumber::Enum viewNumber = vn[i];
+	GetViewAverage (
+            viewNumber).GetVelocityAverage ().SetColorMapped (checked);
+        CompileUpdate (viewNumber);
+    }
 }
 
 void WidgetGl::ToggledMissingPressureShown (bool checked)

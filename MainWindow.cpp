@@ -1280,11 +1280,16 @@ void MainWindow::ValueChangedAverageTimeWindow (int timeSteps)
 void MainWindow::ButtonClickedVelocityVis (int vv)
 {
     VectorVis::Enum velocityVis = VectorVis::Enum (vv);
-    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
-    ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
-    vs.SetVelocityVis (velocityVis);
-    if (vs.GetVelocityVis () == VectorVis::STREAMLINE)
-        widgetGl->CacheCalculateStreamline (viewNumber);
+
+    vector<ViewNumber::Enum> vn = m_settings->GetTwoHalvesViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+        ViewNumber::Enum viewNumber = vn[i];
+        ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+        vs.SetVelocityVis (velocityVis);
+        if (vs.GetVelocityVis () == VectorVis::STREAMLINE)
+            widgetGl->CacheCalculateStreamline (viewNumber);
+    }
     widgetGl->update ();
 }
 

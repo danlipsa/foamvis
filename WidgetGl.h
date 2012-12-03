@@ -225,6 +225,7 @@ Q_SIGNALS:
 	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 public Q_SLOTS:
+    void ToggledVelocityFieldSaved (bool saved);
     void ToggledBarLabelsShown (bool shown);
     void ToggledKDESeeds (bool toggled);
     void ToggledSeedsShown (bool shown);

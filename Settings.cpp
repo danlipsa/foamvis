@@ -92,9 +92,10 @@ Settings::Settings (const Simulation& simulation, float w, float h,
     m_centerPathTubeUsed (true),
     m_centerPathLineUsed (false),
     m_splitHalfView (false),
-    m_titleShown (false),
+    m_titleShown (true),
     m_viewFocusShown (true),
     m_barLarge (false),
+    m_velocityFieldSaved (false),
     m_interactionMode (InteractionMode::ROTATE)
 {
     initViewSettings (simulation, w, h, t1sShiftLower);

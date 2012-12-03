@@ -295,6 +295,14 @@ public:
     {
         m_barLarge = large;
     }
+    bool IsVelocityFieldSaved () const
+    {
+        return m_velocityFieldSaved;
+    }
+    void SetVelocityFieldSaved (bool saved)
+    {
+        m_velocityFieldSaved = saved;
+    }
     // @}
     
 
@@ -401,6 +409,7 @@ private:
     bool m_titleShown;
     bool m_viewFocusShown;
     bool m_barLarge;
+    bool m_velocityFieldSaved;
     boost::shared_ptr<QSignalMapper> m_signalMapperSelectionChanged;    
     InteractionMode::Enum m_interactionMode;
 };
