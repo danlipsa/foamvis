@@ -80,8 +80,6 @@ ViewSettings::ViewSettings () :
     m_simulationIndex (0),
     m_currentTime (0),
     m_t1sShiftLower (false),
-    m_syncViewTimeBegin (0),
-    m_syncViewTimeEnd (0),
     m_deformationSize (1),
     m_deformationLineWidth (1),
     m_velocityLineWidth (1),
@@ -703,5 +701,42 @@ ColorBarType::Enum ViewSettings::GetColorBarType (
 	return ColorBarType::PROPERTY;
     default:
 	return ColorBarType::NONE;
+    }
+}
+
+size_t ViewSettings::GetLinkedTimeInterval (size_t eventIndex) const
+{
+    RuntimeAssert (eventIndex >= 0 && eventIndex <= m_linkedTimeEvent.size (),
+                   "Event index out of range: ", eventIndex);
+    size_t timeInterval;    
+    if (eventIndex == m_linkedTimeEvent.size ())
+        timeInterval = GetTimeSteps ();
+    else
+        timeInterval = m_linkedTimeEvent[eventIndex] + 1;
+    if (eventIndex != 0)
+        timeInterval -= m_linkedTimeEvent[eventIndex - 1];
+    return timeInterval;
+}
+
+void ViewSettings::AddLinkedTimeEvent (size_t timeEvent)
+{
+    // search for the insertion location
+    size_t i;
+    for (i = 0; i < m_linkedTimeEvent.size (); ++i)
+    {
+        if (m_linkedTimeEvent[i] == timeEvent)
+            ThrowException ("Event already in the list");
+        if (m_linkedTimeEvent[i] > timeEvent)
+            break;
+    }
+
+    // move elements to the right
+    m_linkedTimeEvent.resize (m_linkedTimeEvent.size () + 1);
+    size_t toStore = timeEvent;
+    for (size_t j = i; j < m_linkedTimeEvent.size (); ++j)
+    {
+        size_t temp = m_linkedTimeEvent[j];
+        m_linkedTimeEvent[j] = toStore;
+        toStore = temp;
     }
 }

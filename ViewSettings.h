@@ -601,26 +601,12 @@ public:
     {
 	return m_timeSteps;
     }
-    void SetLinkedTimeBegin (size_t begin)
+    void AddLinkedTimeEvent (size_t timeEvent);
+    const vector<size_t>& GetLinkedTimeEvents () const
     {
-	m_syncViewTimeBegin = begin;
+	return m_linkedTimeEvent;
     }
-    size_t GetLinkedTimeBegin () const
-    {
-	return m_syncViewTimeBegin;
-    }
-    void SetLinkedTimeEnd (size_t end)
-    {
-	m_syncViewTimeEnd = end;
-    }
-    size_t GetLinkedTimeEnd () const
-    {
-	return m_syncViewTimeEnd;
-    }
-    size_t GetLinkedTimeInterval () const
-    {
-	return m_syncViewTimeEnd - m_syncViewTimeBegin + 1;
-    }
+    size_t GetLinkedTimeInterval (size_t eventIndex) const;
     bool IsTimeDisplacementUsed () const
     {
         return GetTimeDisplacement () > 0;
@@ -830,8 +816,7 @@ private:
     size_t m_currentTime;
     size_t m_timeSteps;
     bool m_t1sShiftLower;
-    size_t m_syncViewTimeBegin;
-    size_t m_syncViewTimeEnd;
+    vector<size_t> m_linkedTimeEvent;
     float m_deformationSize;
     float m_deformationLineWidth;
     float m_velocityLineWidth;

@@ -268,17 +268,11 @@ void WidgetGl::initQuadrics ()
 
 void WidgetGl::createActions ()
 {
-    m_actionLinkedTimeBegin = boost::make_shared<QAction> (
-	tr("&Begin interval"), this);
-    m_actionLinkedTimeBegin->setStatusTip(tr("Linked time begin interval"));
-    connect(m_actionLinkedTimeBegin.get (), SIGNAL(triggered()),
-	    this, SLOT(LinkedTimeBegin ()));
-
     m_actionLinkedTimeEnd = boost::make_shared<QAction> (
-	tr("&End interval"), this);
-    m_actionLinkedTimeEnd->setStatusTip(tr("Linked time end interval"));
+	tr("&Add event"), this);
+    m_actionLinkedTimeEnd->setStatusTip(tr("Add linked time event"));
     connect(m_actionLinkedTimeEnd.get (), SIGNAL(triggered()),
-	    this, SLOT(LinkedTimeEnd ()));
+	    this, SLOT(AddLinkedTimeEvent ()));
 
     m_actionSelectAll = boost::make_shared<QAction> (tr("&All"), this);
     m_actionSelectAll->setStatusTip(tr("Select all"));
@@ -2484,31 +2478,6 @@ void WidgetGl::setLight (int sliderValue, int maximumValue,
     update ();
 }
 
-
-pair<size_t, ViewNumber::Enum> WidgetGl::LinkedTimeMaxSteps () const
-{
-    pair<size_t, ViewNumber::Enum> maxInterval = 
-        GetSettings ()->LinkedTimeMaxInterval ();    
-    pair<size_t, ViewNumber::Enum> max (0, ViewNumber::COUNT);
-    for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
-    {
-	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	size_t maxStep = 
-	    (GetTimeSteps (viewNumber) - 1) *
-	    GetSettings ()->LinkedTimeStepStretch (
-                maxInterval.first, viewNumber);
-	if (max.first < maxStep)
-	{
-	    max.first = maxStep;
-	    max.second = viewNumber;
-	}
-    }
-    max.first += 1;
-    return max;
-}
-
-
-
 size_t WidgetGl::GetTimeSteps (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -2581,7 +2550,6 @@ void WidgetGl::contextMenuEventView (QMenu* menu) const
     }
     {
 	QMenu* menuLinkedTime = menu->addMenu ("Linked time");
-	menuLinkedTime->addAction (m_actionLinkedTimeBegin.get ());
 	menuLinkedTime->addAction (m_actionLinkedTimeEnd.get ());
     }
     {
@@ -3781,27 +3749,12 @@ void WidgetGl::ShowReset ()
 }
 
 
-void WidgetGl::LinkedTimeBegin ()
+void WidgetGl::AddLinkedTimeEvent ()
 {
     makeCurrent ();
     try
     {
-	GetSettings ()->LinkedTimeBegin ();
-    }
-    catch (exception& e)
-    {
-	QMessageBox msgBox (this);
-	msgBox.setText(e.what ());
-	msgBox.exec();	
-    }
-}
-
-void WidgetGl::LinkedTimeEnd ()
-{
-    makeCurrent ();
-    try
-    {
-	GetSettings ()->LinkedTimeEnd ();
+	GetSettings ()->AddLinkedTimeEvent ();
     }
     catch (exception& e)
     {
@@ -4699,7 +4652,7 @@ void WidgetGl::ClickedEnd ()
     makeCurrent ();
     size_t steps = 
 	((GetSettings ()->GetTimeLinkage () == TimeLinkage::INDEPENDENT) ?
-	 GetTimeSteps () : LinkedTimeMaxSteps ().first);
+	 GetTimeSteps () : GetSettings ()->GetLinkedTimeTimeSteps ());
     boost::array<int, ViewNumber::COUNT> direction;
     GetSettings ()->SetCurrentTime (steps - 1, &direction, true);
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)

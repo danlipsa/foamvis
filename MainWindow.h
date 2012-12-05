@@ -135,6 +135,7 @@ private:
     static void updateStretch (QWidget* widget, 
 			       ViewLayout::Enum layout,
 			       size_t value);
+    void updateLinkedTimeEvents (ViewNumber::Enum viewNumber);
     void updateSliderTimeSteps (
         ViewNumber::Enum viewNumber,
         const vector<QwtDoubleInterval>& valueIntervals);

@@ -221,51 +221,6 @@ void Settings::SetViewNumber (ViewNumber::Enum viewNumber)
     Q_EMIT ViewChanged (prevViewNumber);
 }
 
-void Settings::LinkedTimeBegin ()
-{
-    checkLinkedTimesValid ();
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    size_t linkedTimeBegin = GetCurrentTime (viewNumber);
-    size_t linkedTimeEnd = vs.GetLinkedTimeEnd ();
-    checkLinkedTimesValid (linkedTimeBegin, linkedTimeEnd);
-    vs.SetLinkedTimeBegin (linkedTimeBegin);
-    Q_EMIT ViewChanged (viewNumber);
-}
-
-void Settings::LinkedTimeEnd ()
-{
-    checkLinkedTimesValid ();
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    size_t linkedTimeBegin = vs.GetLinkedTimeBegin ();
-    size_t linkedTimeEnd = GetCurrentTime (viewNumber);
-    checkLinkedTimesValid (linkedTimeBegin, linkedTimeEnd);
-    vs.SetLinkedTimeEnd (linkedTimeEnd);
-    Q_EMIT ViewChanged (viewNumber);
-}
-
-
-void Settings::checkLinkedTimesValid (size_t timeBegin, size_t timeEnd) const
-{
-    if (timeBegin > timeEnd)
-    {
-	ostringstream ostr;
-	ostr << "Error: timeBegin: " << timeBegin 
-	     << " smaller than timeEnd: " << timeEnd;
-	ThrowException (ostr.str ());
-    }
-}
-
-
-void Settings::checkLinkedTimesValid () const
-{
-    if (GetTimeLinkage () == TimeLinkage::LINKED)
-    {
-	ThrowException ("You need to be in Settings > Show > "
-			"View > Time linkage > Independent mode");
-    }
-}
 
 size_t Settings::GetCurrentTime (ViewNumber::Enum viewNumber) const
 {
@@ -299,14 +254,8 @@ void Settings::SetCurrentTime (
 	for (int i = 0; i < m_viewCount; ++i)
 	{
 	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	    ViewSettings& vs = GetViewSettings (viewNumber);
-	    float multiplier = LinkedTimeStepStretch (viewNumber);
-	    size_t timeSteps = vs.GetTimeSteps ();
-	    size_t time = floor (m_linkedTime / multiplier);
-	    if (time < timeSteps)
-		direction[viewNumber] = vs.SetCurrentTime (time);
-	    else if (setLastStep)
-		direction[viewNumber] = vs.SetCurrentTime (timeSteps - 1);
+            direction[viewNumber] = 
+                setCurrentTime (viewNumber, m_linkedTime, setLastStep);
 	}
 	break;
     }
@@ -339,55 +288,6 @@ QColor Settings::GetBubblePathsContextColor () const
     returnColor.setAlphaF (GetContextAlpha ());
     return returnColor;
 }
-
-float Settings::LinkedTimeStepStretch (ViewNumber::Enum viewNumber) const
-{
-    return LinkedTimeStepStretch (LinkedTimeMaxInterval ().first, viewNumber);
-}
-
-float Settings::LinkedTimeStepStretch (size_t max,
-				       ViewNumber::Enum viewNumber) const
-{
-    return static_cast<float> (max) / 
-	GetViewSettings (viewNumber).GetLinkedTimeInterval ();
-}
-
-pair<size_t, ViewNumber::Enum> Settings::LinkedTimeMaxInterval () const
-{
-    pair<size_t, ViewNumber::Enum> max (0, ViewNumber::COUNT);
-    for (int i = 0; i < GetViewCount (); ++i)
-    {
-	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	ViewSettings& vs = GetViewSettings (viewNumber);
-	size_t interval = vs.GetLinkedTimeInterval ();
-	if (max.first < interval)
-	{
-	    max.first = interval;
-	    max.second = viewNumber;
-	}
-    }
-    return max;
-}
-
-vector<ViewNumber::Enum> Settings::GetLinkedTimeViewNumbers (
-    ViewNumber::Enum viewNumber) const
-{
-    if (GetTimeLinkage () == TimeLinkage::LINKED)
-    {
-        ViewCount::Enum viewCount = GetViewCount ();
-        vector<ViewNumber::Enum> vn (viewCount);
-        for (int i = 0; i < viewCount; ++i)
-            vn[i] = ViewNumber::FromSizeT (i);
-        return vn;
-    }
-    else
-    {
-        vector<ViewNumber::Enum> vn (1);
-        vn[0] = viewNumber;
-        return vn;
-    }
-}
-
 
 G3D::AABox Settings::CalculateCenteredViewingVolume (
     ViewNumber::Enum viewNumber, ViewCount::Enum viewCount, 
@@ -674,6 +574,124 @@ void Settings::SetOneOrTwoViews (T* t, void (T::*f) (ViewNumber::Enum))
     else
 	CALL_MEMBER (*t, f) (GetViewNumber ());
 }
+
+void Settings::AddLinkedTimeEvent ()
+{
+    checkLinkedTimesValid ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    size_t currentTime = GetCurrentTime (viewNumber);
+    vs.AddLinkedTimeEvent (currentTime);
+    Q_EMIT ViewChanged (viewNumber);
+}
+
+void Settings::checkLinkedTimesValid () const
+{
+    if (GetTimeLinkage () == TimeLinkage::LINKED)
+    {
+	ThrowException ("You need to be in Settings > Time > Independent");
+    }
+}
+
+float Settings::GetLinkedTimeStretch (
+    ViewNumber::Enum viewNumber, size_t eventIndex) const
+{
+    return static_cast<float> (GetLinkedTimeMaxInterval (eventIndex).first) / 
+        GetViewSettings (viewNumber).GetLinkedTimeInterval (eventIndex);
+}
+
+pair<size_t, ViewNumber::Enum> Settings::GetLinkedTimeMaxInterval (
+    size_t eventIndex) const
+{
+    pair<size_t, ViewNumber::Enum> max (0, ViewNumber::COUNT);
+    for (int i = 0; i < GetViewCount (); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	size_t interval = vs.GetLinkedTimeInterval (eventIndex);
+	if (max.first < interval)
+	{
+	    max.first = interval;
+	    max.second = viewNumber;
+	}
+    }
+    return max;
+}
+
+vector<ViewNumber::Enum> Settings::GetLinkedTimeViewNumbers (
+    ViewNumber::Enum viewNumber) const
+{
+    if (GetTimeLinkage () == TimeLinkage::LINKED)
+    {
+        ViewCount::Enum viewCount = GetViewCount ();
+        vector<ViewNumber::Enum> vn (viewCount);
+        for (int i = 0; i < viewCount; ++i)
+            vn[i] = ViewNumber::FromSizeT (i);
+        return vn;
+    }
+    else
+    {
+        vector<ViewNumber::Enum> vn (1);
+        vn[0] = viewNumber;
+        return vn;
+    }
+}
+
+const vector<size_t>& Settings::GetLinkedTimeEvents (
+    ViewNumber::Enum viewNumber) const
+{
+    return GetViewSettings (viewNumber).GetLinkedTimeEvents ();
+}
+
+int Settings::setCurrentTime (
+    ViewNumber::Enum viewNumber, size_t linkedTime, bool setLastStep)
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    // search for the event interval where the linked time is, and compute
+    // the view time
+    size_t currentViewTime = 0;
+    size_t currentLinkedTime = 0;
+    size_t eventIndex;
+    for (eventIndex = 0; 
+         eventIndex < GetLinkedTimeEvents (ViewNumber::VIEW0).size () && 
+             currentLinkedTime <= linkedTime;
+         ++eventIndex)
+    {
+        pair<size_t, ViewNumber::Enum> p = GetLinkedTimeMaxInterval (eventIndex);
+        currentLinkedTime += p.first;
+        currentViewTime += vs.GetLinkedTimeInterval (eventIndex);
+    }
+    if (eventIndex >= GetLinkedTimeEvents (ViewNumber::VIEW0).size ())
+    {
+        currentViewTime += (linkedTime - currentLinkedTime);
+        if (currentViewTime >= vs.GetTimeSteps ())
+        {
+            if (setLastStep)
+                currentViewTime = vs.GetTimeSteps () - 1;
+            else
+                return 0;
+        }
+    }
+    else
+        currentViewTime += (linkedTime - currentLinkedTime) * 
+            GetLinkedTimeStretch (viewNumber, eventIndex);
+    return vs.SetCurrentTime (currentViewTime);
+}
+
+size_t Settings::GetLinkedTimeTimeSteps () const
+{
+    size_t currentLinkedTime = 0;
+    for (size_t eventIndex = 0; 
+         eventIndex <= GetLinkedTimeEvents (ViewNumber::VIEW0).size ();
+         ++eventIndex)
+    {
+        pair<size_t, ViewNumber::Enum> p = GetLinkedTimeMaxInterval (eventIndex);
+        currentLinkedTime += p.first;
+    }
+    return currentLinkedTime;
+}
+
+
 
 // Template instantiations
 // ======================================================================

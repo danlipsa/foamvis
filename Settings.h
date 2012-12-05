@@ -114,8 +114,7 @@ public:
      * @{
      * @name LinkedTime
      */
-    void LinkedTimeBegin ();
-    void LinkedTimeEnd ();
+    void AddLinkedTimeEvent ();
     void SetTimeLinkage (TimeLinkage::Enum timeLinkage);
     TimeLinkage::Enum GetTimeLinkage () const
     {
@@ -125,10 +124,12 @@ public:
     {
 	return m_linkedTime;
     }
-    float LinkedTimeStepStretch (ViewNumber::Enum viewNumber) const;
-    float LinkedTimeStepStretch (size_t max,
-				 ViewNumber::Enum viewNumber) const;
-    pair<size_t, ViewNumber::Enum> LinkedTimeMaxInterval () const;
+    float GetLinkedTimeStretch (ViewNumber::Enum viewNumber, 
+                                 size_t eventIndex) const;
+    pair<size_t, ViewNumber::Enum> GetLinkedTimeMaxInterval (
+        size_t eventIndex) const;
+    const vector<size_t>& GetLinkedTimeEvents (
+        ViewNumber::Enum viewNumber) const;
     
     vector<ViewNumber::Enum> GetLinkedTimeViewNumbers (
 	ViewNumber::Enum viewNumber) const;
@@ -136,6 +137,7 @@ public:
     {
 	return GetLinkedTimeViewNumbers (GetViewNumber ());
     }
+    size_t GetLinkedTimeTimeSteps () const;
     // @}
 
 
@@ -362,11 +364,15 @@ private:
     void initEndTranslationColor ();
     void initViewSettings (const Simulation& simulation, float w, float h,
 			   bool t1sShiftLower);
-    void checkLinkedTimesValid (size_t timeBegin, size_t timeEnd) const;
     void checkLinkedTimesValid () const;
     ViewCount::Enum getViewCount (
 	vector<ViewNumber::Enum>* mapping, IsViewType isView) const;
-
+    /**
+     * @return positive if time for the view 
+     *         has moved forward or negative otherwise
+     */
+    int setCurrentTime (ViewNumber::Enum viewNumber, size_t linkedTime, 
+                        bool setLastStep);
 
 private:
     Q_OBJECT
@@ -394,7 +400,7 @@ private:
      * Used to keep trak of time for TimeLinkage::LINKED.
      * It has the resolution of the view that has the maximum interval and the 
      * range of the view that has the maximum range.
-     * @see LinkedTimeMaxInterval, @see LinkedTimeMaxSteps
+     * @see GetLinkedTimeMaxInterval, @see GetLinkedTimeMaxSteps
      */
     size_t m_linkedTime;
     // View related variables

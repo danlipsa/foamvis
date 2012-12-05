@@ -795,7 +795,6 @@ void MainWindow::setupColorBarModel (
 }
 
 
-
 void MainWindow::updateLightControls (
     const ViewSettings& vs, LightNumber::Enum i)
 {
@@ -962,6 +961,34 @@ void MainWindow::setStackedWidget (ViewType::Enum viewType)
 }
 
 
+void MainWindow::updateLinkedTimeEvents (ViewNumber::Enum viewNumber)
+{
+    const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+    const vector<size_t>& events = vs.GetLinkedTimeEvents ();
+    tableWidgetEvents->setRowCount (0);
+    for (size_t eventIndex = 0; eventIndex < events.size (); ++eventIndex)
+    {
+        ostringstream ostr;
+        size_t begin = eventIndex == 0 ? 0 : events[eventIndex - 1];
+        ostr << begin;
+        QTableWidgetItem* item = new QTableWidgetItem (ostr.str ().c_str ());
+        tableWidgetEvents->setItem (eventIndex, 0, item);
+
+        size_t end = events[eventIndex];
+        ostr.str ("");
+        ostr << end;
+        item = new QTableWidgetItem (ostr.str ().c_str ());
+        tableWidgetEvents->setItem (eventIndex, 1, item);
+
+
+        size_t stretch = m_settings->GetLinkedTimeStretch (
+            viewNumber, eventIndex);
+        ostr.str ("");
+        ostr << setprecision (3) << stretch;
+        item = new QTableWidgetItem (ostr.str ().c_str ());
+        tableWidgetEvents->setItem (eventIndex, 2, item);
+    }
+}
 
 
 
@@ -1234,7 +1261,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
     m_settings->SetCurrentTime (timeStep, &direction);
     for (size_t i = 0; i < vn.size (); ++i)
     {
-        ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
+        ViewNumber::Enum viewNumber = vn[i];
         ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
         ViewType::Enum viewType = vs.GetViewType ();
         
@@ -1271,9 +1298,6 @@ void MainWindow::ValueChangedAverageTimeWindow (int timeSteps)
     else
         widgetVtk->GetScalarAverage (
             viewNumber).AverageSetTimeWindow (timeSteps);
-    ostringstream ostr;
-    ostr << timeSteps * m_settings->LinkedTimeStepStretch (viewNumber);
-    labelAverageLinkedTimeWindow->setText (ostr.str ().c_str ());
 }
 
 
@@ -1790,36 +1814,17 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     {
 	sliderTimeSteps->SetValueAndMaxNoSignals (
 	    vs.GetCurrentTime (), widgetGl->GetTimeSteps (viewNumber) - 1);
-	labelAverageLinkedTimeWindowTitle->setHidden (true);
-	labelAverageLinkedTimeWindow->setHidden (true);
     }
     else
     {
-	size_t steps = widgetGl->LinkedTimeMaxSteps ().first;
+	size_t steps = m_settings->GetLinkedTimeTimeSteps ();
 	sliderTimeSteps->SetValueAndMaxNoSignals (
 	    m_settings->GetLinkedTime (), steps - 1);
-	labelAverageLinkedTimeWindowTitle->setHidden (false);
-	labelAverageLinkedTimeWindow->setHidden (false);
-	ostringstream ostr;
-	ostr << scalarAverageTimeWindow * 
-	    m_settings->LinkedTimeStepStretch (viewNumber);
-	labelAverageLinkedTimeWindow->setText (ostr.str ().c_str ());
     }
 
     labelAverageColor->setText (FaceScalar::ToString (property));
+    updateLinkedTimeEvents (viewNumber);
 
-    ostringstream ostr;
-    ostr << vs.GetLinkedTimeBegin ();
-    labelLinkedTimeBegin->setText (ostr.str ().c_str ());
-    ostr.str ("");
-    ostr << vs.GetLinkedTimeEnd ();
-    labelLinkedTimeEnd->setText (ostr.str ().c_str ());
-    ostr.str ("");
-    ostr << widgetGl->GetTimeSteps (viewNumber);
-    labelLinkedTimeSteps->setText (ostr.str ().c_str ());
-    ostr.str ("");
-    ostr << setprecision (3) << m_settings->LinkedTimeStepStretch (viewNumber);
-    labelLinkedTimeStepStretch->setText (ostr.str ().c_str ());
 
     updateLightControls (vs, selectedLight);
     updateButtons ();

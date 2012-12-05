@@ -162,7 +162,6 @@ public:
     {
 	return GetRangeT1sKDE (GetViewNumber ());
     }
-    pair<size_t, ViewNumber::Enum> LinkedTimeMaxSteps () const;
     void SetForceDifferenceShown (bool forceDifference);
     ViewAverage& GetViewAverage (ViewNumber::Enum viewNumber) const
     {
@@ -338,8 +337,7 @@ public Q_SLOTS:
     void ResetTransformGrid ();
     void RotationCenterBody ();
     void RotationCenterFoam ();
-    void LinkedTimeBegin ();
-    void LinkedTimeEnd ();
+    void AddLinkedTimeEvent ();
     void SelectAll ();
     void DeselectAll ();
     void SelectBodiesByIdList ();
@@ -718,7 +716,6 @@ private:
     boost::array<ViewTypeDisplay, ViewType::COUNT> m_display;
 
 
-    boost::shared_ptr<QAction> m_actionLinkedTimeBegin;
     boost::shared_ptr<QAction> m_actionLinkedTimeEnd;
 
     boost::shared_ptr<QAction> m_actionSelectAll;
