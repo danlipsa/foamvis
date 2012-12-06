@@ -965,7 +965,7 @@ void MainWindow::updateLinkedTimeEvents (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
     const vector<size_t>& events = vs.GetLinkedTimeEvents ();
-    tableWidgetEvents->setRowCount (0);
+    tableWidgetEvents->setRowCount (events.size ());
     for (size_t eventIndex = 0; eventIndex < events.size (); ++eventIndex)
     {
         ostringstream ostr;
