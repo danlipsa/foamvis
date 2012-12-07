@@ -188,7 +188,6 @@ public:
     }
     G3D::AABox CalculateCenteredViewingVolume (
 	ViewNumber::Enum viewNumber) const;
-    void ButtonClickedViewType (ViewType::Enum oldViewType);
     void SetViewTypeAndCameraDistance (ViewNumber::Enum viewNumber);
     void CalculateStreamline (ViewNumber::Enum viewNumber);
     void CacheUpdateSeedsCalculateStreamline (ViewNumber::Enum viewNumber);
@@ -213,6 +212,8 @@ public:
         const QSlider& slider,
         const Simulation& simulation) const;
     void CurrentIndexChangedSimulation (int index);
+    void ShowMessageBox (const char* message);
+    void ButtonClickedViewType (ViewType::Enum oldViewType);
     
 Q_SIGNALS:
     void PaintEnd ();
@@ -276,10 +277,9 @@ public Q_SLOTS:
     void ToggledContextBoxShown (bool checked);
     void ToggledT1sKernelTextureShown (bool checked);
     void ToggledAverageAroundAllowRotation (bool checked);
-    void ButtonClickedTimeLinkage (int id);
     void ButtonClickedInteractionObject (int id);
     void ButtonClickedDuplicateDomain (int id);
-    void ClickedEnd ();
+    void ButtonClickedEnd ();
     void SetBodyOrFaceScalar (
 	ViewNumber::Enum viewNumber,
 	boost::shared_ptr<ColorBarModel> colorBarModel,
@@ -338,6 +338,7 @@ public Q_SLOTS:
     void RotationCenterBody ();
     void RotationCenterFoam ();
     void AddLinkedTimeEvent ();
+    void ResetLinkedTimeEvents ();
     void SelectAll ();
     void DeselectAll ();
     void SelectBodiesByIdList ();
@@ -716,7 +717,8 @@ private:
     boost::array<ViewTypeDisplay, ViewType::COUNT> m_display;
 
 
-    boost::shared_ptr<QAction> m_actionLinkedTimeEnd;
+    boost::shared_ptr<QAction> m_actionLinkedTimeAddEvent;
+    boost::shared_ptr<QAction> m_actionLinkedTimeReset;
 
     boost::shared_ptr<QAction> m_actionSelectAll;
     boost::shared_ptr<QAction> m_actionDeselectAll;

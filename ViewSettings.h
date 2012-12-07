@@ -602,6 +602,7 @@ public:
 	return m_timeSteps;
     }
     void AddLinkedTimeEvent (size_t timeEvent);
+    void ResetLinkedTimeEvents ();
     const vector<size_t>& GetLinkedTimeEvents () const
     {
 	return m_linkedTimeEvent;

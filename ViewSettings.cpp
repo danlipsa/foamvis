@@ -706,7 +706,7 @@ ColorBarType::Enum ViewSettings::GetColorBarType (
 
 size_t ViewSettings::GetLinkedTimeInterval (size_t eventIndex) const
 {
-    RuntimeAssert (eventIndex >= 0 && eventIndex <= m_linkedTimeEvent.size (),
+    RuntimeAssert (eventIndex <= m_linkedTimeEvent.size (),
                    "Event index out of range: ", eventIndex);
     size_t timeInterval;    
     if (eventIndex == m_linkedTimeEvent.size ())
@@ -714,7 +714,7 @@ size_t ViewSettings::GetLinkedTimeInterval (size_t eventIndex) const
     else
         timeInterval = m_linkedTimeEvent[eventIndex] + 1;
     if (eventIndex != 0)
-        timeInterval -= m_linkedTimeEvent[eventIndex - 1];
+        timeInterval -= (m_linkedTimeEvent[eventIndex - 1] + 1);
     return timeInterval;
 }
 
@@ -739,4 +739,9 @@ void ViewSettings::AddLinkedTimeEvent (size_t timeEvent)
         m_linkedTimeEvent[j] = toStore;
         toStore = temp;
     }
+}
+
+void ViewSettings::ResetLinkedTimeEvents ()
+{
+    m_linkedTimeEvent.resize (0);
 }

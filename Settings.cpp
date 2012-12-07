@@ -585,6 +585,15 @@ void Settings::AddLinkedTimeEvent ()
     Q_EMIT ViewChanged (viewNumber);
 }
 
+void Settings::ResetLinkedTimeEvents ()
+{
+    checkLinkedTimesValid ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    vs.ResetLinkedTimeEvents ();
+    Q_EMIT ViewChanged (viewNumber);
+}
+
 void Settings::checkLinkedTimesValid () const
 {
     if (GetTimeLinkage () == TimeLinkage::LINKED)
@@ -603,6 +612,8 @@ float Settings::GetLinkedTimeStretch (
 pair<size_t, ViewNumber::Enum> Settings::GetLinkedTimeMaxInterval (
     size_t eventIndex) const
 {
+    RuntimeAssert (HasEqualNumberOfEvents (),
+                   "You need to have an equal number of events in all views");
     pair<size_t, ViewNumber::Enum> max (0, ViewNumber::COUNT);
     for (int i = 0; i < GetViewCount (); ++i)
     {
@@ -691,6 +702,17 @@ size_t Settings::GetLinkedTimeTimeSteps () const
     return currentLinkedTime;
 }
 
+bool Settings::HasEqualNumberOfEvents () const
+{
+    size_t numberOfEvents = GetLinkedTimeEvents (ViewNumber::VIEW0).size ();
+    for (int i = 1; i < GetViewCount (); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+        if (numberOfEvents != GetLinkedTimeEvents (viewNumber).size ())
+            return false;
+    }
+    return true;
+}
 
 
 // Template instantiations

@@ -214,6 +214,7 @@ float Index2Value (const QSlider* slider, const pair<float,float>& minMax);
 int Value2Index (QSlider* slider, 
 		 const pair<float,float>& minMax, float value);
 void RemoveLayout (QWidget* widget);
+void ShowMessageBox (QWidget* parent, const char* message);
 // @}
 
 /**

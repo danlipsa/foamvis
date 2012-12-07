@@ -563,6 +563,16 @@ operator() (Aggregate aggregate, Container& container, G3D::Vector3* v)
 }
 
 
+
+// Qt UI
+// ======================================================================
+void ShowMessageBox (QWidget* parent, const char* message)
+{
+    QMessageBox msgBox (parent);
+    msgBox.setText(message);
+    msgBox.exec();    
+}
+
 void SetCheckedNoSignals (QButtonGroup* buttonGroup, int buttonId, bool checked)
 {
     buttonGroup->blockSignals (true);

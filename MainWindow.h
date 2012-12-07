@@ -43,6 +43,11 @@ public:
      * @param event object describing the key
      */
     void keyPressEvent (QKeyEvent* event);
+    boost::shared_ptr<Settings> GetSettings () const
+    {
+	return m_settings;
+    }
+    void ShowMessageBox (const char* message);
 
 Q_SIGNALS:
     void BodyOrFaceScalarChanged (
@@ -69,6 +74,7 @@ public Q_SLOTS:
 
     void ButtonClickedViewType (int viewType);
     void ButtonClickedVelocityVis (int velocityVis);
+    void ButtonClickedTimeLinkage (int id);
 
     void ToggledTwoHalvesView (bool checked);
     void ToggledForceDifference (bool checked);
@@ -77,18 +83,18 @@ public Q_SLOTS:
      * Called when the Begin Slider button is pressed. Shows the first
      * data in the vector.
      */
-    void ClickedBegin ();
+    void ButtonClickedBegin ();
     /**
      * Called when  the End Slider  button is pressed. Shows  the last
      * data in the vector.
      */
-    void ClickedEnd ();
+    void ButtonClickedEnd ();
     /**
      * Called when  the user pushed  the play button. Starts  or stops
      * showing the time steps of the Surface Evolver data.
      */
-    void ClickedPlay ();
-    void ClickedPlayReverse ();
+    void ButtonClickedPlay ();
+    void ButtonClickedPlayReverse ();
     void CurrentIndexChangedSimulation (int index);
     void CurrentIndexChangedInteractionMode (int index);
     void CurrentIndexChangedFaceColor (int value);
@@ -127,7 +133,7 @@ public Q_SLOTS:
     void ViewToUI (ViewNumber::Enum prevViewNumber);
     void SetHistogramColorBarModel (
 	ViewNumber::Enum viewNumber,
-	boost::shared_ptr<ColorBarModel> colorBarModel);
+	boost::shared_ptr<ColorBarModel> colorBarModel);    
 
 private:
     void initOverlayBarModel ();
@@ -135,7 +141,6 @@ private:
     static void updateStretch (QWidget* widget, 
 			       ViewLayout::Enum layout,
 			       size_t value);
-    void updateLinkedTimeEvents (ViewNumber::Enum viewNumber);
     void updateSliderTimeSteps (
         ViewNumber::Enum viewNumber,
         const vector<QwtDoubleInterval>& valueIntervals);
@@ -143,6 +148,7 @@ private:
     void addVtkView (ViewNumber::Enum viewNumber);
     void update3DAverage ();
     void currentIndexChangedFaceColor (ViewNumber::Enum viewNumber);
+    void linkedTimeEventsViewToUI (ViewNumber::Enum viewNumber);
     void deformationViewToUI ();
     void velocityViewToUI ();
     void forceViewToUI ();

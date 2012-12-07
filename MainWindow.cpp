@@ -960,36 +960,10 @@ void MainWindow::setStackedWidget (ViewType::Enum viewType)
     }
 }
 
-
-void MainWindow::updateLinkedTimeEvents (ViewNumber::Enum viewNumber)
+void MainWindow::ShowMessageBox (const char* message)
 {
-    const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
-    const vector<size_t>& events = vs.GetLinkedTimeEvents ();
-    tableWidgetEvents->setRowCount (events.size ());
-    for (size_t eventIndex = 0; eventIndex < events.size (); ++eventIndex)
-    {
-        ostringstream ostr;
-        size_t begin = eventIndex == 0 ? 0 : events[eventIndex - 1];
-        ostr << begin;
-        QTableWidgetItem* item = new QTableWidgetItem (ostr.str ().c_str ());
-        tableWidgetEvents->setItem (eventIndex, 0, item);
-
-        size_t end = events[eventIndex];
-        ostr.str ("");
-        ostr << end;
-        item = new QTableWidgetItem (ostr.str ().c_str ());
-        tableWidgetEvents->setItem (eventIndex, 1, item);
-
-
-        size_t stretch = m_settings->GetLinkedTimeStretch (
-            viewNumber, eventIndex);
-        ostr.str ("");
-        ostr << setprecision (3) << stretch;
-        item = new QTableWidgetItem (ostr.str ().c_str ());
-        tableWidgetEvents->setItem (eventIndex, 2, item);
-    }
+    ::ShowMessageBox (this, message);
 }
-
 
 
 // Slots and methods called by the UI
@@ -1097,17 +1071,6 @@ void MainWindow::CurrentIndexChangedWindowLayout (int index)
 }
 
 
-
-void MainWindow::ValueChangedContextAlpha (int index)
-{
-    (void)index;
-    m_settings->SetContextAlpha (
-	Index2Value (static_cast<QSlider*> (sender ()), 
-		     Settings::CONTEXT_ALPHA));
-    widgetGl->CompileUpdate ();
-    widgetVtk->Average3dUpdateOpacity ();
-}
-
 void MainWindow::ToggledBarLarge (bool large)
 {
     m_settings->SetBarLarge (large);
@@ -1182,29 +1145,23 @@ void MainWindow::ToggledHistogramAllTimesteps (bool checked)
 			     WidgetHistogram::REPLACE_MAX_VALUE);
 }
 
-void MainWindow::ValueChangedHistogramHeight (int s)
-{
-    widgetHistogram->SetHeight (s);
-}
-
-
-void MainWindow::ClickedPlay ()
+void MainWindow::ButtonClickedPlay ()
 {
     clickedPlay (PLAY_FORWARD);
 }
 
-void MainWindow::ClickedPlayReverse ()
+void MainWindow::ButtonClickedPlayReverse ()
 {
     clickedPlay (PLAY_REVERSE);
 }
 
-void MainWindow::ClickedBegin ()
+void MainWindow::ButtonClickedBegin ()
 {
     sliderTimeSteps->setValue (sliderTimeSteps->minimum ());
     updateButtons ();
 }
 
-void MainWindow::ClickedEnd ()
+void MainWindow::ButtonClickedEnd ()
 {
     sliderTimeSteps->SetValueNoSignals (sliderTimeSteps->maximum ());
     updateButtons ();
@@ -1228,6 +1185,23 @@ void MainWindow::TimeoutTimer ()
 	    clickedPlay (PLAY_REVERSE);
     }
 }
+
+void MainWindow::ValueChangedContextAlpha (int index)
+{
+    (void)index;
+    m_settings->SetContextAlpha (
+	Index2Value (static_cast<QSlider*> (sender ()), 
+		     Settings::CONTEXT_ALPHA));
+    widgetGl->CompileUpdate ();
+    widgetVtk->Average3dUpdateOpacity ();
+}
+
+
+void MainWindow::ValueChangedHistogramHeight (int s)
+{
+    widgetHistogram->SetHeight (s);
+}
+
 
 void MainWindow::ValueChangedFontSize (int fontSize)
 {
@@ -1369,6 +1343,22 @@ void MainWindow::ButtonClickedViewType (int vt)
     update3DAverage ();
 }
 
+void MainWindow::ButtonClickedTimeLinkage (int id)
+{
+    TimeLinkage::Enum timeLinkage = TimeLinkage::Enum (id);
+    if (timeLinkage == TimeLinkage::LINKED && ! 
+        GetSettings ()->HasEqualNumberOfEvents ())
+    {
+        ShowMessageBox ("You have to have an equal number of events "
+                        "in boths views");
+        radioButtonTimeIndependent->setChecked (true);
+        return;
+    }
+    GetSettings ()->SetTimeLinkage (timeLinkage);
+    widgetGl->CompileUpdateAll ();
+}
+
+
 void MainWindow::CurrentIndexChangedSimulation (int simulationIndex)
 {
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
@@ -1434,10 +1424,8 @@ void MainWindow::ToggledTwoHalvesView (bool reflectedHalfView)
 	(m_settings->GetViewCount () != ViewCount::TWO || 
 	 m_settings->GetViewLayout () != ViewLayout::VERTICAL))
     {
-	QMessageBox msgBox (this);
-	msgBox.setText("This feature works only with two views "
-		       "in vertical layout");
-	msgBox.exec();
+	ShowMessageBox ("This feature works only with two views "
+                        "in vertical layout");
 	SetCheckedNoSignals (checkBoxTwoHalvesView, false, true);
 	return;
     }
@@ -1463,10 +1451,8 @@ void MainWindow::ToggledForceDifference (bool forceDifference)
     if (! vs.IsAverageAround () ||
 	vs.GetAverageAroundSecondBodyId () == INVALID_INDEX)
     {
-	QMessageBox msgBox (this);
-	msgBox.setText("This feature works only when "
-		       "averaging around two objects.");
-	msgBox.exec();
+	ShowMessageBox ("This feature works only when "
+                        "averaging around two objects.");
 	SetCheckedNoSignals (checkBoxForceDifference, false, true);
 	return;
     }
@@ -1608,6 +1594,41 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
     widgetHistogram->CurrentIndexChangedInteractionMode (index);
 }
 
+
+void MainWindow::linkedTimeEventsViewToUI (ViewNumber::Enum viewNumber)
+{
+    const ViewSettings& vs = m_settings->GetViewSettings (viewNumber);
+    ostringstream ostr;
+    ostr << vs.GetTimeSteps ();
+    labelTimeSteps->setText (ostr.str ().c_str ());
+    const vector<size_t>& events = vs.GetLinkedTimeEvents ();
+    tableWidgetEvents->setRowCount (events.size ());
+    for (size_t eventIndex = 0; eventIndex < events.size (); ++eventIndex)
+    {
+        size_t begin = eventIndex == 0 ? 0 : events[eventIndex - 1];
+        ostr << begin;
+        QTableWidgetItem* item = new QTableWidgetItem (ostr.str ().c_str ());
+        tableWidgetEvents->setItem (eventIndex, 0, item);
+
+        size_t end = events[eventIndex];
+        ostr.str ("");
+        ostr << end;
+        item = new QTableWidgetItem (ostr.str ().c_str ());
+        tableWidgetEvents->setItem (eventIndex, 1, item);
+
+        string s;
+        if (m_settings->HasEqualNumberOfEvents ())
+        {
+            float stretch = m_settings->GetLinkedTimeStretch (
+                viewNumber, eventIndex);
+            ostr.str ("");
+            ostr << setprecision (3) << stretch;
+            s = ostr.str ();
+        }
+        item = new QTableWidgetItem (s.c_str ());
+        tableWidgetEvents->setItem (eventIndex, 2, item);
+    }
+}
 
 void MainWindow::deformationViewToUI ()
 {
@@ -1823,9 +1844,8 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     }
 
     labelAverageColor->setText (FaceScalar::ToString (property));
-    updateLinkedTimeEvents (viewNumber);
 
-
+    linkedTimeEventsViewToUI (viewNumber);
     updateLightControls (vs, selectedLight);
     updateButtons ();
 

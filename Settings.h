@@ -115,6 +115,7 @@ public:
      * @name LinkedTime
      */
     void AddLinkedTimeEvent ();
+    void ResetLinkedTimeEvents ();
     void SetTimeLinkage (TimeLinkage::Enum timeLinkage);
     TimeLinkage::Enum GetTimeLinkage () const
     {
@@ -138,6 +139,7 @@ public:
 	return GetLinkedTimeViewNumbers (GetViewNumber ());
     }
     size_t GetLinkedTimeTimeSteps () const;
+    bool HasEqualNumberOfEvents () const;
     // @}
 
 

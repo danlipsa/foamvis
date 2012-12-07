@@ -268,11 +268,19 @@ void WidgetGl::initQuadrics ()
 
 void WidgetGl::createActions ()
 {
-    m_actionLinkedTimeEnd = boost::make_shared<QAction> (
+    m_actionLinkedTimeAddEvent = boost::make_shared<QAction> (
 	tr("&Add event"), this);
-    m_actionLinkedTimeEnd->setStatusTip(tr("Add linked time event"));
-    connect(m_actionLinkedTimeEnd.get (), SIGNAL(triggered()),
+    m_actionLinkedTimeAddEvent->setStatusTip(tr("Add linked time event"));
+    connect(m_actionLinkedTimeAddEvent.get (), SIGNAL(triggered()),
 	    this, SLOT(AddLinkedTimeEvent ()));
+
+    m_actionLinkedTimeReset = boost::make_shared<QAction> (
+	tr("&Reset"), this);
+    m_actionLinkedTimeReset->setStatusTip(tr("Reset"));
+    connect(m_actionLinkedTimeReset.get (), SIGNAL(triggered()),
+	    this, SLOT(ResetLinkedTimeEvents ()));
+
+
 
     m_actionSelectAll = boost::make_shared<QAction> (tr("&All"), this);
     m_actionSelectAll->setStatusTip(tr("Select all"));
@@ -2550,7 +2558,8 @@ void WidgetGl::contextMenuEventView (QMenu* menu) const
     }
     {
 	QMenu* menuLinkedTime = menu->addMenu ("Linked time");
-	menuLinkedTime->addAction (m_actionLinkedTimeEnd.get ());
+	menuLinkedTime->addAction (m_actionLinkedTimeAddEvent.get ());
+	menuLinkedTime->addAction (m_actionLinkedTimeReset.get ());
     }
     {
 	QMenu* menuReset = menu->addMenu ("Reset transform");
@@ -3453,6 +3462,11 @@ void WidgetGl::enableTorusDomainClipPlanes (bool enable)
     } 
 }
 
+void WidgetGl::ShowMessageBox (const char* message)
+{
+    ::ShowMessageBox (this, message);
+}
+
 
 // Slots and methods called by the UI
 // ==================================
@@ -3479,34 +3493,6 @@ void WidgetGl::CompileUpdateAll ()
         CompileUpdate (ViewNumber::Enum (i));
 }
 
-
-void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
-{
-    makeCurrent ();
-    if (GetSettings ()->GetGlCount () == 0)
-	setVisible (false);
-    else
-    {
-	vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
-	for (size_t i = 0; i < vn.size (); ++i)
-	{
-	    ViewNumber::Enum viewNumber = vn[i];
-	    if (GetSettings ()->IsGlView (viewNumber))
-	    {
-		ViewSettings& vs = GetViewSettings (viewNumber);
-		ViewType::Enum newViewType = vs.GetViewType ();
-		if (oldViewType == newViewType)
-		    continue;
-		GetViewAverage (viewNumber).AverageRelease ();
-		GetViewAverage (viewNumber).AverageInitStep ();
-		CompileUpdate (viewNumber);
-	    }
-	}
-    	setVisible (true);
-    }
-    CompileUpdate ();
-}
-
 void WidgetGl::SetAverageAroundBody ()
 {
     makeCurrent ();
@@ -3530,11 +3516,7 @@ void WidgetGl::SetAverageAroundBody ()
 	CompileUpdate ();
     }
     else
-    {
-	QMessageBox msgBox (this);
-	msgBox.setText("No body selected");
-	msgBox.exec();
-    }
+        ShowMessageBox ("No body selected");
 }
 
 void WidgetGl::SetAverageAroundSecondBody ()
@@ -3569,9 +3551,7 @@ void WidgetGl::SetAverageAroundSecondBody ()
     }
     else
 	message = "No body selected";
-    QMessageBox msgBox (this);
-    msgBox.setText(message.c_str ());
-    msgBox.exec();
+    ShowMessageBox (message.c_str ());
 }
 
 
@@ -3617,22 +3597,17 @@ void WidgetGl::ToggledAverageAroundAllowRotation (bool checked)
 void WidgetGl::InfoFoam ()
 {
     makeCurrent ();
-    string message = GetSimulation ().ToHtml ();
-    QMessageBox msgBox (this);
-    msgBox.setText(message.c_str ());
-    msgBox.exec();
+    ShowMessageBox (GetSimulation ().ToHtml ().c_str ());
 }
 
 void WidgetGl::InfoPoint ()
 {
     makeCurrent ();
-    QMessageBox msgBox (this);
     ostringstream ostr;
     ostr << "Point" << endl
          << "object: " << m_contextMenuPosObject << endl
          << "window: " << QtToOpenGl (m_contextMenuPosWindow, height ());
-    msgBox.setText(ostr.str ().c_str ());
-    msgBox.exec();
+    ShowMessageBox (ostr.str ().c_str ());
 }
 
 void WidgetGl::InfoEdge ()
@@ -3756,12 +3731,23 @@ void WidgetGl::AddLinkedTimeEvent ()
     {
 	GetSettings ()->AddLinkedTimeEvent ();
     }
-    catch (exception& e)
+    catch (exception& e)        
     {
-	QMessageBox msgBox (this);
-	msgBox.setText(e.what ());
-	msgBox.exec();	
+        ShowMessageBox (e.what ());
     }
+}
+
+void WidgetGl::ResetLinkedTimeEvents ()
+{
+    makeCurrent ();
+    try
+    {
+	GetSettings ()->ResetLinkedTimeEvents ();
+    }
+    catch (exception& e)        
+    {
+        ShowMessageBox (e.what ());
+    }    
 }
 
 void WidgetGl::SelectAll ()
@@ -4385,14 +4371,6 @@ void WidgetGl::ToggledPartialPathHidden (bool checked)
     CompileUpdate ();
 }
 
-
-void WidgetGl::ButtonClickedTimeLinkage (int id)
-{
-    makeCurrent ();
-    GetSettings ()->SetTimeLinkage (TimeLinkage::Enum (id));
-    CompileUpdateAll ();
-}
-
 void WidgetGl::ToggledBodyCenterShown (bool checked)
 {
     makeCurrent ();
@@ -4507,6 +4485,34 @@ void WidgetGl::CurrentIndexChangedSimulation (int i)
     m_viewAverage[viewNumber]->SetSimulation (simulation);
     CompileUpdate ();
 }
+
+void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
+{
+    makeCurrent ();
+    if (GetSettings ()->GetGlCount () == 0)
+	setVisible (false);
+    else
+    {
+	vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+	for (size_t i = 0; i < vn.size (); ++i)
+	{
+	    ViewNumber::Enum viewNumber = vn[i];
+	    if (GetSettings ()->IsGlView (viewNumber))
+	    {
+		ViewSettings& vs = GetViewSettings (viewNumber);
+		ViewType::Enum newViewType = vs.GetViewType ();
+		if (oldViewType == newViewType)
+		    continue;
+		GetViewAverage (viewNumber).AverageRelease ();
+		GetViewAverage (viewNumber).AverageInitStep ();
+		CompileUpdate (viewNumber);
+	    }
+	}
+    	setVisible (true);
+    }
+    CompileUpdate ();
+}
+
 
 void WidgetGl::ButtonClickedInteractionObject (int index)
 {
@@ -4647,7 +4653,7 @@ void WidgetGl::ValueChangedNoiseFrequency (int index)
 }
 
 
-void WidgetGl::ClickedEnd ()
+void WidgetGl::ButtonClickedEnd ()
 {
     makeCurrent ();
     size_t steps = 
