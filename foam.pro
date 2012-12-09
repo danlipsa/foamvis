@@ -181,6 +181,7 @@ LIBS += "-lvtkIOXML-6.0"
 LIBS += "-lvtkFiltersFlowPaths-6.0"
 LIBS += "-lvtkInteractionWidgets-6.0"
 LIBS += "-lvtkRenderingOpenGL-6.0"
+LIBS += "-lvtkRenderingCore-6.0"
 
 # Qt3D
 LIBS += "-lQt3D"
