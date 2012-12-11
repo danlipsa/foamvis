@@ -1166,6 +1166,9 @@
              </item>
              <item>
               <widget class="QTableWidget" name="tableWidgetEvents">
+               <property name="selectionMode">
+                <enum>QAbstractItemView::NoSelection</enum>
+               </property>
                <column>
                 <property name="text">
                  <string>Begin</string>

@@ -26,7 +26,7 @@ void WidgetBase::Init (
 
 void WidgetBase::ForAllViews (boost::function <void (ViewNumber::Enum)> f)
 {
-    for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
+    for (size_t i = 0; i < GetSettings ()->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
 	if (CALL_MEMBER (*GetSettings (), m_isView)(viewNumber))
@@ -101,7 +101,7 @@ void WidgetBase::addCopyMenu (
     if (GetSettings ()->GetViewCount () > 1)
     {
 	QMenu* menuOp = menu->addMenu (nameOp);
-	for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
+	for (size_t i = 0; i < GetSettings ()->GetViewCount (); ++i)
 	{
 	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	    if (viewNumber == GetViewNumber ())

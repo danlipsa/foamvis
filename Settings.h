@@ -57,7 +57,7 @@ public:
      * @{
      * @name Views
      */
-    ViewCount::Enum GetViewCount () const
+    size_t GetViewCount () const
     {
 	return m_viewCount;
     }
@@ -331,7 +331,7 @@ public:
 	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     G3D::Rect2D GetViewRect (float w, float h,
 			     ViewNumber::Enum viewNumber, 
-			     ViewCount::Enum viewCount) const;
+			     size_t viewCount) const;
     G3D::Rect2D GetViewRect (float w, float h,
 			     ViewNumber::Enum viewNumber) const
     {

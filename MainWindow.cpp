@@ -1157,12 +1157,17 @@ void MainWindow::ButtonClickedPlayReverse ()
 
 void MainWindow::ButtonClickedBegin ()
 {
+    __ENABLE_LOGGING__;
+    __LOG__ (cdbg << "MainWindow::ButtonClickedBegin" << endl;);
     sliderTimeSteps->setValue (sliderTimeSteps->minimum ());
     updateButtons ();
+    
 }
 
 void MainWindow::ButtonClickedEnd ()
 {
+    __ENABLE_LOGGING__;
+    __LOG__ (cdbg << "MainWindow::ButtonClickedEnd" << endl;);
     sliderTimeSteps->SetValueNoSignals (sliderTimeSteps->maximum ());
     updateButtons ();
 }
@@ -1229,6 +1234,9 @@ void MainWindow::ValueChangedT1sKernelSigma (double value)
 
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
+    __ENABLE_LOGGING__;
+    __LOG__ (cdbg << "MainWindow::ValueChangedSliderTimeSteps" 
+             << timeStep << endl;);
     vector<ViewNumber::Enum> vn = m_settings->GetLinkedTimeViewNumbers ();
     boost::array<int, ViewNumber::COUNT> direction;
 
@@ -1606,6 +1614,7 @@ void MainWindow::linkedTimeEventsViewToUI (ViewNumber::Enum viewNumber)
     for (size_t eventIndex = 0; eventIndex < events.size (); ++eventIndex)
     {
         size_t begin = eventIndex == 0 ? 0 : events[eventIndex - 1];
+        ostr.str ("");
         ostr << begin;
         QTableWidgetItem* item = new QTableWidgetItem (ostr.str ().c_str ());
         tableWidgetEvents->setItem (eventIndex, 0, item);

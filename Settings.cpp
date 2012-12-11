@@ -363,11 +363,11 @@ ViewCount::Enum Settings::getViewCount (
     vector<ViewNumber::Enum> m;
     if (mapping == 0)
 	mapping = &m;
-    ViewCount::Enum viewCount = GetViewCount ();
+    size_t viewCount = GetViewCount ();
     mapping->resize (viewCount);
     fill (mapping->begin (), mapping->end (), ViewNumber::COUNT);
     int count = 0;
-    for (int i = 0; i < viewCount; ++i)
+    for (size_t i = 0; i < viewCount; ++i)
 	if (CALL_MEMBER (*this, isView) (ViewNumber::FromSizeT (i)))
 	{
 	    (*mapping)[i] = ViewNumber::FromSizeT (count);
@@ -418,7 +418,7 @@ float Settings::getXOverY (float w, float h, ViewNumber::Enum viewNumber,
 
 G3D::Rect2D Settings::GetViewRect (
     float w, float h,
-    ViewNumber::Enum viewNumber, ViewCount::Enum viewCount) const
+    ViewNumber::Enum viewNumber, size_t viewCount) const
 {
     using G3D::Rect2D;
     RuntimeAssert (viewNumber != ViewNumber::COUNT,
@@ -615,7 +615,7 @@ pair<size_t, ViewNumber::Enum> Settings::GetLinkedTimeMaxInterval (
     RuntimeAssert (HasEqualNumberOfEvents (),
                    "You need to have an equal number of events in all views");
     pair<size_t, ViewNumber::Enum> max (0, ViewNumber::COUNT);
-    for (int i = 0; i < GetViewCount (); ++i)
+    for (size_t i = 0; i < GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	ViewSettings& vs = GetViewSettings (viewNumber);
@@ -634,9 +634,9 @@ vector<ViewNumber::Enum> Settings::GetLinkedTimeViewNumbers (
 {
     if (GetTimeLinkage () == TimeLinkage::LINKED)
     {
-        ViewCount::Enum viewCount = GetViewCount ();
+        size_t viewCount = GetViewCount ();
         vector<ViewNumber::Enum> vn (viewCount);
-        for (int i = 0; i < viewCount; ++i)
+        for (size_t i = 0; i < viewCount; ++i)
             vn[i] = ViewNumber::FromSizeT (i);
         return vn;
     }
@@ -664,15 +664,16 @@ int Settings::setCurrentTime (
     size_t currentLinkedTime = 0;
     size_t eventIndex;
     for (eventIndex = 0; 
-         eventIndex < GetLinkedTimeEvents (ViewNumber::VIEW0).size () && 
-             currentLinkedTime <= linkedTime;
+         eventIndex < GetLinkedTimeEvents (ViewNumber::VIEW0).size ();
          ++eventIndex)
     {
         pair<size_t, ViewNumber::Enum> p = GetLinkedTimeMaxInterval (eventIndex);
-        currentLinkedTime += p.first;
-        currentViewTime += vs.GetLinkedTimeInterval (eventIndex);
-    }
-    if (eventIndex >= GetLinkedTimeEvents (ViewNumber::VIEW0).size ())
+        if (currentLinkedTime + p.first - 1 > linkedTime)
+            break;
+        currentLinkedTime += (p.first - 1);
+        currentViewTime += (vs.GetLinkedTimeInterval (eventIndex) - 1);
+    }    
+    if (eventIndex == GetLinkedTimeEvents (ViewNumber::VIEW0).size ())
     {
         currentViewTime += (linkedTime - currentLinkedTime);
         if (currentViewTime >= vs.GetTimeSteps ())
@@ -684,7 +685,7 @@ int Settings::setCurrentTime (
         }
     }
     else
-        currentViewTime += (linkedTime - currentLinkedTime) * 
+        currentViewTime += (linkedTime - currentLinkedTime) / 
             GetLinkedTimeStretch (viewNumber, eventIndex);
     return vs.SetCurrentTime (currentViewTime);
 }
@@ -705,7 +706,7 @@ size_t Settings::GetLinkedTimeTimeSteps () const
 bool Settings::HasEqualNumberOfEvents () const
 {
     size_t numberOfEvents = GetLinkedTimeEvents (ViewNumber::VIEW0).size ();
-    for (int i = 1; i < GetViewCount (); ++i)
+    for (size_t i = 1; i < GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
         if (numberOfEvents != GetLinkedTimeEvents (viewNumber).size ())

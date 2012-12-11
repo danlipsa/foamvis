@@ -888,7 +888,7 @@ void WidgetGl::SetViewTypeAndCameraDistance (ViewNumber::Enum viewNumber)
 
 void WidgetGl::displayViews ()
 {
-    ViewCount::Enum viewCount = GetSettings ()->GetViewCount ();
+    size_t viewCount = GetSettings ()->GetViewCount ();
     switch (viewCount)
     {
     case ViewCount::COUNT:
@@ -3489,7 +3489,7 @@ void WidgetGl::CompileUpdate (ViewNumber::Enum viewNumber)
 
 void WidgetGl::CompileUpdateAll ()
 {
-    for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
+    for (size_t i = 0; i < GetSettings ()->GetViewCount (); ++i)
         CompileUpdate (ViewNumber::Enum (i));
 }
 
@@ -4527,6 +4527,22 @@ void WidgetGl::ButtonClickedDuplicateDomain (int index)
     update ();
 }
 
+void WidgetGl::ButtonClickedEnd ()
+{
+    __ENABLE_LOGGING__;
+    __LOG__ (cdbg << "WidgetGl::ButtonClickedEnd" << endl;);
+    makeCurrent ();
+    size_t steps = 
+	((GetSettings ()->GetTimeLinkage () == TimeLinkage::INDEPENDENT) ?
+	 GetTimeSteps () : GetSettings ()->GetLinkedTimeTimeSteps ());
+    boost::array<int, ViewNumber::COUNT> direction;
+    GetSettings ()->SetCurrentTime (steps - 1, &direction, true);
+    for (size_t i = 0; i < GetSettings ()->GetViewCount (); ++i)
+	if (direction[i] != 0)
+	    m_viewAverage[i]->AverageStep (direction[i]);
+    CompileUpdateAll ();
+}
+
 
 void WidgetGl::CurrentIndexChangedStatisticsType (int index)
 {
@@ -4604,7 +4620,7 @@ void WidgetGl::ValueChangedKDEMultiplier (int multiplier)
 void WidgetGl::ValueChangedNoiseStart (int index)
 {
     makeCurrent ();
-    for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
+    for (size_t i = 0; i < GetSettings ()->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	float noiseStart = 0.5 + 0.5 * index / 99;
@@ -4621,7 +4637,7 @@ void WidgetGl::ValueChangedNoiseStart (int index)
 void WidgetGl::ValueChangedNoiseAmplitude (int index)
 {
     makeCurrent ();
-    for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
+    for (size_t i = 0; i < GetSettings ()->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	float noiseAmplitude = 5.0 + index / 10.0;
@@ -4638,7 +4654,7 @@ void WidgetGl::ValueChangedNoiseAmplitude (int index)
 void WidgetGl::ValueChangedNoiseFrequency (int index)
 {
     makeCurrent ();
-    for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
+    for (size_t i = 0; i < GetSettings ()->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	float noiseFrequency = (1.0 + index) / 2.0;
@@ -4649,21 +4665,6 @@ void WidgetGl::ValueChangedNoiseFrequency (int index)
 	GetViewAverage (viewNumber).GetDeformationAverage ().
 	    SetNoiseFrequency (noiseFrequency);
     }
-    CompileUpdate ();
-}
-
-
-void WidgetGl::ButtonClickedEnd ()
-{
-    makeCurrent ();
-    size_t steps = 
-	((GetSettings ()->GetTimeLinkage () == TimeLinkage::INDEPENDENT) ?
-	 GetTimeSteps () : GetSettings ()->GetLinkedTimeTimeSteps ());
-    boost::array<int, ViewNumber::COUNT> direction;
-    GetSettings ()->SetCurrentTime (steps - 1, &direction, true);
-    for (size_t i = 0; i < ViewNumber::COUNT; ++i)
-	if (direction[i] != 0)
-	    m_viewAverage[i]->AverageStep (direction[i]);
     CompileUpdate ();
 }
 
