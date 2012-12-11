@@ -4529,7 +4529,7 @@ void WidgetGl::ButtonClickedDuplicateDomain (int index)
 
 void WidgetGl::ButtonClickedEnd ()
 {
-    __ENABLE_LOGGING__;
+    //__ENABLE_LOGGING__;
     __LOG__ (cdbg << "WidgetGl::ButtonClickedEnd" << endl;);
     makeCurrent ();
     size_t steps = 

@@ -715,6 +715,14 @@ bool Settings::HasEqualNumberOfEvents () const
     return true;
 }
 
+size_t Settings::GetLinkedTimeEventTime (size_t eventIndex) const
+{
+    size_t eventTime = -1;
+    for (size_t i = 0; i <= eventIndex; ++i)
+        eventTime += GetLinkedTimeMaxInterval (i).first;
+    return eventTime;
+}
+
 
 // Template instantiations
 // ======================================================================

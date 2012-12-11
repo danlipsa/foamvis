@@ -126,9 +126,10 @@ public:
 	return m_linkedTime;
     }
     float GetLinkedTimeStretch (ViewNumber::Enum viewNumber, 
-                                 size_t eventIndex) const;
+                                size_t eventIndex) const;
     pair<size_t, ViewNumber::Enum> GetLinkedTimeMaxInterval (
         size_t eventIndex) const;
+    size_t GetLinkedTimeEventTime (size_t eventIndex) const;
     const vector<size_t>& GetLinkedTimeEvents (
         ViewNumber::Enum viewNumber) const;
     

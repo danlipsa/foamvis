@@ -268,6 +268,10 @@ void MainWindow::connectSignals ()
     connect (widgetVtk, SIGNAL (PaintEnd ()),
 	     widgetSave, SLOT (SaveFrame ()), 
 	     Qt::QueuedConnection);
+
+    connect (tableWidgetEvents, SIGNAL (cellClicked (int, int)),
+             this, SLOT (CellClickedLinkedTimeEvents (int, int)));
+
     
     // BodyOrFaceScalarChanged: 
     // from MainWindow to WidgetGl
@@ -1145,6 +1149,18 @@ void MainWindow::ToggledHistogramAllTimesteps (bool checked)
 			     WidgetHistogram::REPLACE_MAX_VALUE);
 }
 
+
+void MainWindow::CellClickedLinkedTimeEvents (int row, int column)
+{
+    (void) column;
+    if (GetSettings ()->GetTimeLinkage () == TimeLinkage::LINKED)
+        sliderTimeSteps->setValue (GetSettings ()->GetLinkedTimeEventTime (row));
+    else
+        sliderTimeSteps->setValue (
+            GetSettings ()->GetLinkedTimeEvents (
+                GetSettings ()->GetViewNumber ())[row]);
+}
+
 void MainWindow::ButtonClickedPlay ()
 {
     clickedPlay (PLAY_FORWARD);
@@ -1157,7 +1173,6 @@ void MainWindow::ButtonClickedPlayReverse ()
 
 void MainWindow::ButtonClickedBegin ()
 {
-    __ENABLE_LOGGING__;
     __LOG__ (cdbg << "MainWindow::ButtonClickedBegin" << endl;);
     sliderTimeSteps->setValue (sliderTimeSteps->minimum ());
     updateButtons ();
@@ -1166,7 +1181,6 @@ void MainWindow::ButtonClickedBegin ()
 
 void MainWindow::ButtonClickedEnd ()
 {
-    __ENABLE_LOGGING__;
     __LOG__ (cdbg << "MainWindow::ButtonClickedEnd" << endl;);
     sliderTimeSteps->SetValueNoSignals (sliderTimeSteps->maximum ());
     updateButtons ();
@@ -1234,7 +1248,6 @@ void MainWindow::ValueChangedT1sKernelSigma (double value)
 
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
-    __ENABLE_LOGGING__;
     __LOG__ (cdbg << "MainWindow::ValueChangedSliderTimeSteps" 
              << timeStep << endl;);
     vector<ViewNumber::Enum> vn = m_settings->GetLinkedTimeViewNumbers ();

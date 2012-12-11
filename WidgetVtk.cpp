@@ -284,7 +284,7 @@ void WidgetVtk::CopyTransformFrom (int fromViewNumber)
 void WidgetVtk::ForAllPipelines (
     PipelineType::Enum type, boost::function <void (ViewNumber::Enum)> f)
 {
-    for (int i = 0; i < GetSettings ()->GetViewCount (); ++i)
+    for (size_t i = 0; i < GetSettings ()->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
 	if (GetSettings ()->IsVtkView (viewNumber) &&

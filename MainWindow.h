@@ -72,6 +72,7 @@ public Q_SLOTS:
     void ToggledHistogramColorMapped (bool checked);
     void ToggledHistogramAllTimesteps (bool checked);
 
+    void CellClickedLinkedTimeEvents (int row, int column);
     void ButtonClickedViewType (int viewType);
     void ButtonClickedVelocityVis (int velocityVis);
     void ButtonClickedTimeLinkage (int id);
