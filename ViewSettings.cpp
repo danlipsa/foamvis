@@ -79,6 +79,8 @@ ViewSettings::ViewSettings () :
     m_centerPathHidden (false),
     m_simulationIndex (0),
     m_currentTime (0),
+    m_timeSteps (0),
+    m_timeWindow (0),
     m_t1sShiftLower (false),
     m_deformationSize (1),
     m_deformationLineWidth (1),
@@ -545,9 +547,9 @@ G3D::Matrix3 ViewSettings::getRotation3D (const Foam& foam) const
 }
 
 
-int ViewSettings::SetCurrentTime (size_t time)
+int ViewSettings::SetTime (size_t time)
 {
-    int direction = time - GetCurrentTime ();
+    int direction = time - GetTime ();
     m_currentTime = time;
     return direction;
 }
@@ -668,7 +670,7 @@ string ViewSettings::GetTitle (ViewNumber::Enum viewNumber) const
     ostr << "View " << viewNumber << " - "
 	 << ViewType::ToString (GetViewType ()) << " - "
 	 << FaceScalar::ToString (GetBodyOrFaceScalar ()) << " - "
-	 << "Time " << GetCurrentTime ();
+	 << "Time " << GetTime ();
     return ostr.str ();
 }
 

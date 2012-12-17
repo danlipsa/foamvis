@@ -11,7 +11,7 @@
 TimeStepsSlider::TimeStepsSlider (QWidget* parent) :
     RestrictedRangeSlider (parent)
 {
-    SetTitle ("Time Steps");
+    SetTitle ("Time steps");
     createActions ();
 }
 

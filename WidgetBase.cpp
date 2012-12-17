@@ -19,14 +19,14 @@ void WidgetBase::Init (
     boost::shared_ptr<Settings> settings,
     const SimulationGroup* simulationGroup, AverageCaches* averageCache)
 {
-    m_settings = settings;
+    SetSettings (settings);
     m_simulationGroup = simulationGroup;
     m_averageCache = averageCache;
 }
 
 void WidgetBase::ForAllViews (boost::function <void (ViewNumber::Enum)> f)
 {
-    for (size_t i = 0; i < GetSettings ()->GetViewCount (); ++i)
+    for (size_t i = 0; i < GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
 	if (CALL_MEMBER (*GetSettings (), m_isView)(viewNumber))
@@ -36,7 +36,7 @@ void WidgetBase::ForAllViews (boost::function <void (ViewNumber::Enum)> f)
 
 void WidgetBase::ForAllHiddenViews (boost::function <void (ViewNumber::Enum)> f)
 {
-    for (int i = GetSettings ()->GetViewCount (); i < ViewNumber::COUNT; ++i)
+    for (int i = GetViewCount (); i < ViewNumber::COUNT; ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
 	if (CALL_MEMBER (*GetSettings (), m_isView)(viewNumber))
@@ -67,20 +67,6 @@ G3D::Rect2D WidgetBase::GetViewRect (ViewNumber::Enum viewNumber) const
 	m_widget->width (), m_widget->height (), mapping[viewNumber], viewCount);
 }
 
-ViewNumber::Enum WidgetBase::GetViewNumber () const
-{
-    return GetSettings ()->GetViewNumber ();
-}
-
-ViewSettings& WidgetBase::GetViewSettings (ViewNumber::Enum viewNumber) const
-{
-    return GetSettings ()->GetViewSettings (viewNumber);
-}
-
-size_t WidgetBase::GetCurrentTime (ViewNumber::Enum viewNumber) const
-{
-    return GetViewSettings (viewNumber).GetCurrentTime ();
-}
 
 void WidgetBase::setView (const G3D::Vector2& clickedPoint)
 {
@@ -98,10 +84,10 @@ void WidgetBase::addCopyMenu (
     QMenu* menu, const char* nameOp, 
     const boost::shared_ptr<QAction>* actionCopyOp) const
 {
-    if (GetSettings ()->GetViewCount () > 1)
+    if (GetViewCount () > 1)
     {
 	QMenu* menuOp = menu->addMenu (nameOp);
-	for (size_t i = 0; i < GetSettings ()->GetViewCount (); ++i)
+	for (size_t i = 0; i < GetViewCount (); ++i)
 	{
 	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	    if (viewNumber == GetViewNumber ())

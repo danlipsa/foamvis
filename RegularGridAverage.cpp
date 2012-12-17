@@ -224,5 +224,5 @@ G3D::Vector3 RegularGridAverage::GetTranslation (size_t timeStep) const
 G3D::Vector3 RegularGridAverage::GetTranslation () const
 {
     const ViewSettings& vs = GetViewSettings ();
-    return GetTranslation (vs.GetCurrentTime ());
+    return GetTranslation (vs.GetTime ());
 }

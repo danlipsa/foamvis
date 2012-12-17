@@ -38,15 +38,7 @@ public:
 	return m_settings;
     }
     const ViewSettings& GetViewSettings () const;   
-    void AverageSetTimeWindow (size_t timeWindow)
-    {
-	m_timeWindow = timeWindow;
-    }
-    void AverageStep (int timeDifference);
-    size_t GetTimeWindow () const
-    {
-	return m_timeWindow;
-    }
+    void AverageStep (int timeDifference, size_t timeWindow);
     size_t GetCurrentTimeWindow () const
     {
 	return m_currentTimeWindow;
@@ -72,15 +64,16 @@ protected:
 
 private:
     typedef void (Average::*Operation) (size_t timeStep, size_t subStep);
-    void loopOperation (Operation op, size_t currentTime);
-
-
+    typedef boost::function <float (float, float)> TimeOperation;
+    void forAllSubsteps (Operation op, size_t currentTime);
+    void executeOperation (
+        size_t currentTime, Operation op, TimeOperation timeOp, 
+        bool atEnd, size_t timeWindow);
 
 private:
     const Settings& m_settings;
     const SimulationGroup& m_simulationGroup;
     size_t m_currentTimeWindow;
-    size_t m_timeWindow;
 };
 
 #endif //__AVERAGE_H__

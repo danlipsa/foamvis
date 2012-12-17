@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1012</width>
+    <width>1013</width>
     <height>692</height>
    </rect>
   </property>
@@ -341,7 +341,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tabSettings">
         <attribute name="title">
@@ -1393,7 +1393,7 @@
          <item>
           <widget class="QTabWidget" name="tabWidget">
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="tabTimeStep">
             <attribute name="title">
@@ -1632,6 +1632,46 @@
               </widget>
              </item>
              <item>
+              <widget class="QWidget" name="widget_15" native="true">
+               <layout class="QFormLayout" name="formLayout">
+                <property name="margin">
+                 <number>0</number>
+                </property>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="labelAverageTimeWindow">
+                  <property name="text">
+                   <string>Time window</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QSpinBox" name="spinBoxAverageTimeWindow">
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="value">
+                   <number>1</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_34">
+                  <property name="text">
+                   <string>View time window</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QLabel" name="labelViewTimeWindow">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
               <widget class="QStackedWidget" name="stackedWidgetTimeDependent">
                <property name="currentIndex">
                 <number>0</number>
@@ -1840,23 +1880,6 @@
                    </item>
                   </widget>
                  </item>
-                 <item row="2" column="0">
-                  <widget class="QLabel" name="labelAverageTimeWindow">
-                   <property name="text">
-                    <string>Time window</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="1">
-                  <widget class="QSpinBox" name="spinBoxAverageTimeWindow">
-                   <property name="minimum">
-                    <number>1</number>
-                   </property>
-                   <property name="value">
-                    <number>1</number>
-                   </property>
-                  </widget>
-                 </item>
                 </layout>
                </widget>
                <widget class="QWidget" name="pageT1sProbabilityDensity">
@@ -1875,23 +1898,6 @@
                   <widget class="QLabel" name="label_31">
                    <property name="text">
                     <string>Sigma</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="0">
-                  <widget class="QLabel" name="labelAverageTimeWindow_2">
-                   <property name="text">
-                    <string>Time window</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="1">
-                  <widget class="QSpinBox" name="spinBoxT1sTimeWindow">
-                   <property name="minimum">
-                    <number>1</number>
-                   </property>
-                   <property name="value">
-                    <number>1</number>
                    </property>
                   </widget>
                  </item>
@@ -3496,22 +3502,6 @@
     <hint type="destinationlabel">
      <x>643</x>
      <y>488</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxT1sTimeWindow</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedT1sTimeWindow(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>793</x>
-     <y>331</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>643</x>
-     <y>416</y>
     </hint>
    </hints>
   </connection>

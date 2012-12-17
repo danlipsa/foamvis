@@ -405,7 +405,7 @@ void ImageBasedAverage<PropertySetter>::save (
                   QImage::Format_RGB32);
     ostringstream ostr;
     ostr << "images/data" << components << "-"
-	 << setfill ('0') << setw (4) << GetWidgetGl ().GetCurrentTime ()  
+	 << setfill ('0') << setw (4) << GetWidgetGl ().GetTime ()  
          << ".png";
     QColor color;
     for (size_t x = 0; x < windowCoord.width (); ++x)

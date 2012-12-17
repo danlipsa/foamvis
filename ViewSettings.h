@@ -588,15 +588,22 @@ public:
      * @{
      * @name Time and LinkedTime
      */
-    size_t GetCurrentTime () const
+    size_t GetTime () const
     {
 	return m_currentTime;
     }    
-    
     /**
      * @return positive if time has moved forward or negative otherwise
      */
-    int SetCurrentTime (size_t time);
+    int SetTime (size_t time);
+    void SetTimeWindow (size_t timeWindow)
+    {
+        m_timeWindow = timeWindow;
+    }
+    size_t GetTimeWindow () const
+    {
+        return m_timeWindow;
+    }
     size_t GetTimeSteps () const
     {
 	return m_timeSteps;
@@ -816,6 +823,7 @@ private:
      */
     size_t m_currentTime;
     size_t m_timeSteps;
+    size_t m_timeWindow;
     bool m_t1sShiftLower;
     vector<size_t> m_linkedTimeEvent;
     float m_deformationSize;

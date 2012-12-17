@@ -36,7 +36,7 @@ void ForceAverage::addStep (size_t timeStep, size_t subStep)
     (void)subStep;
     const vector<ForcesOneObject>& forces = GetForces (timeStep);
     bool forward = 
-	(timeStep == GetSettings ().GetCurrentTime (GetViewNumber ()));
+	(timeStep == GetSettings ().GetViewTime ());
     for (size_t i = 0; i < forces.size (); ++i)
     {
 	if (forward)
@@ -54,7 +54,7 @@ void ForceAverage::removeStep (size_t timeStep, size_t subStep)
     (void)subStep;
     const vector<ForcesOneObject>& forces = GetForces (timeStep);
     bool backward = 
-	((timeStep - 1) == GetSettings ().GetCurrentTime (GetViewNumber ()));
+	((timeStep - 1) == GetSettings ().GetViewTime ());
     for (size_t i = 0; i < forces.size (); ++i)
     {
 	if (backward)
@@ -78,7 +78,7 @@ void ForceAverage::Display (bool isAverageAroundRotationShown) const
 void ForceAverage::DisplayOneTimeStep () const
 {
     displayForcesAllObjects (
-	GetForces (GetSettings ().GetCurrentTime (GetViewNumber ())), 1, false);
+	GetForces (GetSettings ().GetViewTime (GetViewNumber ())), 1, false);
 }
 
 void ForceAverage::AverageRotateAndDisplay (
@@ -105,7 +105,7 @@ void ForceAverage::displayForcesAllObjects (
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
 	    vs.RotateAndTranslateAverageAround (
-                vs.GetCurrentTime (), -1, ViewSettings::DONT_TRANSLATE);
+                vs.GetTime (), -1, ViewSettings::DONT_TRANSLATE);
 	}
 	glDisable (GL_DEPTH_TEST);
 	if (vs.IsForceDifferenceShown ())
@@ -181,8 +181,7 @@ void ForceAverage::displayTorqueOneObject (
     ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
     const Simulation& simulation = GetSimulation ();
     G3D::Vector2 center = forcesOneObject.m_body->GetCenter ().xy ();
-    const Foam& foam = GetFoam (
-	GetSettings ().GetCurrentTime (GetViewNumber ()));
+    const Foam& foam = GetFoam (GetSettings ().GetViewTime ());
     float bubbleSize = simulation.GetBubbleDiameter ();
     float unitForceTorqueSize = vs.GetForceTorqueSize () * bubbleSize / count;
 

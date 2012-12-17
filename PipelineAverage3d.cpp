@@ -125,7 +125,7 @@ void PipelineAverage3d::UpdateAverage (
     const Foam& foam = average->GetFoam ();
     const ViewSettings& vs = average->GetViewSettings ();
     // calculate average
-    average->AverageStep (direction);
+    average->AverageStep (direction, vs.GetTimeWindow ());
 
     m_threshold->SetInputDataObject (average->GetAverage ());
 

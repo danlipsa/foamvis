@@ -528,7 +528,6 @@ void WidgetGl::Init (
 	    new ViewAverage (
                 viewNumber,
                 *this, GetSettings ()->GetViewSettings (viewNumber)));
-	m_viewAverage[i]->SetSimulation (simulationGroup->GetSimulation (0));
     }
     update ();
 }
@@ -873,7 +872,8 @@ void WidgetGl::resizeGL(int w, int h)
 }
 void WidgetGl::averageInitStep (ViewNumber::Enum viewNumber)
 {
-    GetViewAverage (viewNumber).AverageInitStep ();
+    GetViewAverage (viewNumber).AverageInitStep (
+        GetViewSettings (viewNumber).GetTimeWindow ());
 }
 
 void WidgetGl::SetViewTypeAndCameraDistance (ViewNumber::Enum viewNumber)
@@ -907,7 +907,7 @@ void WidgetGl::displayViews ()
 void WidgetGl::displayAllViewTransforms (ViewNumber::Enum viewNumber)
 {
     const OOBox& domain = GetSimulation (viewNumber).
-        GetFoam(GetCurrentTime (viewNumber)).GetTorusDomain ();
+        GetFoam(GetTime (viewNumber)).GetTorusDomain ();
     // WARNING: use the same order as DuplicateDomain::Enum
     const boost::array<G3D::Vector3, DuplicateDomain::COUNT> 
         duplicateDomainTranslation = {{
@@ -980,7 +980,7 @@ void WidgetGl::allTransform (ViewNumber::Enum viewNumber) const
     ProjectionTransform (viewNumber);
     glMatrixMode (GL_MODELVIEW);
     modelViewTransform (
-        viewNumber, GetCurrentTime (viewNumber), ROTATE_FOR_AXIS_ORDER);
+        viewNumber, GetTime (viewNumber), ROTATE_FOR_AXIS_ORDER);
 }
 
 
@@ -1180,7 +1180,7 @@ G3D::Vector3 WidgetGl::brushedBodies (
 {
     const BodySelector& selector = GetViewSettings ().GetBodySelector ();
     G3D::Vector3 op = toObjectTransform (position);
-    const Foam& foam = GetSimulation ().GetFoam (GetCurrentTime ());
+    const Foam& foam = GetSimulation ().GetFoam (GetTime ());
     BOOST_FOREACH (boost::shared_ptr<Body> body, foam.GetBodies ())
     {
 	G3D::AABox box = body->GetBoundingBox ();
@@ -1269,7 +1269,7 @@ void WidgetGl::displayAverageAroundBodyOne (
     size_t bodyId = vs.GetAverageAroundBodyId ();
     // display body
     focusBody[0] = *simulation.GetFoam (
-        vs.GetCurrentTime ()).FindBody (bodyId);
+        vs.GetTime ()).FindBody (bodyId);
     displayFacesContour (focusBody, viewNumber, GetHighlightLineWidth ());
 	
     // display body center
@@ -1288,7 +1288,7 @@ void WidgetGl::displayAverageAroundBodyTwo (
     {
         const Simulation& simulation = GetSimulation (viewNumber);
         Foam::Bodies focusBody (1);
-        focusBody[0] = *simulation.GetFoam (vs.GetCurrentTime ()).
+        focusBody[0] = *simulation.GetFoam (vs.GetTime ()).
             FindBody (secondBodyId);
         displayFacesContour (focusBody, viewNumber, 
                              GetHighlightLineWidth ());
@@ -1310,7 +1310,7 @@ void WidgetGl::displayAverageAroundBodies (
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
 	    vs.RotateAndTranslateAverageAround (
-                vs.GetCurrentTime (), -1, ViewSettings::DONT_TRANSLATE);
+                vs.GetTime (), -1, ViewSettings::DONT_TRANSLATE);
 	}
 	glDisable (GL_DEPTH_TEST);
         displayAverageAroundBodyOne (viewNumber);
@@ -1356,7 +1356,7 @@ void WidgetGl::displayContextBodies (ViewNumber::Enum viewNumber) const
 	glPushAttrib (GL_ENABLE_BIT);
 	const Foam::Bodies& bodies = 
 	    GetSimulation (viewNumber).GetFoam (
-		GetCurrentTime (viewNumber)).GetBodies ();
+		GetTime (viewNumber)).GetBodies ();
 	Foam::Bodies contextBodies (bodies.size ());       
 	size_t j = 0;
 	for (size_t i = 0; i < bodies.size (); ++i)
@@ -1386,7 +1386,7 @@ void WidgetGl::displayContextBox (
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
 	    vs.RotateAndTranslateAverageAround (
-                vs.GetCurrentTime (), -1, ViewSettings::DONT_TRANSLATE);
+                vs.GetTime (), -1, ViewSettings::DONT_TRANSLATE);
 	}
 	DisplayBox (GetSimulation (viewNumber), 
 		    GetSettings ()->GetHighlightColor (
@@ -1413,7 +1413,7 @@ string WidgetGl::getAverageAroundLabel ()
 	
 	const ObjectPosition rotationBegin = vs.GetAverageAroundPosition (0);
 	const ObjectPosition rotationCurrent = 
-	    vs.GetAverageAroundPosition (GetCurrentTime ());
+	    vs.GetAverageAroundPosition (GetTime ());
 	float angleRadians = 
 	    rotationCurrent.m_angleRadians - rotationBegin.m_angleRadians;
 	float angleDegrees =  G3D::toDegrees (angleRadians);
@@ -1523,7 +1523,7 @@ void WidgetGl::deselect (const QPoint& position)
     vector<size_t> bodyIds;
     brushedBodies (position, &bodyIds);
     GetViewSettings ().DifferenceBodySelector (
-	GetSimulation ().GetFoam (GetCurrentTime ()), bodyIds);
+	GetSimulation ().GetFoam (GetTime ()), bodyIds);
     CompileUpdate ();
 }
 
@@ -1558,7 +1558,8 @@ void WidgetGl::mouseMoveTranslate (QMouseEvent *event,
     {
     case InteractionObject::FOCUS:
 	translate (viewNumber, event->pos (), event->modifiers ());
-	GetViewAverage (viewNumber).AverageInitStep ();
+	GetViewAverage (viewNumber).AverageInitStep (
+            GetViewSettings (viewNumber).GetTimeWindow ());
         CacheUpdateSeedsCalculateStreamline (viewNumber);
 	break;
     case InteractionObject::LIGHT:
@@ -1580,7 +1581,8 @@ void WidgetGl::mouseMoveScale (QMouseEvent *event, ViewNumber::Enum viewNumber)
     {
     case InteractionObject::FOCUS:
 	scale (viewNumber, event->pos ());
-	GetViewAverage (viewNumber).AverageInitStep ();
+	GetViewAverage (viewNumber).AverageInitStep (
+            GetViewSettings (viewNumber).GetTimeWindow ());
         CacheUpdateSeedsCalculateStreamline (viewNumber);
 	break;
     case InteractionObject::CONTEXT:
@@ -1599,7 +1601,7 @@ void WidgetGl::displayTorusDomain (ViewNumber::Enum viewNumber) const
 {
     if (m_torusDomainShown)
 	DisplayBox (GetSimulation (viewNumber).
-		    GetFoam(GetCurrentTime ()).GetTorusDomain ());
+		    GetFoam(GetTime ()).GetTorusDomain ());
 }
 
 /**
@@ -1630,7 +1632,7 @@ void WidgetGl::displayBoundingBox (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
-    const Foam& foam = simulation.GetFoam (GetCurrentTime (viewNumber));
+    const Foam& foam = simulation.GetFoam (GetTime (viewNumber));
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
@@ -1718,7 +1720,7 @@ void WidgetGl::displayEdges (ViewNumber::Enum viewNumber) const
     const BodySelector& bodySelector = vs.GetBodySelector ();
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
     const Foam::Bodies& bodies = 
-	simulation.GetFoam (GetCurrentTime (viewNumber)).GetBodies ();
+	simulation.GetFoam (GetTime (viewNumber)).GetBodies ();
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
 	      DisplayFaceHighlightColor<HighlightNumber::H0,
@@ -1761,7 +1763,7 @@ void WidgetGl::displayEdgesNormal (ViewNumber::Enum viewNumber) const
 void WidgetGl::displayDeformation (ViewNumber::Enum viewNumber) const
 {
     const Foam& foam = 
-	GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
+	GetSimulation (viewNumber).GetFoam (GetTime (viewNumber));
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (! foam.Is2D () || ! vs.IsDeformationShown ())
 	return;
@@ -1778,7 +1780,7 @@ void WidgetGl::displayDeformation (ViewNumber::Enum viewNumber) const
 void WidgetGl::displayVelocityGlyphs (ViewNumber::Enum viewNumber) const
 {
     const Foam& foam = 
-	GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
+	GetSimulation (viewNumber).GetFoam (GetTime (viewNumber));
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const VectorAverage& va = GetViewAverage (viewNumber).GetVelocityAverage ();
     if (! foam.Is2D () || ! vs.IsVelocityShown ())
@@ -1813,7 +1815,7 @@ void WidgetGl::displayBodyDeformation (
     {
 	ViewSettings& vs = GetViewSettings (viewNumber);
 	const Foam& foam = 
-	    GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
+	    GetSimulation (viewNumber).GetFoam (GetTime (viewNumber));
 	if (! foam.Is2D ())
 	    return;
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
@@ -1835,7 +1837,7 @@ void WidgetGl::displayBodyVelocity (
     {
 	ViewSettings& vs = GetViewSettings (viewNumber);
 	const Foam& foam = 
-	    GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
+	    GetSimulation (viewNumber).GetFoam (GetTime (viewNumber));
 	if (! foam.Is2D ())
 	    return;
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
@@ -1865,7 +1867,7 @@ void WidgetGl::displayBodyNeighbors (ViewNumber::Enum viewNumber) const
     glBegin (GL_LINES);
 
     const Foam& foam = GetSimulation (viewNumber).GetFoam (
-	GetCurrentTime(viewNumber));
+	GetTime(viewNumber));
     const OOBox& originalDomain = foam.GetTorusDomain ();
     Foam::Bodies::const_iterator showBody = foam.FindBody (m_showBodyId);
     ::displayBodyNeighbors (*showBody, originalDomain);
@@ -1902,7 +1904,7 @@ void WidgetGl::displayT1s (ViewNumber::Enum viewNumber) const
         if (m_t1sAllTimesteps)
             displayT1sAllTimesteps (viewNumber);
         else
-            displayT1sTimestep (viewNumber, GetCurrentTime (viewNumber));    
+            displayT1sTimestep (viewNumber, GetTime (viewNumber));    
     }
 }
 
@@ -2084,7 +2086,7 @@ void WidgetGl::displayBodyCenters (
     if (m_bodyCenterShown)
     {
 	const ViewSettings& vs = GetViewSettings (viewNumber);
-	size_t currentTime = GetCurrentTime (viewNumber);
+	size_t currentTime = GetTime (viewNumber);
 	const Simulation& simulation = GetSimulation (viewNumber);
 	const BodySelector& bodySelector = vs.GetBodySelector ();
 	double zPos = (vs.GetViewType () == ViewType::CENTER_PATHS) ?
@@ -2109,7 +2111,7 @@ void WidgetGl::displayFaceCenters (ViewNumber::Enum viewNumber) const
     {
 	FaceSet faces = 
 	    GetSimulation (viewNumber).GetFoam (
-		GetCurrentTime (viewNumber)).GetFaceSet ();
+		GetTime (viewNumber)).GetFaceSet ();
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
 	glPointSize (4.0);
@@ -2147,7 +2149,7 @@ void WidgetGl::compileFacesNormal (ViewNumber::Enum viewNumber) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     const Foam& foam = 
-	GetSimulation (viewNumber).GetFoam (vs.GetCurrentTime ());
+	GetSimulation (viewNumber).GetFoam (vs.GetTime ());
     const Foam::Bodies& bodies = foam.GetBodies ();
 
     glNewList (m_listFacesNormal[viewNumber], GL_COMPILE);
@@ -2211,7 +2213,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     bool isAverageAroundRotationShown = 
 	vs.IsAverageAroundRotationShown ();
     G3D::Vector3 rotationCenterEye; float angleDegrees;
-    calculateRotationParams (viewNumber, GetCurrentTime (viewNumber),
+    calculateRotationParams (viewNumber, GetTime (viewNumber),
                              &rotationCenterEye, &angleDegrees);
     rotationCenterEye = 
         ObjectToEye (rotationCenterEye) - getEyeTransform (viewNumber);
@@ -2230,7 +2232,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     if (vs.GetViewType () == ViewType::T1S_KDE &&
 	t1sKDE.IsKernelTextureShown ())
     {
-	size_t timeStep = GetCurrentTime (viewNumber);
+	size_t timeStep = GetTime (viewNumber);
 	size_t stepSize = GetSimulation (viewNumber).GetT1s (
 	    timeStep, vs.T1sShiftLower ()).size ();
 	for (size_t i = 0; i < stepSize; ++i)
@@ -2375,7 +2377,7 @@ void WidgetGl::displayBubblePathsBody (ViewNumber::Enum viewNumber) const
         const ViewSettings& vs = GetViewSettings (viewNumber);
         const BodySelector& bodySelector = vs.GetBodySelector ();
         const Simulation& simulation = GetSimulation (viewNumber);
-        size_t currentTime = GetCurrentTime (viewNumber);
+        size_t currentTime = GetTime (viewNumber);
 	const Foam::Bodies& bodies = 
 	    simulation.GetFoam (currentTime).GetBodies ();
 	double zPos = currentTime * vs.GetTimeDisplacement ();
@@ -2394,7 +2396,7 @@ void WidgetGl::displayBubblePathsBody (ViewNumber::Enum viewNumber) const
 void WidgetGl::displayBubblePathsWithBodies (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    size_t currentTime = GetCurrentTime (viewNumber);
+    size_t currentTime = GetTime (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
     displayBubblePaths (viewNumber);
     
@@ -3001,7 +3003,7 @@ void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
     T1sKDE& t1sKDE = GetViewAverage (viewNumber).GetT1sKDE ();
     t1sKDE.SetKernelSigmaInBubbleDiameters (
 	static_cast<QDoubleSpinBox*> (sender ())->value ());
-    t1sKDE.AverageInitStep ();
+    t1sKDE.AverageInitStep (GetViewSettings (viewNumber).GetTimeWindow ());
     CompileUpdate (viewNumber);
 }
 
@@ -3017,7 +3019,7 @@ void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
     if (direction != 0)
     {
         const ViewSettings& vs = GetViewSettings (viewNumber);
-        m_viewAverage[viewNumber]->AverageStep (direction);
+        m_viewAverage[viewNumber]->AverageStep (direction, vs.GetTimeWindow ());
         if (vs.GetVelocityVis () == VectorVis::STREAMLINE)
         {
             if (vs.KDESeedsEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
@@ -3040,7 +3042,7 @@ void WidgetGl::GetGridParams (
         G3D::Vector3 rc;float ad;
         calculateRotationParams (viewNumber, 0, &rc, &ad);
         rotationCenter = rc;
-        calculateRotationParams (viewNumber, GetCurrentTime (), &rc, &ad);
+        calculateRotationParams (viewNumber, GetTime (), &rc, &ad);
         *angleDegrees = ad;
     }
     const Simulation& simulation = GetSimulation (viewNumber);
@@ -3237,7 +3239,7 @@ void WidgetGl::saveVelocity (ViewNumber::Enum viewNumber,
     string cacheDir = GetSimulation (viewNumber).GetCacheDir ();
     ostringstream ostr;    
     ostr << cacheDir << "/velocity_" << setw (4) << setfill ('0') 
-         << GetCurrentTime () << ".vti";
+         << GetTime () << ".vti";
     VTK_CREATE (vtkXMLImageDataWriter, writer);
     writer->SetFileName (ostr.str ().c_str ());
     writer->SetInputDataObject (velocity);
@@ -3305,10 +3307,10 @@ void WidgetGl::rotateAverageAroundStreamlines (
         if (isAverageAroundRotationShown)
         {
             vs.RotateAndTranslateAverageAround (
-                vs.GetCurrentTime (), -1, ViewSettings::DONT_TRANSLATE);
+                vs.GetTime (), -1, ViewSettings::DONT_TRANSLATE);
         }
         vs.RotateAndTranslateAverageAround (
-            vs.GetCurrentTime (), -1, ViewSettings::TRANSLATE);
+            vs.GetTime (), -1, ViewSettings::TRANSLATE);
     }
 
     const Simulation& simulation = GetSimulation (viewNumber);
@@ -3636,7 +3638,7 @@ void WidgetGl::InfoFace ()
 	ostr << "No face focused.";
     else
     {
-	const Foam& foam = GetSimulation ().GetFoam (GetCurrentTime ());
+	const Foam& foam = GetSimulation ().GetFoam (GetTime ());
 	ostr << of->ToString (&foam.GetAttributesInfoElements ().GetInfoFace ());
     }
     msgBox.setText(ostr.str ().c_str ());
@@ -3904,7 +3906,7 @@ void WidgetGl::ResetTransformFocus ()
 	ProjectionTransform (viewNumber);
 	glMatrixMode (GL_MODELVIEW);
 	glLoadIdentity ();
-	GetViewAverage (viewNumber).AverageInitStep ();
+	GetViewAverage (viewNumber).AverageInitStep (vs.GetTimeWindow ());
     }
     update ();
 }
@@ -4482,7 +4484,6 @@ void WidgetGl::CurrentIndexChangedSimulation (int i)
     G3D::Vector3 center = 
         CalculateViewingVolume (viewNumber, simulation).center ();
     vs.SetSimulation (i, simulation, center, vs.T1sShiftLower ());
-    m_viewAverage[viewNumber]->SetSimulation (simulation);
     CompileUpdate ();
 }
 
@@ -4504,7 +4505,8 @@ void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
 		if (oldViewType == newViewType)
 		    continue;
 		GetViewAverage (viewNumber).AverageRelease ();
-		GetViewAverage (viewNumber).AverageInitStep ();
+		GetViewAverage (viewNumber).AverageInitStep (
+                    vs.GetTimeWindow ());
 		CompileUpdate (viewNumber);
 	    }
 	}
@@ -4534,12 +4536,16 @@ void WidgetGl::ButtonClickedEnd ()
     makeCurrent ();
     size_t steps = 
 	((GetSettings ()->GetTimeLinkage () == TimeLinkage::INDEPENDENT) ?
-	 GetTimeSteps () : GetSettings ()->GetLinkedTimeTimeSteps ());
+	 GetTimeSteps () : GetSettings ()->GetLinkedTimeSteps ());
     boost::array<int, ViewNumber::COUNT> direction;
-    GetSettings ()->SetCurrentTime (steps - 1, &direction, true);
+    GetSettings ()->SetTime (steps - 1, &direction, true);
     for (size_t i = 0; i < GetSettings ()->GetViewCount (); ++i)
+    {
+        ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
+        const ViewSettings& vs = GetViewSettings (viewNumber);
 	if (direction[i] != 0)
-	    m_viewAverage[i]->AverageStep (direction[i]);
+	    m_viewAverage[i]->AverageStep (direction[i], vs.GetTimeWindow ());
+    }
     CompileUpdateAll ();
 }
 
@@ -4668,12 +4674,6 @@ void WidgetGl::ValueChangedNoiseFrequency (int index)
     CompileUpdate ();
 }
 
-
-void WidgetGl::ValueChangedT1sTimeWindow (int timeSteps)
-{
-    makeCurrent ();
-    GetViewAverage ().GetT1sKDE ().AverageSetTimeWindow (timeSteps);
-}
 
 float WidgetGl::timeDisplacementMultiplier (
     const QSlider& slider,

@@ -49,10 +49,8 @@ public:
     {
 	return *m_forceAverage;
     }
-    void SetSimulation (const Simulation& simulation);
     virtual void AverageInit ();
-    virtual void AverageSetTimeWindow (size_t timeSteps);
-    virtual void AverageStep (int direction);
+    virtual void AverageStep (int direction, size_t timeWindow);
     virtual void AverageRotateAndDisplay (
 	StatisticsType::Enum displayType = StatisticsType::AVERAGE,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 

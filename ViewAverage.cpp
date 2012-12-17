@@ -60,28 +60,21 @@ void ViewAverage::AverageRelease ()
 }
 
 
-void ViewAverage::AverageSetTimeWindow (size_t timeSteps)
-{
-    GetScalarAverage ().AverageSetTimeWindow (timeSteps);
-    GetDeformationAverage ().AverageSetTimeWindow (timeSteps);
-    GetVelocityAverage ().AverageSetTimeWindow (timeSteps);
-    GetForceAverage ().AverageSetTimeWindow (timeSteps);
-}
 
-void ViewAverage::AverageStep (int direction)
+void ViewAverage::AverageStep (int direction, size_t timeWindow)
 {
     switch (m_viewSettings.GetViewType ())
     {
     case ViewType::AVERAGE:
-	GetScalarAverage ().AverageStep (direction);
-	GetDeformationAverage ().AverageStep (direction);
-	GetVelocityAverage ().AverageStep (direction);
-	GetForceAverage ().AverageStep (direction);
+	GetScalarAverage ().AverageStep (direction, timeWindow);
+	GetDeformationAverage ().AverageStep (direction, timeWindow);
+	GetVelocityAverage ().AverageStep (direction, timeWindow);
+	GetForceAverage ().AverageStep (direction, timeWindow);
 	break;
 	
     case ViewType::T1S_KDE:
-	GetT1sKDE ().AverageStep (direction);
-	GetVelocityAverage ().AverageStep (direction);
+	GetT1sKDE ().AverageStep (direction, timeWindow);
+	GetVelocityAverage ().AverageStep (direction, timeWindow);
 	break;
     default:
 	break;
@@ -119,11 +112,3 @@ void ViewAverage::AverageRotateAndDisplay (
     }
 }
 
-
-//@todo remove this and replace with AverageInit
-//@todo overwrite AverageInit for T1sKDE
-void ViewAverage::SetSimulation (const Simulation& simulation)
-{
-    AverageSetTimeWindow (simulation.GetTimeSteps ());
-    GetT1sKDE ().AverageSetTimeWindow (simulation.GetT1sTimeSteps ());
-}

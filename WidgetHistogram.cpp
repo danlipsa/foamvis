@@ -140,7 +140,7 @@ void WidgetHistogram::Update (boost::shared_ptr<ColorBarModel> colorBarModel,
     }
     else
     {
-        intervalData = simulation.GetFoam (GetSettings ()->GetCurrentTime ()).
+        intervalData = simulation.GetFoam (GetSettings ()->GetViewTime ()).
             GetHistogram (property).ToQwtIntervalData ();
         maxYValue = simulation.GetMaxCountPerBinIndividual (property);
     }

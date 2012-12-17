@@ -9,7 +9,9 @@
 #ifndef __WIDGET_BASE_H__
 #define __WIDGET_BASE_H__
 
+
 #include "Enums.h"
+#include "Base.h"
 class AverageCache;
 class Foam;
 class Settings;
@@ -20,7 +22,7 @@ class ViewSettings;
 /**
  * Widget for displaying foam bubbles
  */
-class WidgetBase
+class WidgetBase : public Base
 {
 public:
     typedef bool (Settings::*IsViewType) (
@@ -58,10 +60,6 @@ public:
 	return GetViewRect (GetViewNumber ());
     }
 
-    boost::shared_ptr<Settings> GetSettings () const
-    {
-	return m_settings;
-    }
     const SimulationGroup& GetSimulationGroup () const
     {
 	return *m_simulationGroup;
@@ -72,22 +70,11 @@ public:
         return (*m_averageCache)[viewNumber];
     }
     
-    ViewNumber::Enum GetViewNumber () const;
-    ViewSettings& GetViewSettings (ViewNumber::Enum viewNumber) const;
-    ViewSettings& GetViewSettings () const
-    {
-	return GetViewSettings (GetViewNumber ());
-    }
-    size_t GetCurrentTime () const
-    {
-	return GetCurrentTime (GetViewNumber ());
-    }
-    size_t GetCurrentTime (ViewNumber::Enum viewNumber) const;
     G3D::Matrix3 GetRotationForAxesOrder (ViewNumber::Enum viewNumber, 
                                           size_t timeStep) const;
     G3D::Matrix3 GetRotationForAxesOrder (ViewNumber::Enum viewNumber) const
     {
-        return GetRotationForAxesOrder (viewNumber, GetCurrentTime (viewNumber));
+        return GetRotationForAxesOrder (viewNumber, GetTime (viewNumber));
     }
 
     const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
@@ -99,7 +86,7 @@ public:
     const Foam& GetFoam (ViewNumber::Enum viewNumber, size_t timeStep) const;
     const Foam& GetFoam (ViewNumber::Enum viewNumber) const
     {
-        return GetFoam (viewNumber, GetCurrentTime (viewNumber));
+        return GetFoam (viewNumber, GetTime (viewNumber));
     }
     const Foam& GetFoam () const
     {
@@ -124,7 +111,6 @@ protected:
     boost::shared_ptr<QSignalMapper> m_signalMapperCopyTransformation;
 
 private:
-    boost::shared_ptr<Settings> m_settings;
     const SimulationGroup* m_simulationGroup;
     AverageCaches* m_averageCache;
     QWidget* m_widget;

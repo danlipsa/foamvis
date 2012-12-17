@@ -96,34 +96,30 @@ public:
 
     /**
      * @{
-     * @name Time
+     * @name Time and LinkedTime
      */
-    size_t GetCurrentTime (ViewNumber::Enum viewNumber) const;
-    size_t GetCurrentTime () const
+    size_t GetViewTime (ViewNumber::Enum viewNumber) const;
+    size_t GetViewTime () const
     {
-	return GetCurrentTime (GetViewNumber ());
+	return GetViewTime (GetViewNumber ());
     }
-    void SetCurrentTime (
+    size_t GetLinkedTime () const
+    {
+	return m_linkedTime;
+    }
+    void SetTime (
 	size_t time, 
 	boost::array<int, ViewNumber::COUNT>* direction = 0, 
 	bool setLastStep = false);
     size_t GetTimeSteps (ViewNumber::Enum viewNumber) const;
-    // @}
 
-    /**
-     * @{
-     * @name LinkedTime
-     */
+
     void AddLinkedTimeEvent ();
     void ResetLinkedTimeEvents ();
     void SetTimeLinkage (TimeLinkage::Enum timeLinkage);
     TimeLinkage::Enum GetTimeLinkage () const
     {
 	return m_timeLinkage;
-    }
-    size_t GetLinkedTime () const
-    {
-	return m_linkedTime;
     }
     float GetLinkedTimeStretch (ViewNumber::Enum viewNumber, 
                                 size_t eventIndex) const;
@@ -139,8 +135,21 @@ public:
     {
 	return GetLinkedTimeViewNumbers (GetViewNumber ());
     }
-    size_t GetLinkedTimeTimeSteps () const;
+    size_t GetLinkedTimeSteps () const;
     bool HasEqualNumberOfEvents () const;
+    void SetAverageTimeWindow (size_t timeSteps);
+    void UpdateAverageTimeWindow ();
+    void SetLinkedTimeWindow (size_t timeWindow)
+    {
+        m_linkedTimeWindow = timeWindow;
+    }
+    size_t GetLinkedTimeWindow () const
+    {
+        return m_linkedTimeWindow;
+    }
+    size_t CalculateViewTimeWindow (
+        ViewNumber::Enum viewNumber, size_t timeStep) const;
+
     // @}
 
 
@@ -360,6 +369,8 @@ private Q_SLOTS:
     void selectionChanged (int viewNumber);
 
 private:
+    int calculateViewTime (
+        ViewNumber::Enum viewNumber, int linkedTime) const;
     float getXOverY (float w, float h, ViewNumber::Enum viewNumber, 
 		     ViewCount::Enum viewCount) const;
     void setScaleCenter (ViewNumber::Enum viewNumber, 
@@ -403,9 +414,10 @@ private:
      * Used to keep trak of time for TimeLinkage::LINKED.
      * It has the resolution of the view that has the maximum interval and the 
      * range of the view that has the maximum range.
-     * @see GetLinkedTimeMaxInterval, @see GetLinkedTimeMaxSteps
+     * @see GetLinkedTimeMaxInterval
      */
     size_t m_linkedTime;
+    size_t m_linkedTimeWindow;
     // View related variables
     ViewCount::Enum m_viewCount;
     ViewLayout::Enum m_viewLayout;

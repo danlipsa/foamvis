@@ -8,14 +8,12 @@
  */
 
 #include "Average.h"
+#include "Debug.h"
 #include "DebugStream.h"
 #include "Settings.h"
 #include "Simulation.h"
 #include "OpenGLUtils.h"
 #include "ViewSettings.h"
-
-//#define __LOG__(code) code
-#define __LOG__(code)
 
 
 Average::Average (
@@ -25,8 +23,7 @@ Average::Average (
     
     m_settings (settings),
     m_simulationGroup (simulationGroup),
-    m_currentTimeWindow (0),
-    m_timeWindow (0)
+    m_currentTimeWindow (0)
 {
 }
 
@@ -36,42 +33,61 @@ void Average::AverageInit ()
     m_currentTimeWindow = 0;
 }
 
-void Average::loopOperation (Operation op, size_t currentTime)
+void Average::forAllSubsteps (Operation op, size_t currentTime)
 {
     size_t stepSize = getStepSize (currentTime);
     for (size_t i = 0; i < stepSize; ++i)
 	(this->*op) (currentTime, i);
 }
 
-void Average::AverageStep (int timeDifference)
+void Average::executeOperation (
+    size_t currentTime, Operation op, TimeOperation timeOp, 
+    bool atEnd, size_t timeWindow)
 {
-    __LOG__ (cdbg << "AverageStep: " << timeDifference << endl;)
+    if (atEnd)
+    {
+        do
+        {
+            forAllSubsteps (op, currentTime);
+            currentTime = timeOp (currentTime, 1);
+            --m_currentTimeWindow;
+        }
+        while (m_currentTimeWindow >= timeWindow);
+        ++m_currentTimeWindow;
+    }
+    else
+        forAllSubsteps (op, currentTime);
+}
+
+void Average::AverageStep (int timeDifference, size_t timeWindow)
+{
     if (timeDifference == 0)
 	return;
     if (abs (timeDifference) > 1)
     {
-	AverageInitStep ();
+	AverageInitStep (timeWindow);
 	return;
     }
-    Operation first, second;
-    size_t currentTime = m_settings.GetCurrentTime (GetViewNumber ());
+    Operation firstOp, secondOp;
+    size_t currentTime = m_settings.GetViewTime (GetViewNumber ());
     if (timeDifference < 0)
     {
 	++currentTime;
-	first = &Average::removeStep;
-	second = &Average::addStep;
+	firstOp = &Average::removeStep;
+	secondOp = &Average::addStep;
     }
     else
     {
-	first = &Average::addStep;
-	second = &Average::removeStep;
+	firstOp = &Average::addStep;
+	secondOp = &Average::removeStep;
     }
-    loopOperation (first, currentTime);
-    if (m_currentTimeWindow >= m_timeWindow && currentTime >= m_timeWindow)
-    {
-	currentTime -= m_timeWindow;
-	loopOperation (second, currentTime);
-    }
+    executeOperation (
+        currentTime, firstOp, std::minus<float> (), 
+        timeDifference < 0, timeWindow);
+    if (m_currentTimeWindow >= timeWindow && currentTime >= timeWindow)
+        executeOperation (currentTime - m_currentTimeWindow,
+                          secondOp, std::plus<float> (), 
+                          timeDifference > 0, timeWindow);
     else
 	m_currentTimeWindow += timeDifference;
     WarnOnOpenGLError ("AverageStep");
@@ -96,7 +112,7 @@ const Foam& Average::GetFoam (size_t timeStep) const
 
 const Foam& Average::GetFoam () const
 {
-    size_t currentTime = GetViewSettings ().GetCurrentTime ();
+    size_t currentTime = GetViewSettings ().GetTime ();
     return GetSimulation ().GetFoam (currentTime);
 }
 

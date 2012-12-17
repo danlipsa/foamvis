@@ -199,7 +199,7 @@ public:
         ViewNumber::Enum viewNumber) const
     {
         return AllTransformAverage (
-            viewNumber, GetCurrentTime (viewNumber), ROTATE_FOR_AXIS_ORDER);
+            viewNumber, GetTime (viewNumber), ROTATE_FOR_AXIS_ORDER);
     }
     void GetGridParams (
         ViewNumber::Enum viewNumber, G3D::Vector2* gridOrigin, 
@@ -318,7 +318,6 @@ public Q_SLOTS:
     void ValueChangedLightSpecularGreen (int sliderValue);
     void ValueChangedLightSpecularBlue (int sliderValue);
 
-    void ValueChangedT1sTimeWindow (int timeSteps);
     void ValueChangedTimeDisplacement (int timeDisplacement);
     void ValueChangedT1Size (int index);
     void ValueChangedT1sKernelSigma (double value);

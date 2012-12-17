@@ -84,6 +84,7 @@ Settings::Settings (const Simulation& simulation, float w, float h,
     m_viewNumber (ViewNumber::VIEW0),
     m_timeLinkage (TimeLinkage::LINKED),
     m_linkedTime (0),
+    m_linkedTimeWindow (0),
     m_viewCount (ViewCount::ONE),
     m_viewLayout (ViewLayout::HORIZONTAL),
     m_missingPressureShown (true),
@@ -222,19 +223,19 @@ void Settings::SetViewNumber (ViewNumber::Enum viewNumber)
 }
 
 
-size_t Settings::GetCurrentTime (ViewNumber::Enum viewNumber) const
+size_t Settings::GetViewTime (ViewNumber::Enum viewNumber) const
 {
-    return GetViewSettings (viewNumber).GetCurrentTime ();
+    return GetViewSettings (viewNumber).GetTime ();
 }
 
 void Settings::SetTimeLinkage (TimeLinkage::Enum timeLinkage)
 {
     m_timeLinkage = timeLinkage;
-    SetCurrentTime (GetCurrentTime ());
+    SetTime (GetViewTime ());
     Q_EMIT ViewChanged (GetViewNumber ());
 }
 
-void Settings::SetCurrentTime (
+void Settings::SetTime (
     size_t currentTime, 
     boost::array<int, ViewNumber::COUNT>* d, bool setLastStep)
 {
@@ -246,7 +247,7 @@ void Settings::SetCurrentTime (
     {
 	ViewNumber::Enum viewNumber = GetViewNumber ();
 	ViewSettings& vs = GetViewSettings (viewNumber);
-	direction[viewNumber] = vs.SetCurrentTime (currentTime);
+	direction[viewNumber] = vs.SetTime (currentTime);
 	break;
     }
     case TimeLinkage::LINKED:
@@ -580,7 +581,7 @@ void Settings::AddLinkedTimeEvent ()
     checkLinkedTimesValid ();
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    size_t currentTime = GetCurrentTime (viewNumber);
+    size_t currentTime = GetViewTime (viewNumber);
     vs.AddLinkedTimeEvent (currentTime);
     Q_EMIT ViewChanged (viewNumber);
 }
@@ -654,43 +655,54 @@ const vector<size_t>& Settings::GetLinkedTimeEvents (
     return GetViewSettings (viewNumber).GetLinkedTimeEvents ();
 }
 
-int Settings::setCurrentTime (
-    ViewNumber::Enum viewNumber, size_t linkedTime, bool setLastStep)
+int Settings::calculateViewTime (
+    ViewNumber::Enum viewNumber, int linkedTime) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     // search for the event interval where the linked time is, and compute
     // the view time
-    size_t currentViewTime = 0;
-    size_t currentLinkedTime = 0;
-    size_t eventIndex;
-    for (eventIndex = 0; 
-         eventIndex < GetLinkedTimeEvents (ViewNumber::VIEW0).size ();
-         ++eventIndex)
+    int currentViewTime = 0;
+    int currentLinkedTime = 0;
+    size_t eventIndex = 0;
+    while(eventIndex < GetLinkedTimeEvents (ViewNumber::VIEW0).size ())
     {
         pair<size_t, ViewNumber::Enum> p = GetLinkedTimeMaxInterval (eventIndex);
-        if (currentLinkedTime + p.first - 1 > linkedTime)
+        if (static_cast<int>(currentLinkedTime + p.first - 1) > linkedTime)
             break;
         currentLinkedTime += (p.first - 1);
         currentViewTime += (vs.GetLinkedTimeInterval (eventIndex) - 1);
-    }    
-    if (eventIndex == GetLinkedTimeEvents (ViewNumber::VIEW0).size ())
-    {
-        currentViewTime += (linkedTime - currentLinkedTime);
-        if (currentViewTime >= vs.GetTimeSteps ())
-        {
-            if (setLastStep)
-                currentViewTime = vs.GetTimeSteps () - 1;
-            else
-                return 0;
-        }
+        ++eventIndex;
     }
+    if (eventIndex == GetLinkedTimeEvents (ViewNumber::VIEW0).size ())
+        currentViewTime += (linkedTime - currentLinkedTime);
     else
         currentViewTime += (linkedTime - currentLinkedTime) / 
             GetLinkedTimeStretch (viewNumber, eventIndex);
-    return vs.SetCurrentTime (currentViewTime);
+    return currentViewTime;
 }
 
-size_t Settings::GetLinkedTimeTimeSteps () const
+size_t Settings::GetTimeSteps (ViewNumber::Enum viewNumber) const
+{
+    return GetViewSettings (viewNumber).GetTimeSteps ();
+}
+
+
+int Settings::setCurrentTime (
+    ViewNumber::Enum viewNumber, size_t linkedTime, bool setLastStep)
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    size_t viewTime = calculateViewTime (viewNumber, linkedTime);
+    if (viewTime >= vs.GetTimeSteps ())
+    {
+        if (setLastStep)
+            viewTime = vs.GetTimeSteps () - 1;
+        else
+            return 0;
+    }
+    return vs.SetTime (viewTime);
+}
+
+size_t Settings::GetLinkedTimeSteps () const
 {
     size_t currentLinkedTime = 0;
     for (size_t eventIndex = 0; 
@@ -721,6 +733,31 @@ size_t Settings::GetLinkedTimeEventTime (size_t eventIndex) const
     for (size_t i = 0; i <= eventIndex; ++i)
         eventTime += GetLinkedTimeMaxInterval (i).first;
     return eventTime;
+}
+
+size_t Settings::CalculateViewTimeWindow (
+    ViewNumber::Enum viewNumber, size_t linkedTimeHigh) const
+{
+    int linkedTimeLow = linkedTimeHigh - m_linkedTimeWindow + 1;
+    int viewHigh = calculateViewTime (viewNumber, linkedTimeHigh);
+    int viewLow = calculateViewTime (viewNumber, linkedTimeLow);
+    return  viewHigh - viewLow + 1;
+}
+
+void Settings::SetAverageTimeWindow (size_t timeSteps)
+{
+    SetLinkedTimeWindow (timeSteps);
+    UpdateAverageTimeWindow ();
+}
+
+void Settings::UpdateAverageTimeWindow ()
+{
+    for (size_t i = 0; i < GetViewCount (); ++i)
+    {
+        ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
+        GetViewSettings (viewNumber).SetTimeWindow (
+            CalculateViewTimeWindow (viewNumber, GetLinkedTime ()));
+    }
 }
 
 

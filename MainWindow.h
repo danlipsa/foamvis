@@ -10,6 +10,7 @@
 #include "ui_MainWindow.h"
 #include "Enums.h"
 #include "Foam.h"
+#include "Base.h"
 
 class ProcessBodyTorus;
 class QTimer;
@@ -21,7 +22,7 @@ class WidgetGl;
 /**
  * Class that stores the OpenGL, Vtk, Histogram and  UI widgets.
  */
-class MainWindow : public QMainWindow, private Ui::MainWindow
+class MainWindow : public QMainWindow, public Base, private Ui::MainWindow
 {
 public:
     enum PlayType
@@ -43,10 +44,6 @@ public:
      * @param event object describing the key
      */
     void keyPressEvent (QKeyEvent* event);
-    boost::shared_ptr<Settings> GetSettings () const
-    {
-	return m_settings;
-    }
     void ShowMessageBox (const char* message);
 
 Q_SIGNALS:
@@ -149,6 +146,7 @@ private:
     void addVtkView (ViewNumber::Enum viewNumber);
     void update3DAverage ();
     void currentIndexChangedFaceColor (ViewNumber::Enum viewNumber);
+    void timeViewToUI (ViewNumber::Enum viewNumber);
     void linkedTimeEventsViewToUI (ViewNumber::Enum viewNumber);
     void deformationViewToUI ();
     void velocityViewToUI ();
@@ -244,7 +242,6 @@ private:
      * display the files too fast.
      */    
     boost::scoped_ptr<QTimer> m_timer;
-    boost::shared_ptr<Settings> m_settings;
     
     ////////////
     // Debug PBC
