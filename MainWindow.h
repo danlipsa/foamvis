@@ -151,7 +151,7 @@ private:
     void deformationViewToUI ();
     void velocityViewToUI ();
     void forceViewToUI ();
-    void t1sKDEViewToUI ();
+    void t1sKDEViewToUI (ViewNumber::Enum viewNumber);
     void bubblePathsViewToUI ();
     HistogramInfo createHistogramInfo (
 	pair<float, float> minMax, size_t count) const;    
@@ -282,7 +282,6 @@ private:
      */
     bool m_playForward;
     bool m_playReverse;
-    const SimulationGroup& m_simulationGroup;
     boost::array<boost::shared_ptr<AverageCache>, 
                  ViewNumber::COUNT> m_averageCache;
 };

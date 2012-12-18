@@ -251,11 +251,11 @@ DisplayBody<displayFace, PropertySetter>::
 DisplayBody (
     const Settings& settings, const BodySelector& bodySelector,
     typename DisplayElement::ContextType contextDisplay, 
-    ViewNumber::Enum view, bool useZPos, double zPos) :
+    ViewNumber::Enum viewNumber, bool useZPos, double zPos) :
 
     DisplayBodyBase<PropertySetter> (
 	settings, bodySelector, 
-        PropertySetter (settings, view), useZPos, zPos),
+        PropertySetter (settings, viewNumber), useZPos, zPos),
     m_contextDisplay (contextDisplay)
 {
 }

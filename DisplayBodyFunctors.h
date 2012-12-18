@@ -132,7 +132,7 @@ public:
 	const Settings& settings, const BodySelector& bodySelector,
 	typename DisplayElement::ContextType 
 	contextDisplay = DisplayElement::USER_DEFINED_CONTEXT,
-	ViewNumber::Enum view = ViewNumber::VIEW0,
+	ViewNumber::Enum viewNumber = ViewNumber::VIEW0,
 	bool useZPos = false, double zPos = 0);
 
     DisplayBody (

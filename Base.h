@@ -12,10 +12,12 @@
 #include "Enums.h"
 class ViewSettings;
 class Settings;
+class SimulationGroup;
 
 class Base
 {
 public:
+    Base ();
     boost::shared_ptr<Settings> GetSettings () const
     {
 	return m_settings;
@@ -38,9 +40,18 @@ public:
     {
 	return GetTime (GetViewNumber ());
     }
+    const SimulationGroup& GetSimulationGroup () const
+    {
+	return *m_simulationGroup;
+    }
+    void SetSimulationGroup (const SimulationGroup* sg)
+    {
+        m_simulationGroup = sg;
+    }
 
 private:
     boost::shared_ptr<Settings> m_settings;
+    const SimulationGroup* m_simulationGroup;
 };
 
 

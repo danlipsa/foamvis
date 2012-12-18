@@ -19,7 +19,7 @@ Release log
           based on 'Sigma'. Sigma is expressed in terms of bubble size.
         - show streamlines and KDE together and seed based on KDE value
         - show  min, max and clamping values for the color map
-        - add multiple events for the linked time option.
+        - extend the linked time option with multiple events
 0.8.2553 2012-09-07
         - bug fixes (dataset fluctuates because is centered at foam center 
           instead of simulation center)

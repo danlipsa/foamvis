@@ -2273,7 +2273,9 @@ void WidgetGl::displayFacesContour (
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
 	      DisplayFaceHighlightColor<HighlightNumber::H0,
-	      DisplayFaceEdges<DisplayEdge> > > (*GetSettings (), bodySelector));
+	      DisplayFaceEdges<DisplayEdge> > > (
+                  *GetSettings (), bodySelector, 
+                  DisplayElement::USER_DEFINED_CONTEXT, viewNumber));
     glPopAttrib ();
 }
 

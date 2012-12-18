@@ -11,6 +11,10 @@
 #include "Settings.h"
 #include "ViewSettings.h"
 
+Base::Base () :
+    m_simulationGroup (0)
+{
+}
 
 ViewNumber::Enum Base::GetViewNumber () const
 {

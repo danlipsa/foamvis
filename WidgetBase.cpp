@@ -20,7 +20,7 @@ void WidgetBase::Init (
     const SimulationGroup* simulationGroup, AverageCaches* averageCache)
 {
     SetSettings (settings);
-    m_simulationGroup = simulationGroup;
+    SetSimulationGroup (simulationGroup);
     m_averageCache = averageCache;
 }
 
@@ -121,7 +121,7 @@ void WidgetBase::initCopy (
 
 const Simulation& WidgetBase::GetSimulation (ViewNumber::Enum viewNumber) const
 {
-    return m_simulationGroup->GetSimulation (*GetSettings (), viewNumber);
+    return GetSimulationGroup ().GetSimulation (*GetSettings (), viewNumber);
 }
 
 const Simulation& WidgetBase::GetSimulation (size_t index) const

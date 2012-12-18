@@ -70,9 +70,9 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     m_currentBody (0),
     m_editColorMap (new EditColorMap (this)),
     m_playForward (false),
-    m_playReverse (false),
-    m_simulationGroup (simulationGroup)
+    m_playReverse (false)
 {
+    SetSimulationGroup (&simulationGroup);
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
         m_averageCache[i].reset (new AverageCache ());
     // for anti-aliased lines
@@ -1283,7 +1283,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
         if (m_debugTranslatedBody)
         {
             const Foam& foam = 
-                m_simulationGroup.GetSimulation (
+                GetSimulationGroup ().GetSimulation (
                     vs.GetSimulationIndex ()).GetFoam (0);
             m_currentTranslatedBody = 
                 const_cast<Foam&> (foam).GetBodies ().begin ();
@@ -1329,7 +1329,7 @@ void MainWindow::ButtonClickedViewType (int vt)
     {
 	ViewNumber::Enum viewNumber = vn[i];
 	ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
-	const Simulation& simulation = m_simulationGroup.GetSimulation (
+	const Simulation& simulation = GetSimulationGroup ().GetSimulation (
 	    *GetSettings (), viewNumber);
 
 	size_t simulationIndex = vs.GetSimulationIndex ();
@@ -1461,7 +1461,7 @@ void MainWindow::ToggledTwoHalvesView (bool reflectedHalfView)
     checkBoxTitleShown->setChecked (false);
     GetSettings ()->SetTwoHalvesView (
 	reflectedHalfView, 
-	m_simulationGroup.GetSimulation (*GetSettings ()), 
+	GetSimulationGroup ().GetSimulation (*GetSettings ()), 
 	widgetGl->width (), widgetGl->height ());
     widgetGl->CompileUpdate ();
 }
@@ -1494,7 +1494,7 @@ void MainWindow::updateSliderTimeSteps (
 {
     vector<bool> timeStepSelection;
     const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
-    const Simulation& simulation = m_simulationGroup.GetSimulation (*GetSettings ());
+    const Simulation& simulation = GetSimulationGroup ().GetSimulation (*GetSettings ());
     BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT (
         vs.GetBodyOrFaceScalar ());
     simulation.GetTimeStepSelection (
@@ -1735,7 +1735,7 @@ void MainWindow::forceViewToUI ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
-    const Simulation& simulation = m_simulationGroup.GetSimulation (
+    const Simulation& simulation = GetSimulationGroup ().GetSimulation (
 	*GetSettings (), viewNumber);
     SetCheckedNoSignals (
 	checkBoxForceNetwork, vs.IsForceNetworkShown (), 
@@ -1756,7 +1756,7 @@ void MainWindow::forceViewToUI ()
 		   vs.GetForceTorqueLineWidth ()));
 }
 
-void MainWindow::t1sKDEViewToUI ()
+void MainWindow::t1sKDEViewToUI (ViewNumber::Enum viewNumber)
 {
     if (DATA_PROPERTIES.Is2D ())
     {
@@ -1766,6 +1766,9 @@ void MainWindow::t1sKDEViewToUI ()
         SetCheckedNoSignals (checkBoxTextureShown, kernelTextureShown);
         SetValueNoSignals (
             doubleSpinBoxKernelSigma, kde.GetKernelSigmaInBubbleDiameters ());
+        const Simulation& simulation = 
+            GetSimulationGroup ().GetSimulation (*GetSettings (), viewNumber);
+        radioButtonT1sKDE->setEnabled (simulation.T1sAvailable ());
     }
 }
 
@@ -1774,7 +1777,7 @@ void MainWindow::bubblePathsViewToUI ()
     ViewNumber::Enum viewNumber = GetViewNumber ();
     const ViewSettings& vs = GetSettings ()->GetViewSettings ();
     int property = vs.GetBodyOrFaceScalar ();
-    const Simulation& simulation = m_simulationGroup.GetSimulation (
+    const Simulation& simulation = GetSimulationGroup ().GetSimulation (
 	*GetSettings ());
 
     labelBubblePathsColor->setText (FaceScalar::ToString (property));
@@ -1860,7 +1863,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     deformationViewToUI ();
     velocityViewToUI ();
     forceViewToUI ();
-    t1sKDEViewToUI ();
+    t1sKDEViewToUI (viewNumber);
     bubblePathsViewToUI ();
 
     SetValueNoSignals (horizontalSliderAngleOfView, vs.GetAngleOfView ());

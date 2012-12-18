@@ -36,7 +36,6 @@ public:
     WidgetBase (QWidget* widget,
 		IsViewType isView,
 		GetViewCountType getViewCount) :
-        m_simulationGroup (0),
         m_averageCache (0),
 	m_widget (widget), 
 	m_isView (isView),
@@ -60,10 +59,6 @@ public:
 	return GetViewRect (GetViewNumber ());
     }
 
-    const SimulationGroup& GetSimulationGroup () const
-    {
-	return *m_simulationGroup;
-    }
     boost::shared_ptr<AverageCache> GetAverageCache (
         ViewNumber::Enum viewNumber) const
     {
@@ -111,7 +106,6 @@ protected:
     boost::shared_ptr<QSignalMapper> m_signalMapperCopyTransformation;
 
 private:
-    const SimulationGroup* m_simulationGroup;
     AverageCaches* m_averageCache;
     QWidget* m_widget;
     IsViewType m_isView;
