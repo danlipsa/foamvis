@@ -181,7 +181,7 @@ void ForceAverage::displayTorqueOneObject (
     ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
     const Simulation& simulation = GetSimulation ();
     G3D::Vector2 center = forcesOneObject.m_body->GetCenter ().xy ();
-    const Foam& foam = GetFoam (GetSettings ().GetViewTime ());
+    const Foam& foam = GetFoam (GetSettings ().GetViewTime (GetViewNumber ()));
     float bubbleSize = simulation.GetBubbleDiameter ();
     float unitForceTorqueSize = vs.GetForceTorqueSize () * bubbleSize / count;
 

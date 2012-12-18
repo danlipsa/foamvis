@@ -674,7 +674,11 @@ int Settings::calculateViewTime (
         ++eventIndex;
     }
     if (eventIndex == GetLinkedTimeEvents (ViewNumber::VIEW0).size ())
-        currentViewTime += (linkedTime - currentLinkedTime);
+    {
+        int linkedTimeAtEnd = linkedTime - currentLinkedTime;
+        int viewTimeAtEnd = vs.GetTimeSteps () - currentViewTime - 1;
+        currentViewTime += min (viewTimeAtEnd, linkedTimeAtEnd);
+    }
     else
         currentViewTime += (linkedTime - currentLinkedTime) / 
             GetLinkedTimeStretch (viewNumber, eventIndex);
