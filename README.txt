@@ -20,6 +20,7 @@ Release log
         - show streamlines and KDE together and seed based on KDE value
         - show  min, max and clamping values for the color map
         - extend the linked time option with multiple events
+        - bug fix: fix scalar selection shown on the time bar
 0.8.2553 2012-09-07
         - bug fixes (dataset fluctuates because is centered at foam center 
           instead of simulation center)
