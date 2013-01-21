@@ -54,7 +54,7 @@ public:
     void setValue (int value)
     {
 	slider->setValue (value);
-	updateLabelValue (value);
+	updateLabelTime (value);
     }
     void SetValueAndMaxNoSignals (size_t value, size_t maximum);
     void SetValueNoSignals (size_t value);
@@ -65,14 +65,6 @@ public:
     int maximum () const
     {
 	return slider->maximum ();
-    }
-    void SetTitle (const string& title)
-    {
-	m_title = title;
-    }
-    string GetTitle () const
-    {
-	return m_title;
     }
     void NextSelected ();
     void PreviousSelected ();
@@ -96,8 +88,9 @@ private:
      * range.
      */
     size_t getMinimumWidth (size_t size);
-    void updateTitle ();
-    void updateLabelValue (int value);
+    void updateLabelTimesteps ();
+    void updateLabelSelected ();
+    void updateLabelTime (int value);    
     void setupScale (int min, int max);
     void setupColorMap (const vector<bool>* selected = 0);
     QColor toColor (bool selected)
@@ -111,7 +104,6 @@ private:
     vector<int> m_toOriginalRange;
     State m_state;
     boost::shared_ptr<QwtLinearColorMap> m_colorMap;
-    string m_title;
 };
 
 

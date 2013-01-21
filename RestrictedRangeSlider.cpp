@@ -43,8 +43,9 @@ RestrictedRangeSlider::RestrictedRangeSlider (QWidget *parent) :
 {
     setupUi (this);
     scale->setAlignment (QwtScaleDraw::TopScale);
-    updateTitle ();
-    updateLabelValue (minimum ());
+    updateLabelTime (minimum ());
+    updateLabelSelected ();
+    updateLabelTimesteps ();
 }
 
 void RestrictedRangeSlider::setupScale (int minimum, int maximum)
@@ -64,8 +65,7 @@ void RestrictedRangeSlider::setupScale (int minimum, int maximum)
     SliderDimensionsQuery sliderQuery (Application::Get ().get ());
     QRect r = sliderQuery.GetHandleRect ();
     scale->setBorderDist (r.width () / 2, r.width () / 2);
-
-    updateTitle ();
+    updateLabelTimesteps ();
 }
 
 void RestrictedRangeSlider::setupColorMap (const vector<bool>* selected)
@@ -90,8 +90,9 @@ void RestrictedRangeSlider::setupColorMap (const vector<bool>* selected)
 	QColor color = toColor (v[i]);
 	m_colorMap->addColorStop (value, color);
     }
+    bool restrictedRange = (GetState () != RestrictedRangeSlider::FULL_RANGE);
+    scale->setColorBarEnabled (restrictedRange);
     scale->setColorMap (interval, *m_colorMap);
-    scale->setColorBarEnabled (false);
     scale->setColorBarWidth (WIDTH);
 }
 
@@ -130,66 +131,72 @@ size_t RestrictedRangeSlider::getMinimumWidth (size_t size)
 void RestrictedRangeSlider::SetRestrictedTo (
     const vector<bool>& selectedIntervals)
 {
-    setupColorMap (&selectedIntervals);
     size_t unselectedIntervalCount = count (
 	selectedIntervals.begin (), selectedIntervals.end (), false);
     if (unselectedIntervalCount == 0)
-    {
 	SetFullRange ();
-	return;
-    }
-    m_toOriginalRange.reserve (selectedIntervals.size ());
-    m_toOriginalRange.resize (0);
-    for (size_t i = 0; i < selectedIntervals.size (); ++i)
-	if (selectedIntervals[i])
-	    m_toOriginalRange.push_back (i);
-    if (m_toOriginalRange.empty ())
-    {
-	m_state = EMPTY_RANGE;
-    }
     else
     {
-	m_state = RESTRICTED_RANGE;
+        m_toOriginalRange.reserve (selectedIntervals.size ());
+        m_toOriginalRange.resize (0);
+        for (size_t i = 0; i < selectedIntervals.size (); ++i)
+            if (selectedIntervals[i])
+                m_toOriginalRange.push_back (i);
+        if (m_toOriginalRange.empty ())
+        {
+            m_state = EMPTY_RANGE;
+        }
+        else
+        {
+            m_state = RESTRICTED_RANGE;
+        }
     }
-    scale->setColorBarEnabled (true);
-    updateTitle ();
+    setupColorMap (&selectedIntervals);
+    updateLabelSelected ();
 }
 
 void RestrictedRangeSlider::SetFullRange ()
 {
     m_state = FULL_RANGE;
     m_toOriginalRange.resize (0);
-    updateTitle ();
+    updateLabelSelected ();
     scale->setColorBarEnabled (false);
 }
 
-void RestrictedRangeSlider::updateTitle ()
+void RestrictedRangeSlider::updateLabelSelected ()
 {
     ostringstream ostr;
-    if (GetState () != RestrictedRangeSlider::FULL_RANGE)
+    bool restrictedRange = (GetState () != RestrictedRangeSlider::FULL_RANGE);
+    labelSelectedTitle->setShown (restrictedRange);
+    labelSelected->setShown (restrictedRange);
+    if (restrictedRange)
     {
 	size_t range = 
 	    (GetState () == RestrictedRangeSlider::EMPTY_RANGE) ? 
 	    0 : m_toOriginalRange.size ();
-	ostr << string ("Selected ") + ": "
-	     << range << " of " << (maximum () - minimum () + 1);
+	ostr << range;
+        labelSelected->setText (ostr.str ().c_str ());
     }
-    else
-	ostr << GetTitle () << ": " << (maximum () - minimum () + 1);
-    labelInfo->setText (ostr.str ().c_str ());
 }
 
-void RestrictedRangeSlider::updateLabelValue (int value)
+void RestrictedRangeSlider::updateLabelTimesteps ()
+{
+    ostringstream ostr;
+    ostr << (maximum () - minimum () + 1);
+    labelTimesteps->setText (ostr.str ().c_str ());
+}
+
+void RestrictedRangeSlider::updateLabelTime (int value)
 {
     ostringstream ostr;
     ostr << value;
-    labelValue->setText (ostr.str ().c_str ());
+    labelTime->setText (ostr.str ().c_str ());
 }
 
 
 void RestrictedRangeSlider::ValueChangedSlider (int value)
 {
-    updateLabelValue (value);
+    updateLabelTime (value);
     Q_EMIT valueChanged (value);
 }
 

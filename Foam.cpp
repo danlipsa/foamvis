@@ -794,11 +794,13 @@ void Foam::CalculateHistogramStatistics (BodyScalar::Enum property,
 bool Foam::ExistsBodyWithValueIn (
     BodyScalar::Enum property, const QwtDoubleInterval& interval) const
 {
-    Foam::Bodies::const_iterator it = find_if
-	(m_bodies.begin (), m_bodies.end (),
-	 boost::bind (&QwtDoubleInterval::contains, interval, 
-		      boost::bind (&Body::GetScalarValue, _1, property)));
-    return it != m_bodies.end ();
+    BOOST_FOREACH (boost::shared_ptr<Body> body, m_bodies)
+    {
+        if (body->HasScalarValue (property) &&
+            interval.contains (body->GetScalarValue (property)))
+            return true;
+    }
+    return false;
 }
 
 void Foam::SetDmpObjectPosition (const DmpObjectInfo& names)

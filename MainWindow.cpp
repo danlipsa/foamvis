@@ -2,7 +2,7 @@
  * @file   MainWindow.h
  * @author Dan R. Lipsa
  *
- * Contains definitions for the UI class
+ * Contains definitions for the MainWindow
  */
 // @todo Store the palette per BodyScalar instead of storing it per view 
 //       and simulation index.
@@ -1494,7 +1494,8 @@ void MainWindow::updateSliderTimeSteps (
 {
     vector<bool> timeStepSelection;
     const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
-    const Simulation& simulation = GetSimulationGroup ().GetSimulation (*GetSettings ());
+    const Simulation& simulation = 
+        GetSimulationGroup ().GetSimulation (*GetSettings ());
     BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT (
         vs.GetBodyOrFaceScalar ());
     simulation.GetTimeStepSelection (
@@ -1814,13 +1815,20 @@ void MainWindow::timeViewToUI (ViewNumber::Enum viewNumber)
     if (GetSettings ()->GetTimeLinkage () == TimeLinkage::INDEPENDENT)
     {
         steps = GetSettings ()->GetTimeSteps (viewNumber);
-        sliderTimeSteps->SetValueAndMaxNoSignals (vs.GetTime (), steps - 1);
+        if (sliderTimeSteps->maximum () == static_cast<int> (steps) - 1)
+            sliderTimeSteps->SetValueNoSignals (vs.GetTime ());
+        else
+            sliderTimeSteps->SetValueAndMaxNoSignals (vs.GetTime (), steps - 1);
     }
     else
     {
 	steps = GetSettings ()->GetLinkedTimeSteps ();
-	sliderTimeSteps->SetValueAndMaxNoSignals (
-	    GetSettings ()->GetLinkedTime (), steps - 1);
+        if (sliderTimeSteps->maximum () == static_cast<int> (steps) - 1)
+            sliderTimeSteps->SetValueNoSignals (
+                GetSettings ()->GetLinkedTime ());
+        else
+            sliderTimeSteps->SetValueAndMaxNoSignals (
+                GetSettings ()->GetLinkedTime (), steps - 1);
     }
     SetValueAndMaxNoSignals (spinBoxAverageTimeWindow,
 			     scalarAverageTimeWindow, steps);
@@ -1875,18 +1883,15 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     updateLightControls (vs, selectedLight);
     updateButtons ();
 
-    if (GetSettings ()->IsHistogramShown (viewNumber))
+    const AttributeHistogram& histogram = 
+        widgetHistogram->GetHistogram (viewNumber);
+    if (histogram.GetYAxisMaxValue () == 0)
+        sliderTimeSteps->SetFullRange ();
+    else
     {
-        const AttributeHistogram& histogram = 
-            widgetHistogram->GetHistogram (viewNumber);
-        if (histogram.GetYAxisMaxValue () == 0)
-            sliderTimeSteps->SetFullRange ();
-        else
-        {
-            vector<QwtDoubleInterval> valueIntervals;
-            widgetHistogram->GetHistogram (
-                viewNumber).GetSelectedIntervals (&valueIntervals);
-            updateSliderTimeSteps (viewNumber, valueIntervals);
-        }
+        vector<QwtDoubleInterval> valueIntervals;
+        widgetHistogram->GetHistogram (
+            viewNumber).GetSelectedIntervals (&valueIntervals);
+        updateSliderTimeSteps (viewNumber, valueIntervals);
     }
 }
