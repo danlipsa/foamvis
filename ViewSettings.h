@@ -677,8 +677,7 @@ public:
     float AngleDisplay (float angle) const;
 
     void SetSimulation (int i, const Simulation& simulation,
-			G3D::Vector3 viewingVolumeCenter,
-			bool t1sShiftLower);
+			G3D::Vector3 viewingVolumeCenter);
     float GetDeformationSize () const
     {
 	return m_deformationSize;

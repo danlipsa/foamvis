@@ -103,7 +103,7 @@ T1sKDE::T1sKDE (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
     ScalarAverageTemplate<SetterNop> (viewNumber, widgetGl, 
 				      "t1sKDE", QColor (0, 255, 0, 0)),
     m_kernelSigma (s_kernelSigmaInBubbleDiameters * 
-                   GetWidgetGl ().GetBubbleDiameter ()),
+                   GetWidgetGl ().GetBubbleDiameter (viewNumber)),
     m_kernelTextureShown (false)
 {
 }
@@ -147,13 +147,13 @@ void T1sKDE::initKernel ()
 void T1sKDE::SetKernelSigmaInBubbleDiameters (float kernelSigmaInBubbleDiameters)
 {
     m_kernelSigma = kernelSigmaInBubbleDiameters * 
-        GetWidgetGl ().GetBubbleDiameter ();
+        GetWidgetGl ().GetBubbleDiameter (GetViewNumber ());
     initKernel ();
 }
 
 float T1sKDE::GetKernelSigmaInBubbleDiameters () const
 {
-    return m_kernelSigma / GetWidgetGl ().GetBubbleDiameter ();
+    return m_kernelSigma / GetWidgetGl ().GetBubbleDiameter (GetViewNumber ());
 }
 
 void T1sKDE::writeStepValues (ViewNumber::Enum viewNumber, size_t timeStep, 

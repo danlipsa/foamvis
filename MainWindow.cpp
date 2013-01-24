@@ -82,12 +82,9 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     QGLFormat::setDefaultFormat(format);
     
     setupUi (this);
-    const Simulation& simulation = simulationGroup.GetSimulation (0);
-    SetSettings(
-        boost::shared_ptr<Settings> (
-            new Settings (simulation, 
-                          widgetGl->width (), widgetGl->height (),
-                          simulation.GetT1sShift ())));
+    SetSettings(boost::shared_ptr<Settings> (
+                    new Settings (simulationGroup, 
+                                  widgetGl->width (), widgetGl->height ())));
     connect (GetSettings ().get (),
              SIGNAL (SelectionChanged (ViewNumber::Enum)),
              this,
@@ -751,7 +748,7 @@ void MainWindow::setupColorBarModelT1sKDE (
     colorBarModel->SetInterval (
 	toQwtDoubleInterval (widgetGl->GetRangeT1sKDE (viewNumber)));
     colorBarModel->SetupPalette (
-	Palette (PaletteType::SEQUENTIAL, PaletteSequential::BLACK_BODY));
+	Palette (PaletteType::SEQUENTIAL, PaletteSequential::BREWER_BLUES9));
 }
 
 
@@ -1762,7 +1759,7 @@ void MainWindow::t1sKDEViewToUI (ViewNumber::Enum viewNumber)
     if (DATA_PROPERTIES.Is2D ())
     {
         bool kernelTextureShown = false;
-	const T1sKDE& kde = widgetGl->GetViewAverage ().GetT1sKDE ();
+	const T1sKDE& kde = widgetGl->GetViewAverage (viewNumber).GetT1sKDE ();
 	kernelTextureShown = kde.IsKernelTextureShown ();
         SetCheckedNoSignals (checkBoxTextureShown, kernelTextureShown);
         SetValueNoSignals (

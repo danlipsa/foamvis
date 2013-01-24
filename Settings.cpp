@@ -70,8 +70,7 @@ const size_t Settings::QUADRIC_SLICES = 8;
 const size_t Settings::QUADRIC_STACKS = 1;
 
 
-Settings::Settings (const Simulation& simulation, float w, float h,
-		    bool t1sShiftLower) :
+Settings::Settings (const SimulationGroup& simulationGroup, float w, float h) :
     m_contextAlpha (CONTEXT_ALPHA.first),
     m_edgeRadius (0),
     m_edgeWidth (0),
@@ -99,7 +98,7 @@ Settings::Settings (const Simulation& simulation, float w, float h,
     m_velocityFieldSaved (false),
     m_interactionMode (InteractionMode::ROTATE)
 {
-    initViewSettings (simulation, w, h, t1sShiftLower);
+    initViewSettings (simulationGroup, w, h);
     initEndTranslationColor ();
 }
 
@@ -144,13 +143,17 @@ void Settings::initEndTranslationColor ()
 }
 
 void Settings::initViewSettings (
-    const Simulation& simulation, float w, float h, bool t1sShiftLower)
+    const SimulationGroup& simulationGroup, float w, float h)
 {
     ViewNumber::Enum viewNumber (ViewNumber::VIEW0);
     ViewCount::Enum viewCount = ViewCount::FromSizeT (m_viewSettings.size ());
     m_signalMapperSelectionChanged.reset (new QSignalMapper (this));
-    BOOST_FOREACH (boost::shared_ptr<ViewSettings>& vs, m_viewSettings)
+    for (size_t i = 0; i < m_viewSettings.size (); ++i)
     {
+        boost::shared_ptr<ViewSettings>& vs = m_viewSettings[i];
+        size_t simulationIndex = (i < simulationGroup.size ()) ? i : 0;
+        const Simulation& simulation = 
+            simulationGroup.GetSimulation (simulationIndex);
 	vs = boost::make_shared <ViewSettings> ();
         connect (
             vs.get (), 
@@ -160,10 +163,9 @@ void Settings::initViewSettings (
         m_signalMapperSelectionChanged->setMapping (vs.get (), viewNumber);
 	vs->SetViewType (ViewType::FACES);
 	G3D::Vector3 center = CalculateViewingVolume (
-	    viewNumber, viewCount, 
-	    simulation, w, h,
+	    viewNumber, viewCount, simulation, w, h,
 	    ViewingVolumeOperation::DONT_ENCLOSE2D).center ();
-	vs->SetSimulation (0, simulation, center, t1sShiftLower);
+	vs->SetSimulation (simulationIndex, simulation, center);
 	if (simulation.Is3D ())
 	    vs->SetLightEnabled (LightNumber::LIGHT0, true);
 

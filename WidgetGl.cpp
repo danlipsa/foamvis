@@ -4485,7 +4485,7 @@ void WidgetGl::CurrentIndexChangedSimulation (int i)
     const Simulation& simulation = GetSimulation (i);
     G3D::Vector3 center = 
         CalculateViewingVolume (viewNumber, simulation).center ();
-    vs.SetSimulation (i, simulation, center, vs.T1sShiftLower ());
+    vs.SetSimulation (i, simulation, center);
     CompileUpdate ();
 }
 

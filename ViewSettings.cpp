@@ -599,8 +599,7 @@ void ViewSettings::SetAverageAroundPositions (
 }
 
 void ViewSettings::SetSimulation (int i, const Simulation& simulation, 
-				  G3D::Vector3 viewingVolumeCenter, 
-				  bool t1sShiftLower)
+				  G3D::Vector3 viewingVolumeCenter)
 {
     int rotation2D = simulation.GetRotation2D ();
     size_t reflexionAxis = simulation.GetReflectionAxis ();
@@ -611,7 +610,7 @@ void ViewSettings::SetSimulation (int i, const Simulation& simulation,
 		    ((reflexionAxis == 1) ? 
 		     AxesOrder::TWO_D_ROTATE_RIGHT90_REFLECTION :
 		     AxesOrder::TWO_D_ROTATE_RIGHT90))): AxesOrder::THREE_D);
-    SetT1sShiftLower (t1sShiftLower);
+    SetT1sShiftLower (simulation.GetT1sShiftLower ());
     SetScaleCenter (viewingVolumeCenter.xy ());
     SetRotationCenter (viewingVolumeCenter);
     setTimeSteps (simulation.GetTimeSteps ());

@@ -12,6 +12,7 @@
 
 class ViewSettings;
 class Simulation;
+class SimulationGroup;
 
 /**
  * Settings that apply to all the views
@@ -26,8 +27,7 @@ public:
 
 
 public:
-    Settings (const Simulation& simulation, float w, float h, 
-	      bool t1sShiftLower);
+    Settings (const SimulationGroup& simulationGroup, float w, float h);
 
     /**
      * @{
@@ -376,8 +376,8 @@ private:
     void setScaleCenter (ViewNumber::Enum viewNumber, 
 			 const Simulation& simulation, float w, float h);
     void initEndTranslationColor ();
-    void initViewSettings (const Simulation& simulation, float w, float h,
-			   bool t1sShiftLower);
+    void initViewSettings (
+        const SimulationGroup& simulationGroup, float w, float h);
     void checkLinkedTimesValid () const;
     ViewCount::Enum getViewCount (
 	vector<ViewNumber::Enum>* mapping, IsViewType isView) const;
