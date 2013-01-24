@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-my $location = "/home/dlipsa/Documents/swansea-phd/foam/";
+my $location = "/home/dlipsa/data/foam/";
 my @tests = 
     (["321_foam/sphere321_0.400000_1.100000_37_0001.dmp",""],
      ["coarse100/coarse_01_0100_0407.dmp",""],
