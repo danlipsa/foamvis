@@ -102,5 +102,5 @@ while (no more items in the queue)
  * @todo bug: velocity average shows a black blob if only one time step of data 
          is loaded. An error message should be shown instead.
  * @todo bug: fix Overlay, Velocity, Glyph, Grid Cell Center
- * @dodo bug: Translate grid does not work with streamlines.
+ * @todo bug: Translate grid does not work with streamlines.
  */
