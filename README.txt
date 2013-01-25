@@ -346,11 +346,34 @@ tar xzf VTK-5.10.0.tgz
 mkdir VTK-5.10.0-build
 cd VTK-5.10.0-build
 ccmake ../VTK-5.10.0
-Enable: VTK_USE_QT, VTK_USE_PARALLEL
-Make sure the "qmake executable" is for the Qt installation you want!
+Set the configuration as in the following figure
+
+ BUILD_DOCUMENTATION              OFF
+ BUILD_EXAMPLES                   ON
+ BUILD_SHARED_LIBS                ON
+ BUILD_TESTING                    ON
+ CMAKE_BUILD_TYPE                 Debug
+ CMAKE_INSTALL_PREFIX             /usr/local
+ VTK_EXTRA_COMPILER_WARNINGS      OFF
+ VTK_Group_Imaging                ON
+ VTK_Group_MPI                    OFF
+ VTK_Group_Qt                     ON
+ VTK_Group_Rendering              ON
+ VTK_Group_StandAlone             ON
+ VTK_Group_Tk                     ON
+ VTK_Group_Views                  ON
+ VTK_USE_TK                       ON
+ VTK_WRAP_JAVA                    OFF
+ VTK_WRAP_PYTHON                  ON
+ VTK_WRAP_TCL                     ON
+
 press c twice to configure the build and then g to generate the makefile and exit
 make -j <number_of_processors> (or just make if you have one processor)
 make install
+
+
+
+
 
 Copy http://csgalati.swansea.ac.uk/foam/build/gsl-1.15.tar.gz to ~
 tar xzf gsl-1.15.tar.gz
