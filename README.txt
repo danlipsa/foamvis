@@ -1,6 +1,6 @@
 Release log
 ===========
-0.8.2700
+0.8.2699
         - bug fix: transformations are slow
         - allow keywords inside SCALAR_INTEGRANT (for shearv_35)
         - implement simple form of view transform
