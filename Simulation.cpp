@@ -634,7 +634,14 @@ void Simulation::ParseDMPs (
 
 float Simulation::GetBubbleDiameter () const
 {
-    const G3D::AABox& box = GetFoam (0).GetBody (0).GetBoundingBox ();
+    const Foam& foam = GetFoam (0);
+    if (foam.GetBodies ().size () == 0)
+    {
+        // return a value <> 0 (the program is not functional in this case,
+        // so the value is not used)
+        return 1;
+    }
+    const G3D::AABox& box = foam.GetBody (0).GetBoundingBox ();
     G3D::Vector3 e = box.extent ();
     if (DATA_PROPERTIES.Is2D ())
         return (e.x + e.y) / 2;

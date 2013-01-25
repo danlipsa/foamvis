@@ -95,7 +95,7 @@ CONFIG(debug, debug|release) {
 # Profile
 # QMAKE_CXXFLAGS += -pg
 # QMAKE_LFLAGS += -pg
-DEFINES += vtkRenderingCore_AUTOINIT=\"2(vtkInteractionStyle,vtkRenderingOpenGL)\"
+DEFINES += vtkRenderingCore_AUTOINIT=\"4(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingFreeTypeOpenGL,vtkRenderingOpenGL)\"
 }
 
 win32 {
@@ -183,7 +183,9 @@ LIBS += "-lvtkIOXML-6.0"
 LIBS += "-lvtkFiltersFlowPaths-6.0"
 LIBS += "-lvtkInteractionWidgets-6.0"
 LIBS += "-lvtkRenderingOpenGL-6.0"
+LIBS += "-lvtkRenderingFreeTypeOpenGL-6.0"
 LIBS += "-lvtkRenderingCore-6.0"
+
 
 # Qt3D
 LIBS += "-lQt3D"
