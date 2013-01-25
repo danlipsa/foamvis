@@ -341,11 +341,11 @@ qmake
 make
 make install
 
-Copy http://csgalati.swansea.ac.uk/foam/build/VTK-5.10.0.tgz to /usr/local
-tar xzf VTK-5.10.0.tgz
-mkdir VTK-5.10.0-build
-cd VTK-5.10.0-build
-ccmake ../VTK-5.10.0
+Copy http://csgalati.swansea.ac.uk/foam/build/vtk-6.0-20130125.tgz to ~
+tar xzf vtk-6.0-20130125.tgz
+mkdir VTK-build
+cd VTK-build
+ccmake ../VTK
 Set the configuration as in the following figure
 
  BUILD_DOCUMENTATION              OFF
@@ -370,9 +370,6 @@ Set the configuration as in the following figure
 press c twice to configure the build and then g to generate the makefile and exit
 make -j <number_of_processors> (or just make if you have one processor)
 make install
-
-
-
 
 
 Copy http://csgalati.swansea.ac.uk/foam/build/gsl-1.15.tar.gz to ~
