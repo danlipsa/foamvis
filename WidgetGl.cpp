@@ -3477,6 +3477,7 @@ void WidgetGl::ShowMessageBox (const char* message)
 
 void WidgetGl::CompileUpdate (ViewNumber::Enum viewNumber)
 {
+    makeCurrent ();
     const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
     switch (vs.GetViewType ())
     {

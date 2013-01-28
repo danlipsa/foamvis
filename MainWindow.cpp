@@ -1271,7 +1271,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
         if (viewType == ViewType::AVERAGE || viewType == ViewType::T1S_KDE)
         {
             if (DATA_PROPERTIES.Is3D ())
-                widgetVtk->Average3dUpdateViewAverage (viewNumber, direction);
+                widgetVtk->UpdateAverage (viewNumber, direction[viewNumber]);
             else
                 widgetGl->UpdateAverage (viewNumber, direction[viewNumber]);
         }

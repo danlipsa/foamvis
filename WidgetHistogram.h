@@ -66,7 +66,7 @@ private Q_SLOTS:
 
 private:
     void updateFocus (ViewNumber::Enum viewNumber);
-    void updateHidden (ViewNumber::Enum viewNumber);
+    void hide (ViewNumber::Enum viewNumber);
     void currentIndexChangedInteractionMode (
 	ViewNumber::Enum viewNumber, int index);
     void setHeight (ViewNumber::Enum viewNumber, int h);

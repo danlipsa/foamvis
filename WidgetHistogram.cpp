@@ -163,10 +163,9 @@ void WidgetHistogram::Update (boost::shared_ptr<ColorBarModel> colorBarModel,
 
 void WidgetHistogram::UpdateHidden ()
 {
-    ForAllHiddenViews (
-        boost::bind (&WidgetHistogram::updateHidden, this, _1));
+    ForAllHiddenViews (boost::bind (&WidgetHistogram::hide, this, _1));
 }
-void WidgetHistogram::updateHidden (ViewNumber::Enum viewNumber)
+void WidgetHistogram::hide (ViewNumber::Enum viewNumber)
 {
     ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
     vs.SetHistogramShown (false);

@@ -234,13 +234,12 @@ void WidgetVtk::Average3dAddView (
     setVisible (true);
 }
 
-void WidgetVtk::Average3dUpdateViewAverage (
-    ViewNumber::Enum viewNumber,
-    const boost::array<int, ViewNumber::COUNT>& direction)
+void WidgetVtk::UpdateAverage (
+    ViewNumber::Enum viewNumber, int direction)
 {
     PipelineAverage3d& pipeline = *m_pipelineAverage3d[viewNumber];
     boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
-    pipeline.UpdateAverage (average, direction[viewNumber]);
+    pipeline.UpdateAverage (average, direction);
     updateViewTitle (viewNumber);
 }
 

@@ -77,9 +77,7 @@ public:
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
 	QwtDoubleInterval interval);
     void Average3dUpdateOpacity ();
-    void Average3dUpdateViewAverage (
-        ViewNumber::Enum viewNumber,
-        const boost::array<int, ViewNumber::COUNT>& direction);
+    void UpdateAverage (ViewNumber::Enum viewNumber, int direction);
     void Average3dCreatePipeline (size_t objects, size_t constraintSurfaces, 
                                   size_t fontSize);
     void UpdateAverage3dTitle ();
