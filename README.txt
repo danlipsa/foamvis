@@ -3,7 +3,10 @@ Release log
 0.8.
         - bug fix: next step did not update the OpenGL window when both 
           VTK and OpenGL windows are displayed.
-        - bug fix: fixed average segfault
+        - bug fix: when set average vis the program segfaults
+        - bug fix: sometimes copy color bar creates a clamping that was 
+          not in the source
+        
 
 0.8.2699
         - bug fix: transformations are slow

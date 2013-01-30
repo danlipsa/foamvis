@@ -350,9 +350,9 @@ void ColorBarModel::CopyPaletteClamping (const ColorBarModel& other)
     QwtDoubleInterval clampInterval = interval;
     double clampMin = other.GetClampMin ();
     double clampMax = other.GetClampMax ();
-    if (interval.contains (clampMin))
+    if (other.IsClampedMin () && interval.contains (clampMin))
         clampInterval.setMinValue (clampMin);
-    if (interval.contains (clampMax))
+    if (other.IsClampedMax () && interval.contains (clampMax))
         clampInterval.setMaxValue (clampMax);
     SetClampInterval (clampInterval);
 }
