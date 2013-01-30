@@ -1,5 +1,10 @@
 Release log
 ===========
+0.8.
+        - bug fix: next step did not update the OpenGL window when both 
+          VTK and OpenGL windows are displayed.
+        - bug fix: fixed average segfault
+
 0.8.2699
         - bug fix: transformations are slow
         - allow keywords inside SCALAR_INTEGRANT (for shearv_35)

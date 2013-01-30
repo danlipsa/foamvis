@@ -143,7 +143,6 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
 
 void MainWindow::configureInterface ()
 {
-    tabWidget->setCurrentWidget (tabTimeStep);
     horizontalSliderForceTorqueSize->setValue (49);
     horizontalSliderTorqueDistance->setValue (49);
     horizontalSliderT1Size->setValue (10);
@@ -944,25 +943,16 @@ void MainWindow::setStackedWidget (ViewType::Enum viewType)
     // WARNING: Has to match ViewType::Enum order
     QWidget* pages[] = 
 	{
-	    pageTimeStepEmpty,
-	    pageTimeStepEmpty,
-	    pageTimeStepEmpty,
+	    pageEmpty,
+	    pageEmpty,
+	    pageEmpty,
 	    pageFacesNormal,
 
 	    pageBubblePaths,
 	    pageAverage,
 	    pageT1sProbabilityDensity
 	};
-    if (ViewType::IsTimeDependent (viewType))
-    {
-	stackedWidgetTimeStep->setCurrentWidget (pageTimeStepEmpty);
-	stackedWidgetTimeDependent->setCurrentWidget (pages[viewType]);
-    }
-    else
-    {
-	stackedWidgetTimeStep->setCurrentWidget (pages[viewType]);
-	stackedWidgetTimeDependent->setCurrentWidget (pageTimeDependentEmpty);
-    }
+    stackedWidgetVisualization->setCurrentWidget (pages[viewType]);
 }
 
 void MainWindow::ShowMessageBox (const char* message)

@@ -98,7 +98,7 @@ Settings::Settings (const SimulationGroup& simulationGroup, float w, float h) :
     m_velocityFieldSaved (false),
     m_interactionMode (InteractionMode::ROTATE)
 {
-    initViewSettings (simulationGroup, w, h);
+    initAllViewsSettings (simulationGroup, w, h);
     initEndTranslationColor ();
 }
 
@@ -142,57 +142,67 @@ void Settings::initEndTranslationColor ()
     m_endTranslationColor[G3D::Vector3int16(0,0,0)] = QColor(0,0,0);
 }
 
-void Settings::initViewSettings (
+size_t Settings::initViewSettings (ViewNumber::Enum viewNumber,
     const SimulationGroup& simulationGroup, float w, float h)
 {
-    ViewNumber::Enum viewNumber (ViewNumber::VIEW0);
     ViewCount::Enum viewCount = ViewCount::FromSizeT (m_viewSettings.size ());
+    boost::shared_ptr<ViewSettings>& vs = m_viewSettings[viewNumber];
+    size_t simulationIndex = 
+        (static_cast<size_t>(viewNumber) < simulationGroup.size ()) ? 
+        viewNumber : 0;
+    const Simulation& simulation = 
+        simulationGroup.GetSimulation (simulationIndex);
+    vs = boost::make_shared <ViewSettings> ();
+    connect (vs.get (), SIGNAL (SelectionChanged ()),
+             m_signalMapperSelectionChanged.get (), SLOT (map ()));
+    m_signalMapperSelectionChanged->setMapping (vs.get (), viewNumber);
+    vs->SetViewType (ViewType::FACES);
+    G3D::Vector3 center = CalculateViewingVolume (
+        viewNumber, viewCount, simulation, w, h,
+        ViewingVolumeOperation::DONT_ENCLOSE2D).center ();
+    vs->SetSimulation (simulationIndex, simulation, center);
+    if (simulation.Is3D ())
+        vs->SetLightEnabled (LightNumber::LIGHT0, true);
+
+    boost::array<GLfloat, 4> ambientLight = {{0, 0, 0, 1}};
+    boost::array<GLfloat, 4> diffuseLight = {{1, 1, 1, 1}};
+    boost::array<GLfloat, 4> specularLight = {{0, 0, 0, 1}};
+    // light colors
+    for (size_t light = 0; light < LightNumber::COUNT; ++light)
+    {
+        vs->SetLight (LightNumber::Enum (light), 
+                      LightType::AMBIENT, ambientLight);
+        vs->SetLight (LightNumber::Enum (light), 
+                      LightType::DIFFUSE, diffuseLight);
+        vs->SetLight (LightNumber::Enum (light), 
+                      LightType::SPECULAR, specularLight);
+    }
+    vs->CalculateCameraDistance (
+        CalculateCenteredViewingVolume (
+            viewNumber, viewCount, simulation, w, h,
+            ViewingVolumeOperation::DONT_ENCLOSE2D));
+    return simulation.GetTimeSteps ();
+}
+
+
+
+void Settings::initAllViewsSettings (
+    const SimulationGroup& simulationGroup, float w, float h)
+{
     m_signalMapperSelectionChanged.reset (new QSignalMapper (this));
+    size_t maxTimeSteps = 0;
     for (size_t i = 0; i < m_viewSettings.size (); ++i)
     {
-        boost::shared_ptr<ViewSettings>& vs = m_viewSettings[i];
-        size_t simulationIndex = (i < simulationGroup.size ()) ? i : 0;
-        const Simulation& simulation = 
-            simulationGroup.GetSimulation (simulationIndex);
-	vs = boost::make_shared <ViewSettings> ();
-        connect (
-            vs.get (), 
-            SIGNAL (SelectionChanged ()),
-            m_signalMapperSelectionChanged.get (), 
-            SLOT (map ()));
-        m_signalMapperSelectionChanged->setMapping (vs.get (), viewNumber);
-	vs->SetViewType (ViewType::FACES);
-	G3D::Vector3 center = CalculateViewingVolume (
-	    viewNumber, viewCount, simulation, w, h,
-	    ViewingVolumeOperation::DONT_ENCLOSE2D).center ();
-	vs->SetSimulation (simulationIndex, simulation, center);
-	if (simulation.Is3D ())
-	    vs->SetLightEnabled (LightNumber::LIGHT0, true);
-
-	boost::array<GLfloat, 4> ambientLight = {{0, 0, 0, 1}};
-	boost::array<GLfloat, 4> diffuseLight = {{1, 1, 1, 1}};
-	boost::array<GLfloat, 4> specularLight = {{0, 0, 0, 1}};
-	// light colors
-	for (size_t light = 0; light < LightNumber::COUNT; ++light)
-	{
-	    vs->SetLight (LightNumber::Enum (light), 
-			  LightType::AMBIENT, ambientLight);
-	    vs->SetLight (LightNumber::Enum (light), 
-			  LightType::DIFFUSE, diffuseLight);
-	    vs->SetLight (LightNumber::Enum (light), 
-			  LightType::SPECULAR, specularLight);
-	}
-	vs->CalculateCameraDistance (
-	    CalculateCenteredViewingVolume (
-		viewNumber, viewCount, simulation, w, h,
-		ViewingVolumeOperation::DONT_ENCLOSE2D));
-	viewNumber = ViewNumber::Enum (viewNumber + 1);
+        ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
+        size_t timeSteps = initViewSettings (viewNumber, simulationGroup, w, h);
+        maxTimeSteps = max (maxTimeSteps, timeSteps);
     }
     connect (
         m_signalMapperSelectionChanged.get (),
         SIGNAL (mapped (int)),
         this, 
         SLOT (selectionChanged (int)));
+    SetLinkedTimeWindow (maxTimeSteps);
 }
 
 void Settings::selectionChanged (int viewNumber)

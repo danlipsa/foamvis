@@ -376,7 +376,10 @@ private:
     void setScaleCenter (ViewNumber::Enum viewNumber, 
 			 const Simulation& simulation, float w, float h);
     void initEndTranslationColor ();
-    void initViewSettings (
+    size_t initViewSettings (
+        ViewNumber::Enum viewNumber,
+        const SimulationGroup& simulationGroup, float w, float h);
+    void initAllViewsSettings (
         const SimulationGroup& simulationGroup, float w, float h);
     void checkLinkedTimesValid () const;
     ViewCount::Enum getViewCount (
