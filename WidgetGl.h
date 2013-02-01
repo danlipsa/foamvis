@@ -426,8 +426,6 @@ private:
     };
 
     typedef void (WidgetGl::*ViewTypeDisplay) (ViewNumber::Enum view) const;
-    typedef bool (WidgetGl::*IsCopyCompatibleType) (
-        ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
 
 private:
     void saveVelocity (ViewNumber::Enum viewNumber,
@@ -435,14 +433,6 @@ private:
     float timeDisplacementMultiplier (
         const QSlider& slider,
         const Simulation& simulation) const;
-    void addCopyCompatibleMenu (
-        QMenu* menuCopy, const char* nameOp, 
-        const boost::shared_ptr<QAction>* actionCopyOp,
-        IsCopyCompatibleType isCopyCompatible) const;
-    bool isColorBarCopyCompatible (
-        ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
-    bool isSelectionCopyCompatible (
-        ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
 
     void rotateAverageAroundStreamlines (ViewNumber::Enum viewNumber,
                                          bool isIsAverageAroundShown) const;
@@ -558,8 +548,8 @@ private:
 	bool useZPos = false, double zPos = 0) const;
     void displayStandaloneFaces () const;
     void displayEdgesTorus (ViewNumber::Enum view) const;
-    void displayEdgesTorusTubes () const;
-    void displayEdgesTorusLines () const;
+    void displayEdgesTorusTubes (ViewNumber::Enum view) const;
+    void displayEdgesTorusLines (ViewNumber::Enum view) const;
 
     void displayFacesNormal (ViewNumber::Enum view) const;
     void compileFacesNormal (ViewNumber::Enum view) const;
@@ -760,9 +750,6 @@ private:
     boost::shared_ptr<QAction> m_actionOverlayBarClampClear;
     boost::shared_ptr<QAction> m_actionOverlayBarCopyVelocityMagnitude;
     boost::shared_ptr<QAction> m_actionOverlayBarClampHighMinimum;
-    boost::array<boost::shared_ptr<QAction>, 
-		 ViewNumber::COUNT> m_actionCopySelection;
-    boost::shared_ptr<QSignalMapper> m_signalMapperCopySelection;
     boost::array<boost::shared_ptr<QAction>, 
 		 ViewNumber::COUNT> m_actionCopyPaletteClamping;
     boost::shared_ptr<QSignalMapper> m_signalMapperCopyPaletteClamping;

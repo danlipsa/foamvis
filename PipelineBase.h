@@ -13,7 +13,9 @@
 class ViewSettings;
 class Foam;
 
-
+/**
+ * Provides basic functionality for a view display
+ */
 class PipelineBase
 {
 public:

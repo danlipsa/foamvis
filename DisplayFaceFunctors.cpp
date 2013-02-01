@@ -64,19 +64,20 @@ void DisplayFaceHighlightColor<highlightColorIndex,
 			       displayEdges, PropertySetter>::
 operator () (const boost::shared_ptr<Face>& f)
 {
+    ViewNumber::Enum viewNumber = this->GetViewNumber ();
+    ViewSettings& vs = this->m_settings.GetViewSettings (viewNumber);
     if (this->m_focus == DisplayElement::FOCUS)
     {
 	glColor (this->m_settings.GetHighlightColor (
-		     this->m_propertySetter.GetViewNumber (),
+		     this->GetViewNumber (),
 		     highlightColorIndex));
     }
     else
     {
-        QColor color =  QColor::fromRgbF (
-            0, 0, 0, this->m_settings.GetContextAlpha ());
+        QColor color =  QColor::fromRgbF (0, 0, 0, vs.GetContextAlpha ());
 	glColor (color);
     }
-    (displayEdges (this->m_settings, this->m_focus,
+    (displayEdges (this->m_settings, this->GetViewNumber (), this->m_focus,
                    this->m_useZPos, this->m_zPos)) (f);
 }
 
@@ -137,7 +138,7 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 	// write to the stencil buffer 1s for the concave polygon
 	glStencilFunc (GL_NEVER, 0, 0);
 	glStencilOp (GL_INVERT, GL_KEEP, GL_KEEP);
-	(DisplayFaceTriangleFan (this->m_settings)) (of);
+	(DisplayFaceTriangleFan (this->m_settings, this->GetViewNumber ())) (of);
 	
 	// write to the color buffer only if the stencil bit is 1
 	// and set the stencil bit to 0.
@@ -160,7 +161,7 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 	//{
 	//glPushAttrib (GL_POLYGON_BIT);
 	//glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-	DisplayFaceTriangleFan (this->m_settings) (of);
+	DisplayFaceTriangleFan (this->m_settings, this->GetViewNumber ()) (of);
 	    
         //glPopAttrib ();
         //}
@@ -176,6 +177,8 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 		   bool* useColor)
 {
     *useColor = true;
+    ViewNumber::Enum viewNumber = this->GetViewNumber ();
+    ViewSettings& vs = this->m_settings.GetViewSettings (viewNumber);
     if (this->m_focus == DisplayElement::FOCUS)
     {
 	if (this->m_propertySetter.GetBodyOrFaceScalar () == 
@@ -183,7 +186,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	{
 	    glColor (of->GetColor (
 			 this->m_settings.GetHighlightColor (
-			     this->m_propertySetter.GetViewNumber (),
+			     this->GetViewNumber (),
 			     HighlightNumber::H0)));
 	    this->m_propertySetter ();
 	}
@@ -209,8 +212,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	}
     }
     else
-	glColor (QColor::fromRgbF(
-		     0, 0, 0, this->m_settings.GetContextAlpha ()));
+	glColor (QColor::fromRgbF(0, 0, 0, vs.GetContextAlpha ()));
 }
 
 
@@ -277,9 +279,9 @@ void DisplayFaceDmpColor<faceColor, PropertySetter>::
 displayNoNormal (const boost::shared_ptr<Face>& f)
 {
     glColor (f->GetColor (this->m_settings.GetHighlightColor (
-			       this->m_propertySetter.GetViewNumber (),
+			       this->GetViewNumber (),
 			       HighlightNumber::H0)));
-    (DisplayFaceTriangleFan (this->m_settings)) (f);
+    (DisplayFaceTriangleFan (this->m_settings, this->GetViewNumber ())) (f);
 }
 
 
@@ -336,9 +338,10 @@ void DisplayFaceTriangleFan::operator() (const OrientedFace*  of) const
 template<typename displayEdge>
 DisplayFaceEdges<displayEdge>::
 DisplayFaceEdges (
-    const Settings& widget, FocusContext focus, bool useZPos, double zPos) :
+    const Settings& widget, ViewNumber::Enum viewNumber, FocusContext focus, 
+    bool useZPos, double zPos) :
  
-    DisplayElementFocus (widget, focus, useZPos, zPos)
+    DisplayElementFocus (widget, viewNumber, focus, useZPos, zPos)
 {
 }
 
@@ -355,7 +358,8 @@ operator () (const boost::shared_ptr<Face>  f)
 {
     const vector< boost::shared_ptr<OrientedEdge> >& v = 
 	f->GetOrientedEdges ();
-    displayEdge display(m_settings, m_focus, m_useZPos, m_zPos);
+    displayEdge display(m_settings, this->GetViewNumber (), m_focus, 
+                        m_useZPos, m_zPos);
     for (size_t i = 0; i < v.size (); i++)
     {
 	boost::shared_ptr<OrientedEdge> oe = v[i];

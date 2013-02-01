@@ -14,6 +14,15 @@
 #include "ViewSettings.h"
 #include "WidgetBase.h"
 
+WidgetBase::WidgetBase (QWidget* widget,
+                        IsViewType isView,
+                        GetViewCountType getViewCount) :
+    m_averageCache (0),
+    m_widget (widget), 
+    m_isView (isView),
+    m_getViewCount (getViewCount)
+{
+}
 
 void WidgetBase::Init (
     boost::shared_ptr<Settings> settings,
@@ -95,6 +104,59 @@ void WidgetBase::addCopyMenu (
 	    menuOp->addAction (actionCopyOp[i].get ());
 	}
     }
+}
+
+void WidgetBase::addCopyCompatibleMenu (
+    QMenu* menu, const char* nameOp, 
+    const boost::shared_ptr<QAction>* actionCopyOp, 
+    IsCopyCompatibleType isCopyCompatible) const
+{
+    size_t viewCount = GetSettings ()->GetViewCount ();
+    bool actions = false;
+    QMenu* menuOp = menu->addMenu (nameOp);
+    if (viewCount > 1)
+    {
+        ViewNumber::Enum currentViewNumber = GetViewNumber ();
+	for (size_t i = 0; i < viewCount; ++i)
+	{
+	    ViewNumber::Enum otherViewNumber = ViewNumber::Enum (i);
+	    if (CALL_MEMBER (*this, isCopyCompatible) (
+                    currentViewNumber, otherViewNumber))
+            {
+                menuOp->addAction (actionCopyOp[i].get ());
+                actions = true;
+            }
+	}
+    }
+    if (! actions)
+	menuOp->setDisabled (true);    
+}
+
+bool WidgetBase::IsColorBarCopyCompatible (
+    ViewNumber::Enum vn, ViewNumber::Enum otherVn) const
+{
+    ColorBarType::Enum currentColorBarType = 
+        GetSettings ()->GetColorBarType (vn);
+    const ViewSettings& vs = GetSettings ()->GetViewSettings (vn);
+    const ViewSettings& otherVs = GetViewSettings (otherVn);
+    size_t currentProperty = vs.GetBodyOrFaceScalar ();
+    return otherVn != vn &&
+        
+        currentColorBarType == GetSettings ()->GetColorBarType (otherVn) &&
+        
+        ((currentColorBarType == ColorBarType::T1S_KDE) 
+         ||
+         currentProperty == otherVs.GetBodyOrFaceScalar ());
+}
+
+
+bool WidgetBase::IsSelectionCopyCompatible (
+    ViewNumber::Enum vn, ViewNumber::Enum otherVn) const
+{
+    const ViewSettings& vs = GetSettings ()->GetViewSettings (vn);
+    const ViewSettings& otherVs = GetViewSettings (otherVn);
+    return otherVn != vn &&
+        vs.GetSimulationIndex () == otherVs.GetSimulationIndex ();
 }
 
 

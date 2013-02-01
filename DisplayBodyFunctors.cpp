@@ -125,15 +125,14 @@ void DisplayBodyDeformation::display (boost::shared_ptr<Body> body)
 {
     if (body->IsObject ())
 	return;
-    ViewNumber::Enum viewNumber = m_propertySetter.GetViewNumber ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = m_settings.GetViewSettings (viewNumber);
     float size = m_deformationSizeInitialRatio * vs.GetDeformationSize ();
     float lineWidth = vs.GetDeformationLineWidth ();
     if (GetFocusContext (body) == FOCUS)
 	glColor (m_settings.GetHighlightColor (viewNumber, HighlightNumber::H0));
     else
-	glColor (QColor::fromRgbF (
-		     0, 0, 0, this->m_settings.GetContextAlpha ()));
+	glColor (QColor::fromRgbF (0, 0, 0, vs.GetContextAlpha ()));
 
     G3D::Matrix3 rotation = MatrixFromColumns (
 	body->GetDeformationEigenVector (0),
@@ -186,7 +185,7 @@ void DisplayBodyVelocity::display (boost::shared_ptr<Body> body)
 {
     if (body->IsObject ())
 	return;
-    ViewNumber::Enum viewNumber = m_propertySetter.GetViewNumber ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = m_settings.GetViewSettings (viewNumber);
     bool clamped = false;
     G3D::Vector2 displayVelocity;
@@ -211,7 +210,7 @@ void DisplayBodyVelocity::display (boost::shared_ptr<Body> body)
 	    m_settings.GetHighlightColor (viewNumber, HighlightNumber::H0));
     }
     else
-	glColor (QColor::fromRgbF (0, 0, 0, m_settings.GetContextAlpha ()));
+	glColor (QColor::fromRgbF (0, 0, 0, vs.GetContextAlpha ()));
     DisplaySegmentArrow (
 	body->GetCenter ().xy () - displayVelocity / 2, displayVelocity, 
 	vs.GetVelocityLineWidth (), m_onePixelInObjectSpace, 
@@ -280,8 +279,7 @@ template<typename displayFace, typename PropertySetter>
 void DisplayBody<displayFace, PropertySetter>::
 display (boost::shared_ptr<Body> b)
 {
-    ViewSettings& vs = this->m_settings.GetViewSettings (
-	this->m_propertySetter.GetViewNumber ());
+    ViewSettings& vs = this->m_settings.GetViewSettings (this->GetViewNumber ());
     DisplayElement::FocusContext bodyFc = 
 	DisplayBodyBase<PropertySetter>::GetFocusContext (b);
     if (bodyFc == DisplayElement::CONTEXT &&
@@ -354,7 +352,7 @@ valueStep (
     G3D::Vector3 pointEnd = getPoint (end);
     G3D::Vector3 middle = (pointBegin + pointEnd) / 2;
     ViewSettings& vs = this->m_settings.GetViewSettings (
-	this->m_propertySetter.GetViewNumber ());
+	this->GetViewNumber ());
     halfValueStep (
 	begin,
 	Segment (
@@ -376,6 +374,8 @@ valueStep (
  void DisplayBubblePaths<PropertySetter, DisplaySegment>::
  halfValueStep (const StripIteratorPoint& p, const Segment& segment)
  {
+    ViewNumber::Enum viewNumber = this->GetViewNumber ();
+    ViewSettings& vs = this->m_settings.GetViewSettings (viewNumber);
      bool focus = this->IsFocus (p.m_body);
      if (focus)
      {
@@ -391,12 +391,11 @@ valueStep (
 	else
 	    storeFocusSegment (
 		this->m_settings.GetHighlightColor (
-		    this->m_propertySetter.GetViewNumber (),
+		    this->GetViewNumber (),
 		    HighlightNumber::H0), segment);
     }
     else
-	storeContextSegment (
-	    this->m_settings.GetBubblePathsContextColor (), segment);
+	storeContextSegment (vs.GetBubblePathsContextColor (), segment);
 }
 
 
@@ -405,7 +404,7 @@ void DisplayBubblePaths<PropertySetter, DisplaySegment>::
 displaySegments ()
 {
     ViewSettings& vs = this->m_settings.GetViewSettings (
-        this->m_propertySetter.GetViewNumber ());
+        this->GetViewNumber ());
     
     // focus segments
     size_t focusSegmentsSize = 
@@ -460,7 +459,7 @@ storeFocusSegment (double value, const Segment& segment)
 {
     double textureCoordinate = 
 	this->m_settings.GetViewSettings (
-	    this->m_propertySetter.GetViewNumber ()).GetColorBarModel ()
+	    this->GetViewNumber ()).GetColorBarModel ()
 	->TexCoord (value);
     boost::shared_ptr<FocusTextureSegment> fs = 
 	boost::make_shared<FocusTextureSegment> (textureCoordinate, segment);

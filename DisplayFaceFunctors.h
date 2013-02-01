@@ -24,10 +24,10 @@ class DisplayFaceTriangleFan : public DisplayElementFocus
 {
 public:
     DisplayFaceTriangleFan (
-	const Settings& settings, 
+	const Settings& settings, ViewNumber::Enum viewNumber,
 	FocusContext focus = FOCUS,
 	bool useZPos = false, double zPos = 0) : 
-	DisplayElementFocus (settings, focus, useZPos, zPos)
+	DisplayElementFocus (settings, viewNumber, focus, useZPos, zPos)
     {
     }
 
@@ -142,10 +142,10 @@ class DisplayFaceLineStrip : public DisplayElementFocus
 {
 public:
     DisplayFaceLineStrip (
-	const Settings& settings, 
+	const Settings& settings, ViewNumber::Enum viewNumber,
 	FocusContext focus = FOCUS,
 	bool useZPos = false, double zPos = 0) :
-	DisplayElementFocus (settings, focus, useZPos, zPos)
+	DisplayElementFocus (settings, viewNumber, focus, useZPos, zPos)
     {
     }
     void operator() (const boost::shared_ptr<OrientedFace>& of);
@@ -160,7 +160,8 @@ template<typename displayEdge>
 class DisplayFaceEdges : public DisplayElementFocus
 {
 public:
-    DisplayFaceEdges (const Settings& settings, FocusContext focus, 
+    DisplayFaceEdges (const Settings& settings, ViewNumber::Enum viewNumber,
+                      FocusContext focus,                       
 		      bool useZPos = false, double zPos = 0);
 
     void operator() (const boost::shared_ptr<OrientedFace> f);

@@ -35,14 +35,7 @@ public:
 public:
     WidgetBase (QWidget* widget,
 		IsViewType isView,
-		GetViewCountType getViewCount) :
-        m_averageCache (0),
-	m_widget (widget), 
-	m_isView (isView),
-	m_getViewCount (getViewCount)
-    {
-    }
-
+		GetViewCountType getViewCount);
     void Init (boost::shared_ptr<Settings> settings,
 	       const SimulationGroup* simulationGroup, 
                AverageCaches* averageCache);
@@ -88,6 +81,16 @@ public:
         return GetFoam (GetViewNumber ());
     }
 
+    bool IsColorBarCopyCompatible (
+        ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
+    bool IsSelectionCopyCompatible (
+        ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
+
+
+protected:
+    typedef bool (WidgetBase::*IsCopyCompatibleType) (
+        ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
+    
 protected:
     void setView (const G3D::Vector2& clickedPoint);
     void setView (ViewNumber::Enum viewNumber, 
@@ -95,6 +98,10 @@ protected:
     void addCopyMenu (
         QMenu* menuCopy, const char* nameOp, 
         const boost::shared_ptr<QAction>* actionCopyOp) const;
+    void addCopyCompatibleMenu (
+        QMenu* menuCopy, const char* nameOp, 
+        const boost::shared_ptr<QAction>* actionCopyOp,
+        IsCopyCompatibleType isCopyCompatible) const;
     void initCopy (
 	boost::array<boost::shared_ptr<QAction>, 
 	ViewNumber::COUNT>& actionCopyTransformation,
@@ -103,7 +110,12 @@ protected:
 protected:
     boost::array<boost::shared_ptr<QAction>, 
 		 ViewNumber::COUNT> m_actionCopyTransformation;
-    boost::shared_ptr<QSignalMapper> m_signalMapperCopyTransformation;
+boost::shared_ptr<QSignalMapper> m_signalMapperCopyTransformation;
+
+    boost::array<boost::shared_ptr<QAction>, 
+		 ViewNumber::COUNT> m_actionCopySelection;
+    boost::shared_ptr<QSignalMapper> m_signalMapperCopySelection;
+    
 
 private:
     AverageCaches* m_averageCache;

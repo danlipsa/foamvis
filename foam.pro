@@ -7,7 +7,8 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	ConstraintEdge.h ColorBarModel.h Comparisons.h\
 	Debug.h \
 	DebugStream.h Disk.h ImageBasedAverage.h ForceAverage.h\
-	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
+	DisplayBodyFunctors.h DisplayElement.h\
+	DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h WidgetSave.h\
 	EditColorMap.h Edge.h Element.h ExpressionTree.h \
 	Enums.h Foam.h FoamvisInteractorStyle.h \
@@ -35,7 +36,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	Base.cpp Body.cpp BodyAlongTime.cpp \
 	BodySelector.cpp BrowseSimulations.cpp \
 	ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
-	DebugStream.cpp Disk.cpp DisplayBodyFunctors.cpp \
+	DebugStream.cpp Disk.cpp DisplayBodyFunctors.cpp DisplayElement.cpp\
 	ImageBasedAverage.cpp DisplayFaceFunctors.cpp \
 	DisplayEdgeFunctors.cpp	\
 	DisplayVertexFunctors.cpp Edge.cpp \

@@ -20,6 +20,7 @@
 #include "OpenGLUtils.h"
 #include "Utils.h"
 #include "Vertex.h"
+#include "ViewSettings.h"
 
 void DisplayEdgeVertices (const Edge& edge, bool useZPos, double zPos)
 {
@@ -318,11 +319,11 @@ void DisplayOrientedSegmentQuadric::operator () (
 template <typename DisplayEdge, typename DisplaySegmentArrow1, 
 	  bool showDuplicates>
 DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow1, showDuplicates>::
-DisplayEdgeTorus (const Settings& widget, 
+DisplayEdgeTorus (const Settings& settings, ViewNumber::Enum viewNumber,
 		  FocusContext focus, bool useZPos, double zPos, 
 		  GLUquadricObj* quadric) : 
     
-    DisplayElementFocus (widget, focus, useZPos, zPos),
+    DisplayElementFocus (settings, viewNumber, focus, useZPos, zPos),
     m_displayEdge (quadric, m_settings.GetEdgeRadius ()),
     m_displayArrow (quadric,
 		    m_settings.GetArrowBaseRadius (),
@@ -380,23 +381,11 @@ display (const boost::shared_ptr<Edge>  e)
 
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 DisplayEdgePropertyColor<tesselationEdgesDisplay>::
-DisplayEdgePropertyColor (const Settings& widget,
-			  FocusContext focus,
-			  bool useZPos, double zPos) : 
+DisplayEdgePropertyColor (const Settings& settings, ViewNumber::Enum viewNumber,
+			  FocusContext focus, bool useZPos, double zPos) : 
     
-    DisplayElementFocus (widget, focus, useZPos, zPos)
+    DisplayElementFocus (settings, viewNumber, focus, useZPos, zPos)
 {
-}
-
-template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
-DisplayEdgePropertyColor<tesselationEdgesDisplay>::
-DisplayEdgePropertyColor (const Settings& widget,
-			  FocusContext focus, ViewNumber::Enum viewNumber,
-			  bool useZPos, double zPos) : 
-    
-    DisplayElementFocus (widget, focus, useZPos, zPos)
-{
-    (void)viewNumber;
 }
 
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
@@ -410,6 +399,7 @@ template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 void DisplayEdgePropertyColor<tesselationEdgesDisplay>::
 operator () (const Edge& edge) const
 {
+    ViewSettings& vs = this->m_settings.GetViewSettings (m_viewNumber);
     bool isPhysical = edge.IsPhysical ();
     if (isPhysical || 
 	(tesselationEdgesDisplay == DISPLAY_TESSELLATION_EDGES &&
@@ -420,7 +410,7 @@ operator () (const Edge& edge) const
 	if (hasConstraints && ! m_settings.ConstraintsShown ())
 	    return;
 	double alpha = 
-	    (m_focus == FOCUS ? 1.0 : m_settings.GetContextAlpha ());
+	    (m_focus == FOCUS ? 1.0 : vs.GetContextAlpha ());
 	QColor color = edge.GetColor (Qt::black);
 	glColor (
 	    QColor::fromRgbF(
@@ -450,10 +440,11 @@ operator() (const boost::shared_ptr<OrientedEdge> oe) const
 // DisplayEdge
 // ======================================================================
 
-DisplayEdge::DisplayEdge (const Settings& settings, FocusContext focus, 
+DisplayEdge::DisplayEdge (const Settings& settings, ViewNumber::Enum viewNumber,
+                          FocusContext focus, 
                           bool useZPos, double zPos) : 
     
-    DisplayElementFocus (settings, focus, useZPos, zPos)
+    DisplayElementFocus (settings, viewNumber, focus, useZPos, zPos)
 {
 }
 

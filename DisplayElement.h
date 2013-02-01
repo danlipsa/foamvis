@@ -54,15 +54,21 @@ class DisplayElementFocus : public DisplayElement
 {
 public:
     DisplayElementFocus (
-	const Settings& settings, 
+	const Settings& settings, ViewNumber::Enum viewNumber,
 	FocusContext focus = FOCUS, bool useZPos = false, double zPos = 0) :
 	
 	DisplayElement (settings, useZPos, zPos),
+        m_viewNumber (viewNumber),
 	m_focus (focus)
     {
     }
-    
+    ViewNumber::Enum GetViewNumber () const
+    {
+        return m_viewNumber;
+    }
+
 protected:
+    ViewNumber::Enum m_viewNumber;
     FocusContext m_focus;
 };
 
@@ -81,6 +87,7 @@ public:
 	m_propertySetter (propertySetter)
     {
     }
+    ViewNumber::Enum GetViewNumber () const;
 protected:
     PropertySetter m_propertySetter;
 };

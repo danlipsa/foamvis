@@ -91,7 +91,8 @@ Q_SIGNALS:
     void PaintEnd ();
 
 public Q_SLOTS:
-    void CopyTransformFrom (int fromViewNumber);
+    void CopyTransformationFrom (int fromViewNumber);
+    void CopySelectionFrom (int fromViewNumber);
 
 protected:
     virtual void resizeEvent (QResizeEvent * event);
@@ -107,12 +108,12 @@ private:
 
 private:
     Q_OBJECT
-    // PipelineBase
+    // current visualization pipelines
     boost::array<boost::shared_ptr<PipelineBase>, 
                  ViewNumber::COUNT> m_pipeline;
     int m_fontSize;
 
-    // PipelineAverage3d
+    // average visualization pipeline
     boost::array<boost::shared_ptr<RegularGridAverage>,
 		 ViewNumber::COUNT> m_average;
     boost::array<boost::shared_ptr<PipelineAverage3d>, 

@@ -34,7 +34,7 @@ void PipelineBase::createScalarBar ()
 {
     VTK_CREATE (vtkScalarBarActor, scalarBar);
     scalarBar->SetOrientationToVertical ();
-    scalarBar->SetNumberOfLabels (3);
+    scalarBar->SetNumberOfLabels (2);
     m_scalarBar = scalarBar;
     m_renderer->AddViewProp (scalarBar);
 }

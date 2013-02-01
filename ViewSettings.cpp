@@ -38,7 +38,7 @@ boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
 // ======================================================================
 const double ViewSettings::STREAMLINE_LENGTH (0.2);
 const double ViewSettings::STREAMLINE_STEP_LENGTH (0.005);
-
+const pair<float,float> ViewSettings::CONTEXT_ALPHA (0.05, 0.5);
 
 
 // Methods
@@ -76,6 +76,7 @@ ViewSettings::ViewSettings () :
     m_averageAroundRotationShown (false),
     m_bodySelector (AllBodySelector::Get ()),
     m_selectionContextShown (true),
+    m_contextAlpha (CONTEXT_ALPHA.first),
     m_centerPathHidden (false),
     m_simulationIndex (0),
     m_currentTime (0),
@@ -109,6 +110,14 @@ ViewSettings::ViewSettings () :
 ViewSettings::~ViewSettings ()
 {
 }
+
+QColor ViewSettings::GetBubblePathsContextColor () const
+{
+    QColor returnColor (Qt::black);
+    returnColor.setAlphaF (GetContextAlpha ());
+    return returnColor;
+}
+
 
 float ViewSettings::GetVelocitySize () const
 {

@@ -61,7 +61,12 @@ WidgetVtk::WidgetVtk (QWidget* parent) :
     connect (m_signalMapperCopyTransformation.get (),
 	     SIGNAL (mapped (int)),
 	     this,
-	     SLOT (CopyTransformFrom (int)));
+	     SLOT (CopyTransformationFrom (int)));
+    initCopy (m_actionCopySelection, m_signalMapperCopySelection);
+    connect (m_signalMapperCopySelection.get (),
+	     SIGNAL (mapped (int)),
+	     this,
+	     SLOT (CopySelectionFrom (int)));
 }
 
 // ======================================================================
@@ -194,7 +199,7 @@ void WidgetVtk::Average3dUpdateOpacity ()
 void WidgetVtk::updateViewOpacity (ViewNumber::Enum viewNumber)
 {
     m_pipelineAverage3d[viewNumber]->UpdateOpacity (
-        GetSettings ()->GetContextAlpha ());
+        GetViewSettings (viewNumber).GetContextAlpha ());
 }
 
 
@@ -217,7 +222,7 @@ void WidgetVtk::Average3dAddView (
     int direction = 0;
     pipeline.UpdateAverage (average, direction);
     pipeline.ViewToVtk (vs, simulation.GetBoundingBox ().center (), foam);
-    pipeline.UpdateOpacity (GetSettings ()->GetContextAlpha ());
+    pipeline.UpdateOpacity (vs.GetContextAlpha ());
     pipeline.UpdateThreshold (interval);
     pipeline.UpdateColorTransferFunction (colorTransferFunction, scalarName);
     pipeline.UpdateFocus (GetSettings ()->GetViewNumber () == viewNumber);
@@ -272,13 +277,22 @@ G3D::Rect2D WidgetVtk::GetNormalizedViewRect (ViewNumber::Enum viewNumber) const
     return viewRect;
 }
 
-void WidgetVtk::CopyTransformFrom (int fromViewNumber)
+void WidgetVtk::CopyTransformationFrom (int fromViewNumber)
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     GetViewSettings (viewNumber).CopyTransformation (
 	GetViewSettings (ViewNumber::Enum (fromViewNumber)));
     ViewToVtk (viewNumber);
 }
+
+void WidgetVtk::CopySelectionFrom (int fromViewNumber)
+{
+    ViewNumber::Enum toViewNumber = GetViewNumber ();
+    GetViewSettings (toViewNumber).CopySelection (
+	GetViewSettings (ViewNumber::Enum (fromViewNumber)));
+    update ();
+}
+
 
 void WidgetVtk::ForAllPipelines (
     PipelineType::Enum type, boost::function <void (ViewNumber::Enum)> f)
@@ -314,7 +328,10 @@ void WidgetVtk::contextMenuEvent (QContextMenuEvent *event)
 {
     QVTKWidget::contextMenuEvent (event);
     QMenu menu (this);
-    addCopyMenu (&menu, "Copy Transformation", &m_actionCopyTransformation[0]);
+    QMenu* menuCopy = menu.addMenu ("Copy");
+    addCopyMenu (menuCopy, "Transformation", &m_actionCopyTransformation[0]);
+    addCopyCompatibleMenu (menuCopy, "Selection", &m_actionCopySelection[0], 
+                           &WidgetBase::IsSelectionCopyCompatible);
     menu.exec (event->globalPos());
 }
 

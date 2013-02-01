@@ -480,9 +480,9 @@ void WidgetGl::createActions ()
 
     initCopy (m_actionCopyTransformation, m_signalMapperCopyTransformation);
     connect (m_signalMapperCopyTransformation.get (),
-	     SIGNAL (mapped (int)),
-	     this,
-	     SLOT (CopyTransformationFrom (int)));
+             SIGNAL (mapped (int)),
+             this,
+             SLOT (CopyTransformationFrom (int)));
 
     initCopy (m_actionCopySelection, m_signalMapperCopySelection);
     connect (m_signalMapperCopySelection.get (),
@@ -1739,8 +1739,8 @@ void WidgetGl::displayStandaloneEdges (
     {
 	glPushAttrib (GL_ENABLE_BIT);    
 	glDisable (GL_DEPTH_TEST);
-	displayEdge de (*GetSettings (),
-			DisplayElement::FOCUS, viewNumber, useZPos, zPos);
+	displayEdge de (*GetSettings (), viewNumber,
+			DisplayElement::FOCUS, useZPos, zPos);
 	const Foam::Edges& standaloneEdges = foam.GetStandaloneEdges ();
 	BOOST_FOREACH (boost::shared_ptr<Edge> edge, standaloneEdges)
 	    de(edge);
@@ -2016,9 +2016,9 @@ void WidgetGl::displayEdgesTorus (ViewNumber::Enum viewNumber) const
 {
     (void)viewNumber;
     if (GetSettings ()->GetEdgeRadiusRatio () > 0)
-	displayEdgesTorusTubes ();
+	displayEdgesTorusTubes (viewNumber);
     else
-	displayEdgesTorusLines ();
+	displayEdgesTorusLines (viewNumber);
 }
 
 void WidgetGl::displayFacesTorus (ViewNumber::Enum viewNumber) const
@@ -2032,7 +2032,7 @@ void WidgetGl::displayFacesTorus (ViewNumber::Enum viewNumber) const
 }
 
 
-void WidgetGl::displayEdgesTorusTubes () const
+void WidgetGl::displayEdgesTorusTubes (ViewNumber::Enum viewNumber) const
 {
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
     EdgeSet edgeSet;
@@ -2041,12 +2041,12 @@ void WidgetGl::displayEdgesTorusTubes () const
 	edgeSet.begin (), edgeSet.end (),
 	DisplayEdgeTorus<DisplaySegmentQuadric, 
 	DisplaySegmentArrowQuadric, false>(
-	    *GetSettings (), DisplayElement::FOCUS, 
+	    *GetSettings (), viewNumber, DisplayElement::FOCUS, 
 	    false, 0.0, GetQuadricObject ()));
     glPopAttrib ();
 }
 
-void WidgetGl::displayEdgesTorusLines () const
+void WidgetGl::displayEdgesTorusLines (ViewNumber::Enum viewNumber) const
 {
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
 
@@ -2055,7 +2055,7 @@ void WidgetGl::displayEdgesTorusLines () const
     for_each (edgeSet.begin (), edgeSet.end (),
 	      DisplayEdgeTorus<DisplaySegment, 
 	      DisplaySegmentArrow1, false> (
-		  *GetSettings (), DisplayElement::FOCUS,
+		  *GetSettings (), viewNumber, DisplayElement::FOCUS,
 		  false, 0.0, GetQuadricObject ()));
     glPopAttrib ();
 }
@@ -2520,9 +2520,8 @@ void WidgetGl::contextMenuEventOverlayBar (QMenu* menu) const
 void WidgetGl::contextMenuEventColorBar (QMenu* menu) const
 {
     menu->addAction (m_actionColorBarClampClear.get ());
-    addCopyCompatibleMenu (
-        menu, "Copy", &m_actionCopyPaletteClamping[0], 
-        &WidgetGl::isColorBarCopyCompatible);
+    addCopyCompatibleMenu (menu, "Copy", &m_actionCopyPaletteClamping[0], 
+                           &WidgetBase::IsColorBarCopyCompatible);
     menu->addAction (m_actionEditColorMap.get ());
 }
 
@@ -2547,9 +2546,8 @@ void WidgetGl::contextMenuEventView (QMenu* menu) const
     }
     QMenu* menuCopy = menu->addMenu ("Copy");
     addCopyMenu (menuCopy, "Transformation", &m_actionCopyTransformation[0]);
-    addCopyCompatibleMenu (
-        menuCopy, "Selection", &m_actionCopySelection[0], 
-        &WidgetGl::isSelectionCopyCompatible);
+    addCopyCompatibleMenu (menuCopy, "Selection", &m_actionCopySelection[0], 
+                           &WidgetBase::IsSelectionCopyCompatible);
     {
 	QMenu* menuInfo = menu->addMenu ("Info");
 	menuInfo->addAction (m_actionInfoPoint.get ());
@@ -2592,64 +2590,6 @@ void WidgetGl::contextMenuEventView (QMenu* menu) const
 	menuShow->addAction (m_actionShowVelocity.get ());
 	menuShow->addAction (m_actionShowReset.get ());
     }
-}
-
-bool WidgetGl::isColorBarCopyCompatible (
-    ViewNumber::Enum vn, ViewNumber::Enum otherVn) const
-{
-    ColorBarType::Enum currentColorBarType = 
-        GetSettings ()->GetColorBarType (vn);
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (vn);
-    const ViewSettings& otherVs = GetViewSettings (otherVn);
-    size_t currentProperty = vs.GetBodyOrFaceScalar ();
-    return otherVn != vn &&
-        
-        currentColorBarType == GetSettings ()->GetColorBarType (otherVn) &&
-        
-        ((currentColorBarType == ColorBarType::T1S_KDE && 
-          GetViewAverage (vn).GetT1sKDE ().GetKernelSigma () ==
-          GetViewAverage (otherVn).GetT1sKDE ().GetKernelSigma ()) 
-         
-         ||
-         
-         currentProperty == otherVs.GetBodyOrFaceScalar ());
-}
-
-bool WidgetGl::isSelectionCopyCompatible (
-    ViewNumber::Enum vn, ViewNumber::Enum otherVn) const
-{
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (vn);
-    const ViewSettings& otherVs = GetViewSettings (otherVn);
-    return otherVn != vn &&
-        vs.GetSimulationIndex () == otherVs.GetSimulationIndex ();
-}
-
-
-
-void WidgetGl::addCopyCompatibleMenu (
-    QMenu* menu, const char* nameOp, 
-    const boost::shared_ptr<QAction>* actionCopyOp, 
-    IsCopyCompatibleType isCopyCompatible) const
-{
-    size_t viewCount = GetSettings ()->GetViewCount ();
-    bool actions = false;
-    QMenu* menuOp = menu->addMenu (nameOp);
-    if (viewCount > 1)
-    {
-        ViewNumber::Enum currentViewNumber = GetViewNumber ();
-	for (size_t i = 0; i < viewCount; ++i)
-	{
-	    ViewNumber::Enum otherViewNumber = ViewNumber::Enum (i);
-	    if (CALL_MEMBER (*this, isCopyCompatible) (
-                    currentViewNumber, otherViewNumber))
-            {
-                menuOp->addAction (actionCopyOp[i].get ());
-                actions = true;
-            }
-	}
-    }
-    if (! actions)
-	menuOp->setDisabled (true);    
 }
 
 void WidgetGl::displayTwoHalvesLine (ViewNumber::Enum viewNumber) const
@@ -3987,7 +3927,6 @@ void WidgetGl::RotationCenterFoam ()
     vs.SetRotationCenterType (ViewSettings::ROTATION_CENTER_FOAM);
 }
 
-
 void WidgetGl::CopyTransformationFrom (int viewNumber)
 {
     makeCurrent ();
@@ -3995,6 +3934,7 @@ void WidgetGl::CopyTransformationFrom (int viewNumber)
 	GetViewSettings (ViewNumber::Enum (viewNumber)));
     update ();
 }
+
 
 void WidgetGl::CopySelectionFrom (int fromViewNumber)
 {

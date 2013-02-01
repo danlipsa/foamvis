@@ -967,7 +967,44 @@ void MainWindow::ShowMessageBox (const char* message)
 void MainWindow::SelectionChangedSettings (ViewNumber::Enum viewNumber)
 {
     widgetHistogram->UpdateSelection (viewNumber);
+    SelectionChangedHistogram (viewNumber);
 }
+
+void MainWindow::SelectionChangedHistogram (int vn)
+{
+    ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (vn);
+    ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT (
+        vs.GetBodyOrFaceScalar ());
+
+    vector<QwtDoubleInterval> valueIntervals;
+    vector<pair<size_t, size_t> > bins;
+    widgetHistogram->GetHistogram (
+	viewNumber).GetSelectedIntervals (&valueIntervals);
+    widgetHistogram->GetHistogram (
+	viewNumber).GetSelectedBins (&bins);
+    updateSliderTimeSteps (viewNumber, valueIntervals);
+    
+    if (widgetHistogram->GetHistogram (viewNumber).AreAllItemsSelected ())
+	vs.SetBodySelector (
+	    AllBodySelector::Get (), BodySelectorType::PROPERTY_VALUE);
+    else
+	vs.SetBodySelector (
+	    boost::shared_ptr<PropertyValueBodySelector> (
+		new PropertyValueBodySelector (
+                    bodyScalar, valueIntervals, bins)));
+    widgetGl->CompileUpdate (viewNumber);
+    if (DATA_PROPERTIES.Is3D ())
+    {
+	QwtDoubleInterval interval;
+	if (valueIntervals.empty ())
+	    interval = QwtDoubleInterval (0, -1);
+	else
+	    interval = valueIntervals[0];
+	widgetVtk->Average3dUpdateThreshold (interval);
+    }
+}
+
 
 void MainWindow::clearStretch (QWidget* widget)
 {
@@ -1199,9 +1236,9 @@ void MainWindow::TimeoutTimer ()
 void MainWindow::ValueChangedContextAlpha (int index)
 {
     (void)index;
-    GetSettings ()->SetContextAlpha (
+    GetViewSettings ().SetContextAlpha (
 	Index2Value (static_cast<QSlider*> (sender ()), 
-		     Settings::CONTEXT_ALPHA));
+		     ViewSettings::CONTEXT_ALPHA));
     widgetGl->CompileUpdate ();
     widgetVtk->Average3dUpdateOpacity ();
 }
@@ -1312,6 +1349,8 @@ void MainWindow::ButtonClickedViewType (int vt)
     vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
     ViewType::Enum viewType = ViewType::Enum(vt);
     ViewType::Enum oldViewType = GetSettings ()->SetTwoHalvesViewType (viewType);
+    widgetTimeWindow->setVisible (
+        viewType == ViewType::AVERAGE || viewType == ViewType::T1S_KDE);
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -1491,40 +1530,6 @@ void MainWindow::updateSliderTimeSteps (
     
 }
 
-void MainWindow::SelectionChangedHistogram (int vn)
-{
-    ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (vn);
-    ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
-    BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT (
-        vs.GetBodyOrFaceScalar ());
-
-    vector<QwtDoubleInterval> valueIntervals;
-    vector<pair<size_t, size_t> > bins;
-    widgetHistogram->GetHistogram (
-	viewNumber).GetSelectedIntervals (&valueIntervals);
-    widgetHistogram->GetHistogram (
-	viewNumber).GetSelectedBins (&bins);
-    updateSliderTimeSteps (viewNumber, valueIntervals);
-    
-    if (widgetHistogram->GetHistogram (viewNumber).AreAllItemsSelected ())
-	vs.SetBodySelector (
-	    AllBodySelector::Get (), BodySelectorType::PROPERTY_VALUE);
-    else
-	vs.SetBodySelector (
-	    boost::shared_ptr<PropertyValueBodySelector> (
-		new PropertyValueBodySelector (
-                    bodyScalar, valueIntervals, bins)));
-    widgetGl->CompileUpdate (viewNumber);
-    if (DATA_PROPERTIES.Is3D ())
-    {
-	QwtDoubleInterval interval;
-	if (valueIntervals.empty ())
-	    interval = QwtDoubleInterval (0, -1);
-	else
-	    interval = valueIntervals[0];
-	widgetVtk->Average3dUpdateThreshold (interval);
-    }
-}
 
 void MainWindow::ShowEditOverlayMap ()
 {
@@ -1817,6 +1822,10 @@ void MainWindow::timeViewToUI (ViewNumber::Enum viewNumber)
             sliderTimeSteps->SetValueAndMaxNoSignals (
                 GetSettings ()->GetLinkedTime (), steps - 1);
     }
+    ViewType::Enum viewType = vs.GetViewType ();
+    widgetTimeWindow->setVisible (
+        viewType == ViewType::AVERAGE || 
+        viewType == ViewType::T1S_KDE);
     SetValueAndMaxNoSignals (spinBoxAverageTimeWindow,
 			     scalarAverageTimeWindow, steps);
 }

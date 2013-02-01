@@ -6,8 +6,9 @@ Release log
         - bug fix: when set average vis the program segfaults
         - bug fix: sometimes copy color bar creates a clamping that was 
           not in the source
+        - added Copy / Selection to the VTK view        
+        - adjust context alpha per view (before it was done for all views)
         
-
 0.8.2699
         - bug fix: transformations are slow
         - allow keywords inside SCALAR_INTEGRANT (for shearv_35)

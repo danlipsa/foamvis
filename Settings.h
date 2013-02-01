@@ -178,14 +178,6 @@ public:
     {
         m_interactionMode = mode;
     }
-    float GetContextAlpha () const
-    {
-	return m_contextAlpha;
-    }
-    void SetContextAlpha (float contextAlpha)
-    {
-	m_contextAlpha = contextAlpha;
-    }
     float GetEdgeRadius () const 
     {
 	return m_edgeRadius;
@@ -284,7 +276,6 @@ public:
     {
 	m_centerPathLineUsed = used;
     }
-    QColor GetBubblePathsContextColor () const;
     bool IsTitleShown () const
     {
 	return m_titleShown;
@@ -361,7 +352,6 @@ Q_SIGNALS:
     void SelectionChanged (ViewNumber::Enum viewNumber);
 
 public:
-    const static pair<float,float> CONTEXT_ALPHA;
     const static size_t QUADRIC_SLICES;
     const static size_t QUADRIC_STACKS;
 
@@ -393,7 +383,6 @@ private:
 
 private:
     Q_OBJECT
-    float m_contextAlpha;
     /**
      * For displaying edges as tubes
      */

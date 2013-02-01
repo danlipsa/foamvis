@@ -65,13 +65,11 @@ G3D::AABox ExtendAlongZFor3D (
 
 // Methods
 // ======================================================================
-const pair<float,float> Settings::CONTEXT_ALPHA (0.05, 0.5);
 const size_t Settings::QUADRIC_SLICES = 8;
 const size_t Settings::QUADRIC_STACKS = 1;
 
 
 Settings::Settings (const SimulationGroup& simulationGroup, float w, float h) :
-    m_contextAlpha (CONTEXT_ALPHA.first),
     m_edgeRadius (0),
     m_edgeWidth (0),
     m_edgeRadiusRatio (0),
@@ -293,13 +291,6 @@ bool Settings::IsMissingPropertyShown (BodyScalar::Enum bodyProperty) const
     default:
 	return true;
     }
-}
-
-QColor Settings::GetBubblePathsContextColor () const
-{
-    QColor returnColor (Qt::black);
-    returnColor.setAlphaF (GetContextAlpha ());
-    return returnColor;
 }
 
 G3D::AABox Settings::CalculateCenteredViewingVolume (

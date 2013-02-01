@@ -565,6 +565,14 @@ public:
     {
 	m_selectionContextShown = shown;
     }
+    float GetContextAlpha () const
+    {
+	return m_contextAlpha;
+    }
+    void SetContextAlpha (float contextAlpha)
+    {
+	m_contextAlpha = contextAlpha;
+    }
     // @}
     
     /**
@@ -651,6 +659,7 @@ public:
      * @{
      * @name Various
      */
+    QColor GetBubblePathsContextColor () const;
     bool IsPartialPathHidden () const
     {
 	return m_centerPathHidden;
@@ -732,6 +741,7 @@ public:
 public:
     static const double STREAMLINE_LENGTH;
     static const double STREAMLINE_STEP_LENGTH;
+    const static pair<float,float> CONTEXT_ALPHA;
 
 Q_SIGNALS:
     void SelectionChanged ();
@@ -813,6 +823,7 @@ private:
     bool m_averageAroundRotationShown;
     boost::shared_ptr<BodySelector> m_bodySelector;
     bool m_selectionContextShown;
+    float m_contextAlpha;
     bool m_centerPathHidden;
     // Simulation related variables
     size_t m_simulationIndex;
