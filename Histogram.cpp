@@ -198,6 +198,11 @@ void Histogram::SetDataKeepBinSelection (
 }
 
 
+bool Histogram::HasData () const
+{
+    return m_histogramItem->HasData ();
+}
+
 void Histogram::setData (
     const QwtIntervalData& intervalData, double maxValue,
     const vector< pair<size_t, size_t> >* selectedBins)

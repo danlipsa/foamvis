@@ -14,7 +14,6 @@
 class Body;
 class BodyAlongTime;
 class BodiesAlongTime;
-class ColorBarModel;
 class Foam;
 class Edge;
 class EditColorMap;
@@ -500,7 +499,6 @@ private:
 				 const G3D::Rect2D& barRect);
     void displayBarLabels (
         const ColorBarModel& cbm, const G3D::Rect2D& colorBarRect);
-    float getBarLabelsWidth (const ColorBarModel& cbm) const;
     void displayOverlayBar (
 	ViewNumber::Enum viewNumber, const G3D::Rect2D& barRect);
     void displayBarClampLevels (const ColorBarModel& barModel,
@@ -761,7 +759,6 @@ private:
     size_t m_highlightLineWidth;
     bool m_averageAroundMarked;
     bool m_contextBoxShown;
-    bool m_barLabelsShown;
     ShowType m_showType;
     size_t m_showBodyId;
     boost::array<

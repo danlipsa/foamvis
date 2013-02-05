@@ -13,6 +13,7 @@
 #include "Enums.h"
 #include "Base.h"
 class AverageCache;
+class ColorBarModel;
 class Foam;
 class Settings;
 class Simulation;

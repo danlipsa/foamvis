@@ -341,7 +341,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tabSettings">
         <attribute name="title">
@@ -363,7 +363,7 @@
             <bool>true</bool>
            </property>
            <property name="currentIndex">
-            <number>4</number>
+            <number>5</number>
            </property>
            <widget class="QWidget" name="tabFirst">
             <attribute name="title">
@@ -1916,9 +1916,9 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="tabOverlay">
+       <widget class="QWidget" name="tabAttributes">
         <attribute name="title">
-         <string>Overlay</string>
+         <string>Attributes</string>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_12">
          <property name="leftMargin">

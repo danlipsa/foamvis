@@ -54,6 +54,7 @@ public:
     void SetDataAllBinsSelected (
 	const QwtIntervalData& intervalData, double maxValue, 
 	const char* axisTitle);
+    bool HasData () const;
     void SetAllItemsSelection (bool selected);
     void SetItemsSelectionHigh (bool selected, double value);
     void SetItemsSelectionLow (bool selected, double value);

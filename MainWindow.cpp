@@ -932,9 +932,11 @@ void MainWindow::currentIndexChangedFaceColor (
 	    viewNumber,
 	    m_colorBarModelBodyScalar
 	    [simulationIndex][viewNumber][property], property);
-	widgetHistogram->Update (getColorBarModel (viewNumber),
-				 WidgetHistogram::DISCARD_SELECTION, 
-				 WidgetHistogram::REPLACE_MAX_VALUE);
+        widgetHistogram->UpdateColorMapped (
+            viewNumber, getColorBarModel (viewNumber));
+	widgetHistogram->UpdateData (
+            viewNumber, WidgetHistogram::DISCARD_SELECTION, 
+            WidgetHistogram::REPLACE_MAX_VALUE);
     }
 }
 
@@ -974,18 +976,17 @@ void MainWindow::SelectionChangedHistogram (int vn)
 {
     ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (vn);
     ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    const Histogram& histogram = widgetHistogram->GetHistogram (viewNumber);
     BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT (
         vs.GetBodyOrFaceScalar ());
 
     vector<QwtDoubleInterval> valueIntervals;
     vector<pair<size_t, size_t> > bins;
-    widgetHistogram->GetHistogram (
-	viewNumber).GetSelectedIntervals (&valueIntervals);
-    widgetHistogram->GetHistogram (
-	viewNumber).GetSelectedBins (&bins);
+    histogram.GetSelectedIntervals (&valueIntervals);
+    histogram.GetSelectedBins (&bins);
     updateSliderTimeSteps (viewNumber, valueIntervals);
     
-    if (widgetHistogram->GetHistogram (viewNumber).AreAllItemsSelected ())
+    if (histogram.AreAllItemsSelected ())
 	vs.SetBodySelector (
 	    AllBodySelector::Get (), BodySelectorType::PROPERTY_VALUE);
     else
@@ -1152,9 +1153,11 @@ void MainWindow::ToggledHistogramShown (bool checked)
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
     vs.SetHistogramShown (checked);
-    widgetHistogram->Update (getColorBarModel (viewNumber),
-			     WidgetHistogram::KEEP_SELECTION, 
-			     WidgetHistogram::KEEP_MAX_VALUE);    
+    widgetHistogram->UpdateColorMapped (viewNumber, 
+                                        getColorBarModel (viewNumber));
+    widgetHistogram->UpdateData (
+        viewNumber, WidgetHistogram::KEEP_SELECTION, 
+        WidgetHistogram::KEEP_MAX_VALUE);    
 }
 
 
@@ -1163,9 +1166,11 @@ void MainWindow::ToggledHistogramColorMapped (bool checked)
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
     vs.SetHistogramOption (HistogramType::COLOR_MAPPED, checked);
-    widgetHistogram->Update (getColorBarModel (viewNumber),
-			     WidgetHistogram::KEEP_SELECTION, 
-			     WidgetHistogram::KEEP_MAX_VALUE);
+    widgetHistogram->UpdateColorMapped (
+        viewNumber, getColorBarModel (viewNumber));
+    widgetHistogram->UpdateData (
+        viewNumber, WidgetHistogram::KEEP_SELECTION, 
+        WidgetHistogram::KEEP_MAX_VALUE);
 }
 
 void MainWindow::ToggledHistogramAllTimesteps (bool checked)
@@ -1173,9 +1178,11 @@ void MainWindow::ToggledHistogramAllTimesteps (bool checked)
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
     vs.SetHistogramOption (HistogramType::ALL_TIME_STEPS_SHOWN, checked);
-    widgetHistogram->Update (getColorBarModel (viewNumber),
-			     WidgetHistogram::KEEP_SELECTION, 
-			     WidgetHistogram::REPLACE_MAX_VALUE);
+    widgetHistogram->UpdateColorMapped (
+        viewNumber, getColorBarModel (viewNumber));
+    widgetHistogram->UpdateData (
+        viewNumber, WidgetHistogram::KEEP_SELECTION, 
+        WidgetHistogram::REPLACE_MAX_VALUE);
 }
 
 
@@ -1292,9 +1299,11 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
         ViewNumber::Enum viewNumber = vn[i];
         ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
         ViewType::Enum viewType = vs.GetViewType ();
-        widgetHistogram->Update (getColorBarModel (viewNumber),
-                                 WidgetHistogram::KEEP_SELECTION, 
-                                 WidgetHistogram::KEEP_MAX_VALUE);
+        widgetHistogram->UpdateColorMapped (
+            viewNumber, getColorBarModel (viewNumber));
+        widgetHistogram->UpdateData (viewNumber,
+                                     WidgetHistogram::KEEP_SELECTION, 
+                                     WidgetHistogram::KEEP_MAX_VALUE);
         if (viewType == ViewType::AVERAGE || viewType == ViewType::T1S_KDE)
         {
             if (DATA_PROPERTIES.Is3D ())

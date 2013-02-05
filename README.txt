@@ -8,7 +8,7 @@ Release log
           not in the source
         - added Copy / Selection to the VTK view        
         - adjust context alpha per view (before it was done for all views)
-        
+        - bug fix: copy selection crashes if the histogram was never open
 0.8.2699
         - bug fix: transformations are slow
         - allow keywords inside SCALAR_INTEGRANT (for shearv_35)

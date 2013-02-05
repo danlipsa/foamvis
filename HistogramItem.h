@@ -57,6 +57,7 @@ public:
 	const QwtIntervalData &data,
 	double yAxisMaxValue,
 	const vector< pair<size_t, size_t> >* selectedBins = 0);
+    bool HasData () const;
     void setHistogramAttribute (HistogramAttribute, bool on = true);
     void setColorCoded (bool enable);
     void setColorMap (const QwtLinearColorMap& colorMap);

@@ -120,31 +120,6 @@ void sendQuad (const G3D::Rect2D& srcRect, const G3D::Rect2D& srcTexRect)
     ::glVertex (srcRect.x0y1 ());
 }
 
-class StringsWidth
-{
-public:
-    StringsWidth (const QFontMetrics& fm) :
-        m_fm (fm), m_width (0)
-    {
-    }
-    
-    void StoreMaxWidth (const string& s)
-    {
-        QRect br = m_fm.tightBoundingRect (s.c_str ());
-        if (m_width < br.width ())
-            m_width = br.width ();
-    }
-    float GetMaxWidth () const
-    {
-        return m_width;
-    }
-
-private:
-    const QFontMetrics& m_fm;
-    float m_width;
-};
-
-
 // Static Fields
 // ======================================================================
 
@@ -182,7 +157,6 @@ WidgetGl::WidgetGl(QWidget *parent)
       m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
       m_averageAroundMarked (true),
       m_contextBoxShown (true),
-      m_barLabelsShown (true),
       m_showType (SHOW_NOTHING)
 {
     makeCurrent ();
@@ -2592,6 +2566,29 @@ void WidgetGl::contextMenuEventView (QMenu* menu) const
     }
 }
 
+void WidgetGl::contextMenuEvent (QContextMenuEvent *event)
+{
+    makeCurrent ();
+    m_contextMenuPosWindow = event->pos ();
+    m_contextMenuPosObject = toObjectTransform (m_contextMenuPosWindow);
+    QMenu menu (this);
+    G3D::Rect2D barRect = 
+        GetSettings ()->GetViewColorBarRect (GetViewRect ());
+    float xTranslateBar = GetSettings ()->GetBarLabelsSize ().x;
+    G3D::Rect2D overlayBarRect = 
+	GetSettings ()->GetViewOverlayBarRect (GetViewRect ()) + 
+        G3D::Vector2 (xTranslateBar, 0);
+    if (barRect.contains (QtToOpenGl (m_contextMenuPosWindow, height ())))
+	contextMenuEventColorBar (&menu);
+    else if (overlayBarRect.contains (
+		 QtToOpenGl (m_contextMenuPosWindow, height ())))
+	contextMenuEventOverlayBar (&menu);
+    else
+	contextMenuEventView (&menu);
+    menu.exec (event->globalPos());
+}
+
+
 void WidgetGl::displayTwoHalvesLine (ViewNumber::Enum viewNumber) const
 {
     const Settings& settings = *GetSettings ();
@@ -2623,13 +2620,9 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
     {
 	G3D::Rect2D viewColorBarRect = 
             GetSettings ()->GetViewColorBarRect (viewRect);
-	/*
-	cdbg << viewRect << endl;
-	cdbg << viewColorBarRect << endl;
-	*/
 	displayTextureColorBar (
 	    m_colorBarTexture[viewNumber], viewNumber, viewColorBarRect);
-        xTranslateBar = getBarLabelsWidth (*vs.GetColorBarModel ());
+        xTranslateBar = GetSettings ()->GetBarLabelsSize (viewNumber).x;
     }
     if (vs.IsVelocityShown ())
     {
@@ -2720,8 +2713,12 @@ void WidgetGl::displayViewFocus (ViewNumber::Enum viewNumber)
 
 void WidgetGl::displayTextureColorBar (
     GLuint texture,
-    ViewNumber::Enum viewNumber, const G3D::Rect2D& barRect)
+    ViewNumber::Enum viewNumber, const G3D::Rect2D& br)
 {
+    G3D::Vector2 s = GetSettings ()->GetBarLabelsSize (viewNumber);
+    G3D::Rect2D barRect = G3D::Rect2D::xywh (
+        br.x0 (), br.y0 () + s.y, 
+        br.width (), br.height () - s.y);
     ViewSettings& vs = GetViewSettings (viewNumber);
     glPushAttrib (GL_POLYGON_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT);
     glDisable (GL_DEPTH_TEST);
@@ -2745,44 +2742,13 @@ void WidgetGl::displayTextureColorBar (
     glPopAttrib ();
     const ColorBarModel& barModel = *vs.GetColorBarModel ();
     displayBarClampLevels (barModel, barRect);
-    displayBarLabels (barModel, barRect);
-}
-
-float WidgetGl::getBarLabelsWidth (const ColorBarModel& cbm) const
-{
-    //__ENABLE_LOGGING__;
-    if (! m_barLabelsShown)
-        return 0;
-    QFont font;
-    QFontMetrics fm (font);
-    StringsWidth sw(fm);
-    const float distancePixels = 10;
-    ostringstream ostr;
-    QwtDoubleInterval interval = cbm.GetInterval ();
-    ostr << scientific << setprecision (1);
-    ostr << interval.minValue ();
-    sw.StoreMaxWidth (ostr.str ());
-    ostr.str ("");ostr << interval.maxValue ();
-    sw.StoreMaxWidth (ostr.str ());
-    if (cbm.IsClampedMin ())
-    {
-        ostr.str ("");ostr << cbm.GetClampMin ();
-        sw.StoreMaxWidth (ostr.str ());
-    }
-    if (cbm.IsClampedMax ())
-    {
-        ostr.str ("");ostr << cbm.GetClampMax ();
-        sw.StoreMaxWidth (ostr.str ());
-    }
-    float width = sw.GetMaxWidth () + distancePixels;
-    __LOG__ (cdbg << width << endl;);
-    return width;
+    displayBarLabels (barModel, br);
 }
 
 void WidgetGl::displayBarLabels (
     const ColorBarModel& cbm, const G3D::Rect2D& barRect)
 {
-    if (! m_barLabelsShown)
+    if (! GetSettings ()->BarLabelsShown ())
         return;
     float onePixelInObjectSpace = GetOnePixelInObjectSpace ();
     QFont font;
@@ -3801,30 +3767,6 @@ void WidgetGl::mouseMoveEvent(QMouseEvent *event)
     update ();
 }
 
-void WidgetGl::contextMenuEvent (QContextMenuEvent *event)
-{
-    makeCurrent ();
-    m_contextMenuPosWindow = event->pos ();
-    m_contextMenuPosObject = toObjectTransform (m_contextMenuPosWindow);
-    QMenu menu (this);
-    G3D::Rect2D barRect = 
-        GetSettings ()->GetViewColorBarRect (GetViewRect ());
-    float xTranslateBar = getBarLabelsWidth (
-        *GetViewSettings ().GetColorBarModel ());
-    G3D::Rect2D overlayBarRect = 
-	GetSettings ()->GetViewOverlayBarRect (GetViewRect ()) + 
-        G3D::Vector2 (xTranslateBar, 0);
-    if (barRect.contains (QtToOpenGl (m_contextMenuPosWindow, height ())))
-	contextMenuEventColorBar (&menu);
-    else if (overlayBarRect.contains (
-		 QtToOpenGl (m_contextMenuPosWindow, height ())))
-	contextMenuEventOverlayBar (&menu);
-    else
-	contextMenuEventView (&menu);
-    menu.exec (event->globalPos());
-}
-
-
 void WidgetGl::ResetTransformAll ()
 {
     makeCurrent ();
@@ -3990,7 +3932,7 @@ void WidgetGl::ToggledVelocityFieldSaved (bool saved)
 
 void WidgetGl::ToggledBarLabelsShown (bool shown)
 {
-    m_barLabelsShown = shown;
+    GetSettings ()->SetBarLabelsShown (shown);
     update ();
 }
 

@@ -344,12 +344,12 @@ void WidgetVtk::resizeViewEvent (ViewNumber::Enum viewNumber)
 {
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     G3D::Rect2D viewColorBarRect = 
-        GetSettings ()->GetViewColorBarRect (viewRect);
+        GetSettings ()->GetViewColorBarRectWithLabels (viewNumber, viewRect);
     G3D::Rect2D position = G3D::Rect2D::xywh (
         (viewColorBarRect.x0 () - viewRect.x0 ())/ viewRect.width (),
         (viewColorBarRect.y0 () - viewRect.y0 ())/ viewRect.height (),
-        viewColorBarRect.width () / viewRect.width () * 5,
-        viewColorBarRect.height () / viewRect.height () * 1.2);	
+        viewColorBarRect.width () / viewRect.width (),
+        viewColorBarRect.height () / viewRect.height ());	
     m_pipeline[viewNumber]->PositionScalarBar (position);
     m_pipeline[viewNumber]->GetRenderer ()->ResetCamera ();
 }

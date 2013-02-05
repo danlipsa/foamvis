@@ -90,8 +90,6 @@ public:
     {
 	m_viewLayout = viewLayout;
     }
-    ColorBarType::Enum GetColorBarType (ViewNumber::Enum viewNumber) const;
-    ColorBarType::Enum GetColorBarType () const;
     // @}
 
     /**
@@ -292,14 +290,6 @@ public:
     {
 	m_viewFocusShown = shown;
     }
-    bool IsBarLarge () const
-    {
-        return m_barLarge;
-    }
-    void SetBarLarge (bool large)
-    {
-        m_barLarge = large;
-    }
     bool IsVelocityFieldSaved () const
     {
         return m_velocityFieldSaved;
@@ -310,6 +300,30 @@ public:
     }
     // @}
     
+    /**
+     * @{
+     * @name color bar
+     */
+    bool IsBarLarge () const
+    {
+        return m_barLarge;
+    }
+    void SetBarLarge (bool large)
+    {
+        m_barLarge = large;
+    }
+    bool BarLabelsShown () const
+    {
+        return m_barLabelsShown;
+    }
+    void SetBarLabelsShown (bool shown)
+    {
+        m_barLabelsShown = shown;
+    }
+    ColorBarType::Enum GetColorBarType (ViewNumber::Enum viewNumber) const;
+    ColorBarType::Enum GetColorBarType () const;
+    // @}
+
 
     /**
      * @{
@@ -343,8 +357,15 @@ public:
     {
 	return GetViewRect (w, h, GetViewNumber ());
     }
-    G3D::Rect2D GetViewColorBarRect (const G3D::Rect2D& viewRect);
-    G3D::Rect2D GetViewOverlayBarRect (const G3D::Rect2D& viewRect);
+    G3D::Rect2D GetViewColorBarRect (const G3D::Rect2D& viewRect) const;
+    G3D::Rect2D GetViewColorBarRectWithLabels (
+        ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const;
+    G3D::Rect2D GetViewOverlayBarRect (const G3D::Rect2D& viewRect) const;
+    G3D::Vector2 GetBarLabelsSize (ViewNumber::Enum viewNumber) const;
+    G3D::Vector2 GetBarLabelsSize () const
+    {
+        return GetBarLabelsSize (GetViewNumber ());
+    }
     // @}
 
 Q_SIGNALS:
@@ -423,6 +444,7 @@ private:
     bool m_viewFocusShown;
     bool m_barLarge;
     bool m_velocityFieldSaved;
+    bool m_barLabelsShown;
     boost::shared_ptr<QSignalMapper> m_signalMapperSelectionChanged;    
     InteractionMode::Enum m_interactionMode;
 };

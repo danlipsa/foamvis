@@ -93,6 +93,11 @@ void HistogramItem::setData(
     itemChanged();
 }
 
+bool HistogramItem::HasData () const
+{
+    return d_data->data.size () > 0;
+}
+
 void HistogramItem::SetYAxisMaxValue (double yAxisMaxValue)
 {
     d_data->yAxisMaxValue = yAxisMaxValue;
@@ -129,11 +134,6 @@ void HistogramItem::setAllItemsSelected (bool selected)
     itemChanged ();
 }
 
-void HistogramItem::setSelected (bool selected, size_t begin, size_t end)
-{
-    d_data->selected.fill (selected, begin, end);
-    itemChanged ();
-}
 
 const QwtIntervalData &HistogramItem::data() const
 {
@@ -328,10 +328,9 @@ void HistogramItem::drawBar(
 void HistogramItem::getSelectedBins (
     vector< pair<size_t, size_t> >* bins, bool selected) const
 {
-    const QwtIntervalData &iData = d_data->data;
     size_t beginRegion = 0;
     bool regionSelection = d_data->selected.testBit (0);
-    for ( size_t i = 1; i < iData.size(); i++ )
+    for ( int i = 1; i < d_data->selected.size(); i++ )
     {
 	bool currentSelection = d_data->selected.testBit (i);
 	if ( currentSelection != regionSelection)
@@ -344,8 +343,23 @@ void HistogramItem::getSelectedBins (
     }
     if (regionSelection == selected)
 	bins->push_back (
-	    pair<size_t, size_t> (beginRegion, iData.size ()));
+	    pair<size_t, size_t> (beginRegion, d_data->selected.size ()));
 }
+
+void HistogramItem::setSelectedBins (
+    const vector< pair<size_t, size_t> >& intervals)
+{
+    pair<size_t, size_t> interval;
+    BOOST_FOREACH (interval, intervals)
+	setSelected (true, interval.first, interval.second);
+}
+
+void HistogramItem::setSelected (bool selected, size_t begin, size_t end)
+{
+    d_data->selected.fill (selected, begin, end);
+    itemChanged ();
+}
+
 
 class binToInterval
 {
@@ -381,14 +395,6 @@ void HistogramItem::getSelectedIntervals (
 }
 
 
-
-void HistogramItem::setSelectedBins (
-    const vector< pair<size_t, size_t> >& intervals)
-{
-    pair<size_t, size_t> interval;
-    BOOST_FOREACH (interval, intervals)
-	setSelected (true, interval.first, interval.second);
-}
 
 void HistogramItem::setOutOfBoundsColor (const QColor& color)
 {

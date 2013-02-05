@@ -6,13 +6,19 @@
  * Definitions for the widget for displaying foam bubbles
  */
 
-
+#include "ColorBarModel.h"
 #include "Debug.h"
+#include "DebugStream.h"
 #include "Settings.h"
 #include "Simulation.h"
 #include "Utils.h"
 #include "ViewSettings.h"
 #include "WidgetBase.h"
+
+
+
+// Methods
+// ======================================================================
 
 WidgetBase::WidgetBase (QWidget* widget,
                         IsViewType isView,
@@ -205,3 +211,4 @@ G3D::Matrix3 WidgetBase::GetRotationForAxesOrder (ViewNumber::Enum viewNumber,
     const Foam& foam = simulation.GetFoam (timeStep);
     return vs.GetRotationForAxesOrder (foam);
 }
+

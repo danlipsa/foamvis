@@ -114,12 +114,11 @@ private:
     int m_fontSize;
 
     // average visualization pipeline
-    boost::array<boost::shared_ptr<RegularGridAverage>,
-		 ViewNumber::COUNT> m_average;
     boost::array<boost::shared_ptr<PipelineAverage3d>, 
                  ViewNumber::COUNT> m_pipelineAverage3d;
 
-    // PipelineStreamlines
+    boost::array<boost::shared_ptr<RegularGridAverage>,
+		 ViewNumber::COUNT> m_average;
 };
 
 

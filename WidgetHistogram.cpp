@@ -56,78 +56,25 @@ void WidgetHistogram::Init (boost::shared_ptr<Settings> settings,
     updateGeometry ();
 }
 
-void WidgetHistogram::mousePressEvent(QMouseEvent *event)
-{
-    QWidget *child = childAt (event->pos ());
-    ForAllViews (
-        boost::bind (&WidgetHistogram::setView, this, _1, child));
-}
-void WidgetHistogram::setView (ViewNumber::Enum viewNumber, QWidget* widget)
-{
-    if (m_histogram[viewNumber]->canvas () == widget)
-        GetSettings ()->SetViewNumber (viewNumber);
-}
-
-
-void WidgetHistogram::selectionChanged (int viewNumber)
-{
-    Q_EMIT SelectionChanged (viewNumber);
-}
-
-void WidgetHistogram::UpdateSelection (ViewNumber::Enum viewNumber)
-{
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
-    const BodySelector* selector = &vs.GetBodySelector ();
-    if (selector->GetType  () == BodySelectorType::COMPOSITE ||
-        selector->GetType  () == BodySelectorType::PROPERTY_VALUE)
-    {
-        if (selector->GetType () == BodySelectorType::COMPOSITE)
-            selector = static_cast<const CompositeBodySelector*> (selector)
-                ->GetPropertyValueSelector ().get ();
-        const vector<pair<size_t, size_t> >& v = 
-            static_cast<const PropertyValueBodySelector*> (selector)->GetBins ();
-        GetHistogram (viewNumber).SetSelectedBinsNoSignal (v);
-    }
-}
-
-void WidgetHistogram::UpdateFocus ()
-{
-    ForAllViews (
-        boost::bind (&WidgetHistogram::updateFocus, this, _1));
-}
-void WidgetHistogram::updateFocus (ViewNumber::Enum viewNumber)
-{
-    m_histogram[viewNumber]->DisplayFocus (
-        viewNumber == GetSettings ()->GetViewNumber () && 
-        GetSettings ()->IsViewFocusShown () &&
-        GetSettings ()->GetViewCount () != ViewCount::ONE);
-}
-
-
-void WidgetHistogram::Update (boost::shared_ptr<ColorBarModel> colorBarModel,
-                              SelectionOperation histogramSelection, 
-                              MaxValueOperation maxValueOperation)
-{
-    Update (colorBarModel, histogramSelection, maxValueOperation, 
-            GetSettings ()->GetViewNumber ());
-}
-
-
-
-void WidgetHistogram::Update (boost::shared_ptr<ColorBarModel> colorBarModel,
-                              SelectionOperation histogramSelection, 
-                              MaxValueOperation maxValueOperation, 
-                              ViewNumber::Enum viewNumber)
+void WidgetHistogram::UpdateColorMapped (
+    ViewNumber::Enum viewNumber,
+    boost::shared_ptr<ColorBarModel> colorBarModel)
 {
     const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
     bool colorMapped = vs.HasHistogramOption (HistogramType::COLOR_MAPPED);
-    BodyScalar::Enum property = BodyScalar::FromSizeT (
-        vs.GetBodyOrFaceScalar ());
-    const Simulation& simulation = GetSimulation (viewNumber);
-
     m_histogram[viewNumber]->SetColorCoded (colorMapped);
     if (colorMapped)
         m_histogram[viewNumber]->SetColorTransferFunction (colorBarModel);
+}
+
+void WidgetHistogram::UpdateData (
+    ViewNumber::Enum viewNumber, SelectionOperation histogramSelection, 
+    MaxValueOperation maxValueOperation)
+{
+    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    BodyScalar::Enum property = BodyScalar::FromSizeT (
+        vs.GetBodyOrFaceScalar ());
+    const Simulation& simulation = GetSimulation (viewNumber);
 
     double maxYValue = 0;
     QwtIntervalData intervalData;
@@ -160,6 +107,59 @@ void WidgetHistogram::Update (boost::shared_ptr<ColorBarModel> colorBarModel,
     m_histogram[viewNumber]->setVisible (vs.IsHistogramShown ());
     UpdateFocus ();
 }
+
+void WidgetHistogram::UpdateSelection (ViewNumber::Enum viewNumber)
+{
+    Histogram& histogram = GetHistogram (viewNumber);
+    if (! histogram.HasData ())
+        UpdateData (viewNumber, KEEP_SELECTION, KEEP_MAX_VALUE);
+    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    const BodySelector* selector = &vs.GetBodySelector ();
+    if (selector->GetType  () == BodySelectorType::COMPOSITE ||
+        selector->GetType  () == BodySelectorType::PROPERTY_VALUE)
+    {
+        if (selector->GetType () == BodySelectorType::COMPOSITE)
+            selector = static_cast<const CompositeBodySelector*> (selector)
+                ->GetPropertyValueSelector ().get ();
+        const vector<pair<size_t, size_t> >& v = 
+            static_cast<const PropertyValueBodySelector*> (selector)->GetBins ();
+        histogram.SetSelectedBinsNoSignal (v);
+    }
+}
+
+
+void WidgetHistogram::mousePressEvent(QMouseEvent *event)
+{
+    QWidget *child = childAt (event->pos ());
+    ForAllViews (
+        boost::bind (&WidgetHistogram::setView, this, _1, child));
+}
+void WidgetHistogram::setView (ViewNumber::Enum viewNumber, QWidget* widget)
+{
+    if (m_histogram[viewNumber]->canvas () == widget)
+        GetSettings ()->SetViewNumber (viewNumber);
+}
+
+
+void WidgetHistogram::selectionChanged (int viewNumber)
+{
+    Q_EMIT SelectionChanged (viewNumber);
+}
+
+void WidgetHistogram::UpdateFocus ()
+{
+    ForAllViews (
+        boost::bind (&WidgetHistogram::updateFocus, this, _1));
+}
+void WidgetHistogram::updateFocus (ViewNumber::Enum viewNumber)
+{
+    m_histogram[viewNumber]->DisplayFocus (
+        viewNumber == GetSettings ()->GetViewNumber () && 
+        GetSettings ()->IsViewFocusShown () &&
+        GetSettings ()->GetViewCount () != ViewCount::ONE);
+}
+
+
 
 void WidgetHistogram::UpdateHidden ()
 {

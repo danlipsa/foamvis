@@ -38,13 +38,12 @@ public:
     int GetHeight () const;
     void UpdateFocus ();
     void UpdateSelection (ViewNumber::Enum viewNumber);
-    void Update (boost::shared_ptr<ColorBarModel> colorBarModel,
-		 SelectionOperation selectionOperation,
-		 MaxValueOperation maxValueOperation);
-    void Update (boost::shared_ptr<ColorBarModel> colorBarModel,
-		 SelectionOperation selectionOperation,
-		 MaxValueOperation maxValueOperation,
-		 ViewNumber::Enum viewNumber);
+    void UpdateColorMapped (
+        ViewNumber::Enum viewNumber,
+        boost::shared_ptr<ColorBarModel> colorBarModel);
+    void UpdateData (ViewNumber::Enum viewNumber, 
+                     SelectionOperation selectionOperation,
+                     MaxValueOperation maxValueOperation);
     void UpdateHidden ();
     void CurrentIndexChangedInteractionMode (int index);
     void SetHeight (int h);
