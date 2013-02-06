@@ -8,6 +8,7 @@
 
 #ifndef __HISTOGRAM_H__
 #define __HISTOGRAM_H__
+#include "Enums.h"
 
 class HistogramItem;
 class HistogramSettings;
@@ -29,9 +30,8 @@ public:
     Histogram (QWidget* parent = 0);
     bool AreAllItemsSelected () const;
     void GetSelectedIntervals(vector<QwtDoubleInterval>* intervals) const;
-    void GetSelectedBins (
-	vector< pair<size_t, size_t> >* intervals, bool selected = true) const;
-    void SetSelectedBinsNoSignal (const vector< pair<size_t, size_t> >& bins);
+    void GetSelectedBins (BinRegions* intervals, bool selected = true) const;
+    void SetSelectedBinsNoSignal (const BinRegions& bins);
     void SetColorCoded (bool colorCoded);
     void SetColorTransferFunction (const QwtDoubleInterval& interval, 
 				   const QwtLinearColorMap& colorMap);
@@ -50,7 +50,7 @@ public:
     double GetXAxisMinValue () const;
     void SetDataKeepBinSelection (
 	const QwtIntervalData& intervalData, double maxValue,
-	const char* axisTitle);
+	const char* axisTitle, const BinRegions& selectedBins);
     void SetDataAllBinsSelected (
 	const QwtIntervalData& intervalData, double maxValue, 
 	const char* axisTitle);

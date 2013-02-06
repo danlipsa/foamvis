@@ -17,6 +17,8 @@ class Body;
  */
 class BodySelector
 {
+public:
+    typedef vector<QwtDoubleInterval> ValueIntervals;
 
 public:
     virtual ~BodySelector ()
@@ -28,6 +30,9 @@ public:
     virtual bool operator () (const boost::shared_ptr<Body>& body) const = 0;
     virtual BodySelectorType::Enum GetType () const = 0;
     boost::shared_ptr<BodySelector> Clone () const;
+    const BinRegions& GetBins () const;
+private:
+    static const BinRegions ALL_BINS;
 };
 
 class BodySelectorPredicate
@@ -79,21 +84,12 @@ private:
 class PropertyValueBodySelector : public BodySelector
 {
 public:
-    typedef vector<QwtDoubleInterval> ValueIntervals;
-    typedef vector<pair<size_t, size_t> > Bins;
-public:
     PropertyValueBodySelector (BodyScalar::Enum property,
 			       const ValueIntervals& valueIntervals,
-                               const Bins& bins) :
-	m_property (property),
-        m_valueIntervals (valueIntervals),
-        m_bins (bins)
-    {
-    }
+                               const BinRegions& bins);
     virtual ~PropertyValueBodySelector ()
     {
     }
-
     virtual bool operator () (const boost::shared_ptr<Body>& body) const;
     virtual BodySelectorType::Enum GetType () const
     {
@@ -105,7 +101,7 @@ public:
     {
 	return m_valueIntervals;
     }
-    const Bins& GetBins () const
+    const BinRegions& GetBins () const
     {
         return m_bins;
     }
@@ -116,7 +112,7 @@ private:
     /**
      * Useful for setting the selection on a histogram.
      */
-    Bins m_bins;
+    BinRegions m_bins;
 };
 
 

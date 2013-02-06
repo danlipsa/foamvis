@@ -100,7 +100,9 @@ void WidgetHistogram::UpdateData (
     }
     if (histogramSelection == KEEP_SELECTION)
         m_histogram[viewNumber]->SetDataKeepBinSelection (
-            intervalData, maxYValue, BodyScalar::ToString (property));
+            intervalData, maxYValue,
+            BodyScalar::ToString (property), 
+            vs.GetBodySelector ().GetBins ());
     else
         m_histogram[viewNumber]->SetDataAllBinsSelected (
             intervalData, maxYValue, BodyScalar::ToString (property));
@@ -113,17 +115,10 @@ void WidgetHistogram::UpdateSelection (ViewNumber::Enum viewNumber)
     Histogram& histogram = GetHistogram (viewNumber);
     if (! histogram.HasData ())
         UpdateData (viewNumber, KEEP_SELECTION, KEEP_MAX_VALUE);
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
-    const BodySelector* selector = &vs.GetBodySelector ();
-    if (selector->GetType  () == BodySelectorType::COMPOSITE ||
-        selector->GetType  () == BodySelectorType::PROPERTY_VALUE)
+    else
     {
-        if (selector->GetType () == BodySelectorType::COMPOSITE)
-            selector = static_cast<const CompositeBodySelector*> (selector)
-                ->GetPropertyValueSelector ().get ();
-        const vector<pair<size_t, size_t> >& v = 
-            static_cast<const PropertyValueBodySelector*> (selector)->GetBins ();
-        histogram.SetSelectedBinsNoSignal (v);
+        const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+        histogram.SetSelectedBinsNoSignal (vs.GetBodySelector ().GetBins ());
     }
 }
 

@@ -549,6 +549,8 @@ struct VectorVis
     };
 };
 
+// a region is all bins i such that first <= i < second
+typedef vector<pair<size_t, size_t> > BinRegions;
 
 #endif //__ENUMS_H__
 

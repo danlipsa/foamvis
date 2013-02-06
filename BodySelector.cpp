@@ -17,6 +17,9 @@
 // BodySelector
 // ======================================================================
 
+const BinRegions BodySelector::ALL_BINS (
+    1, pair<size_t, size_t> (0, HISTOGRAM_INTERVALS));
+
 boost::shared_ptr<BodySelector> BodySelector::Clone () const
 {
     switch (GetType ())
@@ -38,6 +41,25 @@ boost::shared_ptr<BodySelector> BodySelector::Clone () const
     }
 }
 
+const BinRegions& BodySelector::GetBins () const
+{
+    if (GetType  () == BodySelectorType::COMPOSITE ||
+        GetType  () == BodySelectorType::PROPERTY_VALUE)
+    {
+        const PropertyValueBodySelector* selector = 0; 
+        if (GetType () == BodySelectorType::COMPOSITE)
+            selector = static_cast<const CompositeBodySelector*> (this)
+                ->GetPropertyValueSelector ().get ();
+        else
+            selector = static_cast<const PropertyValueBodySelector*> (this);    
+        const BinRegions& v = selector->GetBins ();
+        return v;
+    }
+    else
+    {
+        return ALL_BINS;
+    }
+}
 
 
 // AllBodySelector
@@ -49,6 +71,15 @@ boost::shared_ptr<AllBodySelector> AllBodySelector::SELECTOR =
 // PropertyValueBodySelector
 // ======================================================================
 
+PropertyValueBodySelector::PropertyValueBodySelector (
+    BodyScalar::Enum property, const ValueIntervals& valueIntervals,
+    const BinRegions& bins) :
+
+    m_property (property),
+    m_valueIntervals (valueIntervals),
+    m_bins (bins)
+{
+}
 
 
 bool PropertyValueBodySelector::operator () (

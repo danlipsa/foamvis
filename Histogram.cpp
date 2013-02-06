@@ -123,7 +123,7 @@ void Histogram::SetAllItemsSelection (bool selected)
 
 bool Histogram::AreAllItemsSelected () const
 {
-    vector< pair<size_t, size_t> > selectedBins;
+    BinRegions selectedBins;
     GetSelectedBins (&selectedBins);
     return selectedBins.size () == 1 &&
 	selectedBins[0].first == 0 && 
@@ -173,8 +173,7 @@ void Histogram::SetDataAllBinsSelected (
     Q_EMIT SelectionChanged ();
 }
 
-void Histogram::SetSelectedBinsNoSignal (
-    const vector< pair<size_t, size_t> >& bins)
+void Histogram::SetSelectedBinsNoSignal (const BinRegions& bins)
 {
     m_histogramItem->setAllItemsSelected (false);
     m_histogramItem->setSelectedBins (bins);
@@ -183,18 +182,12 @@ void Histogram::SetSelectedBinsNoSignal (
 
 
 void Histogram::SetDataKeepBinSelection (
-    const QwtIntervalData& intervalData, double maxValue, const char* axisTitle)
+    const QwtIntervalData& intervalData, double maxValue, 
+    const char* axisTitle, const BinRegions& selectedBins)
 {
-    if (m_histogramItem->data ().size () == 0)
-	SetDataAllBinsSelected (intervalData, maxValue, axisTitle);
-    else
-    {
-	vector< pair<size_t, size_t> > selectedBins;
-	GetSelectedBins (&selectedBins);
-	setData (intervalData, maxValue, &selectedBins);
-	setAxisTitleDefaultFont (QwtPlot::xBottom, axisTitle);
-	replot ();
-    }
+    setData (intervalData, maxValue, &selectedBins);
+    setAxisTitleDefaultFont (QwtPlot::xBottom, axisTitle);
+    replot ();
 }
 
 
@@ -205,7 +198,7 @@ bool Histogram::HasData () const
 
 void Histogram::setData (
     const QwtIntervalData& intervalData, double maxValue,
-    const vector< pair<size_t, size_t> >* selectedBins)
+    const BinRegions* selectedBins)
 {
     m_histogramItem->setData(intervalData, maxValue, selectedBins);
     setAxisScale(QwtPlot::yLeft, GetYAxisMinValue (), maxValue);
@@ -353,8 +346,7 @@ bool Histogram::IsYAxisLogScale () const
     return m_histogramItem->IsYAxisLogScale ();
 }
 
-void Histogram::GetSelectedBins (
-    vector< pair<size_t, size_t> >* intervals, bool selected) const
+void Histogram::GetSelectedBins (BinRegions* intervals, bool selected) const
 {
     m_histogramItem->getSelectedBins (intervals, selected);
 }
