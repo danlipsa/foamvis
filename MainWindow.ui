@@ -2612,7 +2612,6 @@
     <slot>ValueChangedT1sKernelIntervalPerPixel(int)</slot>
     <slot>ToggledT1sKernelTextureSizeShown(bool)</slot>
     <slot>ToggledAverageAroundMarked(bool)</slot>
-    <slot>ButtonClickedEnd()</slot>
     <slot>ToggledShowVelocity(bool)</slot>
     <slot>ToggledShowVelocityGrid(bool)</slot>
     <slot>ValueChangedVelocitySizeExp(int)</slot>
@@ -3110,22 +3109,6 @@
     <hint type="destinationlabel">
      <x>1039</x>
      <y>183</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>toolButtonEnd</sender>
-   <signal>clicked()</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ButtonClickedEnd()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>812</x>
-     <y>168</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>602</x>
-     <y>207</y>
     </hint>
    </hints>
   </connection>

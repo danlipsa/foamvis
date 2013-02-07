@@ -23,7 +23,9 @@ typedef boost::function<void (vtkSmartPointer<vtkFloatArray>,
 			      vtkSmartPointer<vtkFloatArray>, 
 			      double)> VectorOpScalarType;
 
-
+/*
+ * left = left op right
+ */
 struct VectorOpVector
 {
     VectorOpVector (RegularGridAverage::OpType f) : 
@@ -97,13 +99,13 @@ private:
 // Methods
 // ======================================================================
 
-RegularGridAverage::RegularGridAverage (ViewNumber::Enum viewNumber,
-					const Settings& settings, 
-					const SimulationGroup& simulationGroup) :
-    Average (viewNumber, settings, simulationGroup)
+RegularGridAverage::RegularGridAverage (
+    size_t bodyAttribute, ViewNumber::Enum viewNumber,
+    const Settings& settings, const SimulationGroup& simulationGroup) :
+    Average (viewNumber, settings, simulationGroup),
+    m_bodyAttribute (bodyAttribute)
 {
 }
-
 
 void RegularGridAverage::AverageInit ()
 {

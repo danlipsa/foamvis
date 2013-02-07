@@ -31,7 +31,6 @@ public:
 	AverageInit ();
 	AverageStep (1, timeWindow);
     }
-    size_t GetBodyAttribute () const;
     virtual void AverageStep (int timeDifference, size_t timeWindow) = 0;
     virtual void AverageRotateAndDisplay (	
 	StatisticsType::Enum displayType = StatisticsType::AVERAGE,

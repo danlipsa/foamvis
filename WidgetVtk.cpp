@@ -15,9 +15,9 @@
 #include "RegularGridAverage.h"
 #include "Settings.h"
 #include "Simulation.h"
+#include "ViewAverage3D.h"
 #include "ViewSettings.h"
 #include "WidgetVtk.h"
-#include "vtkConeSource.h"
 
 //#define __LOG__(code) code
 #define __LOG__(code)
@@ -97,8 +97,9 @@ void WidgetVtk::updateViewFocus (ViewNumber::Enum viewNumber)
 void WidgetVtk::ViewToVtk (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    const Foam& foam = m_average[viewNumber]->GetFoam ();
-    const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
+    const Foam& foam = m_average[viewNumber]->GetScalarAverage ().GetFoam ();
+    const Simulation& simulation = 
+        m_average[viewNumber]->GetScalarAverage ().GetSimulation ();
     PipelineBase& pipeline = *m_pipeline[viewNumber];
     pipeline.ViewToVtk (vs, simulation.GetBoundingBox ().center (), foam);
 }
@@ -110,7 +111,7 @@ void WidgetVtk::VtkToView (ViewNumber::Enum viewNumber)
     if (GetSettings ()->IsVtkView (viewNumber))
     {
         ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
-        const Foam& foam = m_average[viewNumber]->GetFoam ();
+        const Foam& foam = m_average[viewNumber]->GetScalarAverage ().GetFoam ();
         PipelineBase& pipeline = *m_pipeline[viewNumber];
         pipeline.VtkToView (vs, foam);
     }
@@ -155,9 +156,8 @@ void WidgetVtk::Init (boost::shared_ptr<Settings> settings,
     for (size_t i = 0; i < m_average.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	m_average[i].reset (new RegularGridAverage (
-				viewNumber,
-				*settings, *simulationGroup));
+	m_average[i].reset (new ViewAverage3D (
+				viewNumber, *settings, *simulationGroup));
     }
 }
 
@@ -209,18 +209,20 @@ void WidgetVtk::Average3dAddView (
     QwtDoubleInterval interval)
 {
     vtkSmartPointer<vtkRenderWindow> renderWindow = GetRenderWindow ();
-    boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
+    RegularGridAverage& scalarAverage = 
+        m_average[viewNumber]->GetScalarAverage ();
     const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
     const char* scalarName = FaceScalar::ToString (vs.GetBodyOrFaceScalar ());
-    const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
-    const Foam& foam = m_average[viewNumber]->GetFoam ();
+    const Simulation& simulation = 
+        m_average[viewNumber]->GetScalarAverage ().GetSimulation ();
+    const Foam& foam = m_average[viewNumber]->GetScalarAverage ().GetFoam ();
     m_pipeline[viewNumber] = m_pipelineAverage3d[viewNumber];
     PipelineAverage3d& pipeline = *m_pipelineAverage3d[viewNumber];
     G3D::AABox vv = CalculateViewingVolume (
         viewNumber, GetSimulation (viewNumber));
     average->AverageInitStep (vs.GetTimeWindow ());
     int direction = 0;
-    pipeline.UpdateAverage (average, direction);
+    pipeline.UpdateAverage (scalarAverage, direction);
     pipeline.ViewToVtk (vs, simulation.GetBoundingBox ().center (), foam);
     pipeline.UpdateOpacity (vs.GetContextAlpha ());
     pipeline.UpdateThreshold (interval);
@@ -234,7 +236,7 @@ void WidgetVtk::Average3dAddView (
     pipeline.GetRenderer ()->SetViewport (viewRect.x0 (), viewRect.y0 (),
 				      viewRect.x1 (), viewRect.y1 ());
     pipeline.UpdateViewTitle (GetSettings ()->IsTitleShown (), 
-                              position, average, viewNumber);
+                              position, scalarAverage, viewNumber);
     resizeViewEvent (viewNumber);
     setVisible (true);
 }

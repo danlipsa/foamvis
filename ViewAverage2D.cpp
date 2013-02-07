@@ -1,5 +1,5 @@
 /**
- * @file   ViewAverage.cpp
+ * @file   ViewAverage2D.cpp
  * @author Dan R. Lipsa
  * @date 19 July 2012
  *
@@ -12,7 +12,7 @@
 #include "T1sKDE.h"
 #include "TensorAverage.h"
 #include "VectorAverage.h"
-#include "ViewAverage.h"
+#include "ViewAverage2D.h"
 #include "WidgetGl.h"
 
 
@@ -25,7 +25,7 @@
 // Methods
 // ======================================================================
 
-ViewAverage::ViewAverage (ViewNumber::Enum viewNumber,
+ViewAverage2D::ViewAverage2D (ViewNumber::Enum viewNumber,
 			  const WidgetGl& widgetGl,
 			  const ViewSettings& viewSettings) :
     AverageInterface (viewNumber),
@@ -41,7 +41,7 @@ ViewAverage::ViewAverage (ViewNumber::Enum viewNumber,
 {
 }
 
-void ViewAverage::AverageInit ()
+void ViewAverage2D::AverageInit ()
 {
     GetScalarAverage ().AverageInit ();
     GetDeformationAverage ().AverageInit ();
@@ -50,7 +50,7 @@ void ViewAverage::AverageInit ()
     GetT1sKDE ().AverageInit ();
 }
 
-void ViewAverage::AverageRelease ()
+void ViewAverage2D::AverageRelease ()
 {
     GetScalarAverage ().AverageRelease ();
     GetDeformationAverage ().AverageRelease ();
@@ -61,7 +61,7 @@ void ViewAverage::AverageRelease ()
 
 
 
-void ViewAverage::AverageStep (int direction, size_t timeWindow)
+void ViewAverage2D::AverageStep (int direction, size_t timeWindow)
 {
     switch (m_viewSettings.GetViewType ())
     {
@@ -81,7 +81,7 @@ void ViewAverage::AverageStep (int direction, size_t timeWindow)
     }
 }
 
-void ViewAverage::AverageRotateAndDisplay (
+void ViewAverage2D::AverageRotateAndDisplay (
     StatisticsType::Enum displayType,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {

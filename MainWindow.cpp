@@ -27,7 +27,7 @@
 #include "OpenGLUtils.h"
 #include "RegularGridAverage.h"
 #include "VectorAverage.h"
-#include "ViewAverage.h"
+#include "ViewAverage2D.h"
 #include "ViewSettings.h"
 
 
@@ -1217,7 +1217,7 @@ void MainWindow::ButtonClickedBegin ()
 void MainWindow::ButtonClickedEnd ()
 {
     __LOG__ (cdbg << "MainWindow::ButtonClickedEnd" << endl;);
-    sliderTimeSteps->SetValueNoSignals (sliderTimeSteps->maximum ());
+    sliderTimeSteps->setValue (sliderTimeSteps->maximum ());
     updateButtons ();
 }
 
@@ -1670,7 +1670,7 @@ void MainWindow::deformationViewToUI ()
     bool gridCellCenterShown = false;
     if (DATA_PROPERTIES.Is2D ())
     {
-	ViewAverage& va = widgetGl->GetViewAverage ();
+	ViewAverage2D& va = widgetGl->GetViewAverage ();
 	gridShown = va.GetDeformationAverage ().IsGridShown ();
 	gridCellCenterShown = 
 	    va.GetDeformationAverage ().IsGridCellCenterShown ();

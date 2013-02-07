@@ -23,9 +23,9 @@ public:
     typedef boost::function<double (double, double)> OpType;
 
 public:
-    RegularGridAverage (ViewNumber::Enum viewNumber, 
-			const Settings& settings, 
-			const SimulationGroup& simulationGroup);
+    RegularGridAverage (
+        size_t bodyAttribute, ViewNumber::Enum viewNumber, 
+        const Settings& settings, const SimulationGroup& simulationGroup);
     virtual void AverageInit ();
     virtual void AverageRotateAndDisplay (
 	StatisticsType::Enum displayType = StatisticsType::AVERAGE,
@@ -35,6 +35,10 @@ public:
     vtkSmartPointer<vtkImageData> GetAverage ();
     G3D::Vector3 GetTranslation (size_t timeStep) const;
     G3D::Vector3 GetTranslation () const;
+    size_t GetBodyAttribute () const
+    {
+        return m_bodyAttribute;
+    }
 
 protected:
     virtual void addStep (
@@ -46,6 +50,7 @@ private:
     void computeAverage ();
 
 private:
+    size_t m_bodyAttribute;
     vtkSmartPointer<vtkImageData> m_sum;
     vtkSmartPointer<vtkImageData> m_average;
 };

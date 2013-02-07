@@ -164,6 +164,66 @@ public:
 	vector<ViewNumber::Enum>* mapping = 0) const;
     // @}
 
+
+    /**
+     * @{
+     * @name Save velocity field. Used for showing T1s KDE together with 
+     * velocity fields.
+     */
+    bool IsVelocityFieldSaved () const
+    {
+        return m_velocityFieldSaved;
+    }
+    void SetVelocityFieldSaved (bool saved)
+    {
+        m_velocityFieldSaved = saved;
+    }
+    // @}
+
+    /**
+     * @{
+     * @name attribute shown
+     */
+    bool IsMissingPropertyShown (BodyScalar::Enum bodyProperty) const;
+    void SetMissingPressureShown (bool shown)
+    {
+	m_missingPressureShown = shown;
+    }
+    void SetMissingVolumeShown (bool shown)
+    {
+	m_missingVolumeShown = shown;
+    }
+    void SetObjectVelocityShown (bool shown)
+    {
+	m_objectVelocityShown = shown;
+    }
+    // @}
+
+    /**
+     * @{
+     * @name color bar
+     */
+    bool IsBarLarge () const
+    {
+        return m_barLarge;
+    }
+    void SetBarLarge (bool large)
+    {
+        m_barLarge = large;
+    }
+    bool BarLabelsShown () const
+    {
+        return m_barLabelsShown;
+    }
+    void SetBarLabelsShown (bool shown)
+    {
+        m_barLabelsShown = shown;
+    }
+    ColorBarType::Enum GetColorBarType (ViewNumber::Enum viewNumber) const;
+    ColorBarType::Enum GetColorBarType () const;
+    // @}
+
+
     /**
      * @{
      * @name Various
@@ -244,20 +304,6 @@ public:
     }
     QColor GetHighlightColor (ViewNumber::Enum viewNumber, 
 			      HighlightNumber::Enum highlight) const;
-
-    bool IsMissingPropertyShown (BodyScalar::Enum bodyProperty) const;
-    void SetMissingPressureShown (bool shown)
-    {
-	m_missingPressureShown = shown;
-    }
-    void SetMissingVolumeShown (bool shown)
-    {
-	m_missingVolumeShown = shown;
-    }
-    void SetObjectVelocityShown (bool shown)
-    {
-	m_objectVelocityShown = shown;
-    }
     bool IsBubblePathsLineUsed () const
     {
 	return m_centerPathLineUsed;
@@ -290,39 +336,8 @@ public:
     {
 	m_viewFocusShown = shown;
     }
-    bool IsVelocityFieldSaved () const
-    {
-        return m_velocityFieldSaved;
-    }
-    void SetVelocityFieldSaved (bool saved)
-    {
-        m_velocityFieldSaved = saved;
-    }
     // @}
     
-    /**
-     * @{
-     * @name color bar
-     */
-    bool IsBarLarge () const
-    {
-        return m_barLarge;
-    }
-    void SetBarLarge (bool large)
-    {
-        m_barLarge = large;
-    }
-    bool BarLabelsShown () const
-    {
-        return m_barLabelsShown;
-    }
-    void SetBarLabelsShown (bool shown)
-    {
-        m_barLabelsShown = shown;
-    }
-    ColorBarType::Enum GetColorBarType (ViewNumber::Enum viewNumber) const;
-    ColorBarType::Enum GetColorBarType () const;
-    // @}
 
 
     /**

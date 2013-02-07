@@ -13,10 +13,11 @@
 #include "WidgetBase.h"
 
 class Foam;
+class RegularGridAverage;
 class SendPaintEnd;
 class Settings;
 class SimulationGroup;
-class RegularGridAverage;
+class ViewAverage3D;
 class ViewSettings;
 class Foam;
 class PipelineAverage3d;
@@ -81,10 +82,6 @@ public:
     void Average3dCreatePipeline (size_t objects, size_t constraintSurfaces, 
                                   size_t fontSize);
     void UpdateAverage3dTitle ();
-    RegularGridAverage& GetScalarAverage (ViewNumber::Enum viewNumber)
-    {
-	return *m_average[viewNumber];
-    }
     // @}
     
 Q_SIGNALS:
@@ -116,8 +113,8 @@ private:
     // average visualization pipeline
     boost::array<boost::shared_ptr<PipelineAverage3d>, 
                  ViewNumber::COUNT> m_pipelineAverage3d;
-
-    boost::array<boost::shared_ptr<RegularGridAverage>,
+    // average of attributes
+    boost::array<boost::shared_ptr<ViewAverage3D>,
 		 ViewNumber::COUNT> m_average;
 };
 

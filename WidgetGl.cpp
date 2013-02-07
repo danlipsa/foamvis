@@ -37,7 +37,7 @@
 #include "Utils.h"
 #include "Vertex.h"
 #include "ViewSettings.h"
-#include "ViewAverage.h"
+#include "ViewAverage2D.h"
 #include "VectorAverage.h"
 
 
@@ -499,7 +499,7 @@ void WidgetGl::Init (
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	m_viewAverage[i].reset (
-	    new ViewAverage (
+	    new ViewAverage2D (
                 viewNumber,
                 *this, GetSettings ()->GetViewSettings (viewNumber)));
     }
@@ -4413,27 +4413,6 @@ void WidgetGl::ButtonClickedDuplicateDomain (int index)
     m_duplicateDomain[index] = ! m_duplicateDomain[index];
     update ();
 }
-
-void WidgetGl::ButtonClickedEnd ()
-{
-    //__ENABLE_LOGGING__;
-    __LOG__ (cdbg << "WidgetGl::ButtonClickedEnd" << endl;);
-    makeCurrent ();
-    size_t steps = 
-	((GetSettings ()->GetTimeLinkage () == TimeLinkage::INDEPENDENT) ?
-	 GetTimeSteps () : GetSettings ()->GetLinkedTimeSteps ());
-    boost::array<int, ViewNumber::COUNT> direction;
-    GetSettings ()->SetTime (steps - 1, &direction, true);
-    for (size_t i = 0; i < GetSettings ()->GetViewCount (); ++i)
-    {
-        ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
-        const ViewSettings& vs = GetViewSettings (viewNumber);
-	if (direction[i] != 0)
-	    m_viewAverage[i]->AverageStep (direction[i], vs.GetTimeWindow ());
-    }
-    CompileUpdateAll ();
-}
-
 
 void WidgetGl::CurrentIndexChangedStatisticsType (int index)
 {

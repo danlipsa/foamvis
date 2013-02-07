@@ -27,7 +27,7 @@ class OOBox;
 class SelectBodiesById;
 class Settings;
 class ViewSettings;
-class ViewAverage;
+class ViewAverage2D;
 class PropertyValueBodySelector;
 class IdBodySelector;
 class AllBodySelector;
@@ -162,11 +162,11 @@ public:
 	return GetRangeT1sKDE (GetViewNumber ());
     }
     void SetForceDifferenceShown (bool forceDifference);
-    ViewAverage& GetViewAverage (ViewNumber::Enum viewNumber) const
+    ViewAverage2D& GetViewAverage (ViewNumber::Enum viewNumber) const
     {
 	return *m_viewAverage[viewNumber];
     }
-    ViewAverage& GetViewAverage () const
+    ViewAverage2D& GetViewAverage () const
     {
 	return *m_viewAverage[GetViewNumber ()];
     }
@@ -278,7 +278,6 @@ public Q_SLOTS:
     void ToggledAverageAroundAllowRotation (bool checked);
     void ButtonClickedInteractionObject (int id);
     void ButtonClickedDuplicateDomain (int id);
-    void ButtonClickedEnd ();
     void SetBodyOrFaceScalar (
 	ViewNumber::Enum viewNumber,
 	boost::shared_ptr<ColorBarModel> colorBarModel,
@@ -762,7 +761,7 @@ private:
     ShowType m_showType;
     size_t m_showBodyId;
     boost::array<
-	boost::shared_ptr<ViewAverage>, ViewNumber::COUNT> m_viewAverage;
+	boost::shared_ptr<ViewAverage2D>, ViewNumber::COUNT> m_viewAverage;
     boost::array<GLuint, ViewNumber::COUNT> m_listBubblePaths;
     boost::array<GLuint, ViewNumber::COUNT> m_listFacesNormal;
     boost::array<GLuint, ViewNumber::COUNT> m_colorBarTexture;

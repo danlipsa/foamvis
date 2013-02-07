@@ -1,5 +1,5 @@
 /**
- * @file   ViewAverage.h
+ * @file   ViewAverage2D.h
  * @author Dan R. Lipsa
  * @date 19 July 2012
  *
@@ -20,10 +20,10 @@ class WidgetGl;
 class VectorAverage;
 class ViewSettings;
 
-class ViewAverage : public AverageInterface
+class ViewAverage2D : public AverageInterface
 {
 public:
-    ViewAverage (ViewNumber::Enum viewNumber, 
+    ViewAverage2D (ViewNumber::Enum viewNumber, 
 		 const WidgetGl& widgetGl, const ViewSettings& viewSettings);
 
     ScalarAverage& GetScalarAverage () const

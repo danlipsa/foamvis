@@ -117,7 +117,7 @@ const Foam& Average::GetFoam () const
 }
 
 
-size_t Average::GetBodyAttribute () const
+size_t Average::GetBodyScalar () const
 {
     return GetViewSettings ().GetBodyOrFaceScalar ();
 }
