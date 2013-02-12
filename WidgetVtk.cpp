@@ -6,7 +6,7 @@
  * Definitions for the widget for displaying foam bubbles using Vtk
  */
 
-#include "PipelineAverage3d.h"
+#include "PipelineAverage3D.h"
 #include "Body.h"
 #include "DebugStream.h"
 #include "Foam.h"
@@ -15,7 +15,7 @@
 #include "RegularGridAverage.h"
 #include "Settings.h"
 #include "Simulation.h"
-#include "ViewAverage3D.h"
+#include "AttributesAverage3D.h"
 #include "ViewSettings.h"
 #include "WidgetVtk.h"
 
@@ -135,7 +135,7 @@ void WidgetVtk::removeView (ViewNumber::Enum viewNumber)
 
 
 // ======================================================================
-// PipelineAverage3d
+// PipelineAverage3D
 void WidgetVtk::SendPaintEnd ()
 {
     Q_EMIT PaintEnd ();
@@ -156,7 +156,7 @@ void WidgetVtk::Init (boost::shared_ptr<Settings> settings,
     for (size_t i = 0; i < m_average.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	m_average[i].reset (new ViewAverage3D (
+	m_average[i].reset (new AttributesAverage3D (
 				viewNumber, *settings, *simulationGroup));
     }
 }
@@ -170,7 +170,7 @@ void WidgetVtk::Average3dCreatePipeline (
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
     {
 	m_pipelineAverage3d[i].reset (
-            new PipelineAverage3d (
+            new PipelineAverage3D (
                 objects, constraintSurfaces, fontSize));
     }
 
@@ -203,24 +203,23 @@ void WidgetVtk::updateViewOpacity (ViewNumber::Enum viewNumber)
 }
 
 
-void WidgetVtk::Average3dAddView (
+void WidgetVtk::Average3DAddView (
     ViewNumber::Enum viewNumber,
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
     QwtDoubleInterval interval)
 {
     vtkSmartPointer<vtkRenderWindow> renderWindow = GetRenderWindow ();
-    RegularGridAverage& scalarAverage = 
-        m_average[viewNumber]->GetScalarAverage ();
+    boost::shared_ptr<RegularGridAverage> scalarAverage = 
+        m_average[viewNumber]->GetScalarAveragePtr ();
     const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
     const char* scalarName = FaceScalar::ToString (vs.GetBodyOrFaceScalar ());
-    const Simulation& simulation = 
-        m_average[viewNumber]->GetScalarAverage ().GetSimulation ();
-    const Foam& foam = m_average[viewNumber]->GetScalarAverage ().GetFoam ();
+    const Simulation& simulation = scalarAverage->GetSimulation ();
+    const Foam& foam = scalarAverage->GetFoam ();
     m_pipeline[viewNumber] = m_pipelineAverage3d[viewNumber];
-    PipelineAverage3d& pipeline = *m_pipelineAverage3d[viewNumber];
+    PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
     G3D::AABox vv = CalculateViewingVolume (
         viewNumber, GetSimulation (viewNumber));
-    scalarAverage.AverageInitStep (vs.GetTimeWindow ());
+    scalarAverage->AverageInitStep (vs.GetTimeWindow ());
     int direction = 0;
     pipeline.UpdateAverage (scalarAverage, direction);
     pipeline.ViewToVtk (vs, simulation.GetBoundingBox ().center (), foam);
@@ -236,7 +235,7 @@ void WidgetVtk::Average3dAddView (
     pipeline.GetRenderer ()->SetViewport (viewRect.x0 (), viewRect.y0 (),
 				      viewRect.x1 (), viewRect.y1 ());
     pipeline.UpdateViewTitle (GetSettings ()->IsTitleShown (), 
-                              position, scalarAverage, viewNumber);
+                              position, *scalarAverage, viewNumber);
     resizeViewEvent (viewNumber);
     setVisible (true);
 }
@@ -244,9 +243,10 @@ void WidgetVtk::Average3dAddView (
 void WidgetVtk::UpdateAverage (
     ViewNumber::Enum viewNumber, int direction)
 {
-    PipelineAverage3d& pipeline = *m_pipelineAverage3d[viewNumber];
-    boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
-    pipeline.UpdateAverage (average, direction);
+    PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
+    boost::shared_ptr<RegularGridAverage> scalarAverage = 
+        m_average[viewNumber]->GetScalarAveragePtr ();
+    pipeline.UpdateAverage (scalarAverage, direction);
     updateViewTitle (viewNumber);
 }
 
@@ -260,13 +260,14 @@ void WidgetVtk::UpdateAverage3dTitle ()
 void WidgetVtk::updateViewTitle (ViewNumber::Enum viewNumber)
 {
     bool titleShown = GetSettings ()->IsTitleShown ();
-    PipelineAverage3d& pipeline = *m_pipelineAverage3d[viewNumber];
+    PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
     G3D::Rect2D viewRect = GetNormalizedViewRect (viewNumber);
     G3D::Vector2 position = G3D::Vector2 (
         viewRect.center ().x, 
         viewRect.y1 () * .98);
-    boost::shared_ptr<RegularGridAverage> average = m_average[viewNumber];
-    pipeline.UpdateViewTitle (titleShown, position, average, viewNumber);
+    const RegularGridAverage& scalarAverage = 
+        m_average[viewNumber]->GetScalarAverage ();
+    pipeline.UpdateViewTitle (titleShown, position, scalarAverage, viewNumber);
 }
 
 G3D::Rect2D WidgetVtk::GetNormalizedViewRect (ViewNumber::Enum viewNumber) const

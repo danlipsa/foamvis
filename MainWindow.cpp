@@ -27,7 +27,7 @@
 #include "OpenGLUtils.h"
 #include "RegularGridAverage.h"
 #include "VectorAverage.h"
-#include "ViewAverage2D.h"
+#include "AttributesAverage2D.h"
 #include "ViewSettings.h"
 
 
@@ -593,7 +593,7 @@ void MainWindow::addVtkView (ViewNumber::Enum viewNumber)
 	interval.setMinValue (range[0]);
 	interval.setMaxValue (range[1]);
     }
-    widgetVtk->Average3dAddView (viewNumber, colorTransferFunction, interval);
+    widgetVtk->Average3DAddView (viewNumber, colorTransferFunction, interval);
 }
 
 
@@ -1670,7 +1670,7 @@ void MainWindow::deformationViewToUI ()
     bool gridCellCenterShown = false;
     if (DATA_PROPERTIES.Is2D ())
     {
-	ViewAverage2D& va = widgetGl->GetViewAverage ();
+	AttributesAverage2D& va = widgetGl->GetViewAverage ();
 	gridShown = va.GetDeformationAverage ().IsGridShown ();
 	gridCellCenterShown = 
 	    va.GetDeformationAverage ().IsGridCellCenterShown ();

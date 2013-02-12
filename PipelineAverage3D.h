@@ -1,5 +1,5 @@
 /**
- * @file   PipelineAverage3d.h
+ * @file   PipelineAverage3D.h
  * @author Dan R. Lipsa
  * @date 4 Sept 2012
  * 
@@ -14,10 +14,10 @@
 
 class RegularGridAverage;
 
-class PipelineAverage3d : public PipelineBase
+class PipelineAverage3D : public PipelineBase
 {
 public:
-    PipelineAverage3d (
+    PipelineAverage3D (
         size_t objects, size_t constraintSurfaces, size_t fontSize);
 
     virtual void UpdateColorTransferFunction (
@@ -30,8 +30,7 @@ public:
         boost::shared_ptr<RegularGridAverage> average, int direction);
     void UpdateViewTitle (
         bool titleShown, const G3D::Vector2& postion,
-        boost::shared_ptr<RegularGridAverage> average, 
-        ViewNumber::Enum viewNumber);
+        const RegularGridAverage& average, ViewNumber::Enum viewNumber);
 
 private:
     vtkSmartPointer<vtkActor> m_averageActor;

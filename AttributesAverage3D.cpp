@@ -1,5 +1,5 @@
 /**
- * @file   ViewAverage3D.cpp
+ * @file   AttributesAverage3D.cpp
  * @author Dan R. Lipsa
  * @date 7 Feb 2013
  *
@@ -9,14 +9,15 @@
 #include "ForceAverage.h"
 #include "RegularGridAverage.h"
 #include "Settings.h"
-#include "ViewAverage3D.h"
+#include "AttributesAverage3D.h"
 #include "ViewSettings.h"
 
 
-ViewAverage3D::ViewAverage3D (
+AttributesAverage3D::AttributesAverage3D (
     ViewNumber::Enum viewNumber,
     const Settings& settings, const SimulationGroup& simulationGroup) :
-    AverageInterface (viewNumber),
+
+    AttributesAverage (viewNumber, settings, simulationGroup),
     m_scalarAverage (
         new RegularGridAverage (
             settings.GetViewSettings (viewNumber).GetBodyOrFaceScalar (),

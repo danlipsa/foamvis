@@ -1,7 +1,7 @@
 HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h Average.h AverageInterface.h\
-	AverageShaders.h PipelineAverage3d.h \
+	AverageShaders.h PipelineAverage3D.h \
 	Base.h Body.h BrowseSimulations.h\
 	BodyAlongTime.h AdjacentBody.h BodySelector.h \
 	ConstraintEdge.h ColorBarModel.h Comparisons.h\
@@ -28,11 +28,12 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	stable.h StripIterator.h SystemDifferences.h ScalarDisplay.h \
 	T1sKDE.h TensorAverage.h TransferFunctionHistogram.h \
 	TimeStepsSlider.h Utils.h VectorAverage.h \
-	Vertex.h ViewAverage2D.h ViewAverage3D.h ViewSettings.h
+	Vertex.h AttributesAverage.h \
+	AttributesAverage2D.h AttributesAverage3D.h ViewSettings.h
 SOURCES += Application.cpp ApproximationEdge.cpp\
 	Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	AttributeHistogram.cpp Average.cpp AverageShaders.cpp \
-	AdjacentBody.cpp PipelineAverage3d.cpp \
+	AdjacentBody.cpp PipelineAverage3D.cpp \
 	Base.cpp Body.cpp BodyAlongTime.cpp \
 	BodySelector.cpp BrowseSimulations.cpp \
 	ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
@@ -61,7 +62,8 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	StripIterator.cpp ScalarDisplay.cpp T1sKDE.cpp TimeStepsSlider.cpp \
 	TransferFunctionHistogram.cpp TensorAverage.cpp \
 	Utils.cpp VectorAverage.cpp Vertex.cpp \
-	ViewAverage2D.cpp ViewAverage3D.cpp ViewSettings.cpp
+	AttributesAverage.cpp \
+	AttributesAverage2D.cpp AttributesAverage3D.cpp ViewSettings.cpp
 FORMS += BrowseSimulations.ui SelectBodiesById.ui EditColorMap.ui \
 	 HistogramSettings.ui RestrictedRangeSlider.ui MainWindow.ui Info.ui
 LEXSOURCES        += EvolverData.l
@@ -116,7 +118,6 @@ INCLUDEPATH += /usr/local/Trolltech/Qt-4.7.0/include
 
 LIBS += -L/usr/local/lib
 LIBS += -L/usr/local/qwt-5.2.1/lib
-LIBS += -L/usr/local/lib/vtk-5.10
 
 # G3D
 LIBS += "-lGLG3D" 
@@ -139,6 +140,15 @@ LIBS += "-lvtkIOXML-6.0"
 LIBS += "-lvtkFiltersFlowPaths-6.0"
 LIBS += "-lvtkInteractionWidgets-6.0"
 LIBS += "-lvtkRenderingOpenGL-6.0"
+LIBS += "-lvtkRenderingFreeTypeOpenGL-6.0"
+LIBS += "-lvtkRenderingCore-6.0"
+LIBS += "-lvtkCommonMath-6.0"
+LIBS += "-lvtkCommonCore-6.0"
+LIBS += "-lvtkCommonDataModel-6.0"
+LIBS += "-lvtkCommonExecutionModel-6.0"
+LIBS += "-lvtkInteractionStyle-6.0"
+LIBS += "-lvtkFiltersCore-6.0"
+LIBS += "-lvtkRenderingAnnotation-6.0"
 
 # Qt3D
 LIBS += "-lQt3D"

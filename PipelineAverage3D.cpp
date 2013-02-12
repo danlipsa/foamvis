@@ -1,5 +1,5 @@
 /**
- * @file   PipelineAverage3d.cpp
+ * @file   PipelineAverage3D.cpp
  * @author Dan R. Lipsa
  * @date 4 Sept 2012
  * 
@@ -7,7 +7,7 @@
  * 
  */
 
-#include "PipelineAverage3d.h"
+#include "PipelineAverage3D.h"
 #include "Body.h"
 #include "DebugStream.h"
 #include "Foam.h"
@@ -20,10 +20,10 @@
 #define __LOG__(code)
 
 
-// Methods PipelineAverage3d
+// Methods PipelineAverage3D
 // ======================================================================
 
-PipelineAverage3d::PipelineAverage3d (
+PipelineAverage3D::PipelineAverage3D (
     size_t objects, size_t constraintSurfaces, size_t fontSize) :
     PipelineBase (fontSize, PipelineType::AVERAGE_3D)
 {
@@ -71,23 +71,23 @@ PipelineAverage3d::PipelineAverage3d (
     }
 }
 
-void PipelineAverage3d::UpdateViewTitle (
+void PipelineAverage3D::UpdateViewTitle (
     bool titleShown, const G3D::Vector2& position,
-    boost::shared_ptr<RegularGridAverage> average, ViewNumber::Enum viewNumber)
+    const RegularGridAverage& average, ViewNumber::Enum viewNumber)
 {
     string title ("");
     ostringstream ostr;
     if (titleShown)
     {	
-	ostr << average->GetSimulation ().GetName () << endl 
-	     << average->GetViewSettings ().GetTitle (viewNumber);
+	ostr << average.GetSimulation ().GetName () << endl 
+	     << average.GetViewSettings ().GetTitle (viewNumber);
 	title = ostr.str ();
     }
     PipelineBase::UpdateViewTitle (title.c_str (), position);
 }
 
 
-void PipelineAverage3d::UpdateThreshold (QwtDoubleInterval interval)
+void PipelineAverage3D::UpdateThreshold (QwtDoubleInterval interval)
 {
     if (m_threshold != 0)
     {
@@ -96,7 +96,7 @@ void PipelineAverage3d::UpdateThreshold (QwtDoubleInterval interval)
     }
 }
 
-void PipelineAverage3d::UpdateColorTransferFunction (
+void PipelineAverage3D::UpdateColorTransferFunction (
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction, 
     const char * name)
 {
@@ -107,7 +107,7 @@ void PipelineAverage3d::UpdateColorTransferFunction (
     }
 }
 
-void PipelineAverage3d::UpdateOpacity (float contextAlpha)
+void PipelineAverage3D::UpdateOpacity (float contextAlpha)
 {
     BOOST_FOREACH (vtkSmartPointer<vtkActor> actor, m_constraintSurface)
     {
@@ -117,7 +117,7 @@ void PipelineAverage3d::UpdateOpacity (float contextAlpha)
 
 
 
-void PipelineAverage3d::UpdateAverage (
+void PipelineAverage3D::UpdateAverage (
     boost::shared_ptr<RegularGridAverage> average, int direction)
 {
     __LOG__ (cdbg << "UpdateAverage: " << direction[0] << endl;)

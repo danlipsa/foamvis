@@ -17,10 +17,10 @@ class RegularGridAverage;
 class SendPaintEnd;
 class Settings;
 class SimulationGroup;
-class ViewAverage3D;
+class AttributesAverage3D;
 class ViewSettings;
 class Foam;
-class PipelineAverage3d;
+class PipelineAverage3D;
 class PipelineBase;
 
 class WidgetVtk : public QVTKWidget, public WidgetBase
@@ -70,10 +70,10 @@ public:
 
     /** 
      * @{
-     * @name PipelineAverage3d
+     * @name PipelineAverage3D
      */
     void Average3dUpdateThreshold (QwtDoubleInterval interval);
-    void Average3dAddView (
+    void Average3DAddView (
 	ViewNumber::Enum viewNumber,
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
 	QwtDoubleInterval interval);
@@ -111,10 +111,10 @@ private:
     int m_fontSize;
 
     // average visualization pipeline
-    boost::array<boost::shared_ptr<PipelineAverage3d>, 
+    boost::array<boost::shared_ptr<PipelineAverage3D>, 
                  ViewNumber::COUNT> m_pipelineAverage3d;
     // average of attributes
-    boost::array<boost::shared_ptr<ViewAverage3D>,
+    boost::array<boost::shared_ptr<AttributesAverage3D>,
 		 ViewNumber::COUNT> m_average;
 };
 

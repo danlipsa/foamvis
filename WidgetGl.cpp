@@ -37,7 +37,7 @@
 #include "Utils.h"
 #include "Vertex.h"
 #include "ViewSettings.h"
-#include "ViewAverage2D.h"
+#include "AttributesAverage2D.h"
 #include "VectorAverage.h"
 
 
@@ -498,10 +498,7 @@ void WidgetGl::Init (
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	m_viewAverage[i].reset (
-	    new ViewAverage2D (
-                viewNumber,
-                *this, GetSettings ()->GetViewSettings (viewNumber)));
+	m_viewAverage[i].reset (new AttributesAverage2D (viewNumber, *this));
     }
     update ();
 }
