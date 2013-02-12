@@ -27,7 +27,7 @@ class OOBox;
 class SelectBodiesById;
 class Settings;
 class ViewSettings;
-class AttributesAverage2D;
+class AttributeAverages2D;
 class PropertyValueBodySelector;
 class IdBodySelector;
 class AllBodySelector;
@@ -162,13 +162,14 @@ public:
 	return GetRangeT1sKDE (GetViewNumber ());
     }
     void SetForceDifferenceShown (bool forceDifference);
-    AttributesAverage2D& GetViewAverage (ViewNumber::Enum viewNumber) const
+    AttributeAverages2D& GetAttributeAverages2D (
+        ViewNumber::Enum viewNumber) const
     {
-	return *m_viewAverage[viewNumber];
+	return *m_attributeAverages2D[viewNumber];
     }
-    AttributesAverage2D& GetViewAverage () const
+    AttributeAverages2D& GetAttributeAverages2D () const
     {
-	return *m_viewAverage[GetViewNumber ()];
+	return *m_attributeAverages2D[GetViewNumber ()];
     }
     void CompileUpdate ()
     {
@@ -761,7 +762,8 @@ private:
     ShowType m_showType;
     size_t m_showBodyId;
     boost::array<
-	boost::shared_ptr<AttributesAverage2D>, ViewNumber::COUNT> m_viewAverage;
+	boost::shared_ptr<AttributeAverages2D>, 
+        ViewNumber::COUNT> m_attributeAverages2D;
     boost::array<GLuint, ViewNumber::COUNT> m_listBubblePaths;
     boost::array<GLuint, ViewNumber::COUNT> m_listFacesNormal;
     boost::array<GLuint, ViewNumber::COUNT> m_colorBarTexture;

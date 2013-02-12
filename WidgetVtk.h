@@ -17,7 +17,7 @@ class RegularGridAverage;
 class SendPaintEnd;
 class Settings;
 class SimulationGroup;
-class AttributesAverage3D;
+class AttributeAverages3D;
 class ViewSettings;
 class Foam;
 class PipelineAverage3D;
@@ -114,7 +114,7 @@ private:
     boost::array<boost::shared_ptr<PipelineAverage3D>, 
                  ViewNumber::COUNT> m_pipelineAverage3d;
     // average of attributes
-    boost::array<boost::shared_ptr<AttributesAverage3D>,
+    boost::array<boost::shared_ptr<AttributeAverages3D>,
 		 ViewNumber::COUNT> m_average;
 };
 

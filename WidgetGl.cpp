@@ -37,7 +37,7 @@
 #include "Utils.h"
 #include "Vertex.h"
 #include "ViewSettings.h"
-#include "AttributesAverage2D.h"
+#include "AttributeAverages2D.h"
 #include "VectorAverage.h"
 
 
@@ -498,7 +498,7 @@ void WidgetGl::Init (
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	m_viewAverage[i].reset (new AttributesAverage2D (viewNumber, *this));
+	m_attributeAverages2D[i].reset (new AttributeAverages2D (viewNumber, *this));
     }
     update ();
 }
@@ -843,7 +843,7 @@ void WidgetGl::resizeGL(int w, int h)
 }
 void WidgetGl::averageInitStep (ViewNumber::Enum viewNumber)
 {
-    GetViewAverage (viewNumber).AverageInitStep (
+    GetAttributeAverages2D (viewNumber).AverageInitStep (
         GetViewSettings (viewNumber).GetTimeWindow ());
 }
 
@@ -1529,7 +1529,7 @@ void WidgetGl::mouseMoveTranslate (QMouseEvent *event,
     {
     case InteractionObject::FOCUS:
 	translate (viewNumber, event->pos (), event->modifiers ());
-	GetViewAverage (viewNumber).AverageInitStep (
+	GetAttributeAverages2D (viewNumber).AverageInitStep (
             GetViewSettings (viewNumber).GetTimeWindow ());
         CacheUpdateSeedsCalculateStreamline (viewNumber);
 	break;
@@ -1552,7 +1552,7 @@ void WidgetGl::mouseMoveScale (QMouseEvent *event, ViewNumber::Enum viewNumber)
     {
     case InteractionObject::FOCUS:
 	scale (viewNumber, event->pos ());
-	GetViewAverage (viewNumber).AverageInitStep (
+	GetAttributeAverages2D (viewNumber).AverageInitStep (
             GetViewSettings (viewNumber).GetTimeWindow ());
         CacheUpdateSeedsCalculateStreamline (viewNumber);
 	break;
@@ -1753,7 +1753,7 @@ void WidgetGl::displayVelocityGlyphs (ViewNumber::Enum viewNumber) const
     const Foam& foam = 
 	GetSimulation (viewNumber).GetFoam (GetTime (viewNumber));
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    const VectorAverage& va = GetViewAverage (viewNumber).GetVelocityAverage ();
+    const VectorAverage& va = GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
     if (! foam.Is2D () || ! vs.IsVelocityShown ())
 	return;
     Foam::Bodies bodies = foam.GetBodies ();
@@ -1815,7 +1815,7 @@ void WidgetGl::displayBodyVelocity (
 	glDisable (GL_DEPTH_TEST);
 	glColor (Qt::black);
 	const VectorAverage& va = 
-	    m_viewAverage[viewNumber]->GetVelocityAverage ();
+	    m_attributeAverages2D[viewNumber]->GetVelocityAverage ();
 	DisplayBodyVelocity (
 	    *GetSettings (), viewNumber,
 	    vs.GetBodySelector (), 
@@ -1908,7 +1908,7 @@ void WidgetGl::DisplayT1Quad (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t t1Index) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    T1sKDE& t1sKDE = GetViewAverage (viewNumber).GetT1sKDE ();
+    T1sKDE& t1sKDE = GetAttributeAverages2D (viewNumber).GetT1sKDE ();
     float rectSize = t1sKDE.GetKernelTextureSize () * 
 	GetOnePixelInObjectSpace ();
     float half = rectSize / 2;
@@ -1980,7 +1980,7 @@ pair<float, float> WidgetGl::GetRangeCount () const
 pair<float, float> WidgetGl::GetRangeT1sKDE (ViewNumber::Enum viewNumber) const
 {
     return pair<float, float> (
-        0.0, GetViewAverage (viewNumber).GetT1sKDE ().GetMax ());
+        0.0, GetAttributeAverages2D (viewNumber).GetT1sKDE ().GetMax ());
 }
 
 void WidgetGl::displayEdgesTorus (ViewNumber::Enum viewNumber) const
@@ -2135,7 +2135,7 @@ void WidgetGl::compileFacesNormal (ViewNumber::Enum viewNumber) const
     displayDeformation (viewNumber);
     displayVelocityGlyphs (viewNumber);
     displayT1s (viewNumber);
-    GetViewAverage (viewNumber).GetForceAverage ().DisplayOneTimeStep ();
+    GetAttributeAverages2D (viewNumber).GetForceAverage ().DisplayOneTimeStep ();
     glEndList ();
 }
 
@@ -2176,7 +2176,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
     const Foam& foam = simulation.GetFoam (0);
-    const AttributesAverage2D& aa = GetViewAverage (viewNumber);
+    const AttributeAverages2D& aa = GetAttributeAverages2D (viewNumber);
     if (! DATA_PROPERTIES.Is2D ())
 	return;
     glPushAttrib (GL_ENABLE_BIT);    
@@ -2626,7 +2626,7 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
     if (vs.IsVelocityShown ())
     {
         const VectorAverage& va = 
-            GetViewAverage (viewNumber).GetVelocityAverage ();
+            GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
         G3D::Rect2D barRect = GetSettings ()->GetViewOverlayBarRect (viewRect) + 
             G3D::Vector2 (xTranslateBar, 0);
         if (va.IsColorMapped ())
@@ -2907,7 +2907,7 @@ void WidgetGl::SetForceDifferenceShown (bool value)
 
 void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
 {
-    T1sKDE& t1sKDE = GetViewAverage (viewNumber).GetT1sKDE ();
+    T1sKDE& t1sKDE = GetAttributeAverages2D (viewNumber).GetT1sKDE ();
     t1sKDE.SetKernelSigmaInBubbleDiameters (
 	static_cast<QDoubleSpinBox*> (sender ())->value ());
     t1sKDE.AverageInitStep (GetViewSettings (viewNumber).GetTimeWindow ());
@@ -2917,7 +2917,7 @@ void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
 void WidgetGl::toggledT1sKernelTextureShown (ViewNumber::Enum viewNumber)
 {
     bool checked = static_cast<QCheckBox*> (sender ())->isChecked ();
-    GetViewAverage (viewNumber).GetT1sKDE ().SetKernelTextureShown (checked);
+    GetAttributeAverages2D (viewNumber).GetT1sKDE ().SetKernelTextureShown (checked);
     CompileUpdate (viewNumber);
 }
 
@@ -2926,7 +2926,7 @@ void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
     if (direction != 0)
     {
         const ViewSettings& vs = GetViewSettings (viewNumber);
-        m_viewAverage[viewNumber]->AverageStep (direction, vs.GetTimeWindow ());
+        m_attributeAverages2D[viewNumber]->AverageStep (direction, vs.GetTimeWindow ());
         if (vs.GetVelocityVis () == VectorVis::STREAMLINE)
         {
             if (vs.KDESeedsEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
@@ -2980,7 +2980,7 @@ void WidgetGl::updateKDESeeds (
     double p[3] = {cellCenter.x, cellCenter.y, 0};
     double kdeValue = *InterpolateAttribute (
         GetAverageCache (viewNumber)->GetT1sKDE (),
-        p, GetViewAverage (viewNumber).GetT1sKDE ().GetId (), &v);
+        p, GetAttributeAverages2D (viewNumber).GetT1sKDE ().GetId (), &v);
     if (kdeValue > vs.GetKDEValue ())
     {
         VTK_CREATE (vtkIdList, cell);
@@ -3076,7 +3076,7 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
     {
         useKDESeeds = true;
         if (GetAverageCache (viewNumber)->GetT1sKDE () == 0)
-            m_viewAverage[viewNumber]->GetT1sKDE ().CacheData (
+            m_attributeAverages2D[viewNumber]->GetT1sKDE ().CacheData (
                 GetAverageCache (viewNumber));
     }
 
@@ -3119,13 +3119,13 @@ void WidgetGl::CacheUpdateSeedsCalculateStreamline (ViewNumber::Enum viewNumber)
     glPushMatrix ();
 
     AllTransformAverage (viewNumber, 0, DONT_ROTATE_FOR_AXIS_ORDER);
-    m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
+    m_attributeAverages2D[viewNumber]->GetVelocityAverage ().CacheData (
         GetAverageCache (viewNumber));
     saveVelocity (viewNumber, GetAverageCache (viewNumber)->GetVelocity ());
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.KDESeedsEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
     {
-        m_viewAverage[viewNumber]->GetT1sKDE ().CacheData (
+        m_attributeAverages2D[viewNumber]->GetT1sKDE ().CacheData (
             GetAverageCache (viewNumber));
     }
     updateStreamlineSeeds (viewNumber);
@@ -3163,7 +3163,7 @@ void WidgetGl::CacheCalculateStreamline (ViewNumber::Enum viewNumber)
     glPushMatrix ();
 
     AllTransformAverage (viewNumber, 0, DONT_ROTATE_FOR_AXIS_ORDER);
-    m_viewAverage[viewNumber]->GetVelocityAverage ().CacheData (
+    m_attributeAverages2D[viewNumber]->GetVelocityAverage ().CacheData (
         GetAverageCache (viewNumber));
     saveVelocity (viewNumber, GetAverageCache (viewNumber)->GetVelocity ());
     if (vs.IsAverageAround () && vs.IsAverageAroundRotationShown ())
@@ -3296,7 +3296,7 @@ void WidgetGl::displayVelocityStreamlines (ViewNumber::Enum viewNumber) const
     {
 	glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT | GL_ENABLE_BIT);
         const VectorAverage& va = 
-            GetViewAverage (viewNumber).GetVelocityAverage ();
+            GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
         if (va.IsColorMapped ())
         {
             glEnable(GL_TEXTURE_1D);
@@ -3790,7 +3790,7 @@ void WidgetGl::ResetTransformFocus ()
 	ProjectionTransform (viewNumber);
 	glMatrixMode (GL_MODELVIEW);
 	glLoadIdentity ();
-	GetViewAverage (viewNumber).AverageInitStep (vs.GetTimeWindow ());
+	GetAttributeAverages2D (viewNumber).AverageInitStep (vs.GetTimeWindow ());
     }
     update ();
 }
@@ -3982,7 +3982,7 @@ void WidgetGl::ToggledDeformationShownGrid (bool checked)
     {
 	ViewNumber::Enum viewNumber = vn[i];
 	TensorAverage& ta = 
-	    GetViewAverage (viewNumber).GetDeformationAverage ();
+	    GetAttributeAverages2D (viewNumber).GetDeformationAverage ();
 	ta.SetGridShown (checked);
     }
     update ();
@@ -4008,7 +4008,7 @@ void WidgetGl::ToggledVelocityGridShown (bool checked)
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
-	VectorAverage& va = GetViewAverage (viewNumber).GetVelocityAverage ();
+	VectorAverage& va = GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
 	va.SetGridShown (checked);
     }
     update ();
@@ -4021,7 +4021,7 @@ void WidgetGl::ToggledVelocityClampingShown (bool checked)
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
-	VectorAverage& va = GetViewAverage (viewNumber).GetVelocityAverage ();
+	VectorAverage& va = GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
 	va.SetClampingShown (checked);
         CompileUpdate (viewNumber);
     }
@@ -4036,7 +4036,7 @@ void WidgetGl::ToggledDeformationGridCellCenterShown (bool checked)
     {
 	ViewNumber::Enum viewNumber = vn[i];
 	TensorAverage& ta = 
-	    GetViewAverage (viewNumber).GetDeformationAverage ();
+	    GetAttributeAverages2D (viewNumber).GetDeformationAverage ();
 	ta.SetGridCellCenterShown (checked);
     }
     update ();
@@ -4050,7 +4050,7 @@ void WidgetGl::ToggledVelocityGridCellCenterShown (bool checked)
     {
 	ViewNumber::Enum viewNumber = vn[i];
 	VectorAverage& ta = 
-	    GetViewAverage (viewNumber).GetVelocityAverage ();
+	    GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
 	ta.SetGridCellCenterShown (checked);
     }
     update ();
@@ -4063,7 +4063,7 @@ void WidgetGl::ToggledVelocitySameSize (bool checked)
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
-	GetViewAverage (viewNumber).GetVelocityAverage ().SetSameSize (checked);
+	GetAttributeAverages2D (viewNumber).GetVelocityAverage ().SetSameSize (checked);
         CompileUpdate (viewNumber);
     }
 }
@@ -4075,7 +4075,7 @@ void WidgetGl::ToggledVelocityColorMapped (bool checked)
     for (size_t i = 0; i < vn.size (); ++i)
     {
         ViewNumber::Enum viewNumber = vn[i];
-	GetViewAverage (
+	GetAttributeAverages2D (
             viewNumber).GetVelocityAverage ().SetColorMapped (checked);
         CompileUpdate (viewNumber);
     }
@@ -4388,8 +4388,8 @@ void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
 		ViewType::Enum newViewType = vs.GetViewType ();
 		if (oldViewType == newViewType)
 		    continue;
-		GetViewAverage (viewNumber).AverageRelease ();
-		GetViewAverage (viewNumber).AverageInitStep (
+		GetAttributeAverages2D (viewNumber).AverageRelease ();
+		GetAttributeAverages2D (viewNumber).AverageInitStep (
                     vs.GetTimeWindow ());
 		CompileUpdate (viewNumber);
 	    }
@@ -4495,9 +4495,9 @@ void WidgetGl::ValueChangedNoiseStart (int index)
 	float noiseStart = 0.5 + 0.5 * index / 99;
 	__LOG__ (cdbg << "index=" << index 
 		 << " noiseStart=" << noiseStart << endl;)
-	GetViewAverage (viewNumber).GetVelocityAverage ().
+	GetAttributeAverages2D (viewNumber).GetVelocityAverage ().
 	    SetNoiseStart (noiseStart);
-	GetViewAverage (viewNumber).GetDeformationAverage ().
+	GetAttributeAverages2D (viewNumber).GetDeformationAverage ().
 	    SetNoiseStart (noiseStart);
     }
     CompileUpdate ();
@@ -4512,9 +4512,9 @@ void WidgetGl::ValueChangedNoiseAmplitude (int index)
 	float noiseAmplitude = 5.0 + index / 10.0;
 	__LOG__ (cdbg << "index=" << index 
 		 << " noiseAmplitude=" << noiseAmplitude << endl;)
-	GetViewAverage (viewNumber).GetVelocityAverage ().
+	GetAttributeAverages2D (viewNumber).GetVelocityAverage ().
 	    SetNoiseAmplitude (noiseAmplitude);
-	GetViewAverage (viewNumber).GetDeformationAverage ().
+	GetAttributeAverages2D (viewNumber).GetDeformationAverage ().
 	    SetNoiseAmplitude (noiseAmplitude);
     }
     CompileUpdate ();
@@ -4529,9 +4529,9 @@ void WidgetGl::ValueChangedNoiseFrequency (int index)
 	float noiseFrequency = (1.0 + index) / 2.0;
 	__LOG__ (cdbg << "index=" << index 
 		 << " noiseFrequency=" << noiseFrequency << endl;)
-	GetViewAverage (viewNumber).GetVelocityAverage ().
+	GetAttributeAverages2D (viewNumber).GetVelocityAverage ().
 	    SetNoiseFrequency (noiseFrequency);
-	GetViewAverage (viewNumber).GetDeformationAverage ().
+	GetAttributeAverages2D (viewNumber).GetDeformationAverage ().
 	    SetNoiseFrequency (noiseFrequency);
     }
     CompileUpdate ();

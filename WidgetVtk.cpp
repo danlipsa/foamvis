@@ -15,7 +15,7 @@
 #include "RegularGridAverage.h"
 #include "Settings.h"
 #include "Simulation.h"
-#include "AttributesAverage3D.h"
+#include "AttributeAverages3D.h"
 #include "ViewSettings.h"
 #include "WidgetVtk.h"
 
@@ -156,7 +156,7 @@ void WidgetVtk::Init (boost::shared_ptr<Settings> settings,
     for (size_t i = 0; i < m_average.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	m_average[i].reset (new AttributesAverage3D (
+	m_average[i].reset (new AttributeAverages3D (
 				viewNumber, *settings, *simulationGroup));
     }
 }

@@ -1,5 +1,5 @@
 /**
- * @file   AttributesAverage3D.h
+ * @file   AttributeAverages3D.h
  * @author Dan R. Lipsa
  * @date 7 February 2013
  *
@@ -9,7 +9,7 @@
 #define __ATTRIBUTES_AVERAGE3D_H__
 
 
-#include "AttributesAverage.h"
+#include "AttributeAverages.h"
 
 class ForceAverage;
 class RegularGridAverage;
@@ -17,10 +17,10 @@ class Settings;
 class SimulationGroup;
 class ViewSettings;
 
-class AttributesAverage3D : public AttributesAverage
+class AttributeAverages3D : public AttributeAverages
 {
 public:
-    AttributesAverage3D (
+    AttributeAverages3D (
         ViewNumber::Enum viewNumber,
         const Settings& settings, const SimulationGroup& simulationGroup);
 

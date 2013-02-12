@@ -27,7 +27,7 @@
 #include "OpenGLUtils.h"
 #include "RegularGridAverage.h"
 #include "VectorAverage.h"
-#include "AttributesAverage2D.h"
+#include "AttributeAverages2D.h"
 #include "ViewSettings.h"
 
 
@@ -1670,7 +1670,7 @@ void MainWindow::deformationViewToUI ()
     bool gridCellCenterShown = false;
     if (DATA_PROPERTIES.Is2D ())
     {
-	AttributesAverage2D& va = widgetGl->GetViewAverage ();
+	AttributeAverages2D& va = widgetGl->GetAttributeAverages2D ();
 	gridShown = va.GetDeformationAverage ().IsGridShown ();
 	gridCellCenterShown = 
 	    va.GetDeformationAverage ().IsGridCellCenterShown ();
@@ -1701,7 +1701,7 @@ void MainWindow::velocityViewToUI ()
     if (DATA_PROPERTIES.Is2D ())
     {
 	const VectorAverage& va = 
-	    widgetGl->GetViewAverage ().GetVelocityAverage ();
+	    widgetGl->GetAttributeAverages2D ().GetVelocityAverage ();
 	gridShown = va.IsGridShown ();
 	clampingShown = va.IsClampingShown ();
 	gridCellCenterShown = va.IsGridCellCenterShown ();
@@ -1763,7 +1763,7 @@ void MainWindow::t1sKDEViewToUI (ViewNumber::Enum viewNumber)
     if (DATA_PROPERTIES.Is2D ())
     {
         bool kernelTextureShown = false;
-	const T1sKDE& kde = widgetGl->GetViewAverage (viewNumber).GetT1sKDE ();
+	const T1sKDE& kde = widgetGl->GetAttributeAverages2D (viewNumber).GetT1sKDE ();
 	kernelTextureShown = kde.IsKernelTextureShown ();
         SetCheckedNoSignals (checkBoxTextureShown, kernelTextureShown);
         SetValueNoSignals (

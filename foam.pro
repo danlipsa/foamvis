@@ -28,8 +28,8 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	stable.h StripIterator.h SystemDifferences.h ScalarDisplay.h \
 	T1sKDE.h TensorAverage.h TransferFunctionHistogram.h \
 	TimeStepsSlider.h Utils.h VectorAverage.h \
-	Vertex.h AttributesAverage.h \
-	AttributesAverage2D.h AttributesAverage3D.h ViewSettings.h
+	Vertex.h AttributeAverages.h \
+	AttributeAverages2D.h AttributeAverages3D.h ViewSettings.h
 SOURCES += Application.cpp ApproximationEdge.cpp\
 	Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	AttributeHistogram.cpp Average.cpp AverageShaders.cpp \
@@ -62,8 +62,8 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	StripIterator.cpp ScalarDisplay.cpp T1sKDE.cpp TimeStepsSlider.cpp \
 	TransferFunctionHistogram.cpp TensorAverage.cpp \
 	Utils.cpp VectorAverage.cpp Vertex.cpp \
-	AttributesAverage.cpp \
-	AttributesAverage2D.cpp AttributesAverage3D.cpp ViewSettings.cpp
+	AttributeAverages.cpp \
+	AttributeAverages2D.cpp AttributeAverages3D.cpp ViewSettings.cpp
 FORMS += BrowseSimulations.ui SelectBodiesById.ui EditColorMap.ui \
 	 HistogramSettings.ui RestrictedRangeSlider.ui MainWindow.ui Info.ui
 LEXSOURCES        += EvolverData.l

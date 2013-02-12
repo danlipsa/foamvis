@@ -1,5 +1,5 @@
 /**
- * @file   AttributesAverage2D.h
+ * @file   AttributeAverages2D.h
  * @author Dan R. Lipsa
  * @date 19 July 2012
  *
@@ -8,7 +8,7 @@
 #ifndef __ATTRIBUTES_AVERAGE2D_H__
 #define __ATTRIBUTES_AVERAGE2D_H__
 
-#include "AttributesAverage.h"
+#include "AttributeAverages.h"
 
 class ForceAverage;
 class ScalarAverage;
@@ -18,10 +18,10 @@ class WidgetGl;
 class VectorAverage;
 class ViewSettings;
 
-class AttributesAverage2D : public AttributesAverage
+class AttributeAverages2D : public AttributeAverages
 {
 public:
-    AttributesAverage2D (ViewNumber::Enum viewNumber, 
+    AttributeAverages2D (ViewNumber::Enum viewNumber, 
                          const WidgetGl& widgetGl);
 
     ScalarAverage& GetScalarAverage () const

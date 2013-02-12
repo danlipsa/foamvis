@@ -1,12 +1,12 @@
 /**
- * @file   AttributesAverage.cpp
+ * @file   AttributeAverages.cpp
  * @author Dan R. Lipsa
  * @date 11 Feb 2013
  *
  * Definitions for the view average
  */
 
-#include "AttributesAverage.h"
+#include "AttributeAverages.h"
 #include "ForceAverage.h"
 #include "ViewSettings.h"
 
@@ -20,7 +20,7 @@
 // ======================================================================
 
 
-AttributesAverage::AttributesAverage (
+AttributeAverages::AttributeAverages (
     ViewNumber::Enum viewNumber,
     const Settings& settings, const SimulationGroup& simulationGroup) :
     AverageInterface (viewNumber),
@@ -29,19 +29,19 @@ AttributesAverage::AttributesAverage (
 {
 }
 
-const Settings& AttributesAverage::GetSettings () const
+const Settings& AttributeAverages::GetSettings () const
 {
     return m_scalarAverage->GetSettings ();
 }
 
 
-const ViewSettings& AttributesAverage::GetViewSettings () const
+const ViewSettings& AttributeAverages::GetViewSettings () const
 {
     return m_scalarAverage->GetViewSettings ();
 }
 
 
-void AttributesAverage::AverageInit ()
+void AttributeAverages::AverageInit ()
 {
     m_scalarAverage->AverageInit ();
     m_deformationAverage->AverageInit ();
@@ -50,7 +50,7 @@ void AttributesAverage::AverageInit ()
     m_t1sKDE->AverageInit ();
 }
 
-void AttributesAverage::AverageRelease ()
+void AttributeAverages::AverageRelease ()
 {
     m_scalarAverage->AverageRelease ();
     m_deformationAverage->AverageRelease ();
@@ -61,7 +61,7 @@ void AttributesAverage::AverageRelease ()
 
 
 
-void AttributesAverage::AverageStep (int direction, size_t timeWindow)
+void AttributeAverages::AverageStep (int direction, size_t timeWindow)
 {
     const ViewSettings& vs = GetViewSettings ();
     switch (vs.GetViewType ())
@@ -82,7 +82,7 @@ void AttributesAverage::AverageStep (int direction, size_t timeWindow)
     }
 }
 
-void AttributesAverage::AverageRotateAndDisplay (
+void AttributeAverages::AverageRotateAndDisplay (
     StatisticsType::Enum displayType,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {

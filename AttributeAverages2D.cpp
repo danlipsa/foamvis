@@ -1,5 +1,5 @@
 /**
- * @file   AttributesAverage2D.cpp
+ * @file   AttributeAverages2D.cpp
  * @author Dan R. Lipsa
  * @date 19 July 2012
  *
@@ -12,7 +12,7 @@
 #include "T1sKDE.h"
 #include "TensorAverage.h"
 #include "VectorAverage.h"
-#include "AttributesAverage2D.h"
+#include "AttributeAverages2D.h"
 #include "WidgetGl.h"
 
 
@@ -25,9 +25,9 @@
 // Methods
 // ======================================================================
 
-AttributesAverage2D::AttributesAverage2D (ViewNumber::Enum viewNumber,
+AttributeAverages2D::AttributeAverages2D (ViewNumber::Enum viewNumber,
                                           const WidgetGl& widgetGl) :
-    AttributesAverage (viewNumber, *widgetGl.GetSettings (),
+    AttributeAverages (viewNumber, *widgetGl.GetSettings (),
                        widgetGl.GetSimulationGroup ())
 {
     m_scalarAverage.reset (new ScalarAverage (viewNumber, widgetGl));

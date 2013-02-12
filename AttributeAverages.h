@@ -1,5 +1,5 @@
 /**
- * @file   AttributesAverage.h
+ * @file   AttributeAverages.h
  * @author Dan R. Lipsa
  * @date 11 February 2013
  *
@@ -17,10 +17,10 @@ class Settings;
 class SimulationGroup;
 class ViewSettings;
 
-class AttributesAverage : public AverageInterface
+class AttributeAverages : public AverageInterface
 {
 public:
-    AttributesAverage (
+    AttributeAverages (
         ViewNumber::Enum viewNumber,
         const Settings& settings, const SimulationGroup& simulationGroup);
 
