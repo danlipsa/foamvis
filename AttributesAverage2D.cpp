@@ -28,13 +28,14 @@
 AttributesAverage2D::AttributesAverage2D (ViewNumber::Enum viewNumber,
                                           const WidgetGl& widgetGl) :
     AttributesAverage (viewNumber, *widgetGl.GetSettings (),
-                       widgetGl.GetSimulationGroup ()),
-    m_scalarAverage (new ScalarAverage (viewNumber, widgetGl)),
-    m_t1sKDE (new T1sKDE (viewNumber, widgetGl)),
-    m_deformationAverage (
-	new TensorAverage (viewNumber, widgetGl, m_scalarAverage->GetFbos ())),
-    m_velocityAverage (
-	new VectorAverage (viewNumber, widgetGl)),
+                       widgetGl.GetSimulationGroup ())
 {
+    m_scalarAverage.reset (new ScalarAverage (viewNumber, widgetGl));
+    m_t1sKDE.reset (new T1sKDE (viewNumber, widgetGl));
+    m_deformationAverage.reset (
+	new TensorAverage (
+            viewNumber, widgetGl, GetScalarAverage ().GetFbos ()));
+    m_velocityAverage.reset (
+	new VectorAverage (viewNumber, widgetGl));
 }
 

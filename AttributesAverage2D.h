@@ -43,13 +43,6 @@ public:
     {
 	return *boost::static_pointer_cast<VectorAverage> (m_velocityAverage);
     }
-
-private:
-    boost::shared_ptr<ScalarAverage> m_scalarAverage;
-    boost::shared_ptr<T1sKDE> m_t1sKDE;
-    boost::shared_ptr<TensorAverage> m_deformationAverage;
-    boost::shared_ptr<VectorAverage> m_velocityAverage;
-    boost::shared_ptr<ForceAverage> m_forceAverage;
 };
 
 

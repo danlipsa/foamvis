@@ -17,17 +17,18 @@ AttributesAverage3D::AttributesAverage3D (
     ViewNumber::Enum viewNumber,
     const Settings& settings, const SimulationGroup& simulationGroup) :
 
-    AttributesAverage (viewNumber, settings, simulationGroup),
-    m_scalarAverage (
+    AttributesAverage (viewNumber, settings, simulationGroup)
+{
+    m_scalarAverage.reset (
         new RegularGridAverage (
             settings.GetViewSettings (viewNumber).GetBodyOrFaceScalar (),
-            viewNumber, settings, simulationGroup)),
-    m_velocityAverage (
+            viewNumber, settings, simulationGroup));
+    m_velocityAverage.reset (
         new RegularGridAverage (
-            BodyAttribute::VELOCITY, viewNumber, settings, simulationGroup)),
-    m_deformationAverage (
+            BodyAttribute::VELOCITY, viewNumber, settings, simulationGroup));
+    m_deformationAverage.reset (
         new RegularGridAverage (
-            BodyAttribute::VELOCITY, viewNumber, settings, simulationGroup)),
-    m_forceAverage (new ForceAverage (viewNumber, settings, simulationGroup))
-{
+            BodyAttribute::VELOCITY, viewNumber, settings, simulationGroup));
+    m_forceAverage.reset (
+        new ForceAverage (viewNumber, settings, simulationGroup));
 }

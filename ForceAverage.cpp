@@ -68,12 +68,6 @@ void ForceAverage::removeStep (size_t timeStep, size_t subStep)
     }
 }
 
-void ForceAverage::Display (bool isAverageAroundRotationShown) const
-{
-    displayForcesAllObjects (m_average, 
-			     GetCurrentTimeWindow (), 
-			     isAverageAroundRotationShown);
-}
 
 void ForceAverage::DisplayOneTimeStep () const
 {
@@ -85,10 +79,12 @@ void ForceAverage::AverageRotateAndDisplay (
     StatisticsType::Enum displayType,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
-    (void)displayType;
-    (void)displayType;(void)rotationCenter;(void)angleDegrees;
-    displayForcesAllObjects (m_average, GetCurrentTimeWindow ());
-    cdbg << "WARNING: This function show not be used" << endl;
+    (void)displayType;(void)displayType;(void)rotationCenter;(void)angleDegrees;
+    bool isAverageAroundRotationShown = 
+        GetViewSettings ().IsAverageAroundRotationShown ();
+    displayForcesAllObjects (m_average, 
+			     GetCurrentTimeWindow (), 
+			     isAverageAroundRotationShown);
 }
 
 

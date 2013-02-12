@@ -15,6 +15,7 @@ class Average;
 class ForceAverage;
 class Settings;
 class SimulationGroup;
+class ViewSettings;
 
 class AttributesAverage : public AverageInterface
 {
@@ -34,6 +35,8 @@ public:
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
     virtual void AverageRelease ();
+    const Settings& GetSettings () const;
+    const ViewSettings& GetViewSettings () const;
 
 protected:
     boost::shared_ptr<Average> m_scalarAverage;

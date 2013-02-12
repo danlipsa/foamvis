@@ -2176,6 +2176,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
     const Foam& foam = simulation.GetFoam (0);
+    const AttributesAverage2D& aa = GetViewAverage (viewNumber);
     if (! DATA_PROPERTIES.Is2D ())
 	return;
     glPushAttrib (GL_ENABLE_BIT);    
@@ -2189,17 +2190,18 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     rotationCenterEye = 
         ObjectToEye (rotationCenterEye) - getEyeTransform (viewNumber);
 
-    GetViewAverage (viewNumber).AverageRotateAndDisplay (
-	vs.GetStatisticsType (), rotationCenterEye.xy (), angleDegrees);
-    GetViewAverage (viewNumber).GetForceAverage ().Display (
-	isAverageAroundRotationShown);
+    if (vs.IsVelocityShown ())
+        aa.GetVelocityAverage ().SetGlyphShown (
+            vs.GetVelocityVis () == VectorVis::GLYPH);
+    aa.AverageRotateAndDisplay (
+	vs.GetStatisticsType (), rotationCenterEye.xy (), angleDegrees);    
     displayVelocityStreamlines (viewNumber);
     displayAverageAroundBodies (viewNumber, isAverageAroundRotationShown);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (foam);
     displayT1s (viewNumber);
     displayContextBodies (viewNumber);
     displayContextBox (viewNumber, isAverageAroundRotationShown);
-    T1sKDE& t1sKDE = GetViewAverage (viewNumber).GetT1sKDE ();
+    T1sKDE& t1sKDE = aa.GetT1sKDE ();
     if (vs.GetViewType () == ViewType::T1S_KDE &&
 	t1sKDE.IsKernelTextureShown ())
     {

@@ -29,7 +29,6 @@ public:
     {
     }
     void DisplayOneTimeStep () const;
-    void Display (bool isAverageAroundRotationShown = false) const;    
     virtual void AverageRotateAndDisplay (
 	StatisticsType::Enum displayType = StatisticsType::AVERAGE,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
