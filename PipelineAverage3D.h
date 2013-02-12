@@ -26,11 +26,10 @@ public:
 
     void UpdateThreshold (QwtDoubleInterval interval);
     void UpdateOpacity (float contextAlpha);
-    void UpdateAverage (
-        boost::shared_ptr<RegularGridAverage> average, int direction);
+    void UpdateAverage (boost::shared_ptr<RegularGridAverage> average);
     void UpdateViewTitle (
         bool titleShown, const G3D::Vector2& postion,
-        const RegularGridAverage& average, ViewNumber::Enum viewNumber);
+        const string& simulationName, const string& viewTitle);
 
 private:
     vtkSmartPointer<vtkActor> m_averageActor;

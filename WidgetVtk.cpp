@@ -97,9 +97,8 @@ void WidgetVtk::updateViewFocus (ViewNumber::Enum viewNumber)
 void WidgetVtk::ViewToVtk (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    const Foam& foam = m_average[viewNumber]->GetScalarAverage ().GetFoam ();
-    const Simulation& simulation = 
-        m_average[viewNumber]->GetScalarAverage ().GetSimulation ();
+    const Foam& foam = m_average[viewNumber]->GetFoam ();
+    const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
     PipelineBase& pipeline = *m_pipeline[viewNumber];
     pipeline.ViewToVtk (vs, simulation.GetBoundingBox ().center (), foam);
 }
@@ -111,7 +110,7 @@ void WidgetVtk::VtkToView (ViewNumber::Enum viewNumber)
     if (GetSettings ()->IsVtkView (viewNumber))
     {
         ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
-        const Foam& foam = m_average[viewNumber]->GetScalarAverage ().GetFoam ();
+        const Foam& foam = m_average[viewNumber]->GetFoam ();
         PipelineBase& pipeline = *m_pipeline[viewNumber];
         pipeline.VtkToView (vs, foam);
     }
@@ -217,11 +216,9 @@ void WidgetVtk::Average3DAddView (
     const Foam& foam = scalarAverage->GetFoam ();
     m_pipeline[viewNumber] = m_pipelineAverage3d[viewNumber];
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
-    G3D::AABox vv = CalculateViewingVolume (
-        viewNumber, GetSimulation (viewNumber));
-    scalarAverage->AverageInitStep (vs.GetTimeWindow ());
-    int direction = 0;
-    pipeline.UpdateAverage (scalarAverage, direction);
+    G3D::AABox vv = CalculateViewingVolume (viewNumber, simulation);
+    m_average[viewNumber]->AverageInitStep (vs.GetTimeWindow ());
+    pipeline.UpdateAverage (scalarAverage);
     pipeline.ViewToVtk (vs, simulation.GetBoundingBox ().center (), foam);
     pipeline.UpdateOpacity (vs.GetContextAlpha ());
     pipeline.UpdateThreshold (interval);
@@ -233,9 +230,10 @@ void WidgetVtk::Average3DAddView (
         viewRect.center ().x, viewRect.y1 () * 0.99);
     renderWindow->AddRenderer(pipeline.GetRenderer ());
     pipeline.GetRenderer ()->SetViewport (viewRect.x0 (), viewRect.y0 (),
-				      viewRect.x1 (), viewRect.y1 ());
-    pipeline.UpdateViewTitle (GetSettings ()->IsTitleShown (), 
-                              position, *scalarAverage, viewNumber);
+                                          viewRect.x1 (), viewRect.y1 ());
+    pipeline.UpdateViewTitle (
+        GetSettings ()->IsTitleShown (), 
+        position, simulation.GetName (), vs.GetTitle (viewNumber));
     resizeViewEvent (viewNumber);
     setVisible (true);
 }
@@ -244,9 +242,11 @@ void WidgetVtk::UpdateAverage (
     ViewNumber::Enum viewNumber, int direction)
 {
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
+    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
     boost::shared_ptr<RegularGridAverage> scalarAverage = 
         m_average[viewNumber]->GetScalarAveragePtr ();
-    pipeline.UpdateAverage (scalarAverage, direction);
+    m_average[viewNumber]->AverageStep (direction, vs.GetTimeWindow ());
+    pipeline.UpdateAverage (scalarAverage);
     updateViewTitle (viewNumber);
 }
 
@@ -260,14 +260,14 @@ void WidgetVtk::UpdateAverage3dTitle ()
 void WidgetVtk::updateViewTitle (ViewNumber::Enum viewNumber)
 {
     bool titleShown = GetSettings ()->IsTitleShown ();
+    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
+    const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
     G3D::Rect2D viewRect = GetNormalizedViewRect (viewNumber);
     G3D::Vector2 position = G3D::Vector2 (
-        viewRect.center ().x, 
-        viewRect.y1 () * .98);
-    const RegularGridAverage& scalarAverage = 
-        m_average[viewNumber]->GetScalarAverage ();
-    pipeline.UpdateViewTitle (titleShown, position, scalarAverage, viewNumber);
+        viewRect.center ().x, viewRect.y1 () * .98);
+    pipeline.UpdateViewTitle (
+        titleShown, position, simulation.GetName (), vs.GetTitle (viewNumber));
 }
 
 G3D::Rect2D WidgetVtk::GetNormalizedViewRect (ViewNumber::Enum viewNumber) const

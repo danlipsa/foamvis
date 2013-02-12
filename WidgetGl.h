@@ -165,11 +165,11 @@ public:
     AttributeAverages2D& GetAttributeAverages2D (
         ViewNumber::Enum viewNumber) const
     {
-	return *m_attributeAverages2D[viewNumber];
+	return *m_average[viewNumber];
     }
     AttributeAverages2D& GetAttributeAverages2D () const
     {
-	return *m_attributeAverages2D[GetViewNumber ()];
+	return *m_average[GetViewNumber ()];
     }
     void CompileUpdate ()
     {
@@ -763,7 +763,7 @@ private:
     size_t m_showBodyId;
     boost::array<
 	boost::shared_ptr<AttributeAverages2D>, 
-        ViewNumber::COUNT> m_attributeAverages2D;
+        ViewNumber::COUNT> m_average;
     boost::array<GLuint, ViewNumber::COUNT> m_listBubblePaths;
     boost::array<GLuint, ViewNumber::COUNT> m_listFacesNormal;
     boost::array<GLuint, ViewNumber::COUNT> m_colorBarTexture;

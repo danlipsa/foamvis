@@ -73,14 +73,13 @@ PipelineAverage3D::PipelineAverage3D (
 
 void PipelineAverage3D::UpdateViewTitle (
     bool titleShown, const G3D::Vector2& position,
-    const RegularGridAverage& average, ViewNumber::Enum viewNumber)
+    const string& simulationName, const string& viewTitle)
 {
     string title ("");
     ostringstream ostr;
     if (titleShown)
     {	
-	ostr << average.GetSimulation ().GetName () << endl 
-	     << average.GetViewSettings ().GetTitle (viewNumber);
+	ostr << simulationName << endl << viewTitle;
 	title = ostr.str ();
     }
     PipelineBase::UpdateViewTitle (title.c_str (), position);
@@ -118,17 +117,12 @@ void PipelineAverage3D::UpdateOpacity (float contextAlpha)
 
 
 void PipelineAverage3D::UpdateAverage (
-    boost::shared_ptr<RegularGridAverage> average, int direction)
+    boost::shared_ptr<RegularGridAverage> average)
 {
-    __LOG__ (cdbg << "UpdateAverage: " << direction[0] << endl;)
-
     const Foam& foam = average->GetFoam ();
     const ViewSettings& vs = average->GetViewSettings ();
-    // calculate average
-    average->AverageStep (direction, vs.GetTimeWindow ());
 
     m_threshold->SetInputDataObject (average->GetAverage ());
-
     Foam::Bodies objects = foam.GetObjects ();
     for (size_t i = 0; i < objects.size (); ++i)
     {

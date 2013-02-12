@@ -498,7 +498,7 @@ void WidgetGl::Init (
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	m_attributeAverages2D[i].reset (new AttributeAverages2D (viewNumber, *this));
+	m_average[i].reset (new AttributeAverages2D (viewNumber, *this));
     }
     update ();
 }
@@ -1815,7 +1815,7 @@ void WidgetGl::displayBodyVelocity (
 	glDisable (GL_DEPTH_TEST);
 	glColor (Qt::black);
 	const VectorAverage& va = 
-	    m_attributeAverages2D[viewNumber]->GetVelocityAverage ();
+	    m_average[viewNumber]->GetVelocityAverage ();
 	DisplayBodyVelocity (
 	    *GetSettings (), viewNumber,
 	    vs.GetBodySelector (), 
@@ -2926,7 +2926,7 @@ void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
     if (direction != 0)
     {
         const ViewSettings& vs = GetViewSettings (viewNumber);
-        m_attributeAverages2D[viewNumber]->AverageStep (direction, vs.GetTimeWindow ());
+        m_average[viewNumber]->AverageStep (direction, vs.GetTimeWindow ());
         if (vs.GetVelocityVis () == VectorVis::STREAMLINE)
         {
             if (vs.KDESeedsEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
@@ -3076,7 +3076,7 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
     {
         useKDESeeds = true;
         if (GetAverageCache (viewNumber)->GetT1sKDE () == 0)
-            m_attributeAverages2D[viewNumber]->GetT1sKDE ().CacheData (
+            m_average[viewNumber]->GetT1sKDE ().CacheData (
                 GetAverageCache (viewNumber));
     }
 
@@ -3119,13 +3119,13 @@ void WidgetGl::CacheUpdateSeedsCalculateStreamline (ViewNumber::Enum viewNumber)
     glPushMatrix ();
 
     AllTransformAverage (viewNumber, 0, DONT_ROTATE_FOR_AXIS_ORDER);
-    m_attributeAverages2D[viewNumber]->GetVelocityAverage ().CacheData (
+    m_average[viewNumber]->GetVelocityAverage ().CacheData (
         GetAverageCache (viewNumber));
     saveVelocity (viewNumber, GetAverageCache (viewNumber)->GetVelocity ());
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.KDESeedsEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
     {
-        m_attributeAverages2D[viewNumber]->GetT1sKDE ().CacheData (
+        m_average[viewNumber]->GetT1sKDE ().CacheData (
             GetAverageCache (viewNumber));
     }
     updateStreamlineSeeds (viewNumber);
@@ -3163,7 +3163,7 @@ void WidgetGl::CacheCalculateStreamline (ViewNumber::Enum viewNumber)
     glPushMatrix ();
 
     AllTransformAverage (viewNumber, 0, DONT_ROTATE_FOR_AXIS_ORDER);
-    m_attributeAverages2D[viewNumber]->GetVelocityAverage ().CacheData (
+    m_average[viewNumber]->GetVelocityAverage ().CacheData (
         GetAverageCache (viewNumber));
     saveVelocity (viewNumber, GetAverageCache (viewNumber)->GetVelocity ());
     if (vs.IsAverageAround () && vs.IsAverageAroundRotationShown ())
