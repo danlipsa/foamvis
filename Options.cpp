@@ -265,7 +265,7 @@ const char* Option::m_name[] = {
     "debug-scanning",
     "dmp-files",
     "filter",
-    "forces",
+    "force",
     "help",
     "ini-file",
     "name",

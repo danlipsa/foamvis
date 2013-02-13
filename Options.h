@@ -87,7 +87,7 @@ public:
     static po::options_description getDescription (
 	string* t1sFile,
 	DmpObjectInfo* dmpObjectInfo,
-	vector<ForcesOneObjectNames>* forcesNames,
+	vector<ForceNamesOneObject>* forcesNames,
 	size_t* ticksForTimeStep, size_t* resolution,
 	int* rotation2D, size_t* reflectionAxis);
 
@@ -95,7 +95,7 @@ public:
     string m_t1sFile;
     vector<string> m_fileNames;
     DmpObjectInfo m_dmpObjectInfo;
-    vector<ForcesOneObjectNames> m_forcesNames;
+    vector<ForceNamesOneObject> forceNames;
     size_t m_ticksForTimeStep;
     size_t m_reflectionAxis;
     size_t m_resolution;

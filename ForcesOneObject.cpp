@@ -10,7 +10,7 @@
 #include "ForcesOneObject.h"
 #include "Utils.h"
 
-ForcesOneObjectNames::ForcesOneObjectNames () :
+ForceNamesOneObject::ForceNamesOneObject () :
     m_bodyId (INVALID_INDEX)
 {
 }

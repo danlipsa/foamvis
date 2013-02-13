@@ -13,9 +13,9 @@ class Body;
  * Names of parameters in a DMP file where the network and the pressure forces
  * are stored.
  */
-struct ForcesOneObjectNames
+struct ForceNamesOneObject
 {
-    ForcesOneObjectNames ();
+    ForceNamesOneObject ();
     size_t m_bodyId;
     boost::array<string, 2> m_networkForceName;
     boost::array<string, 2> m_pressureForceName;
