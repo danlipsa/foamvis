@@ -25,16 +25,16 @@
 void ForceAverage::AverageInit ()
 {
     Average::AverageInit ();
-    const vector<ForcesOneObject>& forces = GetForces (0);
+    const vector<ForceOneObject>& forces = GetForces (0);
     m_average.resize (forces.size ());
     for (size_t i = 0; i < forces.size (); ++i)
-	m_average[i] = ForcesOneObject (forces[i].m_bodyId, forces[i].m_body);
+	m_average[i] = ForceOneObject (forces[i].m_bodyId, forces[i].m_body);
 }
 
 void ForceAverage::addStep (size_t timeStep, size_t subStep)
 {
     (void)subStep;
-    const vector<ForcesOneObject>& forces = GetForces (timeStep);
+    const vector<ForceOneObject>& forces = GetForces (timeStep);
     bool forward = 
 	(timeStep == GetSettings ().GetViewTime ());
     for (size_t i = 0; i < forces.size (); ++i)
@@ -52,14 +52,14 @@ void ForceAverage::addStep (size_t timeStep, size_t subStep)
 void ForceAverage::removeStep (size_t timeStep, size_t subStep)
 {
     (void)subStep;
-    const vector<ForcesOneObject>& forces = GetForces (timeStep);
+    const vector<ForceOneObject>& forces = GetForces (timeStep);
     bool backward = 
 	((timeStep - 1) == GetSettings ().GetViewTime ());
     for (size_t i = 0; i < forces.size (); ++i)
     {
 	if (backward)
 	{
-	    const vector<ForcesOneObject>& prevForces = GetForces (timeStep - 1);
+	    const vector<ForceOneObject>& prevForces = GetForces (timeStep - 1);
 	    m_average[i].m_body = prevForces[i].m_body;
 	    // bodyId stays the same
 	    // m_average[i].m_bodyId = forces[i].m_bodyId;
@@ -89,11 +89,11 @@ void ForceAverage::AverageRotateAndDisplay (
 
 
 void ForceAverage::displayForcesAllObjects (
-    const vector<ForcesOneObject>& forces, size_t count,
+    const vector<ForceOneObject>& forces, size_t count,
     bool isAverageAroundRotationShown) const
 {
     const ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
-    if (GetSimulation ().ForcesUsed ())
+    if (GetSimulation ().IsForceUsed ())
     {
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT | GL_LINE_BIT);
 	if (isAverageAroundRotationShown)
@@ -107,7 +107,7 @@ void ForceAverage::displayForcesAllObjects (
 	if (vs.IsForceDifferenceShown ())
 	    displayForcesTorqueOneObject (getForceDifference (forces), count);
 	else
-	    BOOST_FOREACH (const ForcesOneObject& force, forces)
+	    BOOST_FOREACH (const ForceOneObject& force, forces)
 		displayForcesTorqueOneObject (force, count);
 	if (isAverageAroundRotationShown)
 	    glPopMatrix ();
@@ -115,15 +115,15 @@ void ForceAverage::displayForcesAllObjects (
     }
 }
 
-const ForcesOneObject ForceAverage::getForceDifference (
-    const vector<ForcesOneObject>& forces) const
+const ForceOneObject ForceAverage::getForceDifference (
+    const vector<ForceOneObject>& forces) const
 {
     RuntimeAssert (forces.size () == 2, 
 		   "Force difference can be shown for two objects only.");
     ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
     size_t index2 = (vs.GetDifferenceBodyId () != forces[0].m_bodyId);
     size_t index1 = ! index2;
-    ForcesOneObject forceDifference = forces[index2];
+    ForceOneObject forceDifference = forces[index2];
     forceDifference.m_networkForce = 
 	forces[index2].m_networkForce - forces[index1].m_networkForce;
     forceDifference.m_pressureForce = 
@@ -133,15 +133,15 @@ const ForcesOneObject ForceAverage::getForceDifference (
 
 
 void ForceAverage::displayForcesTorqueOneObject (
-    const ForcesOneObject& forcesOneObject, size_t count) const
+    const ForceOneObject& forcesOneObject, size_t count) const
 {
-    displayForcesOneObject (forcesOneObject, count);
+    displayForceOneObject (forcesOneObject, count);
     displayTorqueOneObject (forcesOneObject, count);
 }
 
 
-void ForceAverage::displayForcesOneObject (
-    const ForcesOneObject& forcesOneObject, size_t count) const
+void ForceAverage::displayForceOneObject (
+    const ForceOneObject& forcesOneObject, size_t count) const
 {
     ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
     const Simulation& simulation = GetSimulation ();
@@ -157,7 +157,7 @@ void ForceAverage::displayForcesOneObject (
 	    HighlightNumber::H0,
 	    HighlightNumber::H1,
 	    HighlightNumber::H2}};
-    boost::array<G3D::Vector2, 3> force = {{
+    boost::array<G3D::Vector3, 3> force = {{
 	    forcesOneObject.m_networkForce,
 	    forcesOneObject.m_pressureForce,
 	    forcesOneObject.m_networkForce + forcesOneObject.m_pressureForce}};
@@ -165,14 +165,14 @@ void ForceAverage::displayForcesOneObject (
 	if (isForceShown[i])
 	    displayForce (GetSettings ().GetHighlightColor (
 			      GetViewNumber (), highlight[i]), center,
-			  unitForceTorqueSize * force[i]);    
+			  unitForceTorqueSize * force[i].xy ());    
 }
 
 
 
 
 void ForceAverage::displayTorqueOneObject (
-    const ForcesOneObject& forcesOneObject, size_t count) const
+    const ForceOneObject& forcesOneObject, size_t count) const
 {
     ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
     const Simulation& simulation = GetSimulation ();
@@ -247,7 +247,7 @@ void ForceAverage::displayForce (
 }
 
 
-const vector<ForcesOneObject>& ForceAverage::GetForces (
+const vector<ForceOneObject>& ForceAverage::GetForces (
     size_t timeStep) const
 {
     return GetFoam (timeStep).GetForces ();

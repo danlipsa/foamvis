@@ -80,7 +80,7 @@ public:
 
     /**
      * @{
-     * @name Overlays
+     * @name Attributes
      */
     void SetForceNetworkShown (bool value)
     {
@@ -598,7 +598,7 @@ public:
      */
     size_t GetTime () const
     {
-	return m_currentTime;
+	return m_time;
     }    
     /**
      * @return positive if time has moved forward or negative otherwise
@@ -831,7 +831,7 @@ private:
     /**
      * Index into m_foam that shows the current DMP file displayed
      */
-    size_t m_currentTime;
+    size_t m_time;
     size_t m_timeSteps;
     size_t m_timeWindow;
     bool m_t1sShiftLower;

@@ -20,7 +20,7 @@ class EditColorMap;
 class Simulation;
 class SimulationGroup;
 class AverageCache;
-class ForcesOneObject;
+class ForceOneObject;
 class OrientedFace;
 class OrientedEdge;
 class OOBox;

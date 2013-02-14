@@ -25,6 +25,7 @@ ostream& operator<< (ostream& ostr, const QPoint& p);
 ostream& operator<< (ostream& ostr, const QRect& r);
 ostream& operator<< (ostream& ostr, const QBox3D& p);
 ostream& operator<< (ostream& ostr, const QwtDoubleInterval& interval);
+ostream& operator<< (ostream& ostr, const QwtIntervalData& intervalData);
 ostream& operator<< (ostream& ostr, const vector<bool>& v);
 template<typename U, typename V>
 ostream& operator<< (ostream& ostr, const pair<U, V>& p);

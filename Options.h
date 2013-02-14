@@ -11,7 +11,7 @@
 
 #include "Labels.h"
 #include "ObjectPosition.h"
-#include "ForcesOneObject.h"
+#include "ForceOneObject.h"
 
 struct Option
 {
@@ -95,7 +95,7 @@ public:
     string m_t1sFile;
     vector<string> m_fileNames;
     DmpObjectInfo m_dmpObjectInfo;
-    vector<ForceNamesOneObject> forceNames;
+    vector<ForceNamesOneObject> m_forceNames;
     size_t m_ticksForTimeStep;
     size_t m_reflectionAxis;
     size_t m_resolution;

@@ -60,7 +60,7 @@ public:
     ParseDMP (
 	QString dir, 
 	const DmpObjectInfo& dmpObjectInfo, 
-	const vector<ForcesOneObjectNames>& forcesNames,
+	const vector<ForceNamesOneObject>& forceNames,
 	bool useOriginal, DataProperties* dataProperties, 
 	Foam::ParametersOperation parametersOperation,
 	bool debugParsing = false, bool debugScanning = false) : 
@@ -73,8 +73,8 @@ public:
 	m_debugParsing (debugParsing),
 	m_debugScanning (debugScanning)
     {
-	m_forcesNames.resize (forcesNames.size ());
-	copy (forcesNames.begin (), forcesNames.end (), m_forcesNames.begin ());
+	m_forceNames.resize (forceNames.size ());
+	copy (forceNames.begin (), forceNames.end (), m_forceNames.begin ());
     }
     
     /**
@@ -92,7 +92,7 @@ public:
 	cdbg << ostr.str ();
 	foam.reset (
 	    new Foam (m_useOriginal, m_dmpObjectInfo,
-		      m_forcesNames, *m_dataProperties, 
+		      m_forceNames, *m_dataProperties, 
 		      m_parametersOperation));
 	foam->GetParsingData ().SetDebugParsing (m_debugParsing);
 	foam->GetParsingData ().SetDebugScanning (m_debugScanning);	    
@@ -108,7 +108,7 @@ private:
      */
     const string m_dir;
     const DmpObjectInfo& m_dmpObjectInfo;
-    vector<ForcesOneObjectNames> m_forcesNames;
+    vector<ForceNamesOneObject> m_forceNames;
     const bool m_useOriginal;
     DataProperties* m_dataProperties;
     Foam::ParametersOperation m_parametersOperation;
@@ -199,7 +199,7 @@ void Simulation::Preprocess ()
     boost::array<FoamParamMethod, 9> methods = {{
 	    boost::bind (&Foam::CreateObjectBody, _1, 
 			 GetDmpObjectInfo ().m_constraintIndex),
-	    boost::bind (&Foam::SetForcesAllObjects, _1),
+	    boost::bind (&Foam::SetForceAllObjectss, _1),
 	    boost::bind (&Foam::ReleaseParsingData, _1),
 	    boost::bind (&Foam::CalculateBoundingBox, _1),
 	    boost::bind (&Foam::CalculateDeformationSimple, _1),
@@ -588,15 +588,15 @@ void Simulation::ParseDMPs (
     const vector<string>& fileNames,
     bool useOriginal,
     const DmpObjectInfo& dmpObjectInfo,
-    const vector<ForcesOneObjectNames>& forcesNames,
+    const vector<ForceNamesOneObject>& forceNames,
     bool debugParsing, bool debugScanning)
 {
     QDir dir;
     QStringList files;
     m_useOriginal = useOriginal;
     m_dmpObjectInfo = dmpObjectInfo;
-    m_forcesNames.resize (forcesNames.size ());
-    copy (forcesNames.begin (), forcesNames.end (), m_forcesNames.begin ());
+    m_forceNames.resize (forceNames.size ());
+    copy (forceNames.begin (), forceNames.end (), m_forceNames.begin ());
     QFileInfo fileInfo (fileNames[0].c_str ());
     dir = fileInfo.absoluteDir ();
     if (! dir.exists ())

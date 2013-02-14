@@ -81,7 +81,7 @@ void compact (vector< boost::shared_ptr<E> >& v)
 
 Foam::Foam (bool useOriginal, 
 	    const DmpObjectInfo& dmpObjectInfo,
-	    const vector<ForcesOneObjectNames>& forcesNames, 
+	    const vector<ForceNamesOneObject>& forcesNames, 
 	    DataProperties& foamParameters,
 	    ParametersOperation paramsOp) :
     m_viewMatrix (new G3D::Matrix4 (G3D::Matrix4::identity ())),
@@ -822,38 +822,48 @@ G3D::Vector2 Foam::GetAverageAroundAxis (
     return (second->GetCenter () - first->GetCenter ()).xy ();
 }
 
-void Foam::SetForcesAllObjects ()
+void Foam::SetForceAllObjectss ()
 {
-    const vector<ForcesOneObjectNames>& forcesNames = 
+    const vector<ForceNamesOneObject>& forcesNames = 
 	GetParsingData ().GetForcesNames ();
     if (! forcesNames.empty ())
     {
 	m_forces.resize (forcesNames.size ());
 	for (size_t i = 0; i < forcesNames.size (); ++i)
-	    setForcesOneObject (forcesNames[i], &m_forces[i]);
+	    setForceOneObject (forcesNames[i], &m_forces[i]);
     }
 }
 
-void Foam::setForcesOneObject (const ForcesOneObjectNames& names, 
-			       ForcesOneObject* forcesOneObject)
+void Foam::setForceOneObject (const ForceNamesOneObject& names, 
+                              ForceOneObject* forceOneObject)
 {
-    forcesOneObject->m_bodyId = names.m_bodyId;
-    forcesOneObject->m_body = *FindBody (names.m_bodyId);
+    forceOneObject->m_bodyId = names.m_bodyId;
+    forceOneObject->m_body = *FindBody (names.m_bodyId);
     const ParsingData& parsingData = GetParsingData ();
-    forcesOneObject->m_networkForce[0] = parsingData.GetVariableValue (
+    // network force
+    forceOneObject->m_networkForce[0] = parsingData.GetVariableValue (
 	names.m_networkForceName[0]);
-    forcesOneObject->m_networkForce[1] = parsingData.GetVariableValue (
+    forceOneObject->m_networkForce[1] = parsingData.GetVariableValue (
 	names.m_networkForceName[1]);
-    forcesOneObject->m_pressureForce[0] = parsingData.GetVariableValue (
+    if (! names.m_networkForceName[2].empty ())
+        forceOneObject->m_networkForce[2] = parsingData.GetVariableValue (
+            names.m_networkForceName[2]);
+    // pressure force
+    forceOneObject->m_pressureForce[0] = parsingData.GetVariableValue (
 	names.m_pressureForceName[0]);
-    forcesOneObject->m_pressureForce[1] = parsingData.GetVariableValue (
+    forceOneObject->m_pressureForce[1] = parsingData.GetVariableValue (
 	names.m_pressureForceName[1]);
+    if (! names.m_pressureForceName[2].empty ())
+        forceOneObject->m_pressureForce[2] = parsingData.GetVariableValue (
+            names.m_pressureForceName[2]);
+    // torque
     if (! names.m_networkTorque.empty ())
-	forcesOneObject->m_networkTorque = parsingData.GetVariableValue (
+    {
+	forceOneObject->m_networkTorque = parsingData.GetVariableValue (
 	    names.m_networkTorque);
-    if (! names.m_pressureTorque.empty ())
-	forcesOneObject->m_pressureTorque = parsingData.GetVariableValue (
+	forceOneObject->m_pressureTorque = parsingData.GetVariableValue (
 	    names.m_pressureTorque);
+    }
 }
 
 void Foam::StoreAttribute (

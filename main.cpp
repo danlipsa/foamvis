@@ -10,7 +10,7 @@
 #include "Debug.h"
 #include "Foam.h"
 #include "Simulation.h"
-#include "ForcesOneObject.h"
+#include "ForceOneObject.h"
 #include "ParsingData.h"
 #include "MainWindow.h"
 #include "DebugStream.h"
@@ -84,7 +84,7 @@ void parseOptions (int argc, char *argv[],
 	simulation.ParseDMPs (
 	    co[i]->m_fileNames, 
 	    co[i]->m_vm.count (Option::m_name[Option::USE_ORIGINAL]),
-	    co[i]->m_dmpObjectInfo, co[i]->m_forcesNames,
+	    co[i]->m_dmpObjectInfo, co[i]->m_forceNames,
 	    clo.m_vm.count (Option::m_name[Option::DEBUG_PARSING]), 
 	    clo.m_vm.count (Option::m_name[Option::DEBUG_SCANNING]));
 	string simulationName = clo.m_names.empty () ?

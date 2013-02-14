@@ -10,7 +10,7 @@
 #include "ObjectPosition.h"
 #include "Comparisons.h"
 #include "DataProperties.h"
-#include "ForcesOneObject.h"
+#include "ForceOneObject.h"
 #include "ParsingDriver.h"
 
 class AttributesInfo;
@@ -75,7 +75,7 @@ public:
      */
     ParsingData (bool useOriginal, 
 		 const DmpObjectInfo& dmpObjectInfo,
-		 const vector<ForcesOneObjectNames>& forcesNames);
+		 const vector<ForceNamesOneObject>& forcesNames);
 
     void AddAttribute (const char* s)
     {
@@ -311,9 +311,9 @@ public:
     {
 	return m_dmpObjectInfo;
     }
-    const vector<ForcesOneObjectNames>& GetForcesNames () const
+    const vector<ForceNamesOneObject>& GetForcesNames () const
     {
-	return m_forcesNames;
+	return forceNames;
     }
 
     /**
@@ -403,7 +403,7 @@ private:
     bool m_newLineSignificant;
     bool m_useOriginal;
     DmpObjectInfo m_dmpObjectInfo;
-    vector<ForcesOneObjectNames> m_forcesNames;
+    vector<ForceNamesOneObject> forceNames;
     bool m_keywordsIgnored;
 
 private:

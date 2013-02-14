@@ -10,22 +10,23 @@
 #include "Options.h"
 #include "BrowseSimulations.h"
 
+template<typename Tokenizer, typename TokenizerIterator>
 class ReadStringToken
 {
 public:
-    ReadStringToken (boost::tokenizer<>& tok, const string& errorMessage) :
+    ReadStringToken (Tokenizer& tok, const string& errorMessage) :
 	m_tok (tok), m_errorMessage (errorMessage)
     {
     }
 
-    void operator() (string* dest, boost::tokenizer<>::iterator* it)
+    void operator() (string* dest, TokenizerIterator* it)
     {
 	if (++(*it) == m_tok.end ())
 	    throw invalid_argument (m_errorMessage);
 	*dest = *(*it);
     }
 private:
-    boost::tokenizer<>& m_tok;
+    Tokenizer& m_tok;
     const string& m_errorMessage;
 };
 
@@ -78,7 +79,8 @@ void validate(boost::any& v, const std::vector<std::string>& values,
 	throw invalid_argument (errorMessage);
     istr.str (*it);
     istr >> crn.m_constraintIndex;
-    ReadStringToken readStringToken (tok, errorMessage);
+    ReadStringToken<boost::tokenizer<>, boost::tokenizer<>::iterator> 
+        readStringToken (tok, errorMessage);
     readStringToken (&crn.m_xName, &it);
     readStringToken (&crn.m_yName, &it);
     readStringToken (&crn.m_angleName, &it);
@@ -87,24 +89,29 @@ void validate(boost::any& v, const std::vector<std::string>& values,
 
 
 void validate(boost::any& v, const std::vector<std::string>& values,
-              ForcesOneObjectNames* ignore1, int ignore2)
+              ForceNamesOneObject* ignore1, int ignore2)
 {
     (void)ignore1;(void)ignore2;
-    ForcesOneObjectNames fn;
-    boost::tokenizer<> tok (values[0]);
+    typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+    boost::char_separator<char> sep(",", "", boost::keep_empty_tokens);
+    Tokenizer tok (values[0], sep);
+    ForceNamesOneObject fn;
     istringstream istr;
-    string errorMessage ("--forces needs 5 parameters.");
-    boost::tokenizer<>::iterator it = tok.begin ();
+    string errorMessage ("--force needs 7 parameters.");    
+    Tokenizer::iterator it = tok.begin ();
     if (it == tok.end ())
 	throw invalid_argument (errorMessage);
     istr.str (*it);
     istr >> fn.m_bodyId;
     --fn.m_bodyId;
-    ReadStringToken readStringToken (tok, errorMessage);
+    ReadStringToken<Tokenizer, Tokenizer::iterator> 
+        readStringToken (tok, errorMessage);
     readStringToken (&fn.m_networkForceName[0], &it);
     readStringToken (&fn.m_networkForceName[1], &it);
+    readStringToken (&fn.m_networkForceName[2], &it);
     readStringToken (&fn.m_pressureForceName[0], &it);
     readStringToken (&fn.m_pressureForceName[1], &it);
+    readStringToken (&fn.m_pressureForceName[2], &it);
     try
     {
 	// these can be omitted
@@ -373,7 +380,7 @@ CommonOptions::CommonOptions () :
     m_commonOptions (
 	getCommonAndHiddenOptions (
 	    &m_fileNames, 
-	    getDescription (&m_t1sFile, &m_dmpObjectInfo, &m_forcesNames, 
+	    getDescription (&m_t1sFile, &m_dmpObjectInfo, &m_forceNames, 
 			    &m_ticksForTimeStep, &m_resolution,
 			    &m_rotation2D, 
 			    &m_reflectionAxis)))
@@ -432,7 +439,7 @@ void CommonOptions::read (string parameters, string filter)
 po::options_description CommonOptions::getDescription (
     string* t1sFile,
     DmpObjectInfo* dmpObjectInfo,
-    vector<ForcesOneObjectNames>* forcesNames,
+    vector<ForceNamesOneObject>* forceNames,
     size_t* ticksForTimeStep, size_t* resolution,
     int *rotation2D,
     size_t *reflectionAxis)
@@ -466,17 +473,19 @@ po::options_description CommonOptions::getDescription (
 	 "left-hand rule: a rotation around z axis pointing toward "
 	 "the user is clockwise. Zero angle is the positive Y axis.")
 	(Option::m_name[Option::FORCES], 
-	 po::value< vector<ForcesOneObjectNames> >(forcesNames),
+	 po::value< vector<ForceNamesOneObject> >(forceNames),
 	 "reads the forces acting on a body.\n"
-	 "arg=\"<bodyId> <networkForceXName> <networkForceYName> "
-	 "<pressureForceXName> <pressureForceYName> "
-	 "[<networkTorque> <pressureTorque>]\" where "
+	 "arg=\"<bodyId>,"
+         "<networkForceXName>,<networkForceYName>,<networkForceZName>,"
+	 "<pressureForceXName>,<pressureForceYName>,<pressureForceZName>"
+	 "[,<networkTorque>,<pressureTorque>]\" where "
 	 "<bodyId> is the ID of the body the force acts on, "
-	 "(<networkForceXName>, <networkForceYName>) are the "
-	 "names of the X and Y components of the network force, "
-	 "(<pressureForceXName>, <pressureForceYName>) are the "
-	 "X and Y components of the pressure force, and "
-	 "<networkTorque> and <pressureTorque> are the network and "
+	 "<networkForce.Name> are the "
+	 "names of the X, Y and Z components of the network force, "
+	 "<pressureForce.Name> are the names of the "
+	 "X, Y and Z components of the pressure force. "
+         "In 2D leave the name for the Z component empty."
+	 "<...Torque> are the names of the network and "
 	 "pressure torque on the object, the positive direction is clockwise.")
 	(Option::m_name[Option::ORIGINAL_PRESSURE],
 	 "shows original pressure values")

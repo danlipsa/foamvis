@@ -79,7 +79,7 @@ ViewSettings::ViewSettings () :
     m_contextAlpha (CONTEXT_ALPHA.first),
     m_centerPathHidden (false),
     m_simulationIndex (0),
-    m_currentTime (0),
+    m_time (0),
     m_timeSteps (0),
     m_timeWindow (0),
     m_t1sShiftLower (false),
@@ -559,7 +559,7 @@ G3D::Matrix3 ViewSettings::getRotation3D (const Foam& foam) const
 int ViewSettings::SetTime (size_t time)
 {
     int direction = time - GetTime ();
-    m_currentTime = time;
+    m_time = time;
     return direction;
 }
 

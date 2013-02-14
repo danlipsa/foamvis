@@ -12,7 +12,7 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	DisplayEdgeFunctors.h DisplayElement.h WidgetSave.h\
 	EditColorMap.h Edge.h Element.h ExpressionTree.h \
 	Enums.h Foam.h FoamvisInteractorStyle.h \
-	DataProperties.h Face.h ForcesOneObject.h\
+	DataProperties.h Face.h ForceOneObject.h\
 	WidgetBase.h WidgetGl.h WidgetHistogram.h WidgetVtk.h \
 	Hashes.h Histogram.h HistogramItem.h HistogramSettings.h\
 	HistogramStatistics.h Labels.h ListViewChange.h\
@@ -44,7 +44,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	HistogramStatistics.cpp\
 	EditColorMap.cpp Element.cpp ExpressionTree.cpp \
 	Enums.cpp Foam.cpp FoamvisInteractorStyle.cpp\
-	Face.cpp DataProperties.cpp ForcesOneObject.cpp\
+	Face.cpp DataProperties.cpp ForceOneObject.cpp\
 	ForceAverage.cpp \
 	WidgetBase.cpp WidgetGl.cpp WidgetHistogram.cpp \
 	WidgetSave.cpp WidgetVtk.cpp \

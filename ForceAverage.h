@@ -11,7 +11,7 @@
 
 #include "Average.h"
 #include "Enums.h"
-#include "ForcesOneObject.h"
+#include "ForceOneObject.h"
 class Settings;
 class SimulationGroup;
 class Simulation;
@@ -35,7 +35,7 @@ public:
 	float angleDegrees = 0) const;
     void AverageRelease () {}
     virtual void AverageInit ();
-    const vector<ForcesOneObject>& GetForces (size_t timeStep) const;
+    const vector<ForceOneObject>& GetForces (size_t timeStep) const;
 
 
 protected:
@@ -44,27 +44,27 @@ protected:
 
 private:
     void displayForcesAllObjects (
-	const vector<ForcesOneObject>& forces, size_t timeWindow,
+	const vector<ForceOneObject>& forces, size_t timeWindow,
 	bool isAverageAroundRotationShown = false) const;
-    void displayForcesOneObject (
-	const ForcesOneObject& force, size_t count) const;
-    void displayTorqueOneObject (const ForcesOneObject& force, 
+    void displayForceOneObject (
+	const ForceOneObject& force, size_t count) const;
+    void displayTorqueOneObject (const ForceOneObject& force, 
 				 size_t count) const;
-    void displayForcesTorqueOneObject (const ForcesOneObject& force, 
+    void displayForcesTorqueOneObject (const ForceOneObject& force, 
 				       size_t count) const;
     void displayForce (QColor color, const G3D::Vector2& center, 
 		       const G3D::Vector2& force) const;
     void displayTorque (
 	QColor color, const G3D::Vector2& center, 
 	float distance, float angleRadians, float torque) const;
-    const ForcesOneObject getForceDifference (
-	const vector<ForcesOneObject>& forces) const;
+    const ForceOneObject getForceDifference (
+	const vector<ForceOneObject>& forces) const;
     pair<G3D::Vector2, G3D::Vector2> calculateTorque (
 	G3D::Vector2 center, float distance, float angle, float torque) const;
 
 private:
     // One set of forces for each object
-    vector<ForcesOneObject> m_average;
+    vector<ForceOneObject> m_average;
 };
 
 

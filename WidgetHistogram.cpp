@@ -7,6 +7,7 @@
 
 #include "AttributeHistogram.h"
 #include "BodySelector.h"
+#include "Debug.h"
 #include "DebugStream.h"
 #include "Foam.h"
 #include "Settings.h"
@@ -91,6 +92,7 @@ void WidgetHistogram::UpdateData (
             GetHistogram (property).ToQwtIntervalData ();
         maxYValue = simulation.GetMaxCountPerBinIndividual (property);
     }
+    __LOG__ (cdbg << intervalData << endl;);
     if (maxValueOperation == KEEP_MAX_VALUE)
     {
         // keep max value only if it was set before

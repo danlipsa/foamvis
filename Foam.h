@@ -11,7 +11,7 @@
 #include "Comparisons.h"
 #include "ParsingEnums.h"
 #include "Enums.h"
-#include "ForcesOneObject.h"
+#include "ForceOneObject.h"
 #include "Hashes.h"
 #include "HistogramStatistics.h"
 #include "ObjectPosition.h"
@@ -54,7 +54,7 @@ public:
      */
     Foam (bool useOriginal, 
 	  const DmpObjectInfo& dmpObjectInfo,
-	  const vector<ForcesOneObjectNames>& forcesNames,
+	  const vector<ForceNamesOneObject>& forcesNames,
 	  DataProperties& foamParameters, ParametersOperation paramsOp);
     void GetVertexSet (VertexSet* vertexSet) const;
     VertexSet GetVertexSet () const
@@ -263,11 +263,11 @@ public:
 	return m_dmpObjectPosition;
     }
     G3D::Vector2 GetAverageAroundAxis (size_t bodyId, size_t secondBodyId) const;
-    const vector<ForcesOneObject>& GetForces () const
+    const vector<ForceOneObject>& GetForces () const
     {
 	return m_forces;
     }
-    void SetForcesAllObjects ();
+    void SetForceAllObjectss ();
 
     /**
      * Calculate the bounding box for all vertices in this Foam
@@ -339,8 +339,8 @@ private:
 	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
 	const vector<boost::shared_ptr<Vertex> >& sortedPoints,
 	size_t maxId) const;
-    void setForcesOneObject (
-	const ForcesOneObjectNames& names, ForcesOneObject* forces);
+    void setForceOneObject (
+	const ForceNamesOneObject& names, ForceOneObject* forces);
     void copyStandaloneElements ();
     /**
      * The vectors of vertices, edges, faces and bodies may have holes.
@@ -438,7 +438,7 @@ private:
     double m_max[BodyScalar::COUNT];
     vector<HistogramStatistics> m_histogram;
     ObjectPosition m_dmpObjectPosition;
-    vector<ForcesOneObject> m_forces;
+    vector<ForceOneObject> m_forces;
     /*
      * AdjacentBody, PointIndex for constraint points that need fixing.
      */

@@ -1,9 +1,9 @@
 /**
- * @file ForcesOneObject.h
+ * @file ForceOneObject.h
  * @author Dan R. Lipsa
  * @date 7 June 2011
  *
- * Declaration of the ForcesOneObject class
+ * Declaration of the ForceOneObject class
  */
 #ifndef __FORCES_ONE_OBJECT_H__
 #define __FORCES_ONE_OBJECT_H__
@@ -17,23 +17,23 @@ struct ForceNamesOneObject
 {
     ForceNamesOneObject ();
     size_t m_bodyId;
-    boost::array<string, 2> m_networkForceName;
-    boost::array<string, 2> m_pressureForceName;
+    boost::array<string, 3> m_networkForceName;
+    boost::array<string, 3> m_pressureForceName;
     string m_networkTorque;
     string m_pressureTorque;
 };
 
-struct ForcesOneObject
+struct ForceOneObject
 {
-    ForcesOneObject ();
-    ForcesOneObject (size_t bodyId, boost::shared_ptr<Body> body);
-    ForcesOneObject& operator+= (const ForcesOneObject& other);
-    ForcesOneObject& operator-= (const ForcesOneObject& other);
+    ForceOneObject ();
+    ForceOneObject (size_t bodyId, boost::shared_ptr<Body> body);
+    ForceOneObject& operator+= (const ForceOneObject& other);
+    ForceOneObject& operator-= (const ForceOneObject& other);
 
     size_t m_bodyId;
     boost::shared_ptr<Body> m_body;
-    G3D::Vector2 m_networkForce;
-    G3D::Vector2 m_pressureForce;
+    G3D::Vector3 m_networkForce;
+    G3D::Vector3 m_pressureForce;
     float m_networkTorque;
     float m_pressureTorque;
 };

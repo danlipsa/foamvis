@@ -147,7 +147,6 @@ ostream& operator<< (ostream& ostr, const QColor& color)
 ostream& operator<< (ostream& ostr, const QwtDoubleInterval& interval)
 {
     return ostr 
-	<< "QwtDoubleInterval: "
 	<< ((interval.borderFlags () & QwtDoubleInterval::ExcludeMinimum) ?
 	    "(" : "[")
 	<< interval.minValue () << ", "
@@ -155,6 +154,14 @@ ostream& operator<< (ostream& ostr, const QwtDoubleInterval& interval)
 	<< ((interval.borderFlags () & QwtDoubleInterval::ExcludeMaximum) ?
 	    ")" : "]");
 }
+
+ostream& operator<< (ostream& ostr, const QwtIntervalData& id)
+{
+    for (size_t i = 0; i < id.size (); ++i)
+        ostr << id.interval (i) << ":" << id.value (i) << " ";
+    return ostr;
+}
+
 
 ostream& operator<< (ostream& ostr, const vector<bool>& v)
 {

@@ -194,12 +194,6 @@ void MainWindow::configureInterfaceDataDependent (
 	    if (extent.x > extent.y && simulation.GetRotation2D () == 0)
 		comboBoxViewLayout->setCurrentIndex (ViewLayout::VERTICAL);
 	}
-	if (! simulation.ForcesUsed ())
-	{
-	    checkBoxForceNetwork->setDisabled (true);
-	    checkBoxForcePressure->setDisabled (true);
-	    checkBoxForceResult->setDisabled (true);
-	}	
     }
     else
     {
@@ -1299,6 +1293,8 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
         ViewNumber::Enum viewNumber = vn[i];
         ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
         ViewType::Enum viewType = vs.GetViewType ();
+        if (vs.GetTime () < GetSettings ()->GetLinkedTime ())
+            continue;
         widgetHistogram->UpdateColorMapped (
             viewNumber, getColorBarModel (viewNumber));
         widgetHistogram->UpdateData (viewNumber,
@@ -1739,23 +1735,42 @@ void MainWindow::forceViewToUI ()
     const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulationGroup ().GetSimulation (
 	*GetSettings (), viewNumber);
+    // force
     SetCheckedNoSignals (
 	checkBoxForceNetwork, vs.IsForceNetworkShown (), 
-	simulation.ForcesUsed ());
+        simulation.IsForceUsed ());
     SetCheckedNoSignals (
 	checkBoxForcePressure, 
-	vs.IsForcePressureShown (), simulation.ForcesUsed ());
+	vs.IsForcePressureShown (), simulation.IsForceUsed ());
     SetCheckedNoSignals (
-	checkBoxForceResult, vs.IsForceResultShown (), simulation.ForcesUsed ());
+	checkBoxForceResult, 
+        vs.IsForceResultShown (), simulation.IsForceUsed ());
+    SetCheckedNoSignals (
+	checkBoxForceDifference, 
+        vs.IsForceDifferenceShown (), simulation.IsForceUsed ());
+    // torque
+    SetCheckedNoSignals (
+	checkBoxTorqueNetwork, 
+        vs.IsTorqueNetworkShown (), simulation.IsForceUsed ());
+    SetCheckedNoSignals (
+	checkBoxTorquePressure, 
+        vs.IsTorquePressureShown (), simulation.IsForceUsed ());
+    SetCheckedNoSignals (
+	checkBoxTorqueResult, 
+        vs.IsTorqueResultShown (), simulation.IsForceUsed ());
     SetValueNoSignals (
-	horizontalSliderForceTorqueSize, 
-	Value2ExponentIndex (horizontalSliderForceTorqueSize,
-		   WidgetGl::FORCE_SIZE_EXP2, vs.GetForceTorqueSize ()));
+	horizontalSliderTorqueDistance, Value2ExponentIndex (
+            horizontalSliderTorqueDistance,
+            WidgetGl::FORCE_SIZE_EXP2, vs.GetTorqueDistance ()));
+    // size and width
     SetValueNoSignals (
-	horizontalSliderForceTorqueLineWidth, 
-	Value2ExponentIndex (horizontalSliderForceTorqueLineWidth,
-		   WidgetGl::TENSOR_LINE_WIDTH_EXP2,
-		   vs.GetForceTorqueLineWidth ()));
+	horizontalSliderForceTorqueSize, Value2ExponentIndex (
+            horizontalSliderForceTorqueSize,
+            WidgetGl::FORCE_SIZE_EXP2, vs.GetForceTorqueSize ()));
+    SetValueNoSignals (
+	horizontalSliderForceTorqueLineWidth, Value2ExponentIndex (
+            horizontalSliderForceTorqueLineWidth,
+            WidgetGl::TENSOR_LINE_WIDTH_EXP2, vs.GetForceTorqueLineWidth ()));
 }
 
 void MainWindow::t1sKDEViewToUI (ViewNumber::Enum viewNumber)

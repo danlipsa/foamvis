@@ -1,13 +1,13 @@
 /**
- * @file   ForcesOneObject.cpp
+ * @file   ForceOneObject.cpp
  * @author Dan R. Lipsa
  * @date  8 March 2012
  *
- * Implementation for the ForcesOneObject class 
+ * Implementation for the ForceOneObject class 
  *
  */
 
-#include "ForcesOneObject.h"
+#include "ForceOneObject.h"
 #include "Utils.h"
 
 ForceNamesOneObject::ForceNamesOneObject () :
@@ -15,14 +15,14 @@ ForceNamesOneObject::ForceNamesOneObject () :
 {
 }
 
-ForcesOneObject::ForcesOneObject () :
+ForceOneObject::ForceOneObject () :
     m_bodyId (INVALID_INDEX),
     m_networkTorque (0),
     m_pressureTorque (0)
 {
 }
 
-ForcesOneObject::ForcesOneObject (size_t bodyId, boost::shared_ptr<Body> body) :
+ForceOneObject::ForceOneObject (size_t bodyId, boost::shared_ptr<Body> body) :
     m_bodyId (bodyId),
     m_body (body),
     m_networkTorque (0),
@@ -30,7 +30,7 @@ ForcesOneObject::ForcesOneObject (size_t bodyId, boost::shared_ptr<Body> body) :
 {
 }
 
-ForcesOneObject& ForcesOneObject::operator+= (const ForcesOneObject& other)
+ForceOneObject& ForceOneObject::operator+= (const ForceOneObject& other)
 {
     m_networkForce += other.m_networkForce;
     m_pressureForce += other.m_pressureForce;
@@ -39,7 +39,7 @@ ForcesOneObject& ForcesOneObject::operator+= (const ForcesOneObject& other)
     return *this;
 }
 
-ForcesOneObject& ForcesOneObject::operator-= (const ForcesOneObject& other)
+ForceOneObject& ForceOneObject::operator-= (const ForceOneObject& other)
 {
     m_networkForce -= other.m_networkForce;
     m_pressureForce -= other.m_pressureForce;
