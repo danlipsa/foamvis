@@ -14,6 +14,7 @@ Release log
           components for each force and the separator is comma.
         - bug fix: crash for comparing simulations with different number of 
           time steps.
+        
 0.8.2699
         - bug fix: transformations are slow
         - allow keywords inside SCALAR_INTEGRANT (for shearv_35)

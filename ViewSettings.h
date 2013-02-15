@@ -106,7 +106,6 @@ public:
     {
 	return m_forceResultShown;
     }
-
     void SetTorqueNetworkShown (bool value)
     {
 	m_torqueNetworkShown = value;
@@ -140,7 +139,30 @@ public:
     {
 	return m_forceDifferenceShown;
     }
-
+    float GetForceTorqueSize () const
+    {
+	return m_forceTorqueSize;
+    }
+    void SetForceTorqueSize (float value)
+    {
+	m_forceTorqueSize = value;
+    }
+    float GetTorqueDistance () const
+    {
+	return m_torqueDistance;
+    }
+    void SetTorqueDistance (float value)
+    {
+	m_torqueDistance = value;
+    }
+    float GetForceTorqueLineWidth () const
+    {
+	return m_forceTorqueLineWidth;
+    }
+    void SetForceTorqueLineWidth (float value)
+    {
+	m_forceTorqueLineWidth = value;
+    }
     void SetDeformationTensorShown (bool deformationTensorShown)
     {
 	m_deformationShown = deformationTensorShown;
@@ -150,7 +172,22 @@ public:
     {
 	return m_deformationShown;
     }
-
+    float GetDeformationSize () const
+    {
+	return m_deformationSize;
+    }
+    void SetDeformationSize (float value)
+    {
+	m_deformationSize = value;
+    }
+    float GetDeformationLineWidth () const
+    {
+	return m_deformationLineWidth;
+    }
+    void SetDeformationLineWidth (float value)
+    {
+	m_deformationLineWidth = value;
+    }
     void SetVelocityShown (bool velocityShown)
     {
 	m_velocityShown = velocityShown;
@@ -326,11 +363,11 @@ public:
     }
 
     // projection - angle of view
-    double GetAngleOfView () const
+    float GetAngleOfView () const
     {
 	return m_angleOfView;
     }
-    void SetAngleOfView (double value)
+    void SetAngleOfView (float value)
     {
 	m_angleOfView = value;
     }
@@ -687,46 +724,6 @@ public:
 
     void SetSimulation (int i, const Simulation& simulation,
 			G3D::Vector3 viewingVolumeCenter);
-    float GetDeformationSize () const
-    {
-	return m_deformationSize;
-    }
-    void SetDeformationSize (float value)
-    {
-	m_deformationSize = value;
-    }
-    float GetDeformationLineWidth () const
-    {
-	return m_deformationLineWidth;
-    }
-    void SetDeformationLineWidth (float value)
-    {
-	m_deformationLineWidth = value;
-    }
-    float GetForceTorqueSize () const
-    {
-	return m_forceTorqueSize;
-    }
-    void SetForceTorqueSize (float value)
-    {
-	m_forceTorqueSize = value;
-    }
-    float GetTorqueDistance () const
-    {
-	return m_torqueDistance;
-    }
-    void SetTorqueDistance (float value)
-    {
-	m_torqueDistance = value;
-    }
-    float GetForceTorqueLineWidth () const
-    {
-	return m_forceTorqueLineWidth;
-    }
-    void SetForceTorqueLineWidth (float value)
-    {
-	m_forceTorqueLineWidth = value;
-    }
     string GetTitle (ViewNumber::Enum viewNumber) const;
     bool DomainClipped () const
     {
@@ -736,12 +733,20 @@ public:
     {
         m_domainClipped = clipped;
     }
+    float GetObjectAlpha () const
+    {
+	return m_objectAlpha;
+    }
+    void SetObjectAlpha (float alpha)
+    {
+	m_objectAlpha = alpha;
+    }
     //@}
 
 public:
     static const double STREAMLINE_LENGTH;
     static const double STREAMLINE_STEP_LENGTH;
-    const static pair<float,float> CONTEXT_ALPHA;
+    const static pair<float,float> ALPHA_RANGE;
 
 Q_SIGNALS:
     void SelectionChanged ();
@@ -789,12 +794,11 @@ private:
     bitset<LightNumber::COUNT> m_lightPositionShown;    
     boost::array<G3D::Matrix3, LightNumber::COUNT> m_rotationLight;
     boost::array<double, LightNumber::COUNT> m_lightPositionRatio;
-    boost::array<
-	boost::array<boost::array<GLfloat, 4>, LightType::COUNT>, 
-	LightNumber::COUNT> m_light;
+    boost::array<boost::array<boost::array<GLfloat, 4>, LightType::COUNT>, 
+                 LightNumber::COUNT> m_light;
 
     //  requires camera distance
-    double m_angleOfView;
+    float m_angleOfView;
     AxesOrder::Enum m_axesOrder;
     /**
      * Distance from the camera to the center of the bounding box for the foam.
@@ -824,6 +828,7 @@ private:
     boost::shared_ptr<BodySelector> m_bodySelector;
     bool m_selectionContextShown;
     float m_contextAlpha;
+    float m_objectAlpha;
     bool m_centerPathHidden;
     // Simulation related variables
     size_t m_simulationIndex;

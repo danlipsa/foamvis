@@ -5,9 +5,6 @@
  * Definitions for the widget for displaying foam bubbles using OpenGL
  */
 
-// @todo fix the (slow) movement of the focus in context view
-// @todo replace glScale with camera movement
-
 #include "Body.h"
 #include "BodyAlongTime.h"
 #include "BodySelector.h"
@@ -4577,7 +4574,7 @@ void WidgetGl::ValueChangedT1Size (int index)
 {
     makeCurrent ();
     (void)index;
-    m_t1sSize = Index2Value (static_cast<QSlider*> (sender ()), T1S_SIZE);
+    m_t1sSize = IndexToValue (static_cast<QSlider*> (sender ()), T1S_SIZE);
     CompileUpdate ();
 }
 

@@ -164,10 +164,11 @@ public:
     {
 	return m_forceNames;
     }
-    bool IsForceUsed () const
+    bool IsForceAvailable () const
     {
 	return m_forceNames.size ();
     }
+    bool IsTorqueAvailable () const;
 
     bool T1sAvailable () const;
     int GetT1sShift () const

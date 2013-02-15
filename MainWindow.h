@@ -63,6 +63,7 @@ public Q_SLOTS:
     void ToggledTitleShown (bool checked);
     void ToggledBubblePathsLineUsed (bool checked);
     void ValueChangedContextAlpha (int sliderValue);
+    void ValueChangedObjectAlpha (int sliderValue);
     void ToggledVelocityShown (bool checked);
     void ToggledHistogramGridShown (bool checked);
     void ToggledHistogramShown (bool checked);
@@ -146,6 +147,7 @@ private:
     void addVtkView (ViewNumber::Enum viewNumber);
     void update3DAverage ();
     void currentIndexChangedFaceColor (ViewNumber::Enum viewNumber);
+    void settingsViewToUI (ViewNumber::Enum viewNumber);
     void timeViewToUI (ViewNumber::Enum viewNumber);
     void linkedTimeEventsViewToUI (ViewNumber::Enum viewNumber);
     void deformationViewToUI ();

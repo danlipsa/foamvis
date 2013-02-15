@@ -103,4 +103,6 @@ while (no more items in the queue)
          is loaded. An error message should be shown instead.
  * @todo bug: fix Overlay, Velocity, Glyph, Grid Cell Center
  * @todo bug: Translate grid does not work with streamlines.
+ * @todo fix the (slow) movement of the focus in context view for the GL view
+ * @todo replace glScale with camera movement for GL view
  */

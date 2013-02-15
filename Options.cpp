@@ -115,8 +115,8 @@ void validate(boost::any& v, const std::vector<std::string>& values,
     try
     {
 	// these can be omitted
-	readStringToken (&fn.m_networkTorque, &it);
-	readStringToken (&fn.m_pressureTorque, &it);
+	readStringToken (&fn.m_networkTorqueName, &it);
+	readStringToken (&fn.m_pressureTorqueName, &it);
     }
     catch (invalid_argument& e)
     {

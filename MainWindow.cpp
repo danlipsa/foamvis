@@ -561,7 +561,7 @@ void MainWindow::update3DAverage ()
     if (DATA_PROPERTIES.Is2D ())
 	return;
     widgetVtk->RemoveViews ();
-    widgetVtk->ForAllViews (
+    widgetVtk->WidgetBase::ForAllViews (
 	boost::bind (&MainWindow::addVtkView, this, _1));
     updateStretch ();
 }
@@ -996,7 +996,7 @@ void MainWindow::SelectionChangedHistogram (int vn)
 	    interval = QwtDoubleInterval (0, -1);
 	else
 	    interval = valueIntervals[0];
-	widgetVtk->Average3dUpdateThreshold (interval);
+	widgetVtk->UpdateScalarThreshold (interval);
     }
 }
 
@@ -1238,12 +1238,20 @@ void MainWindow::ValueChangedContextAlpha (int index)
 {
     (void)index;
     GetViewSettings ().SetContextAlpha (
-	Index2Value (static_cast<QSlider*> (sender ()), 
-		     ViewSettings::CONTEXT_ALPHA));
+	IndexToValue (static_cast<QSlider*> (sender ()),
+                     ViewSettings::ALPHA_RANGE));
     widgetGl->CompileUpdate ();
-    widgetVtk->Average3dUpdateOpacity ();
+    widgetVtk->ViewToAverage3D ();
 }
 
+void MainWindow::ValueChangedObjectAlpha (int index)
+{
+    (void)index;
+    GetViewSettings ().SetObjectAlpha (
+	IndexToValue (static_cast<QSlider*> (sender ()),
+                     ViewSettings::ALPHA_RANGE));
+    widgetVtk->ViewToAverage3D ();
+}
 
 void MainWindow::ValueChangedHistogramHeight (int s)
 {
@@ -1738,26 +1746,26 @@ void MainWindow::forceViewToUI ()
     // force
     SetCheckedNoSignals (
 	checkBoxForceNetwork, vs.IsForceNetworkShown (), 
-        simulation.IsForceUsed ());
+        simulation.IsForceAvailable ());
     SetCheckedNoSignals (
 	checkBoxForcePressure, 
-	vs.IsForcePressureShown (), simulation.IsForceUsed ());
+	vs.IsForcePressureShown (), simulation.IsForceAvailable ());
     SetCheckedNoSignals (
 	checkBoxForceResult, 
-        vs.IsForceResultShown (), simulation.IsForceUsed ());
+        vs.IsForceResultShown (), simulation.IsForceAvailable ());
     SetCheckedNoSignals (
 	checkBoxForceDifference, 
-        vs.IsForceDifferenceShown (), simulation.IsForceUsed ());
+        vs.IsForceDifferenceShown (), simulation.IsForceAvailable ());
     // torque
     SetCheckedNoSignals (
 	checkBoxTorqueNetwork, 
-        vs.IsTorqueNetworkShown (), simulation.IsForceUsed ());
+        vs.IsTorqueNetworkShown (), simulation.IsTorqueAvailable ());
     SetCheckedNoSignals (
 	checkBoxTorquePressure, 
-        vs.IsTorquePressureShown (), simulation.IsForceUsed ());
+        vs.IsTorquePressureShown (), simulation.IsTorqueAvailable ());
     SetCheckedNoSignals (
 	checkBoxTorqueResult, 
-        vs.IsTorqueResultShown (), simulation.IsForceUsed ());
+        vs.IsTorqueResultShown (), simulation.IsTorqueAvailable ());
     SetValueNoSignals (
 	horizontalSliderTorqueDistance, Value2ExponentIndex (
             horizontalSliderTorqueDistance,
@@ -1854,6 +1862,19 @@ void MainWindow::timeViewToUI (ViewNumber::Enum viewNumber)
 			     scalarAverageTimeWindow, steps);
 }
 
+void MainWindow::settingsViewToUI (ViewNumber::Enum viewNumber)
+{
+    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    SetValueNoSignals (
+        horizontalSliderContextAlpha, 
+        ValueToIndex (horizontalSliderContextAlpha, 
+                      ViewSettings::ALPHA_RANGE, vs.GetContextAlpha ()));
+    SetValueNoSignals (
+        horizontalSliderObjectAlpha, 
+        ValueToIndex (horizontalSliderObjectAlpha, 
+                      ViewSettings::ALPHA_RANGE, vs.GetObjectAlpha ()));
+}
+
 void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 {
     (void)prevViewNumber;
@@ -1887,19 +1908,18 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     SetCheckedNoSignals (checkBoxSelectionContextShown, 
 			 vs.IsSelectionContextShown ());
     SetCheckedNoSignals (checkBoxT1sShiftLower, vs.T1sShiftLower ());
+    SetValueNoSignals (horizontalSliderAngleOfView, vs.GetAngleOfView ());
+    labelAverageColor->setText (FaceScalar::ToString (property));
 
+    settingsViewToUI (viewNumber);
     deformationViewToUI ();
     velocityViewToUI ();
     forceViewToUI ();
     t1sKDEViewToUI (viewNumber);
     bubblePathsViewToUI ();
-
-    SetValueNoSignals (horizontalSliderAngleOfView, vs.GetAngleOfView ());
-    
     timeViewToUI (viewNumber);
-    labelAverageColor->setText (FaceScalar::ToString (property));
-
     linkedTimeEventsViewToUI (viewNumber);
+
     updateLightControls (vs, selectedLight);
     updateButtons ();
 

@@ -654,6 +654,17 @@ const BodyAlongTime& Simulation::GetBodyAlongTime (size_t id) const
     return GetBodiesAlongTime ().GetBodyAlongTime (id);
 }
 
+bool Simulation::IsTorqueAvailable () const
+{
+    bool torque = false;
+    BOOST_FOREACH (const ForceNamesOneObject& fn, m_forceNames)
+    {
+        if (! fn.m_networkTorqueName.empty ())
+            torque = true;
+    }
+    return torque;
+}
+
 
 // Members: SimulationGroup
 // ======================================================================

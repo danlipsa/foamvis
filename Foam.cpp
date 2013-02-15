@@ -857,12 +857,12 @@ void Foam::setForceOneObject (const ForceNamesOneObject& names,
         forceOneObject->m_pressureForce[2] = parsingData.GetVariableValue (
             names.m_pressureForceName[2]);
     // torque
-    if (! names.m_networkTorque.empty ())
+    if (! names.m_networkTorqueName.empty ())
     {
 	forceOneObject->m_networkTorque = parsingData.GetVariableValue (
-	    names.m_networkTorque);
+	    names.m_networkTorqueName);
 	forceOneObject->m_pressureTorque = parsingData.GetVariableValue (
-	    names.m_pressureTorque);
+	    names.m_pressureTorqueName);
     }
 }
 

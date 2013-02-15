@@ -533,7 +533,6 @@ struct PipelineType
     enum Enum
     {
         AVERAGE_3D,
-        STREAMLINES_2D,
         COUNT
     };
 };

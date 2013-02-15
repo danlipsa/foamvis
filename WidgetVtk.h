@@ -48,7 +48,7 @@ public:
     }
     void RemoveViews ();
     PipelineType::Enum GetPipelineType (ViewNumber::Enum viewNumber);
-    void ForAllPipelines (
+    void ForAllViews (
         PipelineType::Enum type, boost::function <void (ViewNumber::Enum)> f);
     QSize sizeHint ()
     {
@@ -72,12 +72,12 @@ public:
      * @{
      * @name PipelineAverage3D
      */
-    void Average3dUpdateThreshold (QwtDoubleInterval interval);
+    void UpdateScalarThreshold (QwtDoubleInterval interval);
     void Average3DAddView (
 	ViewNumber::Enum viewNumber,
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
 	QwtDoubleInterval interval);
-    void Average3dUpdateOpacity ();
+    void ViewToAverage3D ();
     void UpdateAverage (ViewNumber::Enum viewNumber, int direction);
     void Average3dCreatePipeline (size_t objects, size_t constraintSurfaces, 
                                   size_t fontSize);
@@ -100,7 +100,6 @@ private:
     void updateViewTitle (ViewNumber::Enum viewNumber);
     void updateViewFocus (ViewNumber::Enum viewNumber);
     void resizeViewEvent (ViewNumber::Enum viewNumber);
-    void updateViewOpacity (ViewNumber::Enum viewNumber);
     void removeView (ViewNumber::Enum viewNumber);
 
 private:

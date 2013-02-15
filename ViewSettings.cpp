@@ -38,7 +38,7 @@ boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
 // ======================================================================
 const double ViewSettings::STREAMLINE_LENGTH (0.2);
 const double ViewSettings::STREAMLINE_STEP_LENGTH (0.005);
-const pair<float,float> ViewSettings::CONTEXT_ALPHA (0.05, 0.5);
+const pair<float,float> ViewSettings::ALPHA_RANGE (0.05, 0.5);
 
 
 // Methods
@@ -76,7 +76,8 @@ ViewSettings::ViewSettings () :
     m_averageAroundRotationShown (false),
     m_bodySelector (AllBodySelector::Get ()),
     m_selectionContextShown (true),
-    m_contextAlpha (CONTEXT_ALPHA.first),
+    m_contextAlpha (ALPHA_RANGE.first),
+    m_objectAlpha (ALPHA_RANGE.second),
     m_centerPathHidden (false),
     m_simulationIndex (0),
     m_time (0),

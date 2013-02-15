@@ -93,7 +93,7 @@ void ForceAverage::displayForcesAllObjects (
     bool isAverageAroundRotationShown) const
 {
     const ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
-    if (GetSimulation ().IsForceUsed ())
+    if (GetSimulation ().IsForceAvailable ())
     {
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT | GL_LINE_BIT);
 	if (isAverageAroundRotationShown)

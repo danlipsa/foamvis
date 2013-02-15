@@ -25,11 +25,22 @@ public:
         const char* name);
 
     void UpdateThreshold (QwtDoubleInterval interval);
-    void UpdateOpacity (float contextAlpha);
+    void UpdateContextAlpha (float alpha)
+    {
+        updateAlpha (alpha, m_constraintSurface);
+    }
+    void UpdateObjectAlpha (float alpha)
+    {
+        updateAlpha (alpha, m_object);
+    }
     void UpdateAverage (boost::shared_ptr<RegularGridAverage> average);
     void UpdateViewTitle (
         bool titleShown, const G3D::Vector2& postion,
         const string& simulationName, const string& viewTitle);
+
+private:
+    void updateAlpha (
+        float alpha, vector<vtkSmartPointer<vtkActor> >& actors);
 
 private:
     vtkSmartPointer<vtkActor> m_averageActor;

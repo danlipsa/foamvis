@@ -19,8 +19,8 @@ struct ForceNamesOneObject
     size_t m_bodyId;
     boost::array<string, 3> m_networkForceName;
     boost::array<string, 3> m_pressureForceName;
-    string m_networkTorque;
-    string m_pressureTorque;
+    string m_networkTorqueName;
+    string m_pressureTorqueName;
 };
 
 struct ForceOneObject

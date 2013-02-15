@@ -106,12 +106,11 @@ void PipelineAverage3D::UpdateColorTransferFunction (
     }
 }
 
-void PipelineAverage3D::UpdateOpacity (float contextAlpha)
+void PipelineAverage3D::updateAlpha (
+    float alpha, vector<vtkSmartPointer<vtkActor> >& actors)
 {
-    BOOST_FOREACH (vtkSmartPointer<vtkActor> actor, m_constraintSurface)
-    {
-	actor->GetProperty ()->SetOpacity (contextAlpha);
-    }
+    BOOST_FOREACH (vtkSmartPointer<vtkActor> actor, actors)
+	actor->GetProperty ()->SetOpacity (alpha);
 }
 
 

@@ -662,7 +662,7 @@ int Value2ExponentIndex (QSlider* slider,
 	    (maxSlider - minSlider));
 }
 
-float Index2Value (const QSlider* slider, const pair<float,float>& minMax)
+float IndexToValue (const QSlider* slider, const pair<float,float>& minMax)
 {
     int index = slider->value ();
     size_t maxSlider = slider->maximum ();
@@ -670,7 +670,7 @@ float Index2Value (const QSlider* slider, const pair<float,float>& minMax)
 	(minMax.second - minMax.first);
 }
 
-int Value2Index (QSlider* slider, 
+int ValueToIndex (QSlider* slider, 
 		 const pair<float,float>& minMax, float value)
 {
     size_t maxSlider = slider->maximum ();
@@ -775,12 +775,10 @@ template void SetCheckedNoSignals<QCheckBox> (QCheckBox*, bool, bool);
 template void SetCheckedNoSignals<QRadioButton> (QRadioButton*, bool, bool);
 
 // SetValueNoSignals
-template void SetValueNoSignals<QSlider, unsigned long>(
-    QSlider*, unsigned long);
 template void SetValueNoSignals<QSlider, int>(
     QSlider*, int);
-template void SetValueNoSignals<QSlider, double>(
-    QSlider*, double);
+template void SetValueNoSignals<QSlider, float>(
+    QSlider*, float);
 template void SetValueNoSignals<QDoubleSpinBox, float> (
     QDoubleSpinBox*, float);
 

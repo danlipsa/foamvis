@@ -82,7 +82,7 @@ void WidgetVtk::UpdateColorTransferFunction (
 
 void WidgetVtk::UpdateFocus ()
 {
-    ForAllViews (
+    WidgetBase::ForAllViews (
 	boost::bind (&WidgetVtk::updateViewFocus, this, _1));
     update ();
 }
@@ -119,7 +119,7 @@ void WidgetVtk::VtkToView (ViewNumber::Enum viewNumber)
 void WidgetVtk::RemoveViews ()
 {
     vtkSmartPointer<vtkRenderWindow> renderWindow = GetRenderWindow ();
-    ForAllViews (boost::bind (&WidgetVtk::removeView, this, _1));
+    WidgetBase::ForAllViews (boost::bind (&WidgetVtk::removeView, this, _1));
     setVisible (false);
 }
 void WidgetVtk::removeView (ViewNumber::Enum viewNumber)
@@ -178,7 +178,7 @@ void WidgetVtk::Average3dCreatePipeline (
     renWin->AddObserver (vtkCommand::EndEvent, sendPaint);
 }
 
-void WidgetVtk::Average3dUpdateThreshold (QwtDoubleInterval interval)
+void WidgetVtk::UpdateScalarThreshold (QwtDoubleInterval interval)
 {
     ViewNumber::Enum viewNumber = GetSettings ()->GetViewNumber ();
     if (GetPipelineType (viewNumber) == PipelineType::AVERAGE_3D)
@@ -189,16 +189,41 @@ void WidgetVtk::Average3dUpdateThreshold (QwtDoubleInterval interval)
 }
 
 
-void WidgetVtk::Average3dUpdateOpacity ()
+void WidgetVtk::ViewToAverage3D ()
 {
-    ForAllPipelines (PipelineType::AVERAGE_3D, 
-                     boost::bind (&WidgetVtk::updateViewOpacity, this, _1));
+    const Settings& settings = *GetSettings ();
+    ViewNumber::Enum viewNumber = settings.GetViewNumber ();
+    const ViewSettings& vs = settings.GetViewSettings (viewNumber);
+    if (GetPipelineType (viewNumber) == PipelineType::AVERAGE_3D)
+    {
+        m_pipelineAverage3d[viewNumber]->UpdateContextAlpha (
+            vs.GetContextAlpha ());
+        m_pipelineAverage3d[viewNumber]->UpdateObjectAlpha (
+            vs.GetObjectAlpha ());
+        update ();
+    }
+}
+
+
+
+
+void WidgetVtk::UpdateAverage3dTitle ()
+{
+    ForAllViews (PipelineType::AVERAGE_3D,
+	boost::bind (&WidgetVtk::updateViewTitle, this, _1));
     update ();
 }
-void WidgetVtk::updateViewOpacity (ViewNumber::Enum viewNumber)
+void WidgetVtk::updateViewTitle (ViewNumber::Enum viewNumber)
 {
-    m_pipelineAverage3d[viewNumber]->UpdateOpacity (
-        GetViewSettings (viewNumber).GetContextAlpha ());
+    bool titleShown = GetSettings ()->IsTitleShown ();
+    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
+    const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
+    G3D::Rect2D viewRect = GetNormalizedViewRect (viewNumber);
+    G3D::Vector2 position = G3D::Vector2 (
+        viewRect.center ().x, viewRect.y1 () * .98);
+    pipeline.UpdateViewTitle (
+        titleShown, position, simulation.GetName (), vs.GetTitle (viewNumber));
 }
 
 
@@ -220,7 +245,7 @@ void WidgetVtk::Average3DAddView (
     m_average[viewNumber]->AverageInitStep (vs.GetTimeWindow ());
     pipeline.UpdateAverage (scalarAverage);
     pipeline.ViewToVtk (vs, simulation.GetBoundingBox ().center (), foam);
-    pipeline.UpdateOpacity (vs.GetContextAlpha ());
+    pipeline.UpdateContextAlpha (vs.GetContextAlpha ());
     pipeline.UpdateThreshold (interval);
     pipeline.UpdateColorTransferFunction (colorTransferFunction, scalarName);
     pipeline.UpdateFocus (GetSettings ()->GetViewNumber () == viewNumber);
@@ -251,25 +276,6 @@ void WidgetVtk::UpdateAverage (
 }
 
 
-void WidgetVtk::UpdateAverage3dTitle ()
-{
-    ForAllPipelines (PipelineType::AVERAGE_3D,
-	boost::bind (&WidgetVtk::updateViewTitle, this, _1));
-    update ();
-}
-void WidgetVtk::updateViewTitle (ViewNumber::Enum viewNumber)
-{
-    bool titleShown = GetSettings ()->IsTitleShown ();
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
-    PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
-    const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
-    G3D::Rect2D viewRect = GetNormalizedViewRect (viewNumber);
-    G3D::Vector2 position = G3D::Vector2 (
-        viewRect.center ().x, viewRect.y1 () * .98);
-    pipeline.UpdateViewTitle (
-        titleShown, position, simulation.GetName (), vs.GetTitle (viewNumber));
-}
-
 G3D::Rect2D WidgetVtk::GetNormalizedViewRect (ViewNumber::Enum viewNumber) const
 {
     float w = width ();
@@ -297,7 +303,7 @@ void WidgetVtk::CopySelectionFrom (int fromViewNumber)
 }
 
 
-void WidgetVtk::ForAllPipelines (
+void WidgetVtk::ForAllViews (
     PipelineType::Enum type, boost::function <void (ViewNumber::Enum)> f)
 {
     for (size_t i = 0; i < GetSettings ()->GetViewCount (); ++i)
@@ -341,7 +347,8 @@ void WidgetVtk::contextMenuEvent (QContextMenuEvent *event)
 void WidgetVtk::resizeEvent (QResizeEvent * event)
 {
     QVTKWidget::resizeEvent (event);
-    ForAllViews (boost::bind (&WidgetVtk::resizeViewEvent, this, _1));
+    WidgetBase::ForAllViews (
+        boost::bind (&WidgetVtk::resizeViewEvent, this, _1));
 }
 void WidgetVtk::resizeViewEvent (ViewNumber::Enum viewNumber)
 {
