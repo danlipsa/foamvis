@@ -44,7 +44,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	HistogramStatistics.cpp\
 	EditColorMap.cpp Element.cpp ExpressionTree.cpp \
 	Enums.cpp Foam.cpp FoamvisInteractorStyle.cpp\
-	Face.cpp DataProperties.cpp ForceOneObject.cpp\
+	Face.cpp ForceOneObject.cpp\
 	ForceAverage.cpp \
 	WidgetBase.cpp WidgetGl.cpp WidgetHistogram.cpp \
 	WidgetSave.cpp WidgetVtk.cpp \

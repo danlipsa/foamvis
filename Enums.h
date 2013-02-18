@@ -118,9 +118,7 @@ public:
     static Enum FromSizeT (size_t i);
 
 private:
-    static boost::array<const char*, COUNT> NAME2D;
-    static boost::array<const char*,COUNT> NAME3D;
-    static const boost::array<const char*, COUNT>& NAME ();
+    static boost::array<const char*, COUNT> NAME;
 };
 
 class FaceScalar

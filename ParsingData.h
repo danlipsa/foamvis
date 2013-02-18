@@ -322,7 +322,7 @@ public:
      * variables are not set, true otherwise.
      */
     bool GetT1s (const char* arrayName, const char* countName, 
-                 vector<G3D::Vector3>* t1s) const;
+                 vector<G3D::Vector3>* t1s, bool is2D) const;
 
     /**
      * @{

@@ -104,9 +104,11 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     widgetGl->SetStatus (labelStatusBar);
 
     widgetVtk->Init (GetSettings (), &simulationGroup);
-    if (DATA_PROPERTIES.Is3D ())
+    size_t index3DSimulation = simulationGroup.GetIndex3DSimulation ();
+    if (index3DSimulation != INVALID_INDEX)
     {
-	const Foam& foam = simulationGroup.GetSimulation (0).GetFoam (0);
+	const Foam& foam = 
+            simulationGroup.GetSimulation (index3DSimulation).GetFoam (0);
         boost::shared_ptr<Application> app = Application::Get ();
         QFont defaultFont = app->font ();
 	widgetVtk->Average3dCreatePipeline (
@@ -243,8 +245,7 @@ void MainWindow::initComboBoxSimulation (SimulationGroup& simulationGroup)
 void MainWindow::translatedBodyInit ()
 {
     m_debugTranslatedBody = true;
-    Foam& foam = const_cast<Foam&>
-	(widgetGl->GetSimulation ().GetFoam (0));
+    Foam& foam = const_cast<Foam&>(GetSimulation ().GetFoam (0));
     m_currentTranslatedBody = foam.GetBodies ().begin ();
 }
 
@@ -503,8 +504,7 @@ void MainWindow::translatedBodyStep ()
 {
     if (m_debugTranslatedBody)
     {
-	Foam& currentFoam = const_cast<Foam&> (
-	    widgetGl->GetSimulation ().GetFoam (0));
+	Foam& currentFoam = const_cast<Foam&> (GetSimulation ().GetFoam (0));
 	VertexSet vertexSet;
 	EdgeSet edgeSet;
 	FaceSet faceSet;
@@ -525,7 +525,7 @@ void MainWindow::processBodyTorusStep ()
 {
     try
     {
-	const Foam& currentFoam = widgetGl->GetSimulation ().GetFoam (0);
+	const Foam& currentFoam = GetSimulation ().GetFoam (0);
 	boost::shared_ptr<Body>  b = currentFoam.GetBodyPtr (m_currentBody);
 	if (m_processBodyTorus == 0)
 	{
@@ -545,7 +545,7 @@ void MainWindow::processBodyTorusStep ()
 		m_processBodyTorus = 0;
 		cdbg << "End process torus" << endl;
 		m_currentBody = (m_currentBody + 1) % 
-		    widgetGl->GetSimulation ().GetFoam (0).GetBodies ().size ();
+		    GetSimulation ().GetFoam (0).GetBodies ().size ();
 	    }
 	}
 	widgetGl->CompileUpdate ();
@@ -556,9 +556,9 @@ void MainWindow::processBodyTorusStep ()
     }
 }
 
-void MainWindow::update3DAverage ()
+void MainWindow::updateAllViews3DAverage ()
 {
-    if (DATA_PROPERTIES.Is2D ())
+    if (GetSimulationGroup ().GetIndex3DSimulation () != INVALID_INDEX)
 	return;
     widgetVtk->RemoveViews ();
     widgetVtk->WidgetBase::ForAllViews (
@@ -650,7 +650,7 @@ void MainWindow::createActions ()
 MainWindow::HistogramInfo MainWindow::getHistogramInfo (
     ColorBarType::Enum colorBarType, size_t bodyOrFaceScalar) const
 {
-    const Simulation& simulation = widgetGl->GetSimulation ();
+    const Simulation& simulation = GetSimulation ();
     switch (colorBarType)
     {
     case ColorBarType::STATISTICS_COUNT:
@@ -691,7 +691,7 @@ MainWindow::HistogramInfo MainWindow::createHistogramInfo (
 
 void MainWindow::setupColorBarModels ()
 {
-    size_t simulationCount = widgetGl->GetSimulationGroup ().size ();
+    size_t simulationCount = GetSimulationGroup ().size ();
     m_colorBarModelBodyScalar.resize (simulationCount);
     m_overlayBarModelVelocityVector.resize (simulationCount);
     m_colorBarModelDomainHistogram.resize (simulationCount);
@@ -785,7 +785,7 @@ void MainWindow::setupColorBarModel (
     BodyScalar::Enum property, size_t simulationIndex)
 {
     colorBarModel.reset (new ColorBarModel ());
-    const Simulation& simulation = widgetGl->GetSimulation (simulationIndex);
+    const Simulation& simulation = GetSimulation (simulationIndex);
     colorBarModel->SetTitle (BodyScalar::ToString (property));
     colorBarModel->SetInterval (simulation.GetRange (property));
     colorBarModel->SetupPalette (
@@ -970,6 +970,7 @@ void MainWindow::SelectionChangedHistogram (int vn)
 {
     ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (vn);
     ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
     const Histogram& histogram = widgetHistogram->GetHistogram (viewNumber);
     BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT (
         vs.GetBodyOrFaceScalar ());
@@ -989,7 +990,7 @@ void MainWindow::SelectionChangedHistogram (int vn)
 		new PropertyValueBodySelector (
                     bodyScalar, valueIntervals, bins)));
     widgetGl->CompileUpdate (viewNumber);
-    if (DATA_PROPERTIES.Is3D ())
+    if (simulation.Is3D ())
     {
 	QwtDoubleInterval interval;
 	if (valueIntervals.empty ())
@@ -1030,8 +1031,8 @@ void MainWindow::updateStretch (QWidget* widget,
 
 void MainWindow::updateStretch ()
 {
-    size_t glCount = GetSettings ()->GetGlCount ();
-    size_t vtkCount = GetSettings ()->GetVtkCount ();
+    size_t glCount = GetGlCount ();
+    size_t vtkCount = GetVtkCount ();
     if (glCount && vtkCount)
     {
 	ViewLayout::Enum layout = GetSettings ()->GetViewLayout ();
@@ -1051,7 +1052,7 @@ void MainWindow::CurrentIndexChangedViewLayout (int index)
     updateStretch ();
     widgetGl->CompileUpdate ();
     widgetVtk->update ();
-    update3DAverage ();
+    updateAllViews3DAverage ();
     comboBoxWindowLayout->setCurrentIndex (index);
 }
 
@@ -1072,7 +1073,7 @@ void MainWindow::CurrentIndexChangedViewCount (int index)
     checkBoxTitleShown->setChecked (viewCount != ViewCount::ONE);    
     GetSettings ()->SetAverageTimeWindow (GetSettings ()->GetLinkedTimeSteps ());
     widgetHistogram->UpdateHidden ();
-    update3DAverage ();
+    updateAllViews3DAverage ();
 }
 
 
@@ -1277,7 +1278,7 @@ void MainWindow::ValueChangedT1sKernelSigma (double value)
     {
 	ViewNumber::Enum viewNumber = vn[i];
 	size_t simulationIndex = 
-	    widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
+	    GetViewSettings (viewNumber).GetSimulationIndex ();
 	m_colorBarModelT1sKDE[simulationIndex][viewNumber]->SetInterval (
 	    toQwtDoubleInterval (widgetGl->GetRangeT1sKDE (viewNumber)));
     }
@@ -1300,6 +1301,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
     {
         ViewNumber::Enum viewNumber = vn[i];
         ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+        const Simulation& simulation = GetSimulation (viewNumber);
         ViewType::Enum viewType = vs.GetViewType ();
         if (vs.GetTime () < GetSettings ()->GetLinkedTime ())
             continue;
@@ -1310,7 +1312,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
                                      WidgetHistogram::KEEP_MAX_VALUE);
         if (viewType == ViewType::AVERAGE || viewType == ViewType::T1S_KDE)
         {
-            if (DATA_PROPERTIES.Is3D ())
+            if (simulation.Is3D ())
                 widgetVtk->UpdateAverage (viewNumber, direction[viewNumber]);
             else
                 widgetGl->UpdateAverage (viewNumber, direction[viewNumber]);
@@ -1319,9 +1321,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 
         if (m_debugTranslatedBody)
         {
-            const Foam& foam = 
-                GetSimulationGroup ().GetSimulation (
-                    vs.GetSimulationIndex ()).GetFoam (0);
+            const Foam& foam = GetSimulation ().GetFoam (0);
             m_currentTranslatedBody = 
                 const_cast<Foam&> (foam).GetBodies ().begin ();
         }
@@ -1368,8 +1368,7 @@ void MainWindow::ButtonClickedViewType (int vt)
     {
 	ViewNumber::Enum viewNumber = vn[i];
 	ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
-	const Simulation& simulation = GetSimulationGroup ().GetSimulation (
-	    *GetSettings (), viewNumber);
+	const Simulation& simulation = GetSimulation (viewNumber);
 
 	size_t simulationIndex = vs.GetSimulationIndex ();
 	ViewType::Enum oldViewType = vs.GetViewType ();
@@ -1408,7 +1407,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 	    sliderTimeSteps->setMaximum (simulation.GetTimeSteps () - 1);
     }
     widgetGl->ButtonClickedViewType (oldViewType);
-    update3DAverage ();
+    updateAllViews3DAverage ();
 }
 
 void MainWindow::ButtonClickedTimeLinkage (int id)
@@ -1498,10 +1497,8 @@ void MainWindow::ToggledTwoHalvesView (bool reflectedHalfView)
 	return;
     }
     checkBoxTitleShown->setChecked (false);
-    GetSettings ()->SetTwoHalvesView (
-	reflectedHalfView, 
-	GetSimulationGroup ().GetSimulation (*GetSettings ()), 
-	widgetGl->width (), widgetGl->height ());
+    GetSettings ()->SetTwoHalvesView (reflectedHalfView, GetSimulation (), 
+                                      widgetGl->width (), widgetGl->height ());
     widgetGl->CompileUpdate ();
 }
 
@@ -1532,9 +1529,8 @@ void MainWindow::updateSliderTimeSteps (
     const vector<QwtDoubleInterval>& valueIntervals)
 {
     vector<bool> timeStepSelection;
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
-    const Simulation& simulation = 
-        GetSimulationGroup ().GetSimulation (*GetSettings ());
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
     BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT (
         vs.GetBodyOrFaceScalar ());
     simulation.GetTimeStepSelection (
@@ -1667,12 +1663,13 @@ void MainWindow::linkedTimeEventsViewToUI (ViewNumber::Enum viewNumber)
 
 void MainWindow::deformationViewToUI ()
 {
-    const ViewSettings& vs = GetSettings ()->GetViewSettings ();
+    const ViewSettings& vs = GetViewSettings ();
+    const Simulation& simulation = GetSimulation ();
     SetCheckedNoSignals (checkBoxDeformationShown, 
 			 vs.IsDeformationShown ());
     bool gridShown = false;
     bool gridCellCenterShown = false;
-    if (DATA_PROPERTIES.Is2D ())
+    if (simulation.Is2D ())
     {
 	AttributeAverages2D& va = widgetGl->GetAttributeAverages2D ();
 	gridShown = va.GetDeformationAverage ().IsGridShown ();
@@ -1696,13 +1693,14 @@ void MainWindow::deformationViewToUI ()
 
 void MainWindow::velocityViewToUI ()
 {
-    const ViewSettings& vs = GetSettings ()->GetViewSettings ();
+    const ViewSettings& vs = GetViewSettings ();
+    const Simulation& simulation = GetSimulation ();
     bool gridShown = false;
     bool clampingShown = false;
     bool gridCellCenterShown = false;
     bool sameSize = false;
     bool colorMapped = false;
-    if (DATA_PROPERTIES.Is2D ())
+    if (simulation.Is2D ())
     {
 	const VectorAverage& va = 
 	    widgetGl->GetAttributeAverages2D ().GetVelocityAverage ();
@@ -1741,8 +1739,7 @@ void MainWindow::forceViewToUI ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
-    const Simulation& simulation = GetSimulationGroup ().GetSimulation (
-	*GetSettings (), viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
     // force
     SetCheckedNoSignals (
 	checkBoxForceNetwork, vs.IsForceNetworkShown (), 
@@ -1783,16 +1780,17 @@ void MainWindow::forceViewToUI ()
 
 void MainWindow::t1sKDEViewToUI (ViewNumber::Enum viewNumber)
 {
-    if (DATA_PROPERTIES.Is2D ())
+    const Simulation& simulation = GetSimulation (viewNumber);
+    if (simulation.Is2D ())
     {
         bool kernelTextureShown = false;
-	const T1sKDE& kde = widgetGl->GetAttributeAverages2D (viewNumber).GetT1sKDE ();
+	const T1sKDE& kde = 
+            widgetGl->GetAttributeAverages2D (viewNumber).GetT1sKDE ();
 	kernelTextureShown = kde.IsKernelTextureShown ();
         SetCheckedNoSignals (checkBoxTextureShown, kernelTextureShown);
         SetValueNoSignals (
             doubleSpinBoxKernelSigma, kde.GetKernelSigmaInBubbleDiameters ());
-        const Simulation& simulation = 
-            GetSimulationGroup ().GetSimulation (*GetSettings (), viewNumber);
+        const Simulation& simulation = GetSimulation (viewNumber);
         radioButtonT1sKDE->setEnabled (simulation.T1sAvailable ());
     }
 }
@@ -1802,8 +1800,7 @@ void MainWindow::bubblePathsViewToUI ()
     ViewNumber::Enum viewNumber = GetViewNumber ();
     const ViewSettings& vs = GetSettings ()->GetViewSettings ();
     int property = vs.GetBodyOrFaceScalar ();
-    const Simulation& simulation = GetSimulationGroup ().GetSimulation (
-	*GetSettings ());
+    const Simulation& simulation = GetSimulation ();
 
     labelBubblePathsColor->setText (FaceScalar::ToString (property));
     SetCheckedNoSignals (checkBoxBubblePathsPartialPathHidden, 

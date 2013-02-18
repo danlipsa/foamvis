@@ -115,6 +115,8 @@ Face::Face (const vector<boost::shared_ptr<Edge> >& edges, size_t id) :
     CalculateCentroidAndArea ();
 }
 
+
+
 void Face::CalculateCentroidAndArea ()
 {
     boost::array<G3D::Vector3, 3> a;
@@ -422,12 +424,12 @@ QColor Face::GetColor (const QColor& defaultColor) const
 	return defaultColor;
 }
 
-size_t Face::GetEdgesPerFace () const
+size_t Face::GetEdgesPerFace (bool is2D) const
 {
     size_t count = 0;
     BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, GetOrientedEdges ())
     {
-	if (oe->GetBegin ().IsPhysical ())
+	if (oe->GetBegin ().IsPhysical (is2D))
 	    ++count;
     }
     return count;

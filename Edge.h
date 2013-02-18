@@ -84,12 +84,13 @@ public:
     void ReversePrint (ostream& ostr) const;
     /**
      * Is this a physical edge (not a tesselation edge)?
+     *
      * 3D:
      * A physical edge has 3 faces adjacent to it 
      * (or 6 oriented faces or 4 oriented faces for outside faces).
+     *
      * 2D:
      * In quadradic model all edges are physical
-     * @return true if this is a physical edge, false otherwise
      */
     bool IsPhysical () const;
 
@@ -149,6 +150,10 @@ public:
     Type GetType () const
     {
 	return m_type;
+    }
+    bool IsQuadratic () const
+    {
+        return GetType () == QUADRATIC_EDGE;
     }
 
 public:

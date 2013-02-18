@@ -287,18 +287,17 @@ bool isMatrixValid (GLenum matrixType)
     return true;
 }
 
-float GetOnePixelInObjectSpace ()
+float GetOnePixelInObjectSpace (bool is2D)
 {
-    G3D::Vector3 first = toObject (G3D::Vector2 (0, 1));
-    G3D::Vector3 second = toObject (G3D::Vector2 (1, 1));
+    G3D::Vector3 first = toObject (G3D::Vector2 (0, 1), is2D);
+    G3D::Vector3 second = toObject (G3D::Vector2 (1, 1), is2D);
     float onePixelInObjectSpace = (second - first).length ();
     return onePixelInObjectSpace;
 }
 
 
-G3D::Vector3 toObject (const G3D::Vector2& positionGl)
+G3D::Vector3 toObject (const G3D::Vector2& positionGl, bool is2D)
 {
-    bool is2D = DATA_PROPERTIES.Is2D ();
     G3D::Vector3 op = gluUnProject (positionGl, 
 				    is2D ? GluUnProjectZOperation::SET0 : 
 				    GluUnProjectZOperation::READ);
@@ -306,10 +305,10 @@ G3D::Vector3 toObject (const G3D::Vector2& positionGl)
 }
 
 
-G3D::Vector3 toObject (const QPoint& positionQt, int windowHeight)
+G3D::Vector3 toObject (const QPoint& positionQt, int windowHeight, bool is2D)
 {
     G3D::Vector2 positionGl = QtToOpenGl (positionQt, windowHeight);
-    return toObject (positionGl);
+    return toObject (positionGl, is2D);
 }
 
 

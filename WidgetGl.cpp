@@ -134,7 +134,7 @@ const GLfloat WidgetGl::HIGHLIGHT_LINE_WIDTH = 2.0;
 
 WidgetGl::WidgetGl(QWidget *parent)
     : QGLWidget(parent),
-      WidgetBase (this, &Settings::IsGlView, &Settings::GetGlCount),
+      WidgetBase (this, &WidgetBase::IsGlView, &WidgetBase::GetGlCount),
       m_torusDomainShown (false),
       m_interactionObject (InteractionObject::FOCUS),
       m_edgesShown (true),
@@ -640,7 +640,7 @@ G3D::AABox WidgetGl::calculateEyeViewingVolume (
 {
     
     vector<ViewNumber::Enum> mapping;
-    ViewCount::Enum viewCount = GetSettings ()->GetGlCount (&mapping);
+    ViewCount::Enum viewCount = GetGlCount (&mapping);
     return GetSettings ()->CalculateEyeViewingVolume (
 	mapping[viewNumber], viewCount, 
 	GetSimulation (viewNumber), width (), height (), enclose);
@@ -651,7 +651,7 @@ G3D::AABox WidgetGl::CalculateCenteredViewingVolume (
     ViewNumber::Enum viewNumber) const
 {
     vector<ViewNumber::Enum> mapping;
-    ViewCount::Enum viewCount = GetSettings ()->GetGlCount (&mapping);
+    ViewCount::Enum viewCount = GetGlCount (&mapping);
     return GetSettings ()->CalculateCenteredViewingVolume (
 	mapping[viewNumber], viewCount, GetSimulation (viewNumber), width (),
 	height (), ViewingVolumeOperation::DONT_ENCLOSE2D);
@@ -885,9 +885,8 @@ void WidgetGl::displayAllViewTransforms (ViewNumber::Enum viewNumber)
             - domain.GetY ()
         }};
 
-    ViewSettings& vs = GetViewSettings (viewNumber);
-
-    enableTorusDomainClipPlanes (vs.DomainClipped ());    
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    enableTorusDomainClipPlanes (viewNumber);    
     (this->*(m_display[vs.GetViewType ()])) (viewNumber);
     for (size_t i = 0; i < m_duplicateDomain.size (); ++i)
     {
@@ -899,7 +898,7 @@ void WidgetGl::displayAllViewTransforms (ViewNumber::Enum viewNumber)
             glPopMatrix ();
         }
     }
-    enableTorusDomainClipPlanes (false);
+    enableTorusDomainClipPlanes (viewNumber);
 }
 
 
@@ -907,10 +906,12 @@ void WidgetGl::displayView (ViewNumber::Enum viewNumber)
 {
     //QTime t;t.start ();
     ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
     vs.SetGlLightParameters (CalculateCenteredViewingVolume (viewNumber));
     allTransform (viewNumber);
-    setTorusDomainClipPlanes ();
-    GetSettings ()->SetEdgeArrow (GetOnePixelInObjectSpace ());
+    setTorusDomainClipPlanes (viewNumber);
+    GetSettings ()->SetEdgeArrow (GetOnePixelInObjectSpace
+ (simulation.Is2D ()));
     displayAllViewTransforms (viewNumber);
     displayViewDecorations (viewNumber);
     displayAxes (viewNumber);
@@ -1219,8 +1220,9 @@ OrientedEdge WidgetGl::brushedEdge ()
 G3D::Vector3 WidgetGl::toObjectTransform (const QPoint& position, 
 					  ViewNumber::Enum viewNumber) const
 {
+    const Simulation& simulation = GetSimulation (viewNumber);
     allTransform (viewNumber);
-    return toObject (position, height ());
+    return toObject (position, height (), simulation.Is2D ());
 }
 
 G3D::Vector3 WidgetGl::toObjectTransform (const QPoint& position) const
@@ -1642,7 +1644,7 @@ void WidgetGl::displayAxes (ViewNumber::Enum viewNumber)
 	G3D::Vector3 first = origin + diagonal.x * G3D::Vector3::unitX ();
 	G3D::Vector3 second = origin + diagonal.y * G3D::Vector3::unitY ();
 	G3D::Vector3 third = origin + diagonal.z * G3D::Vector3::unitZ ();
-	a = fm.height () * GetOnePixelInObjectSpace ();
+	a = fm.height () * GetOnePixelInObjectSpace (simulation.Is2D ());
 
         // Display the X axis
 	glColor (Qt::red);
@@ -1750,6 +1752,7 @@ void WidgetGl::displayVelocityGlyphs (ViewNumber::Enum viewNumber) const
     const Foam& foam = 
 	GetSimulation (viewNumber).GetFoam (GetTime (viewNumber));
     const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
     const VectorAverage& va = GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
     if (! foam.Is2D () || ! vs.IsVelocityShown ())
 	return;
@@ -1769,7 +1772,7 @@ void WidgetGl::displayVelocityGlyphs (ViewNumber::Enum viewNumber) const
 	    *GetSettings (), viewNumber,
 	    vs.GetBodySelector (), GetBubbleDiameter (viewNumber), 
 	    GetVelocitySizeInitialRatio (viewNumber),
-	    GetOnePixelInObjectSpace (), 
+	    GetOnePixelInObjectSpace (simulation.Is2D ()), 
 	    va.IsSameSize (), va.IsClampingShown ()));
     glPopAttrib ();    
 }
@@ -1804,6 +1807,7 @@ void WidgetGl::displayBodyVelocity (
     if (m_showType == SHOW_VELOCITY)
     {
 	ViewSettings& vs = GetViewSettings (viewNumber);
+        const Simulation& simulation = GetSimulation (viewNumber);
 	const Foam& foam = 
 	    GetSimulation (viewNumber).GetFoam (GetTime (viewNumber));
 	if (! foam.Is2D ())
@@ -1818,7 +1822,7 @@ void WidgetGl::displayBodyVelocity (
 	    vs.GetBodySelector (), 
 	    GetBubbleDiameter (viewNumber), 
 	    GetVelocitySizeInitialRatio (viewNumber),
-	    GetOnePixelInObjectSpace (), va.IsSameSize (), 
+	    GetOnePixelInObjectSpace (simulation.Is2D ()), va.IsSameSize (), 
 	    va.IsClampingShown ()) (*foam.FindBody (m_showBodyId));
 	glPopAttrib ();
     }
@@ -1905,9 +1909,10 @@ void WidgetGl::DisplayT1Quad (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t t1Index) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
     T1sKDE& t1sKDE = GetAttributeAverages2D (viewNumber).GetT1sKDE ();
     float rectSize = t1sKDE.GetKernelTextureSize () * 
-	GetOnePixelInObjectSpace ();
+	GetOnePixelInObjectSpace (simulation.Is2D ());
     float half = rectSize / 2;
     G3D::Rect2D srcTexRect = G3D::Rect2D::xyxy (0., 0., 1., 1.);
     const G3D::Vector3 t1Pos = 
@@ -2174,7 +2179,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     const Simulation& simulation = GetSimulation (viewNumber);
     const Foam& foam = simulation.GetFoam (0);
     const AttributeAverages2D& aa = GetAttributeAverages2D (viewNumber);
-    if (! DATA_PROPERTIES.Is2D ())
+    if (simulation.Is3D ())
 	return;
     glPushAttrib (GL_ENABLE_BIT);    
     glDisable (GL_DEPTH_TEST);
@@ -2257,6 +2262,7 @@ void WidgetGl::displayFacesInterior (
     const Foam::Bodies& b, ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
     Foam::Bodies bodies = b;
     const BodySelector& bodySelector = vs.GetBodySelector ();
     // partition: opaque bodies first, then transparent bodies
@@ -2268,7 +2274,7 @@ void WidgetGl::displayFacesInterior (
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
 
-    if (DATA_PROPERTIES.Is2D ())
+    if (simulation.Is2D ())
     {
 	glEnable (GL_STENCIL_TEST);
 	glClear(GL_STENCIL_BUFFER_BIT);
@@ -2738,15 +2744,17 @@ void WidgetGl::displayTextureColorBar (
     glPopAttrib ();
     const ColorBarModel& barModel = *vs.GetColorBarModel ();
     displayBarClampLevels (barModel, barRect);
-    displayBarLabels (barModel, br);
+    displayBarLabels (viewNumber, barModel, br);
 }
 
 void WidgetGl::displayBarLabels (
+    ViewNumber::Enum viewNumber,
     const ColorBarModel& cbm, const G3D::Rect2D& barRect)
 {
     if (! GetSettings ()->BarLabelsShown ())
         return;
-    float onePixelInObjectSpace = GetOnePixelInObjectSpace ();
+    const Simulation& simulation = GetSimulation (viewNumber);
+    float onePixelInObjectSpace = GetOnePixelInObjectSpace (simulation.Is2D ());
     QFont font;
     float distance = 5 * onePixelInObjectSpace;
     QFontMetrics fm (font);
@@ -2813,7 +2821,7 @@ void WidgetGl::displayOverlayBar (
     const ColorBarModel& barModel = *vs.GetOverlayBarModel ();
     displayBarClampLevels (barModel, barRect);
     glPopAttrib ();
-    displayBarLabels (barModel, barRect);
+    displayBarLabels (viewNumber, barModel, barRect);
 }
 
 
@@ -3332,9 +3340,10 @@ void WidgetGl::setTexture (
     }
 }
 
-void WidgetGl::setTorusDomainClipPlanes ()
+void WidgetGl::setTorusDomainClipPlanes (ViewNumber::Enum viewNumber)
 {
-    if (GetSimulation ().IsTorus ())
+    const Simulation& simulation = GetSimulation (viewNumber);
+    if (simulation.IsTorus ())
     {
         OOBox domain = GetFoam ().GetTorusDomain ();
         G3D::Vector3 x = domain.GetX (), y = domain.GetY (), z = domain.GetZ ();
@@ -3347,7 +3356,7 @@ void WidgetGl::setTorusDomainClipPlanes ()
                 {{z, y + z, x + z}},    // near
                 {{zero, x, y}}          // far
             }};
-        size_t pc = DATA_PROPERTIES.Is2D () ? PLANE_COUNT_2D : PLANE_COUNT;
+        size_t pc = simulation.Is2D () ? PLANE_COUNT_2D : PLANE_COUNT;
         for (size_t i = 0; i < pc; ++i)
         {
             GLdouble eq[4];
@@ -3358,9 +3367,12 @@ void WidgetGl::setTorusDomainClipPlanes ()
     }
 }
 
-void WidgetGl::enableTorusDomainClipPlanes (bool enable)
+void WidgetGl::enableTorusDomainClipPlanes (ViewNumber::Enum viewNumber)
 {
-    size_t pc = DATA_PROPERTIES.Is2D () ? PLANE_COUNT_2D : PLANE_COUNT;
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
+    bool enable = vs.DomainClipped ();
+    size_t pc = simulation.Is2D () ? PLANE_COUNT_2D : PLANE_COUNT;
     for (size_t i = 0; i < pc; ++i)
     {
         enable ? glEnable (CLIP_PLANE_NUMBER[i]) : 
@@ -4371,7 +4383,7 @@ void WidgetGl::CurrentIndexChangedSimulation (int i)
 void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
 {
     makeCurrent ();
-    if (GetSettings ()->GetGlCount () == 0)
+    if (GetGlCount () == 0)
 	setVisible (false);
     else
     {
@@ -4379,7 +4391,7 @@ void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
 	for (size_t i = 0; i < vn.size (); ++i)
 	{
 	    ViewNumber::Enum viewNumber = vn[i];
-	    if (GetSettings ()->IsGlView (viewNumber))
+	    if (IsGlView (viewNumber))
 	    {
 		ViewSettings& vs = GetViewSettings (viewNumber);
 		ViewType::Enum newViewType = vs.GetViewType ();
@@ -4690,7 +4702,8 @@ void WidgetGl::ValueChangedEdgesRadius (int sliderValue)
     size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
     GetSettings ()->SetEdgeRadiusRatio (
         static_cast<double>(sliderValue) / maximum);
-    GetSettings ()->SetEdgeArrow (GetOnePixelInObjectSpace ());
+    const Simulation& simulation = GetSimulation ();
+    GetSettings ()->SetEdgeArrow (GetOnePixelInObjectSpace (simulation.Is2D ()));
     CompileUpdateAll ();
 }
 

@@ -94,13 +94,13 @@ ostream& operator<< (ostream& ostr, AttributeType::Enum type)
 
 // Methods BodyScalar
 // ======================================================================
-boost::array<const char*, BodyScalar::COUNT> BodyScalar::NAME2D = {{
+boost::array<const char*, BodyScalar::COUNT> BodyScalar::NAME = {{
 	"Velocity along x",
 	"Velocity along y",
 	"Velocity along z",
 	"Velocity magnitude",
 	"Edges per face",
-	"Deformation P / sqrt(A)",
+	"Deformation", // P / sqrt(A) (2D) or A / V^(2/3) (3D)
 	"Deformation eigen",
 	"Pressure",
 	"Target volume",
@@ -108,33 +108,12 @@ boost::array<const char*, BodyScalar::COUNT> BodyScalar::NAME2D = {{
 	"Growth rate"
     }};
 
-boost::array<const char*, BodyScalar::COUNT> BodyScalar::NAME3D = {{
-	"Velocity along x",
-	"Velocity along y",
-	"Velocity along z",
-	"Velocity magnitude",
-	"Faces per body",
-	"Deformation A / V^(2/3)",
-	"Deformation eigen",
-	"Pressure",
-	"Target volume",
-	"Actual volume",
-	"Growth rate"
-    }};
-
-const boost::array<const char*, BodyScalar::COUNT>& BodyScalar::NAME ()
-{
-    // C++ FAQ, 10.5 How do I prevent the "static initialization order fiasco"
-    static boost::array<const char*, BodyScalar::COUNT>* name = 
-	(DATA_PROPERTIES.Is2D ()) ? &NAME2D : &NAME3D;
-    return *name;
-}
 
 const char* BodyScalar::ToString (BodyScalar::Enum property)
 {
-    RuntimeAssert (property < static_cast<int> (NAME ().size ()), 
+    RuntimeAssert (property < static_cast<int> (NAME.size ()), 
 		   "Invalid BodyScalar: ", property);
-    return NAME ()[property];
+    return NAME[property];
 }
 
 BodyScalar::Enum BodyScalar::FromSizeT (size_t i)

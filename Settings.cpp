@@ -372,62 +372,6 @@ G3D::AABox Settings::CalculateViewingVolume (
     return vv;
 }
 
-bool Settings::IsVtkView (ViewNumber::Enum viewNumber) const
-{
-    const ViewSettings& vs = 
-	GetViewSettings (ViewNumber::FromSizeT (viewNumber));
-    return DATA_PROPERTIES.Is3D () && vs.GetViewType () == ViewType::AVERAGE;
-}
-
-bool Settings::IsGlView (ViewNumber::Enum viewNumber) const
-{
-    return ! IsVtkView (viewNumber);
-}
-
-
-bool Settings::IsHistogramShown (ViewNumber::Enum viewNumber) const
-{
-    const ViewSettings& vs = 
-	GetViewSettings (ViewNumber::FromSizeT (viewNumber));
-    return vs.IsHistogramShown ();
-}
-
-
-ViewCount::Enum Settings::getViewCount (
-    vector<ViewNumber::Enum>* mapping, IsViewType isView) const
-{
-    vector<ViewNumber::Enum> m;
-    if (mapping == 0)
-	mapping = &m;
-    size_t viewCount = GetViewCount ();
-    mapping->resize (viewCount);
-    fill (mapping->begin (), mapping->end (), ViewNumber::COUNT);
-    int count = 0;
-    for (size_t i = 0; i < viewCount; ++i)
-	if (CALL_MEMBER (*this, isView) (ViewNumber::FromSizeT (i)))
-	{
-	    (*mapping)[i] = ViewNumber::FromSizeT (count);
-	    count++;
-	}
-    return ViewCount::FromSizeT (count);
-}
-
-
-ViewCount::Enum Settings::GetVtkCount (vector<ViewNumber::Enum>* mapping) const
-{
-    return getViewCount (mapping, &Settings::IsVtkView);
-}
-
-ViewCount::Enum Settings::GetHistogramCount (
-    vector<ViewNumber::Enum>* mapping) const
-{
-    return getViewCount (mapping, &Settings::IsHistogramShown);
-}
-
-ViewCount::Enum Settings::GetGlCount (vector<ViewNumber::Enum>* mapping) const
-{
-    return getViewCount (mapping, &Settings::IsGlView);
-}
 
 ViewType::Enum Settings::SetTwoHalvesViewType (ViewType::Enum viewType)
 {

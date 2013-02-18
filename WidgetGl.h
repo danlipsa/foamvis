@@ -440,8 +440,8 @@ private:
     void modelViewTransform (ViewNumber::Enum viewNumber, 
 			     size_t timeStep,
                              RotateForAxisOrder rotateForAxisOrder) const;
-    void setTorusDomainClipPlanes ();
-    void enableTorusDomainClipPlanes (bool enable);
+    void setTorusDomainClipPlanes (ViewNumber::Enum viewNumber);
+    void enableTorusDomainClipPlanes (ViewNumber::Enum viewNumber);
     void setSimulation (int i, ViewNumber::Enum viewNumber);
     void initTransformViewport ();
     void cleanupTransformViewport ();
@@ -498,6 +498,7 @@ private:
 				 ViewNumber::Enum viewNumber, 
 				 const G3D::Rect2D& barRect);
     void displayBarLabels (
+        ViewNumber::Enum viewNumber,
         const ColorBarModel& cbm, const G3D::Rect2D& colorBarRect);
     void displayOverlayBar (
 	ViewNumber::Enum viewNumber, const G3D::Rect2D& barRect);

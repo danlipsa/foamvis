@@ -52,7 +52,7 @@ void RenderWindowPaintEnd::Execute (
 
 WidgetVtk::WidgetVtk (QWidget* parent) :
     QVTKWidget (parent),
-    WidgetBase (this, &Settings::IsVtkView, &Settings::GetVtkCount),
+    WidgetBase (this, &WidgetBase::IsVtkView, &WidgetBase::GetVtkCount),
     m_fontSize (10)
 {
     setVisible (false);
@@ -107,7 +107,7 @@ void WidgetVtk::VtkToView (ViewNumber::Enum viewNumber)
 {
     // This may be called by RenderWindowPaintEnd and may arrive after the 
     // view was switched to a Gl view
-    if (GetSettings ()->IsVtkView (viewNumber))
+    if (IsVtkView (viewNumber))
     {
         ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
         const Foam& foam = m_average[viewNumber]->GetFoam ();
@@ -309,8 +309,7 @@ void WidgetVtk::ForAllViews (
     for (size_t i = 0; i < GetSettings ()->GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
-	if (GetSettings ()->IsVtkView (viewNumber) &&
-            GetPipelineType (viewNumber) == type)
+	if (IsVtkView (viewNumber) && GetPipelineType (viewNumber) == type)
 	    f (viewNumber);
     }
 }

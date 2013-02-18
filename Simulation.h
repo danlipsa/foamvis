@@ -313,6 +313,7 @@ public:
     }
     string ToString () const;
     float GetBubbleDiameter () const;    
+    size_t GetIndex3DSimulation () const;
 
 private:
     vector<Simulation> m_simulation;

@@ -17,8 +17,8 @@
 
 WidgetHistogram::WidgetHistogram(QWidget *parent)
     : QWidget (parent), 
-      WidgetBase (this, &Settings::IsHistogramShown, 
-                  &Settings::GetHistogramCount)
+      WidgetBase (this, &WidgetBase::IsHistogramShown, 
+                  &WidgetBase::GetHistogramCount)
 {
     fill (m_histogram.begin (), m_histogram.end (), (AttributeHistogram*)0);
 }

@@ -33,7 +33,11 @@ public:
      * Is this a physical (not tesselation) vertex
      * @return true if it is physical, false otherwise
      */
-    bool IsPhysical () const ;
+    bool IsPhysical (bool is2D) const ;
+    bool IsStandalone () const
+    {
+	return m_adjacentEdges.size () == 0;
+    }
     /**
      * Adds an edge that is adjacent to this vertex
      * @param edge edge touched by this vertex
@@ -110,6 +114,7 @@ private:
 	const G3D::Vector3int16& translation);
     boost::shared_ptr<Vertex> createDuplicate (
 	const OOBox& periods, const G3D::Vector3int16& translation) const;
+    bool adjacentQuadraticEdge () const;
 
 private:
     /**

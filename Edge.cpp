@@ -7,6 +7,7 @@
 #include "Attribute.h"
 #include "AttributeCreator.h"
 #include "AttributeInfo.h"
+#include "Body.h"
 #include "Debug.h"
 #include "DebugStream.h"
 #include "Edge.h"
@@ -107,27 +108,38 @@ string Edge::AdjacentFacesToString () const
 
 bool Edge::IsPhysical () const
 {
-    if (DATA_PROPERTIES.Is2D ())
-    {
+    if (IsStandalone ())
 	return true;
-    }
     else
     {
-	if (m_adjacentOrientedFaces.size () < 4)
-	    return false;
-	AdjacentOrientedFaces::const_iterator end = 
-	    m_adjacentOrientedFaces.end ();
-	AdjacentOrientedFaces::const_iterator begin;
-	AdjacentOrientedFaces::const_iterator next = 
-	    m_adjacentOrientedFaces.begin ();
-	size_t facesPartOfSize = 0;
-	do
-	{
-	    begin = next;
-	    next = m_adjacentOrientedFaces.equal_range (*begin).second;
-	    ++facesPartOfSize;
-	} while (next != end);
-	return facesPartOfSize == 3;
+        boost::shared_ptr<OrientedFace> of = 
+            GetAdjacentOrientedFaces ().begin ()->GetOrientedFace ();
+        if (of->IsStandalone ())
+            return true;
+        else
+        {
+            boost::shared_ptr<Body> body = of->GetAdjacentBody ().GetBody ();
+            if (body->Is2D ())
+                return true;
+            else
+            {
+                if (m_adjacentOrientedFaces.size () < 4)
+                    return false;
+                AdjacentOrientedFaces::const_iterator end = 
+                    m_adjacentOrientedFaces.end ();
+                AdjacentOrientedFaces::const_iterator begin;
+                AdjacentOrientedFaces::const_iterator next = 
+                    m_adjacentOrientedFaces.begin ();
+                size_t facesPartOfSize = 0;
+                do
+                {
+                    begin = next;
+                    next = m_adjacentOrientedFaces.equal_range (*begin).second;
+                    ++facesPartOfSize;
+                } while (next != end);
+                return facesPartOfSize == 3;
+            }
+        }
     }
 }
 

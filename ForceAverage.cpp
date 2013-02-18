@@ -193,7 +193,7 @@ void ForceAverage::displayTorqueOneObject (
 	    forcesOneObject.m_networkTorque,
 	    forcesOneObject.m_pressureTorque,
 	    forcesOneObject.m_networkTorque + forcesOneObject.m_pressureTorque}};
-    float onePixel = GetOnePixelInObjectSpace ();
+    float onePixel = GetOnePixelInObjectSpace (simulation.Is2D ());
     boost::array<G3D::Vector2, 3> displacement = {{
 	    G3D::Vector2 (0, 0),
 	    G3D::Vector2 (onePixel, onePixel),
@@ -240,10 +240,11 @@ void ForceAverage::displayForce (
     QColor color, const G3D::Vector2& center, const G3D::Vector2& force) const
 {
     ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
+    const Simulation& simulation = GetSimulation ();
     glColor (color);
     DisplaySegmentArrow (
 	center, force, vs.GetForceTorqueLineWidth (),
-	GetOnePixelInObjectSpace (), false);
+	GetOnePixelInObjectSpace (simulation.Is2D ()), false);
 }
 
 

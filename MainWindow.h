@@ -145,7 +145,7 @@ private:
         const vector<QwtDoubleInterval>& valueIntervals);
     void updateStretch ();
     void addVtkView (ViewNumber::Enum viewNumber);
-    void update3DAverage ();
+    void updateAllViews3DAverage ();
     void currentIndexChangedFaceColor (ViewNumber::Enum viewNumber);
     void settingsViewToUI (ViewNumber::Enum viewNumber);
     void timeViewToUI (ViewNumber::Enum viewNumber);

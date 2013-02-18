@@ -58,7 +58,6 @@ private:
     bool m_quadratic;
 };
 
-extern DataProperties DATA_PROPERTIES;
 
 
 #endif //__DATA_PROPERTIES_H__

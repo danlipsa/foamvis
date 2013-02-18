@@ -532,7 +532,7 @@ void Simulation::ParseT1s (const char* arrayName, const char* countName)
         // in the file: first time step is 1 and T1s occur before timeStep
         // in memory: first time step is 0 and T1s occur after timeStep
         if (! foam->GetParsingData ().GetT1s (
-                arrayName, countName, &m_t1s[i - 1]))
+                arrayName, countName, &m_t1s[i - 1], foams[0]->Is2D ()))
         {
             m_t1s.resize (0);
             RuntimeAssert (
@@ -616,9 +616,6 @@ void Simulation::ParseDMPs (
 	GetForcesNames (), OriginalUsed (), GetDataProperties (),
 	Foam::SET_DATA_PROPERTIES,
 	debugParsing, debugScanning) (*files.begin ());
-    DATA_PROPERTIES.SetSpaceDimension (
-	GetDataProperties ()->GetSpaceDimension ());
-    DATA_PROPERTIES.SetQuadratic (GetDataProperties ()->IsQuadratic ());
     QList< boost::shared_ptr<Foam> > foams = QtConcurrent::blockingMapped 
 	< QList < boost::shared_ptr<Foam> > > (
 	    files.begin () + 1, files.end (),
@@ -643,7 +640,7 @@ float Simulation::GetBubbleDiameter () const
     }
     const G3D::AABox& box = foam.GetBody (0).GetBoundingBox ();
     G3D::Vector3 e = box.extent ();
-    if (DATA_PROPERTIES.Is2D ())
+    if (Is2D ())
         return (e.x + e.y) / 2;
     else
         return (e.x + e.y + e.z) / 3;
@@ -701,4 +698,12 @@ const Simulation& SimulationGroup::GetSimulation(
 const Simulation& SimulationGroup::GetSimulation(const Settings& settings) const
 {
     return GetSimulation (settings, settings.GetViewNumber ());
+}
+
+size_t SimulationGroup::GetIndex3DSimulation () const
+{
+    for (size_t i = 0; i < size (); ++i)
+        if (m_simulation[i].Is3D ())
+            return i;
+    return INVALID_INDEX;
 }

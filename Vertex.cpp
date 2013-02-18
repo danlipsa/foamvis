@@ -80,21 +80,35 @@ bool Vertex::fuzzyEq (const Vertex& other) const
 }
 
 
-bool Vertex::IsPhysical () const 
+bool Vertex::IsPhysical (bool is2D) const 
 {
-    if (DATA_PROPERTIES.Is2D ())
-    {
-	if (DATA_PROPERTIES.IsQuadratic ())
-	    return true;
-	else
-	    return m_adjacentEdges.size () >= 3;
-    }
+    if (IsStandalone ())
+        return true;
     else
-	return 
-	    count_if (m_adjacentEdges.begin (), m_adjacentEdges.end (),
-		      boost::bind (&Edge::IsPhysical, _1)) 
-	    == 4;
+    {
+        if (is2D)
+        {
+            if (adjacentQuadraticEdge ())
+                return true;
+            else
+                return m_adjacentEdges.size () >= 3;
+        }
+        else
+            return 
+                count_if (m_adjacentEdges.begin (), m_adjacentEdges.end (),
+                          boost::bind (&Edge::IsPhysical, _1)) 
+                == 4;
+    }
 }
+
+bool Vertex::adjacentQuadraticEdge () const
+{
+    return count_if (m_adjacentEdges.begin (), m_adjacentEdges.end (),
+                     boost::bind (&Edge::IsQuadratic, _1)) >= 1;
+}
+
+
+
 
 string Vertex::ToString (const AttributesInfo* ai) const
 {

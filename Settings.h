@@ -153,20 +153,6 @@ public:
 
     /**
      * @{
-     * @name Gl, Vtk, and Histogram views
-     */
-    bool IsVtkView (ViewNumber::Enum viewNumber) const;
-    bool IsGlView (ViewNumber::Enum viewNumber) const;
-    bool IsHistogramShown (ViewNumber::Enum viewNumber) const;
-    ViewCount::Enum GetVtkCount (vector<ViewNumber::Enum>* mapping = 0) const;
-    ViewCount::Enum GetGlCount (vector<ViewNumber::Enum>* mapping = 0) const;
-    ViewCount::Enum GetHistogramCount (
-	vector<ViewNumber::Enum>* mapping = 0) const;
-    // @}
-
-
-    /**
-     * @{
      * @name Save velocity field. Used for showing T1s KDE together with 
      * velocity fields.
      */
@@ -408,8 +394,6 @@ private:
     void initAllViewsSettings (
         const SimulationGroup& simulationGroup, float w, float h);
     void checkLinkedTimesValid () const;
-    ViewCount::Enum getViewCount (
-	vector<ViewNumber::Enum>* mapping, IsViewType isView) const;
     /**
      * @return positive if time for the view 
      *         has moved forward or negative otherwise

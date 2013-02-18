@@ -137,7 +137,7 @@ void Body::calculatePhysicalVertices (
 
     GetVertexSet (&vertices);
     splitTessellationPhysical (
-	vertices, &tessellationVertices, physicalVertices);
+        vertices, &tessellationVertices, physicalVertices);
 }
 
 void Body::splitTessellationPhysical (
@@ -149,7 +149,7 @@ void Body::splitTessellationPhysical (
     copy (src.begin (), src.end (), destTessellation->begin ());
     vector< boost::shared_ptr<Vertex> >::iterator bp;
     bp = partition (destTessellation->begin (), destTessellation->end (), 
-		    !boost::bind(&Vertex::IsPhysical, _1));
+		    !boost::bind(&Vertex::IsPhysical, _1, Is2D ()));
     destPhysical->resize (destTessellation->end () - bp);
     copy (bp, destTessellation->end (), destPhysical->begin ());
     destTessellation->resize (bp - destTessellation->begin ());
@@ -158,7 +158,7 @@ void Body::splitTessellationPhysical (
 
 void Body::CalculateCenter ()
 {
-    if (DATA_PROPERTIES.Is2D ())
+    if (Is2D ())
     {
 	m_center = GetFace (0).GetCenter ();
     }
@@ -345,7 +345,8 @@ void Body::GetAttributeValue (size_t attribute, float* value) const
     if (BodyAttribute::IsScalar (attribute))
     {
 	BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT(attribute);
-	float v = HasScalarValue (bodyScalar) ? GetScalarValue (bodyScalar) : 0;
+	float v = HasScalarValue (bodyScalar) ? 
+            GetScalarValue (bodyScalar) : 0;
 	*value = v;
     }
     else if (BodyAttribute::IsVector (attribute))
@@ -390,7 +391,7 @@ void Body::GetDeformationTensor (float* value,
 float Body::GetDeformationEigenScalar () const
 {
     size_t maxIndex = 0;
-    size_t minIndex = DATA_PROPERTIES.Is2D () ? 1 : 2;
+    size_t minIndex = Is2D () ? 1 : 2;
     float deformationEigen = 1. - GetDeformationEigenValue (minIndex) / 
 	GetDeformationEigenValue (maxIndex);
     return deformationEigen;
@@ -399,8 +400,8 @@ float Body::GetDeformationEigenScalar () const
 size_t Body::GetSidesPerBody () const
 {
 
-    if (DATA_PROPERTIES.Is2D ())
-	return GetOrientedFace (0).GetFace ()->GetEdgesPerFace ();
+    if (Is2D ())
+	return GetOrientedFace (0).GetFace ()->GetEdgesPerFace (Is2D ());
     else
 	// return the number of physical faces
 	return GetNeighbors ().size ();
@@ -431,7 +432,7 @@ void Body::CalculateDeformationSimple ()
     if (! HasScalarValue (BodyScalar::TARGET_VOLUME))
 	return;    
     calculateArea ();
-    if (DATA_PROPERTIES.Is2D ())
+    if (Is2D ())
     {
 	boost::shared_ptr<OrientedFace> of = GetOrientedFacePtr (0);
 	of->CalculatePerimeter ();
@@ -464,7 +465,7 @@ const char* Body::GetAttributeKeywordString (BodyScalar::Enum bp)
 
 void Body::CalculateNeighborsAndGrowthRate (const OOBox& originalDomain)
 {
-    if (DATA_PROPERTIES.Is2D ())
+    if (Is2D ())
 	calculateNeighbors2D (originalDomain);
     else
 	calculateNeighbors3D (originalDomain);

@@ -243,6 +243,10 @@ public:
     {
 	return m_hasFreeFace;
     }
+    bool Is2D () const
+    {
+        return m_orientedFaces.size () == 1;
+    }
 
 private:
     /**
@@ -260,7 +264,7 @@ private:
      * @param destPhysical where we store physical objects
      */
     void splitTessellationPhysical (
-	const VertexSet& src,
+        const VertexSet& src,
 	vector< boost::shared_ptr<Vertex> >* destTessellation,
 	vector< boost::shared_ptr<Vertex> >* destPhysical);
     void calculateNeighbors2D (const OOBox& originalDomain);

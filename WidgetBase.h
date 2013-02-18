@@ -26,10 +26,6 @@ class ViewSettings;
 class WidgetBase : public Base
 {
 public:
-    typedef bool (Settings::*IsViewType) (
-	ViewNumber::Enum viewNumber) const;
-    typedef ViewCount::Enum (Settings::*GetViewCountType) (
-	vector<ViewNumber::Enum>* mapping) const;
     typedef boost::array<boost::shared_ptr<AverageCache>, 
                          ViewNumber::COUNT> AverageCaches;
 
@@ -66,12 +62,6 @@ public:
         return GetRotationForAxesOrder (viewNumber, GetTime (viewNumber));
     }
 
-    const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
-    const Simulation& GetSimulation (size_t index) const;
-    const Simulation& GetSimulation () const
-    {
-        return GetSimulation (GetViewNumber ());
-    }
     const Foam& GetFoam (ViewNumber::Enum viewNumber, size_t timeStep) const;
     const Foam& GetFoam (ViewNumber::Enum viewNumber) const
     {
@@ -86,7 +76,6 @@ public:
         ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
     bool IsSelectionCopyCompatible (
         ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
-
 
 protected:
     typedef bool (WidgetBase::*IsCopyCompatibleType) (
@@ -108,6 +97,7 @@ protected:
 	ViewNumber::COUNT>& actionCopyTransformation,
 	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation);
 
+
 protected:
     boost::array<boost::shared_ptr<QAction>, 
 		 ViewNumber::COUNT> m_actionCopyTransformation;
@@ -116,7 +106,6 @@ boost::shared_ptr<QSignalMapper> m_signalMapperCopyTransformation;
     boost::array<boost::shared_ptr<QAction>, 
 		 ViewNumber::COUNT> m_actionCopySelection;
     boost::shared_ptr<QSignalMapper> m_signalMapperCopySelection;
-    
 
 private:
     AverageCaches* m_averageCache;

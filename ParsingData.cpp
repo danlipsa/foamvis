@@ -285,8 +285,9 @@ string ParsingData::ToString () const
     return ostr.str ();
 }
 
-bool ParsingData::GetT1s (const char* arrayName, const char* countName, 
-                          vector<G3D::Vector3>* t1s) const
+bool ParsingData::GetT1s (
+    const char* arrayName, const char* countName, 
+    vector<G3D::Vector3>* t1s, bool is2D) const
 {
     ParsingData::ArrayIt it = GetArrayIt (arrayName);
     if (it == GetArrayItEnd ())
@@ -305,7 +306,7 @@ bool ParsingData::GetT1s (const char* arrayName, const char* countName,
         index[0] = 1;
         float y = GetArrayValue (it, index);
         float z = Foam::Z_COORDINATE_2D;
-        if (DATA_PROPERTIES.Is3D ())
+        if (! is2D)
         {
             index[0] = 2;
             z = GetArrayValue (it, index);

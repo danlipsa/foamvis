@@ -110,7 +110,7 @@ T1sKDE::T1sKDE (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
 
 size_t T1sKDE::GetKernelTextureSize () const
 {
-    return m_kernelSigma / GetOnePixelInObjectSpace ();
+    return m_kernelSigma / GetOnePixelInObjectSpace (GetSimulation ().Is2D ());
 }
 
 

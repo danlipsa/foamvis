@@ -128,7 +128,8 @@ void DisplayFaceBodyScalarColor<PropertySetter>::
 operator () (const boost::shared_ptr<OrientedFace>& of)
 {
     glNormal (of->GetNormal ());
-    if (DATA_PROPERTIES.Is2D ())
+    boost::shared_ptr<Body> body = of->GetAdjacentBody ().GetBody ();
+    if (body->Is2D ())
     {
 	bool useColor;
 	setColorOrTexture (of, &useColor);
@@ -144,7 +145,6 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 	// and set the stencil bit to 0.
 	glStencilFunc (GL_NOTEQUAL, 0, 1);
 	glStencilOp (GL_KEEP, GL_KEEP, GL_ZERO);
-	boost::shared_ptr<Body> body = of->GetAdjacentBody ().GetBody ();
 	G3D::AABox box = body->GetBoundingBox ();
 	DisplayBox (G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ()));
 
@@ -358,6 +358,8 @@ operator () (const boost::shared_ptr<Face>  f)
 {
     const vector< boost::shared_ptr<OrientedEdge> >& v = 
 	f->GetOrientedEdges ();
+    boost::shared_ptr<Body> body = f->GetAdjacentBody ().GetBody ();    
+
     displayEdge display(m_settings, this->GetViewNumber (), m_focus, 
                         m_useZPos, m_zPos);
     for (size_t i = 0; i < v.size (); i++)

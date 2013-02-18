@@ -56,7 +56,7 @@ public:
 	return m_orientedEdges.size ();
     }
 
-    const AdjacentBody& GetAdjacentBody (bool faceReversed) const;
+    const AdjacentBody& GetAdjacentBody (bool faceReversed = false) const;
     size_t GetAdjacentBodySize () const
     {
 	return m_adjacentBodies.size ();
@@ -132,7 +132,7 @@ public:
     void CalculateCentroidAndArea ();
     void CalculatePerimeter ();
     QColor GetColor (const QColor& defaultColor) const;
-    size_t GetEdgesPerFace () const;
+    size_t GetEdgesPerFace (bool is2D) const;
     size_t GetConstraintIndex (size_t i = 0) const;
     bool HasConstraints () const;
     

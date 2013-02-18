@@ -82,14 +82,14 @@ void compact (vector< boost::shared_ptr<E> >& v)
 Foam::Foam (bool useOriginal, 
 	    const DmpObjectInfo& dmpObjectInfo,
 	    const vector<ForceNamesOneObject>& forcesNames, 
-	    DataProperties& foamParameters,
+	    DataProperties& dataProperties,
 	    ParametersOperation paramsOp) :
     m_viewMatrix (new G3D::Matrix4 (G3D::Matrix4::identity ())),
     m_parsingData (new ParsingData (
 		       useOriginal, dmpObjectInfo, forcesNames)),
     m_histogram (
 	BodyScalar::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
-    m_properties (foamParameters),
+    m_properties (dataProperties),
     m_parametersOperation (paramsOp)
 {
     m_parsingData->SetVariable ("pi", M_PI);

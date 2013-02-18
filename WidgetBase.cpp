@@ -44,7 +44,7 @@ void WidgetBase::ForAllViews (boost::function <void (ViewNumber::Enum)> f)
     for (size_t i = 0; i < GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
-	if (CALL_MEMBER (*GetSettings (), m_isView)(viewNumber))
+	if (CALL_MEMBER (*this, m_isView)(viewNumber))
 	    f (viewNumber);
     }
 }
@@ -54,7 +54,7 @@ void WidgetBase::ForAllHiddenViews (boost::function <void (ViewNumber::Enum)> f)
     for (int i = GetViewCount (); i < ViewNumber::COUNT; ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (i);
-	if (CALL_MEMBER (*GetSettings (), m_isView)(viewNumber))
+	if (CALL_MEMBER (*this, m_isView)(viewNumber))
 	    f (viewNumber);
     }
 }
@@ -66,7 +66,7 @@ G3D::AABox WidgetBase::CalculateViewingVolume (
 {
     vector<ViewNumber::Enum> mapping;
     ViewCount::Enum viewCount = 
-	CALL_MEMBER (*GetSettings (), m_getViewCount) (&mapping);
+	CALL_MEMBER (*this, m_getViewCount) (&mapping);
     G3D::AABox vv = GetSettings ()->CalculateViewingVolume (
 	mapping[viewNumber], viewCount, simulation, 
 	m_widget->width (), m_widget->height (), enclose);
@@ -77,7 +77,7 @@ G3D::Rect2D WidgetBase::GetViewRect (ViewNumber::Enum viewNumber) const
 {
     vector<ViewNumber::Enum> mapping;
     ViewCount::Enum viewCount = 
-        CALL_MEMBER (*GetSettings (), m_getViewCount) (&mapping);
+        CALL_MEMBER (*this, m_getViewCount) (&mapping);
     return GetSettings ()->GetViewRect (
 	m_widget->width (), m_widget->height (), mapping[viewNumber], viewCount);
 }
@@ -187,15 +187,6 @@ void WidgetBase::initCopy (
     }
 }
 
-const Simulation& WidgetBase::GetSimulation (ViewNumber::Enum viewNumber) const
-{
-    return GetSimulationGroup ().GetSimulation (*GetSettings (), viewNumber);
-}
-
-const Simulation& WidgetBase::GetSimulation (size_t index) const
-{
-    return GetSimulationGroup ().GetSimulation (index);
-}
 
 const Foam& WidgetBase::GetFoam (ViewNumber::Enum viewNumber, 
                                  size_t timeStep) const
