@@ -8,7 +8,6 @@
 #include "Body.h"
 #include "ColorBarModel.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "Simulation.h"
 #include "Settings.h"
 #include "OpenGLUtils.h"

@@ -12,7 +12,6 @@
 #include "Foam.h"
 #include "DataProperties.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "Utils.h"
 #include "Face.h"
 #include "OrientedEdge.h"

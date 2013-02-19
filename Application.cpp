@@ -8,7 +8,6 @@
 
 #include "Application.h"
 #include "Debug.h"
-#include "DebugStream.h"
 
 boost::shared_ptr<Application> Application::m_application;
 

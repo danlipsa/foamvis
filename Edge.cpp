@@ -9,7 +9,6 @@
 #include "AttributeInfo.h"
 #include "Body.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "Edge.h"
 #include "EvolverData_yacc.h"
 #include "Foam.h"

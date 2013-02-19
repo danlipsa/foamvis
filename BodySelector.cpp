@@ -9,7 +9,6 @@
 #include "Body.h"
 #include "BodySelector.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "WidgetGl.h"
 #include "Utils.h"
 

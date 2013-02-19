@@ -6,7 +6,6 @@
  */
 #include "Disk.h"
 #include "Debug.h"
-#include "DebugStream.h"
 
 Disk::Disk()
                /* explicit initialization */

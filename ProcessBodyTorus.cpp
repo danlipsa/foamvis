@@ -8,7 +8,6 @@
 
 #include "Body.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "Foam.h"
 #include "Face.h"
 #include "ProcessBodyTorus.h"

@@ -11,7 +11,6 @@
 #include "BodySelector.h"
 #include "ConstraintEdge.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "Edge.h"
 #include "ExpressionTree.h"
 #include "Face.h"

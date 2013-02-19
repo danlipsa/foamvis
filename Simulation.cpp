@@ -7,7 +7,6 @@
 
 #include "Body.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "Foam.h"
 #include "Simulation.h"
 #include "ParsingData.h"

@@ -8,6 +8,7 @@
 
 
 #include "Base.h"
+#include "Debug.h"
 #include "Settings.h"
 #include "Simulation.h"
 #include "ViewSettings.h"
@@ -51,9 +52,13 @@ const Simulation& Base::GetSimulation (size_t index) const
 
 bool Base::IsVtkView (ViewNumber::Enum viewNumber) const
 {
+    __ENABLE_LOGGING__;
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
-    return simulation.Is3D () && vs.GetViewType () == ViewType::AVERAGE;
+    bool isVtkView = 
+        simulation.Is3D () && vs.GetViewType () == ViewType::AVERAGE;
+    __LOG__ (cdbg << isVtkView << endl;);
+    return isVtkView;
 }
 
 bool Base::IsGlView (ViewNumber::Enum viewNumber) const

@@ -9,7 +9,6 @@
 
 #include "Average.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "Settings.h"
 #include "Simulation.h"
 #include "OpenGLUtils.h"

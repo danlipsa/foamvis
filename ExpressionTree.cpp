@@ -8,7 +8,6 @@
  *       variable, array, function and so on.
  */
 #include "Debug.h"
-#include "DebugStream.h"
 #include "ExpressionTree.h"
 #include "ParsingData.h"
 

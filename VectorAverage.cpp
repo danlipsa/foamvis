@@ -9,15 +9,13 @@
 
 #include "AverageShaders.h"
 #include "Debug.h"
-#include "DebugStream.h"
-#include "WidgetGl.h"
 #include "OpenGLUtils.h"
 #include "ShaderProgram.h"
 #include "Simulation.h"
-#include "VectorAverage.h"
 #include "Utils.h"
+#include "VectorAverage.h"
 #include "ViewSettings.h"
-
+#include "WidgetGl.h"
 
 void VectorAverage::InitShaders ()
 {

@@ -15,7 +15,6 @@
 #include "EditColorMap.h"
 #include "Foam.h"
 #include "Simulation.h"
-#include "DebugStream.h"
 #include "WidgetGl.h"
 #include "MainWindow.h"
 #include "ProcessBodyTorus.h"

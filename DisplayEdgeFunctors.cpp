@@ -7,7 +7,6 @@
  */
 
 #include "Debug.h"
-#include "DebugStream.h"
 #include "Disk.h"
 #include "DisplayEdgeFunctors.h"
 #include "DisplayVertexFunctors.h"

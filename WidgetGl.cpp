@@ -10,7 +10,6 @@
 #include "BodySelector.h"
 #include "ColorBarModel.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "ScalarAverage.h"
 #include "ForceAverage.h"
 #include "DisplayBodyFunctors.h"

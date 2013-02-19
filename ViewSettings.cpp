@@ -9,7 +9,6 @@
 #include "Body.h"
 #include "BodySelector.h"
 #include "ColorBarModel.h"
-#include "DebugStream.h"
 #include "Debug.h"
 #include "Foam.h"
 #include "OpenGLUtils.h"

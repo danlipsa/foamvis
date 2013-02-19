@@ -9,7 +9,6 @@
 
 #include "AverageShaders.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "ImageBasedAverage.h"
 #include "DisplayBodyFunctors.h"
 #include "DisplayFaceFunctors.h"

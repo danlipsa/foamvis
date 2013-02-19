@@ -6,7 +6,6 @@
  */
 
 #include "Debug.h"
-#include "DebugStream.h"
 #include "Edge.h"
 #include "OOBox.h"
 #include "Utils.h"

@@ -7,7 +7,6 @@
  */
 
 #include "DataProperties.h"
-#include "DebugStream.h"
 #include "Debug.h"
 #include "OOBox.h"
 #include "OpenGLUtils.h"

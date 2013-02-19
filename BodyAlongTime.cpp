@@ -9,7 +9,6 @@
 #include "Body.h"
 #include "BodyAlongTime.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "Simulation.h"
 #include "Foam.h"
 #include "Utils.h"

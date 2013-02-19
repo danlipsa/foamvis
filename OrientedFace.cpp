@@ -7,7 +7,6 @@
 
 #include "AttributeInfo.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "Face.h"
 #include "OrientedFace.h"
 #include "OrientedEdge.h"

@@ -132,6 +132,73 @@ void ThrowException (const string& message, const T1& t1, const T2& t2,
 #define __ENABLE_LOGGING__ const bool __LOGGED__ = true
 const bool __LOGGED__ = false;
 
+
+
+#ifdef _MSC_VER
+class DebugStream
+{
+public:
+	typedef ostream& (*EndlFunction) (ostream& o);
+    template <typename A>
+        DebugStream& operator<<(A a)
+    {
+		ostringstream ostr;
+		ostr << a << ends;
+        OutputDebugStringA (ostr.str ().c_str ());
+        return *this;
+    }
+
+    DebugStream& operator<< (EndlFunction)
+    {
+        OutputDebugStringA ("\n");
+		return *this;
+    }
+};
+
+/**
+ * Stream where all debugging output should be sent. Works bor both MS
+ * Visual C++ and for g++.
+ */
+extern DebugStream cdbg;
+
+#else   //_MSC_VER
+
+/**
+ * Stream where all debugging output should be sent. Works bor both MS
+ * Visual C++ and for g++.
+ */
+extern ostream& cdbg;
+
+#endif  //_MSC_VER
+
+class MeasureTime
+{
+public:
+    MeasureTime ();
+    void StartInterval ();
+    void EndInterval (const char* intervalName);
+    void EndInterval (const string& intervalName)
+    {
+	EndInterval (intervalName.c_str ());
+    }
+private:
+    clock_t m_start;
+};
+
+class MeasureTimeVtk : public vtkCommand
+{
+public:
+    MeasureTimeVtk ()
+    {
+    }
+    void Execute (vtkObject *caller, unsigned long eventId, void *callData);
+    void Measure (vtkObject *caller);
+
+private:
+    MeasureTime m_measure;
+};
+
+
 #endif  //__DEBUG_H__
 
 // Local Variables:

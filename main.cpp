@@ -13,7 +13,6 @@
 #include "ForceOneObject.h"
 #include "ParsingData.h"
 #include "MainWindow.h"
-#include "DebugStream.h"
 
 void readOptions (int argc, char *argv[],
 		  CommandLineOptions* clo, 

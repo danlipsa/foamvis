@@ -7,7 +7,6 @@
 #include "Attribute.h"
 #include "ConstraintEdge.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "ExpressionTree.h"
 #include "OOBox.h"
 #include "ParsingData.h"

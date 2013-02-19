@@ -8,7 +8,6 @@
 
 #include "ColorBarModel.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "Settings.h"
 #include "Simulation.h"
 #include "Utils.h"

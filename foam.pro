@@ -6,7 +6,7 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	BodyAlongTime.h AdjacentBody.h BodySelector.h \
 	ConstraintEdge.h ColorBarModel.h Comparisons.h\
 	Debug.h \
-	DebugStream.h Disk.h ImageBasedAverage.h ForceAverage.h\
+	Disk.h ImageBasedAverage.h ForceAverage.h\
 	DisplayBodyFunctors.h DisplayElement.h\
 	DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h WidgetSave.h\
@@ -37,7 +37,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	Base.cpp Body.cpp BodyAlongTime.cpp \
 	BodySelector.cpp BrowseSimulations.cpp \
 	ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
-	DebugStream.cpp Disk.cpp DisplayBodyFunctors.cpp DisplayElement.cpp\
+	Debug.cpp Disk.cpp DisplayBodyFunctors.cpp DisplayElement.cpp\
 	ImageBasedAverage.cpp DisplayFaceFunctors.cpp \
 	DisplayEdgeFunctors.cpp	\
 	DisplayVertexFunctors.cpp Edge.cpp \

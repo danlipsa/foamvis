@@ -8,7 +8,6 @@
  */
 
 #include "Debug.h"
-#include "DebugStream.h"
 #include "Foam.h"
 #include "RegularGridAverage.h"
 #include "Settings.h"

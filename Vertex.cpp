@@ -12,7 +12,6 @@
 #include "Foam.h"
 #include "DataProperties.h"
 #include "EvolverData_yacc.h"
-#include "DebugStream.h"
 #include "Debug.h"
 #include "Hashes.h"
 #include "OOBox.h"

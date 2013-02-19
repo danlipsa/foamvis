@@ -11,7 +11,6 @@
 #include "Edge.h"
 #include "Face.h"
 #include "Foam.h"
-#include "DebugStream.h"
 #include "Utils.h"
 #include "Vertex.h"
 

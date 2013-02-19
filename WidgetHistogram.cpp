@@ -8,7 +8,6 @@
 #include "AttributeHistogram.h"
 #include "BodySelector.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "Foam.h"
 #include "Settings.h"
 #include "Simulation.h"

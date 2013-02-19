@@ -7,7 +7,6 @@
 
 #include "Attribute.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "Edge.h"
 #include "ExpressionTree.h"
 #include "Face.h"

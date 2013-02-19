@@ -8,7 +8,6 @@
 
 #include "BrowseSimulations.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "Utils.h"
 
 const char* BrowseSimulations::LABEL_ALL = "All";

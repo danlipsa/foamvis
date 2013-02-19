@@ -9,7 +9,6 @@
 
 #include "Body.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "DisplayEdgeFunctors.h"
 #include "Foam.h"
 #include "ForceAverage.h"

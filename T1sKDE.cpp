@@ -8,7 +8,6 @@
 
 #include "AverageShaders.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "Simulation.h"
 #include "WidgetGl.h"
 #include "OpenGLUtils.h"
