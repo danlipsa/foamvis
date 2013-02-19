@@ -111,13 +111,13 @@ operator () (boost::shared_ptr<Body> b)
 // ======================================================================
 
 DisplayBodyDeformation::DisplayBodyDeformation (
-    const Settings& settings, ViewNumber::Enum viewNumber, 
+    const Settings& settings, ViewNumber::Enum viewNumber, bool is2D,
     const BodySelector& bodySelector, float deformationSizeInitialRatio,
     bool useZPos, double zPos):
     
     DisplayBodyBase<> (
 	settings, bodySelector,
-	SetterTextureCoordinate(settings, viewNumber), useZPos, zPos),
+	SetterTextureCoordinate(settings, viewNumber, is2D), useZPos, zPos),
     m_deformationSizeInitialRatio (deformationSizeInitialRatio)
 {}
 
@@ -150,7 +150,7 @@ void DisplayBodyDeformation::display (boost::shared_ptr<Body> body)
 // ======================================================================
 
 DisplayBodyVelocity::DisplayBodyVelocity (
-    const Settings& settings, ViewNumber::Enum viewNumber, 
+    const Settings& settings, ViewNumber::Enum viewNumber, bool is2D,
     const BodySelector& bodySelector, float bubbleSize, 
     float velocitySizeInitialRatio, float onePixelInObjectSpace,
     bool sameSize, bool clampingShown,
@@ -158,7 +158,7 @@ DisplayBodyVelocity::DisplayBodyVelocity (
     
     DisplayBodyBase<> (
 	settings, bodySelector,
-	SetterTextureCoordinate(settings, viewNumber), useZPos, zPos),
+	SetterTextureCoordinate(settings, viewNumber, is2D), useZPos, zPos),
     m_bubbleSize (bubbleSize),
     m_velocitySizeInitialRatio (velocitySizeInitialRatio),
     m_onePixelInObjectSpace (onePixelInObjectSpace),
@@ -226,7 +226,9 @@ DisplayBodyCenter::DisplayBodyCenter (
     
     DisplayBodyBase<> (
 	settings, bodySelector,
-	SetterTextureCoordinate(settings, ViewNumber::VIEW0), useZPos, zPos)
+        // the setter is not used
+	SetterTextureCoordinate(settings, ViewNumber::VIEW0, true), 
+        useZPos, zPos)
 {}
 
 
@@ -248,13 +250,13 @@ void DisplayBodyCenter::display (boost::shared_ptr<Body> b)
 template<typename displayFace, typename PropertySetter>
 DisplayBody<displayFace, PropertySetter>::
 DisplayBody (
-    const Settings& settings, const BodySelector& bodySelector,
+    const Settings& settings, bool is2D, const BodySelector& bodySelector,
     typename DisplayElement::ContextType contextDisplay, 
     ViewNumber::Enum viewNumber, bool useZPos, double zPos) :
 
     DisplayBodyBase<PropertySetter> (
 	settings, bodySelector, 
-        PropertySetter (settings, viewNumber), useZPos, zPos),
+        PropertySetter (settings, viewNumber, is2D), useZPos, zPos),
     m_contextDisplay (contextDisplay)
 {
 }
@@ -303,14 +305,15 @@ display (boost::shared_ptr<Body> b)
 template<typename PropertySetter, typename DisplaySegment>
 DisplayBubblePaths<PropertySetter, DisplaySegment>::
 DisplayBubblePaths (
-    const Settings& settings, ViewNumber::Enum view,
+    const Settings& settings, ViewNumber::Enum view, bool is2D,
     const BodySelector& bodySelector, GLUquadricObj* quadric,
     const Simulation& simulation, size_t timeBegin, size_t timeEnd,
     bool useTimeDisplacement,
     double timeDisplacement) :
 
     DisplayBodyBase<PropertySetter> (
-	settings, bodySelector, PropertySetter (settings, view),
+	settings, bodySelector, 
+        PropertySetter (settings, view, is2D),
 	useTimeDisplacement, timeDisplacement),
     m_displaySegment (quadric,
 		      this->m_settings.IsBubblePathsLineUsed () ?
@@ -387,7 +390,9 @@ valueStep (
 	     (! deduced || 
 	      (deduced && this->m_settings.IsMissingPropertyShown (property))))
 	     storeFocusSegment (
-		 p.m_body->GetScalarValue (property), segment);
+		 p.m_body->GetScalarValue (
+                     property, 
+                     this->m_propertySetter.Is2D ()), segment);
 	else
 	    storeFocusSegment (
 		this->m_settings.GetHighlightColor (

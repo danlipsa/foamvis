@@ -15,9 +15,9 @@ class SetterTextureCoordinate
 {
 public:
     SetterTextureCoordinate (
-	const Settings& settings, ViewNumber::Enum view) :
+	const Settings& settings, ViewNumber::Enum viewNumber, bool is2D) :
 
-	m_settings (settings), m_viewNumber (view)
+	m_settings (settings), m_viewNumber (viewNumber), m_is2D (is2D)
     {
     }
 
@@ -28,6 +28,10 @@ public:
     {
 	return m_viewNumber;
     }
+    bool Is2D () const
+    {
+        return m_is2D;
+    }
 
 protected:
     G3D::Matrix3 getRotation () const;
@@ -35,15 +39,17 @@ protected:
 protected:
     const Settings& m_settings;
     ViewNumber::Enum m_viewNumber;
+    const bool m_is2D;
 };
 
 class SetterVertexAttribute : public SetterTextureCoordinate
 {
 public:
     SetterVertexAttribute (
-	const Settings& settings,  ViewNumber::Enum view,
+	const Settings& settings,  ViewNumber::Enum viewNumber, bool is2D,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
-	SetterTextureCoordinate (settings, view),
+
+	SetterTextureCoordinate (settings, viewNumber, is2D),
 	m_program (program), m_attributeLocation (attributeIndex)
     {
     }
@@ -60,9 +66,11 @@ class SetterDeformation : public SetterVertexAttribute
 {
 public:
     SetterDeformation (
-	const Settings& settings,  ViewNumber::Enum view,
+	const Settings& settings,  ViewNumber::Enum viewNumber, bool is2D,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
-	SetterVertexAttribute (settings, view, program, attributeIndex)
+        
+	SetterVertexAttribute (settings, viewNumber, is2D,
+                               program, attributeIndex)
     {
     }
     int GetBodyOrFaceScalar () const;
@@ -74,9 +82,11 @@ class SetterVelocity : public SetterVertexAttribute
 {
 public:
     SetterVelocity (
-	const Settings& settings,  ViewNumber::Enum view,
+	const Settings& settings,  ViewNumber::Enum viewNumber, bool is2D,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
-	SetterVertexAttribute (settings, view, program, attributeIndex)
+
+	SetterVertexAttribute (settings, viewNumber, is2D,
+                               program, attributeIndex)
     {
     }
 
@@ -91,9 +101,10 @@ class SetterNop : public SetterVertexAttribute
 {
 public:
     SetterNop (
-	const Settings& settings,  ViewNumber::Enum view,
+	const Settings& settings,  ViewNumber::Enum viewNumber, bool is2D,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
-	SetterVertexAttribute (settings, view, program, attributeIndex)
+	SetterVertexAttribute (settings, viewNumber, is2D, 
+                               program, attributeIndex)
     {
     }
 

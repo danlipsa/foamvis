@@ -14,6 +14,14 @@ ViewNumber::Enum DisplayElementProperty<PropertySetter>::GetViewNumber () const
     return m_propertySetter.GetViewNumber ();
 }
 
+template<typename PropertySetter>
+bool DisplayElementProperty<PropertySetter>::Is2D () const
+{
+    return m_propertySetter.Is2D ();
+}
+
+
+
 // Template instantiations
 // ======================================================================
 template class DisplayElementProperty<SetterTextureCoordinate>;

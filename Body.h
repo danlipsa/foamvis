@@ -103,7 +103,7 @@ public:
     /**
      * Calculates the center
      */
-    void CalculateCenter ();
+    void CalculateCenter (bool is2D);
     void CalculateBoundingBox ();
     /**
      * Gets the center
@@ -114,7 +114,7 @@ public:
 	return m_center;
     }
     void UpdateAdjacentBody (const boost::shared_ptr<Body>& body);
-    string ToString () const;
+    string ToString (bool is2D) const;
     void GetVertexSet (VertexSet* vertexSet) const;    
     VertexSet GetVertexSet () const
     {
@@ -130,13 +130,13 @@ public:
 	GetEdgeSet (&set);
 	return set;
     }
-    float GetScalarValue (BodyScalar::Enum property) const;
+    float GetScalarValue (BodyScalar::Enum property, bool is2D) const;
     bool HasScalarValue (BodyScalar::Enum property, bool* deduced = 0) const;
     /**
      * BodyAttribute::GetNumberOfComponents (attribute) floats have to 
      * be alocated in 'value' for scalars, vectors and tensors
      */
-    void GetAttributeValue (size_t attribute, float* value) const;
+    void GetAttributeValue (size_t attribute, float* value, bool is2D) const;
     G3D::Vector3 GetVelocity () const
     {
 	return m_velocity;
@@ -169,13 +169,13 @@ public:
 	return m_boundingBox;
     }
     
-    size_t GetSidesPerBody () const;
+    size_t GetSidesPerBody (bool is2D) const;
     float GetDeformationSimple () const;
     float GetArea () const
     {
 	return m_area;
     }
-    void CalculateDeformationSimple ();
+    void CalculateDeformationSimple (bool is2D);
     static const char* GetAttributeKeywordString (BodyScalar::Enum bp);
     void CalculateDeformationTensor (const OOBox& originalDomain);
     G3D::Matrix3 GetDeformationTensor (
@@ -183,7 +183,7 @@ public:
     void GetDeformationTensor (float* value, 
 			       const G3D::Matrix3& additionalRotation) const;
 
-    float GetDeformationEigenScalar () const;
+    float GetDeformationEigenScalar (bool is2D) const;
     /**
      * The eigen values are sorted decreasing.
      */
@@ -235,7 +235,8 @@ public:
     /**
      * @pre {Face::CalculateCentroidAndArea}
      */
-    void CalculateNeighborsAndGrowthRate (const OOBox& originalDomain);
+    void CalculateNeighborsAndGrowthRate (
+        const OOBox& originalDomain, bool is2D);
     /**
      * @pre CalculateNeighborsAndGrowthRate
      */
@@ -243,17 +244,13 @@ public:
     {
 	return m_hasFreeFace;
     }
-    bool Is2D () const
-    {
-        return m_orientedFaces.size () == 1;
-    }
 
 private:
     /**
      * Caches edges and vertices
      */
     void calculatePhysicalVertices (
-	vector< boost::shared_ptr<Vertex> >* physicalVertices);
+	bool is2D, vector< boost::shared_ptr<Vertex> >* physicalVertices);
     void calculateArea ();
 
     /**
@@ -264,7 +261,7 @@ private:
      * @param destPhysical where we store physical objects
      */
     void splitTessellationPhysical (
-        const VertexSet& src,
+        bool is2D, const VertexSet& src,
 	vector< boost::shared_ptr<Vertex> >* destTessellation,
 	vector< boost::shared_ptr<Vertex> >* destPhysical);
     void calculateNeighbors2D (const OOBox& originalDomain);
@@ -295,26 +292,6 @@ private:
     bool m_object;
 };
 
-/**
- * Prety prints a Body
- * @param ostr where to print
- * @param b what to print
- * @return the stream where we printed.
- */
-inline ostream& operator<< (ostream& ostr, const Body& b)
-{
-    return ostr << b.ToString ();
-}
-/**
- * Pretty prints a boost::shared_ptr<Body> 
- * @param ostr where to print
- * @param b what to print
- * @return where to print something else
- */
-inline ostream& operator<< (ostream& ostr, const boost::shared_ptr<Body>& b)
-{
-    return ostr << *b << " useCount=" << b.use_count ();;
-}
 
 template <int index>
 class getBodyDeformationEigenValue

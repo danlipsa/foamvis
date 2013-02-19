@@ -319,11 +319,12 @@ void DisplayOrientedSegmentQuadric::operator () (
 template <typename DisplayEdge, typename DisplaySegmentArrow1, 
 	  bool showDuplicates>
 DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow1, showDuplicates>::
-DisplayEdgeTorus (const Settings& settings, ViewNumber::Enum viewNumber,
-		  FocusContext focus, bool useZPos, double zPos, 
-		  GLUquadricObj* quadric) : 
+DisplayEdgeTorus (
+    const Settings& settings, ViewNumber::Enum viewNumber, bool is2D,
+    FocusContext focus, bool useZPos, double zPos, 
+    GLUquadricObj* quadric) : 
     
-    DisplayElementFocus (settings, viewNumber, focus, useZPos, zPos),
+    DisplayElementFocus (settings, viewNumber, is2D, focus, useZPos, zPos),
     m_displayEdge (quadric, m_settings.GetEdgeRadius ()),
     m_displayArrow (quadric,
 		    m_settings.GetArrowBaseRadius (),
@@ -381,10 +382,11 @@ display (const boost::shared_ptr<Edge>  e)
 
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 DisplayEdgePropertyColor<tesselationEdgesDisplay>::
-DisplayEdgePropertyColor (const Settings& settings, ViewNumber::Enum viewNumber,
-			  FocusContext focus, bool useZPos, double zPos) : 
+DisplayEdgePropertyColor (
+    const Settings& settings, ViewNumber::Enum viewNumber, bool is2D,
+    FocusContext focus, bool useZPos, double zPos) : 
     
-    DisplayElementFocus (settings, viewNumber, focus, useZPos, zPos)
+    DisplayElementFocus (settings, viewNumber, is2D, focus, useZPos, zPos)
 {
 }
 
@@ -400,7 +402,7 @@ void DisplayEdgePropertyColor<tesselationEdgesDisplay>::
 operator () (const Edge& edge) const
 {
     ViewSettings& vs = this->m_settings.GetViewSettings (m_viewNumber);
-    bool isPhysical = edge.IsPhysical ();
+    bool isPhysical = edge.IsPhysical (m_is2D);
     if (isPhysical || 
 	(tesselationEdgesDisplay == DISPLAY_TESSELLATION_EDGES &&
 	 m_settings.EdgesTessellationShown () && 
@@ -440,11 +442,12 @@ operator() (const boost::shared_ptr<OrientedEdge> oe) const
 // DisplayEdge
 // ======================================================================
 
-DisplayEdge::DisplayEdge (const Settings& settings, ViewNumber::Enum viewNumber,
-                          FocusContext focus, 
-                          bool useZPos, double zPos) : 
+DisplayEdge::DisplayEdge (
+    const Settings& settings, ViewNumber::Enum viewNumber, bool is2D,
+    FocusContext focus, 
+    bool useZPos, double zPos) : 
     
-    DisplayElementFocus (settings, viewNumber, focus, useZPos, zPos)
+    DisplayElementFocus (settings, viewNumber, is2D, focus, useZPos, zPos)
 {
 }
 

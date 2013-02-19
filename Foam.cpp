@@ -102,7 +102,7 @@ void Foam::AccumulateProperty (Accumulator* acc,
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
     {
 	if (body->HasScalarValue (property))
-	    (*acc) (body->GetScalarValue (property));
+	    (*acc) (body->GetScalarValue (property, Is2D ()));
     }
 }
 
@@ -202,7 +202,7 @@ void Foam::CalculateBoundingBox ()
 void Foam::CalculateDeformationSimple ()
 {
     for_each (m_bodies.begin (), m_bodies.end (),
-	      boost::bind (&Body::CalculateDeformationSimple, _1));
+	      boost::bind (&Body::CalculateDeformationSimple, _1, Is2D ()));
 }
 
 void Foam::calculateBoundingBoxTorus (G3D::Vector3* low, G3D::Vector3* high)
@@ -233,7 +233,7 @@ void Foam::calculateBoundingBoxTorus (G3D::Vector3* low, G3D::Vector3* high)
 void Foam::calculateBodiesCenters ()
 {
     for_each (m_bodies.begin (), m_bodies.end (), 
-	      boost::bind(&Body::CalculateCenter, _1));
+	      boost::bind(&Body::CalculateCenter, _1, Is2D ()));
 }
 
 
@@ -337,7 +337,7 @@ void Foam::CalculateBodyNeighborsAndGrowthRate ()
 {
     for_each (m_bodies.begin (), m_bodies.end (),
 	      boost::bind (&Body::CalculateNeighborsAndGrowthRate, _1, 
-			   GetTorusDomain ()));
+			   GetTorusDomain (), Is2D ()));
 }
 
 bool Foam::HasFreeFace () const
@@ -626,7 +626,8 @@ void Foam::AdjustPressure (double adjustment)
 	if (body->HasScalarValue (BodyScalar::PRESSURE))
 	{
 	    double newPressure =
-		body->GetScalarValue (BodyScalar::PRESSURE) - adjustment;
+		body->GetScalarValue (BodyScalar::PRESSURE, Is2D ()) - 
+                adjustment;
 	    body->SetPressureValue (newPressure);
 	}
     }
@@ -640,7 +641,7 @@ double Foam::CalculateMedian (BodyScalar::Enum property)
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
 	if (body->HasScalarValue (property))
-	    median (body->GetScalarValue (property));
+	    median (body->GetScalarValue (property, Is2D ()));
     }
     return acc::median (median);
 }
@@ -700,7 +701,7 @@ void Foam::bodyTranslate (
 	    GetTorusDomain (), translate, vertexSet, edgeSet, faceSet);
 	of->SetFace (duplicate);
     }
-    body->CalculateCenter ();
+    body->CalculateCenter (Is2D ());
 }
 
 void Foam::GetVertexSet (VertexSet* vertexSet) const
@@ -773,7 +774,7 @@ void Foam::calculateMinMaxStatistics (BodyScalar::Enum property)
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
 	if (body->HasScalarValue (property))
-	    minMax (body->GetScalarValue (property));
+	    minMax (body->GetScalarValue (property, Is2D ()));
     }
     m_min[property] = acc::min (minMax);
     m_max[property] = acc::max (minMax);
@@ -787,7 +788,7 @@ void Foam::CalculateHistogramStatistics (BodyScalar::Enum property,
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
 	if (body->HasScalarValue (property))
-	    m_histogram[property] (body->GetScalarValue (property));
+	    m_histogram[property] (body->GetScalarValue (property, Is2D ()));
     }
 }
 
@@ -797,7 +798,7 @@ bool Foam::ExistsBodyWithValueIn (
     BOOST_FOREACH (boost::shared_ptr<Body> body, m_bodies)
     {
         if (body->HasScalarValue (property) &&
-            interval.contains (body->GetScalarValue (property)))
+            interval.contains (body->GetScalarValue (property, Is2D ())))
             return true;
     }
     return false;
@@ -907,7 +908,7 @@ void Foam::CreateObjectBody (size_t constraint)
 	size_t lastBodyId = GetLastBodyId ();
 	boost::shared_ptr<Body> body (new Body (face,  lastBodyId + 1));
 	body->UpdateAdjacentBody (body);
-	body->CalculateCenter ();
+	body->CalculateCenter (Is2D ());
 	m_bodies.push_back (body);
     }
 }
@@ -1000,7 +1001,7 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::addCellAttribute (
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
     {
 	float value[BodyAttribute::MAX_NUMBER_OF_COMPONENTS];
-	body->GetAttributeValue (attribute, value);
+	body->GetAttributeValue (attribute, value, Is2D ());
 	BOOST_FOREACH (const boost::shared_ptr<OrientedFace>& of, 
 		       body->GetOrientedFaces ())
 	{

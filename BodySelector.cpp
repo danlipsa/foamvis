@@ -72,10 +72,11 @@ boost::shared_ptr<AllBodySelector> AllBodySelector::SELECTOR =
 // ======================================================================
 
 PropertyValueBodySelector::PropertyValueBodySelector (
-    BodyScalar::Enum property, const ValueIntervals& valueIntervals,
+    BodyScalar::Enum property, bool is2D, const ValueIntervals& valueIntervals,
     const BinRegions& bins) :
 
     m_property (property),
+    m_is2D (is2D),
     m_valueIntervals (valueIntervals),
     m_bins (bins)
 {
@@ -89,7 +90,7 @@ bool PropertyValueBodySelector::operator () (
 	return true;
     if (body->HasScalarValue (m_property))
     {
-	double value = body->GetScalarValue (m_property);
+	double value = body->GetScalarValue (m_property, m_is2D);
 	ValueIntervals::const_iterator it = find_if (
 	    m_valueIntervals.begin (), m_valueIntervals.end (),
 	    boost::bind (&QwtDoubleInterval::contains, _1, value));
@@ -113,7 +114,8 @@ boost::shared_ptr<PropertyValueBodySelector> PropertyValueBodySelector::Clone (
     ) const
 {
     boost::shared_ptr<PropertyValueBodySelector> p (
-	new PropertyValueBodySelector (m_property, m_valueIntervals, m_bins));
+	new PropertyValueBodySelector (
+            m_property, m_is2D, m_valueIntervals, m_bins));
     return p;
 }
 

@@ -247,6 +247,7 @@ void Simulation::MapPerFoam (FoamParamMethod* foamMethods, size_t n)
     QtConcurrent::blockingMap (m_foams.begin (), m_foams.end (), fl);
 }
 
+
 size_t foamsIndex (
     Simulation::Foams::iterator current, Simulation::Foams::iterator begin)
 {
@@ -256,7 +257,8 @@ size_t foamsIndex (
 
 double GetPressureBody0 (const boost::shared_ptr<Foam>& foam)
 {
-    return foam->GetBody (0).GetScalarValue (BodyScalar::PRESSURE);
+    return foam->GetBody (0).GetScalarValue (
+        BodyScalar::PRESSURE, foam->Is2D ());
 }
 
 void Simulation::adjustPressureSubtractReference ()

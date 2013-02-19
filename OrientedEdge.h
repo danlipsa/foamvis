@@ -78,7 +78,7 @@ public:
     string ToString (const AttributesInfo* ai = 0) const;
     string ToStringShort () const;
     void GetVertexSet (VertexSet* vertexSet) const;
-    bool IsPhysical () const;
+    bool IsPhysical (bool is2D) const;
     size_t GetPointCount () const;
     G3D::Vector3 GetPoint (size_t i) const;
     float GetLength () const;

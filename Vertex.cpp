@@ -96,7 +96,7 @@ bool Vertex::IsPhysical (bool is2D) const
         else
             return 
                 count_if (m_adjacentEdges.begin (), m_adjacentEdges.end (),
-                          boost::bind (&Edge::IsPhysical, _1)) 
+                          boost::bind (&Edge::IsPhysical, _1, is2D)) 
                 == 4;
     }
 }

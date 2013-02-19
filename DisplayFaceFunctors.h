@@ -24,10 +24,10 @@ class DisplayFaceTriangleFan : public DisplayElementFocus
 {
 public:
     DisplayFaceTriangleFan (
-	const Settings& settings, ViewNumber::Enum viewNumber,
+	const Settings& settings, ViewNumber::Enum viewNumber, bool is2D,
 	FocusContext focus = FOCUS,
 	bool useZPos = false, double zPos = 0) : 
-	DisplayElementFocus (settings, viewNumber, focus, useZPos, zPos)
+	DisplayElementFocus (settings, viewNumber, is2D, focus, useZPos, zPos)
     {
     }
 
@@ -54,7 +54,7 @@ public:
      * Constructor
      */
     DisplayFaceHighlightColor (
-	const Settings& widget, 
+	const Settings& settings, bool is2D,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	ViewNumber::Enum viewNumber = ViewNumber::VIEW0,
 	bool useZPos = false,
@@ -88,7 +88,7 @@ class DisplayFaceBodyScalarColor :
 {
 public:
     DisplayFaceBodyScalarColor (
-	const Settings& settings, 
+	const Settings& settings, bool is2D,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	ViewNumber::Enum view = ViewNumber::VIEW0, 
 	bool useZPos = false,
@@ -142,10 +142,11 @@ class DisplayFaceLineStrip : public DisplayElementFocus
 {
 public:
     DisplayFaceLineStrip (
-	const Settings& settings, ViewNumber::Enum viewNumber,
+	const Settings& settings, ViewNumber::Enum viewNumber, bool is2D,
 	FocusContext focus = FOCUS,
 	bool useZPos = false, double zPos = 0) :
-	DisplayElementFocus (settings, viewNumber, focus, useZPos, zPos)
+
+	DisplayElementFocus (settings, viewNumber, is2D, focus, useZPos, zPos)
     {
     }
     void operator() (const boost::shared_ptr<OrientedFace>& of);
@@ -160,9 +161,10 @@ template<typename displayEdge>
 class DisplayFaceEdges : public DisplayElementFocus
 {
 public:
-    DisplayFaceEdges (const Settings& settings, ViewNumber::Enum viewNumber,
-                      FocusContext focus,                       
-		      bool useZPos = false, double zPos = 0);
+    DisplayFaceEdges (
+        const Settings& settings, ViewNumber::Enum viewNumber, bool is2D,
+        FocusContext focus,                       
+        bool useZPos = false, double zPos = 0);
 
     void operator() (const boost::shared_ptr<OrientedFace> f);
 

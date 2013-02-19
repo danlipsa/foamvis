@@ -545,7 +545,7 @@ private:
     void displayStandaloneEdges (
 	const Foam& foam, ViewNumber::Enum viewNumber = ViewNumber::VIEW0, 
 	bool useZPos = false, double zPos = 0) const;
-    void displayStandaloneFaces () const;
+    void displayStandaloneFaces (ViewNumber::Enum viewNumber) const;
     void displayEdgesTorus (ViewNumber::Enum view) const;
     void displayEdgesTorusTubes (ViewNumber::Enum view) const;
     void displayEdgesTorusLines (ViewNumber::Enum view) const;
@@ -554,7 +554,7 @@ private:
     void compileFacesNormal (ViewNumber::Enum view) const;
     void displayFacesTorus (ViewNumber::Enum view) const;
     void displayFacesAverage (ViewNumber::Enum view) const;
-    void displayFacesTorusTubes () const;
+    void displayFacesTorusTubes (ViewNumber::Enum viewNumber) const;
     void displayFacesTorusLines () const;
 
 
@@ -596,7 +596,7 @@ private:
 	const vector< boost::shared_ptr<Body> >& bodies, 
 	ViewNumber::Enum viewNumber, GLfloat lineWidth = 1) const;
     void displayFacesContour (
-	const vector< boost::shared_ptr<Face> >& faces) const;
+	const vector< boost::shared_ptr<Face> >& faces, bool is2D) const;
     /**
      * Displays   the   content   of   faces.   Used   together   with
      * displayFacesContour  and  with  GL_POLYGON_OFFSET_FILL  to  get

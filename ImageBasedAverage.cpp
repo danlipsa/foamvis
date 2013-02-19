@@ -361,7 +361,8 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
 	PropertySetter> (
 	    GetSettings (), vs.GetBodySelector (), 
 	    PropertySetter (GetSettings (), 
-			    viewNumber, m_storeShaderProgram.get (),
+			    viewNumber, GetSimulation ().Is2D (),
+                            m_storeShaderProgram.get (),
 			    m_storeShaderProgram->GetVValueLocation ()),
 	    DisplayElement::INVISIBLE_CONTEXT));
     glPopAttrib ();

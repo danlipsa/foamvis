@@ -213,10 +213,11 @@ template <typename DisplayEdge,
 class DisplayEdgeTorus : public DisplayElementFocus
 {
 public:
-    DisplayEdgeTorus (const Settings& settings, ViewNumber::Enum viewNumber,
-		      FocusContext focus = FOCUS,
-		      bool useZPos = false, double zPos = 0, 
-		      GLUquadricObj* quadric = 0);
+    DisplayEdgeTorus (
+        const Settings& settings, ViewNumber::Enum viewNumber, bool is2D,
+        FocusContext focus = FOCUS,
+        bool useZPos = false, double zPos = 0, 
+        GLUquadricObj* quadric = 0);
 
     void operator () (const OrientedEdge& oe);
 
@@ -238,7 +239,7 @@ class DisplayEdgePropertyColor : public DisplayElementFocus
 {
 public:
     DisplayEdgePropertyColor (
-	const Settings& settings, ViewNumber::Enum viewNumber, 
+	const Settings& settings, ViewNumber::Enum viewNumber, bool is2D,
 	FocusContext focus, bool useZPos = false, double zPos = 0);
 
     void operator () (const boost::shared_ptr<Edge> edge) const;
@@ -253,7 +254,7 @@ class DisplayEdge : public DisplayElementFocus
 {
 public:
     DisplayEdge (
-	const Settings& settings, ViewNumber::Enum viewNumber, 
+	const Settings& settings, ViewNumber::Enum viewNumber, bool is2D,
         FocusContext focus, 
 	bool useZPos = false, double zPos = 0);
 

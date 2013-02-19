@@ -54,11 +54,12 @@ class DisplayElementFocus : public DisplayElement
 {
 public:
     DisplayElementFocus (
-	const Settings& settings, ViewNumber::Enum viewNumber,
+	const Settings& settings, ViewNumber::Enum viewNumber, bool is2D,
 	FocusContext focus = FOCUS, bool useZPos = false, double zPos = 0) :
 	
 	DisplayElement (settings, useZPos, zPos),
         m_viewNumber (viewNumber),
+        m_is2D (is2D),
 	m_focus (focus)
     {
     }
@@ -66,9 +67,14 @@ public:
     {
         return m_viewNumber;
     }
+    bool Is2D () const
+    {
+        return m_is2D;
+    }
 
 protected:
     ViewNumber::Enum m_viewNumber;
+    const bool m_is2D;
     FocusContext m_focus;
 };
 
@@ -88,6 +94,8 @@ public:
     {
     }
     ViewNumber::Enum GetViewNumber () const;
+    bool Is2D () const;
+
 protected:
     PropertySetter m_propertySetter;
 };

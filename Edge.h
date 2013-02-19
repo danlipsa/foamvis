@@ -92,7 +92,7 @@ public:
      * 2D:
      * In quadradic model all edges are physical
      */
-    bool IsPhysical () const;
+    bool IsPhysical (bool is2D) const;
 
     /**
      * Adds a face touched by this edge

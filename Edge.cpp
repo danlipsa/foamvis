@@ -106,7 +106,7 @@ string Edge::AdjacentFacesToString () const
     return ostr.str ();
 }
 
-bool Edge::IsPhysical () const
+bool Edge::IsPhysical (bool is2D) const
 {
     if (IsStandalone ())
 	return true;
@@ -118,8 +118,7 @@ bool Edge::IsPhysical () const
             return true;
         else
         {
-            boost::shared_ptr<Body> body = of->GetAdjacentBody ().GetBody ();
-            if (body->Is2D ())
+            if (is2D)
                 return true;
             else
             {

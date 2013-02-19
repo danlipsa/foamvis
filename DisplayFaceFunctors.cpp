@@ -35,12 +35,14 @@ template <HighlightNumber::Enum highlightColorIndex,
 DisplayFaceHighlightColor<highlightColorIndex, 
 			  displayEdges, PropertySetter>::
 DisplayFaceHighlightColor (
-    const Settings& settings, 
+    const Settings& settings, bool is2D,
     typename DisplayElement::FocusContext focus,
     ViewNumber::Enum viewNumber, bool useZPos, double zPos) : 
     
     DisplayElementPropertyFocus<PropertySetter> (
-	settings, PropertySetter (settings, viewNumber), focus, useZPos, zPos)
+	settings, 
+        PropertySetter (settings, viewNumber, is2D), 
+        focus, useZPos, zPos)
 {
 }
 
@@ -69,15 +71,16 @@ operator () (const boost::shared_ptr<Face>& f)
     if (this->m_focus == DisplayElement::FOCUS)
     {
 	glColor (this->m_settings.GetHighlightColor (
-		     this->GetViewNumber (),
-		     highlightColorIndex));
+		     this->GetViewNumber (), highlightColorIndex));
     }
     else
     {
         QColor color =  QColor::fromRgbF (0, 0, 0, vs.GetContextAlpha ());
 	glColor (color);
     }
-    (displayEdges (this->m_settings, this->GetViewNumber (), this->m_focus,
+    (displayEdges (this->m_settings, this->GetViewNumber (), 
+                   this->m_propertySetter.Is2D (),
+                   this->m_focus,
                    this->m_useZPos, this->m_zPos)) (f);
 }
 
@@ -96,14 +99,15 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 template<typename PropertySetter>
 DisplayFaceBodyScalarColor<PropertySetter>::
 DisplayFaceBodyScalarColor (
-    const Settings& settings,
+    const Settings& settings, bool is2D,
     typename DisplayElement::FocusContext focus, ViewNumber::Enum view, 
     bool useZPos, double zPos) : 
     
     DisplayFaceHighlightColor<
     HighlightNumber::H0, 
     DisplayFaceTriangleFan, PropertySetter> (
-	settings, PropertySetter (settings, view), focus, useZPos, zPos)
+	settings, 
+        PropertySetter (settings, view, is2D), focus, useZPos, zPos)
 {
 }
 
@@ -128,8 +132,7 @@ void DisplayFaceBodyScalarColor<PropertySetter>::
 operator () (const boost::shared_ptr<OrientedFace>& of)
 {
     glNormal (of->GetNormal ());
-    boost::shared_ptr<Body> body = of->GetAdjacentBody ().GetBody ();
-    if (body->Is2D ())
+    if (this->m_propertySetter.Is2D ())
     {
 	bool useColor;
 	setColorOrTexture (of, &useColor);
@@ -139,12 +142,14 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 	// write to the stencil buffer 1s for the concave polygon
 	glStencilFunc (GL_NEVER, 0, 0);
 	glStencilOp (GL_INVERT, GL_KEEP, GL_KEEP);
-	(DisplayFaceTriangleFan (this->m_settings, this->GetViewNumber ())) (of);
+	(DisplayFaceTriangleFan (
+            this->m_settings, this->GetViewNumber (), this->Is2D ())) (of);
 	
 	// write to the color buffer only if the stencil bit is 1
 	// and set the stencil bit to 0.
 	glStencilFunc (GL_NOTEQUAL, 0, 1);
 	glStencilOp (GL_KEEP, GL_KEEP, GL_ZERO);
+        boost::shared_ptr<Body> body = of->GetAdjacentBody ().GetBody ();
 	G3D::AABox box = body->GetBoundingBox ();
 	DisplayBox (G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ()));
 
@@ -161,7 +166,8 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 	//{
 	//glPushAttrib (GL_POLYGON_BIT);
 	//glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-	DisplayFaceTriangleFan (this->m_settings, this->GetViewNumber ()) (of);
+	DisplayFaceTriangleFan (
+            this->m_settings, this->GetViewNumber (), this->Is2D ()) (of);
 	    
         //glPopAttrib ();
         //}
@@ -228,7 +234,10 @@ DisplayFaceDmpColor (
     DisplayFaceHighlightColor<
     HighlightNumber::H0, 
     DisplayFaceTriangleFan, PropertySetter> (
-	settings, PropertySetter (settings, view), focus, useZPos, zPos)
+	settings, 
+        // setter not used: use a default value for is2D = true
+        PropertySetter (settings, view, true), 
+        focus, useZPos, zPos)
 {
 }
 
@@ -281,7 +290,8 @@ displayNoNormal (const boost::shared_ptr<Face>& f)
     glColor (f->GetColor (this->m_settings.GetHighlightColor (
 			       this->GetViewNumber (),
 			       HighlightNumber::H0)));
-    (DisplayFaceTriangleFan (this->m_settings, this->GetViewNumber ())) (f);
+    (DisplayFaceTriangleFan (this->m_settings, this->GetViewNumber (),
+                             this->Is2D ())) (f);
 }
 
 
@@ -338,10 +348,10 @@ void DisplayFaceTriangleFan::operator() (const OrientedFace*  of) const
 template<typename displayEdge>
 DisplayFaceEdges<displayEdge>::
 DisplayFaceEdges (
-    const Settings& widget, ViewNumber::Enum viewNumber, FocusContext focus, 
-    bool useZPos, double zPos) :
- 
-    DisplayElementFocus (widget, viewNumber, focus, useZPos, zPos)
+    const Settings& widget, ViewNumber::Enum viewNumber, bool is2D,
+    FocusContext focus, bool useZPos, double zPos) :
+    
+    DisplayElementFocus (widget, viewNumber, is2D, focus, useZPos, zPos)
 {
 }
 
@@ -358,9 +368,7 @@ operator () (const boost::shared_ptr<Face>  f)
 {
     const vector< boost::shared_ptr<OrientedEdge> >& v = 
 	f->GetOrientedEdges ();
-    boost::shared_ptr<Body> body = f->GetAdjacentBody ().GetBody ();    
-
-    displayEdge display(m_settings, this->GetViewNumber (), m_focus, 
+    displayEdge display(m_settings, this->GetViewNumber (), m_is2D, m_focus, 
                         m_useZPos, m_zPos);
     for (size_t i = 0; i < v.size (); i++)
     {

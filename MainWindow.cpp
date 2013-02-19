@@ -988,7 +988,8 @@ void MainWindow::SelectionChangedHistogram (int vn)
 	vs.SetBodySelector (
 	    boost::shared_ptr<PropertyValueBodySelector> (
 		new PropertyValueBodySelector (
-                    bodyScalar, valueIntervals, bins)));
+                    bodyScalar, simulation.Is2D (),
+                    valueIntervals, bins)));
     widgetGl->CompileUpdate (viewNumber);
     if (simulation.Is3D ())
     {

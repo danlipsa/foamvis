@@ -84,7 +84,7 @@ private:
 class PropertyValueBodySelector : public BodySelector
 {
 public:
-    PropertyValueBodySelector (BodyScalar::Enum property,
+    PropertyValueBodySelector (BodyScalar::Enum property, bool is2D,
 			       const ValueIntervals& valueIntervals,
                                const BinRegions& bins);
     virtual ~PropertyValueBodySelector ()
@@ -108,6 +108,7 @@ public:
 
 private:
     BodyScalar::Enum m_property;
+    const bool m_is2D;
     ValueIntervals m_valueIntervals;
     /**
      * Useful for setting the selection on a histogram.

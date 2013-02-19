@@ -116,9 +116,9 @@ void OrientedEdge::GetVertexSet (VertexSet* vertexSet) const
     GetEdge ()->GetVertexSet (vertexSet);
 }
 
-bool OrientedEdge::IsPhysical () const
+bool OrientedEdge::IsPhysical (bool is2D) const
 {
-    return GetEdge ()->IsPhysical ();
+    return GetEdge ()->IsPhysical (is2D);
 }
 
 size_t OrientedEdge::GetPointCount () const
