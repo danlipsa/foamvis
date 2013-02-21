@@ -36,9 +36,6 @@ public:
      */
     void Init (boost::shared_ptr<Settings> settings,
                const SimulationGroup* simulationGroup);
-    void UpdateColorTransferFunction (
-	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
-	const char* name);
     void UpdateFocus ();
     void ViewToVtk (ViewNumber::Enum viewNumber);
     void VtkToView (ViewNumber::Enum viewNumber);
@@ -73,12 +70,12 @@ public:
      * @name PipelineAverage3D
      */
     void UpdateScalarThreshold (QwtDoubleInterval interval);
-    void Average3DAddView (
-	ViewNumber::Enum viewNumber,
-	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
+    void AddAverageView (
+	ViewNumber::Enum viewNumber, const ColorBarModel& colorBarModel,	
 	QwtDoubleInterval interval);
     void ViewToAverage3D ();
     void UpdateAverage (ViewNumber::Enum viewNumber, int direction);
+    void UpdateForceAverage ();
     void Average3dCreatePipeline (size_t objects, size_t constraintSurfaces, 
                                   size_t fontSize);
     void UpdateAverage3dTitle ();

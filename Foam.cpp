@@ -837,32 +837,30 @@ void Foam::SetForceAllObjectss ()
 void Foam::setForceOneObject (const ForceNamesOneObject& names, 
                               ForceOneObject* forceOneObject)
 {
-    forceOneObject->m_bodyId = names.m_bodyId;
-    forceOneObject->m_body = *FindBody (names.m_bodyId);
+    forceOneObject->SetBody (*FindBody (names.m_bodyId));
     const ParsingData& parsingData = GetParsingData ();
     // network force
-    forceOneObject->m_networkForce[0] = parsingData.GetVariableValue (
-	names.m_networkForceName[0]);
-    forceOneObject->m_networkForce[1] = parsingData.GetVariableValue (
-	names.m_networkForceName[1]);
-    if (! names.m_networkForceName[2].empty ())
-        forceOneObject->m_networkForce[2] = parsingData.GetVariableValue (
-            names.m_networkForceName[2]);
-    // pressure force
-    forceOneObject->m_pressureForce[0] = parsingData.GetVariableValue (
-	names.m_pressureForceName[0]);
-    forceOneObject->m_pressureForce[1] = parsingData.GetVariableValue (
-	names.m_pressureForceName[1]);
-    if (! names.m_pressureForceName[2].empty ())
-        forceOneObject->m_pressureForce[2] = parsingData.GetVariableValue (
-            names.m_pressureForceName[2]);
+    forceOneObject->SetForce (
+        ForceType::NETWORK,
+        parsingData.GetVariableValue (names.m_networkForceName[0]),
+        parsingData.GetVariableValue (names.m_networkForceName[1]),
+        (names.m_networkForceName[2].empty ()) ? 0 :
+        parsingData.GetVariableValue (names.m_networkForceName[2]));
+    forceOneObject->SetForce (
+        ForceType::PRESSURE, 
+        parsingData.GetVariableValue (names.m_pressureForceName[0]),
+        parsingData.GetVariableValue (names.m_pressureForceName[1]),
+        (names.m_pressureForceName[2].empty ()) ? 0 :
+        parsingData.GetVariableValue (names.m_pressureForceName[2]));
     // torque
     if (! names.m_networkTorqueName.empty ())
     {
-	forceOneObject->m_networkTorque = parsingData.GetVariableValue (
-	    names.m_networkTorqueName);
-	forceOneObject->m_pressureTorque = parsingData.GetVariableValue (
-	    names.m_pressureTorqueName);
+	forceOneObject->SetTorque (
+            ForceType::NETWORK, parsingData.GetVariableValue (
+                names.m_networkTorqueName));
+        forceOneObject->SetTorque (
+            ForceType::PRESSURE, parsingData.GetVariableValue (
+                names.m_pressureTorqueName));
     }
 }
 

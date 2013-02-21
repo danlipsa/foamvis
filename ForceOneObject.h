@@ -5,8 +5,10 @@
  *
  * Declaration of the ForceOneObject class
  */
-#ifndef __FORCES_ONE_OBJECT_H__
-#define __FORCES_ONE_OBJECT_H__
+#ifndef __FORCE_ONE_OBJECT_H__
+#define __FORCE_ONE_OBJECT_H__
+
+#include "Enums.h"
 
 class Body;
 /**
@@ -23,22 +25,39 @@ struct ForceNamesOneObject
     string m_pressureTorqueName;
 };
 
-struct ForceOneObject
+class ForceOneObject
 {
+public:
     ForceOneObject ();
-    ForceOneObject (size_t bodyId, boost::shared_ptr<Body> body);
+    ForceOneObject (boost::shared_ptr<Body> body);
     ForceOneObject& operator+= (const ForceOneObject& other);
     ForceOneObject& operator-= (const ForceOneObject& other);
 
-    size_t m_bodyId;
+    G3D::Vector3 GetForce (ForceType::Enum type) const;
+    void SetForce (ForceType::Enum type, float x, float y, float z);
+    
+    float GetTorque (ForceType::Enum type) const;
+    void SetTorque (ForceType::Enum type, float t);
+
+    void SetBody (boost::shared_ptr<Body> body)
+    {
+        m_body = body;
+    }
+    boost::shared_ptr<Body> GetBody () const
+    {
+        return m_body;
+    }
+
+private:
     boost::shared_ptr<Body> m_body;
+
     G3D::Vector3 m_networkForce;
     G3D::Vector3 m_pressureForce;
     float m_networkTorque;
     float m_pressureTorque;
 };
 
-#endif //__FORCES_ONE_OBJECT_H__
+#endif //__FORCE_ONE_OBJECT_H__
 
 // Local Variables:
 // mode: c++

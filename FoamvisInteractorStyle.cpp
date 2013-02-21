@@ -8,7 +8,7 @@
  */
 
 #include "FoamvisInteractorStyle.h"
-#include "DebugStream.h"
+#include "Debug.h"
 
 vtkStandardNewMacro(FoamvisInteractorStyle);
 

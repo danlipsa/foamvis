@@ -346,9 +346,9 @@ struct StripPointLocation
 {
     enum Enum
     {
-	BEGIN,
-	MIDDLE,
-	END,
+	BEGIN_POINT,
+	MIDDLE_POINT,
+	END_POINT,
 	COUNT
     };
 };
@@ -360,9 +360,9 @@ struct SegmentPerpendicularEnd
 {
     enum Enum
     {
-	BEGIN,
-	END,
-	BEGIN_END,
+	BEGIN_SEGMENT,
+	END_SEGMENT,
+	BEGIN_END_SEGMENT,
 	NONE,
 	COUNT
     };
@@ -544,6 +544,22 @@ struct VectorVis
         PATHLINE,
         COUNT
     };
+};
+
+/**
+ * Force and torque
+ */
+struct ForceType
+{
+    enum Enum
+    {
+        NETWORK,
+        PRESSURE,
+        RESULT,
+        DIFFERENCE,
+        COUNT
+    };
+    static Enum FromSizeT (size_t i);
 };
 
 // a region is all bins i such that first <= i < second

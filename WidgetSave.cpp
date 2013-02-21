@@ -6,7 +6,7 @@
  */
 
 #include "WidgetSave.h"
-#include "DebugStream.h"
+#include "Debug.h"
 
 
 WidgetSave::WidgetSave (QWidget * parent) : 

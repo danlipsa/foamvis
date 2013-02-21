@@ -405,6 +405,15 @@ void MainWindow::setupButtonGroups ()
                                    VectorVis::STREAMLINE);
     buttonGroupVelocityVis->setId (radioButtonVelocityPathline, 
                                    VectorVis::PATHLINE);
+
+    buttonGroupForce->setId (checkBoxForceNetwork, ForceType::NETWORK);
+    buttonGroupForce->setId (checkBoxForcePressure, ForceType::PRESSURE);
+    buttonGroupForce->setId (checkBoxForceResult, ForceType::RESULT);
+    buttonGroupForce->setId (checkBoxForceDifference, ForceType::DIFFERENCE);
+
+    buttonGroupTorque->setId (checkBoxTorqueNetwork, ForceType::NETWORK);
+    buttonGroupTorque->setId (checkBoxTorquePressure, ForceType::PRESSURE);
+    buttonGroupTorque->setId (checkBoxTorqueResult, ForceType::RESULT);
 }
 
 void MainWindow::setupSliderData (const Simulation& simulation)
@@ -557,11 +566,11 @@ void MainWindow::processBodyTorusStep ()
 
 void MainWindow::updateAllViews3DAverage ()
 {
-    if (GetSimulationGroup ().GetIndex3DSimulation () != INVALID_INDEX)
+    if (GetSimulationGroup ().GetIndex3DSimulation () == INVALID_INDEX)
 	return;
     widgetVtk->RemoveViews ();
     widgetVtk->WidgetBase::ForAllViews (
-	boost::bind (&MainWindow::addVtkView, this, _1));
+        boost::bind (&MainWindow::addVtkView, this, _1));
     updateStretch ();
 }
 
@@ -569,9 +578,8 @@ void MainWindow::addVtkView (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
     const BodySelector& bodySelector = vs.GetBodySelector ();
+    const ColorBarModel& colorBarModel = *getColorBarModel (viewNumber);
     QwtDoubleInterval interval;
-    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction = 
-	getColorBarModel (viewNumber)->GetColorTransferFunction ();
     if (bodySelector.GetType () == BodySelectorType::PROPERTY_VALUE)
     {
 	const vector<QwtDoubleInterval>& v = 
@@ -580,13 +588,8 @@ void MainWindow::addVtkView (ViewNumber::Enum viewNumber)
 	interval = v[0];
     }
     else
-    {
-	double range[2];
-	colorTransferFunction->GetRange (range);
-	interval.setMinValue (range[0]);
-	interval.setMaxValue (range[1]);
-    }
-    widgetVtk->Average3DAddView (viewNumber, colorTransferFunction, interval);
+        interval = colorBarModel.GetInterval ();
+    widgetVtk->AddAverageView (viewNumber, colorBarModel, interval);
 }
 
 
@@ -1349,12 +1352,38 @@ void MainWindow::ButtonClickedVelocityVis (int vv)
     for (size_t i = 0; i < vn.size (); ++i)
     {
         ViewNumber::Enum viewNumber = vn[i];
-        ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+        ViewSettings& vs = GetViewSettings (viewNumber);
         vs.SetVelocityVis (velocityVis);
         if (vs.GetVelocityVis () == VectorVis::STREAMLINE)
             widgetGl->CacheCalculateStreamline (viewNumber);
     }
     widgetGl->update ();
+}
+
+void MainWindow::ButtonClickedForce (int t)
+{
+    ForceType::Enum type =ForceType::FromSizeT (t);
+    ViewSettings& vs = GetViewSettings ();
+    if (type == ForceType::DIFFERENCE &&
+        (! vs.IsAverageAround () ||
+         vs.GetAverageAroundSecondBodyId () == INVALID_INDEX))
+    {
+	ShowMessageBox ("This feature works only when "
+                        "averaging around two objects.");
+	SetCheckedNoSignals (checkBoxForceDifference, false, true);
+	return;
+    }
+    vs.SetForceShown (type, ! vs.IsForceShown (type));
+    widgetGl->CompileUpdate ();
+    widgetVtk->UpdateForceAverage ();
+}
+
+void MainWindow::ButtonClickedTorque (int t)
+{
+    ForceType::Enum type =ForceType::FromSizeT (t);
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetTorqueShown (type, vs.IsTorqueShown (type));
+    widgetGl->CompileUpdate ();
 }
 
 void MainWindow::ButtonClickedViewType (int vt)
@@ -1507,21 +1536,6 @@ void MainWindow::ToggledTitleShown (bool checked)
     GetSettings ()->SetTitleShown (checked);
     widgetGl->update ();
     widgetVtk->UpdateAverage3dTitle ();
-}
-
-
-void MainWindow::ToggledForceDifference (bool forceDifference)
-{
-    const ViewSettings& vs = widgetGl->GetViewSettings ();
-    if (! vs.IsAverageAround () ||
-	vs.GetAverageAroundSecondBodyId () == INVALID_INDEX)
-    {
-	ShowMessageBox ("This feature works only when "
-                        "averaging around two objects.");
-	SetCheckedNoSignals (checkBoxForceDifference, false, true);
-	return;
-    }
-    widgetGl->SetForceDifferenceShown (forceDifference);
 }
 
 void MainWindow::updateSliderTimeSteps (
@@ -1742,27 +1756,27 @@ void MainWindow::forceViewToUI ()
     const Simulation& simulation = GetSimulation (viewNumber);
     // force
     SetCheckedNoSignals (
-	checkBoxForceNetwork, vs.IsForceNetworkShown (), 
+	checkBoxForceNetwork, vs.IsForceShown (ForceType::NETWORK), 
         simulation.IsForceAvailable ());
     SetCheckedNoSignals (
 	checkBoxForcePressure, 
-	vs.IsForcePressureShown (), simulation.IsForceAvailable ());
+	vs.IsForceShown (ForceType::PRESSURE), simulation.IsForceAvailable ());
     SetCheckedNoSignals (
 	checkBoxForceResult, 
-        vs.IsForceResultShown (), simulation.IsForceAvailable ());
+        vs.IsForceShown (ForceType::RESULT), simulation.IsForceAvailable ());
     SetCheckedNoSignals (
 	checkBoxForceDifference, 
-        vs.IsForceDifferenceShown (), simulation.IsForceAvailable ());
+        vs.IsForceShown (ForceType::DIFFERENCE), simulation.IsForceAvailable ());
     // torque
     SetCheckedNoSignals (
 	checkBoxTorqueNetwork, 
-        vs.IsTorqueNetworkShown (), simulation.IsTorqueAvailable ());
+        vs.IsTorqueShown (ForceType::NETWORK), simulation.IsTorqueAvailable ());
     SetCheckedNoSignals (
 	checkBoxTorquePressure, 
-        vs.IsTorquePressureShown (), simulation.IsTorqueAvailable ());
+        vs.IsTorqueShown (ForceType::PRESSURE), simulation.IsTorqueAvailable ());
     SetCheckedNoSignals (
 	checkBoxTorqueResult, 
-        vs.IsTorqueResultShown (), simulation.IsTorqueAvailable ());
+        vs.IsTorqueShown (ForceType::RESULT), simulation.IsTorqueAvailable ());
     SetValueNoSignals (
 	horizontalSliderTorqueDistance, Value2ExponentIndex (
             horizontalSliderTorqueDistance,

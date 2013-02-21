@@ -33,8 +33,6 @@ public:
 	float angleDegrees = 0) const;
     virtual void AverageRelease ();
     vtkSmartPointer<vtkImageData> GetAverage ();
-    G3D::Vector3 GetTranslation (size_t timeStep) const;
-    G3D::Vector3 GetTranslation () const;
     size_t GetBodyAttribute () const
     {
         return m_bodyAttribute;

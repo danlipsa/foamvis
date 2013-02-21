@@ -7,7 +7,7 @@
  */
 
 #include "HistogramStatistics.h"
-#include "DebugStream.h"
+#include "Debug.h"
 
 size_t HistogramStatistics::GetCountPerBin (size_t bin) const
 {

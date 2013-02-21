@@ -116,6 +116,7 @@
 #include <QVTKWidget.h>
 #include <QVTKApplication.h>
 #include <QVTKInteractor.h>
+#include <vtkArrowSource.h>
 #include <vtkCallbackCommand.h>
 #include <vtkCamera.h>
 #include <vtkCellArray.h>

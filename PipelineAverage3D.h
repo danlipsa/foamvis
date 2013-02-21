@@ -12,28 +12,23 @@
 #include "Enums.h"
 #include "PipelineBase.h"
 
+class ColorBarModel;
+class ForceAverage;
 class RegularGridAverage;
+class ViewSettings;
 
 class PipelineAverage3D : public PipelineBase
 {
 public:
     PipelineAverage3D (
         size_t objects, size_t constraintSurfaces, size_t fontSize);
-
-    virtual void UpdateColorTransferFunction (
-        vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
-        const char* name);
-
+    virtual void UpdateColorBarModel (
+        const ColorBarModel& colorBarModel, const char* name);
     void UpdateThreshold (QwtDoubleInterval interval);
-    void UpdateContextAlpha (float alpha)
-    {
-        updateAlpha (alpha, m_constraintSurface);
-    }
-    void UpdateObjectAlpha (float alpha)
-    {
-        updateAlpha (alpha, m_object);
-    }
-    void UpdateAverage (boost::shared_ptr<RegularGridAverage> average);
+    void UpdateContextAlpha (float alpha);
+    void UpdateObjectAlpha (float alpha);
+    void UpdateScalarAverage (boost::shared_ptr<RegularGridAverage> average);
+    void UpdateForceAverage (const ForceAverage& forceAverage);
     void UpdateViewTitle (
         bool titleShown, const G3D::Vector2& postion,
         const string& simulationName, const string& viewTitle);
@@ -41,12 +36,18 @@ public:
 private:
     void updateAlpha (
         float alpha, vector<vtkSmartPointer<vtkActor> >& actors);
+    template <typename Iterator>
+    void setPolyActors (Iterator begin, Iterator end);
+    void updateForce (size_t objectIndex, ForceType::Enum forceType,
+                      G3D::Vector3 force, G3D::Vector3 position, bool shown);
 
 private:
     vtkSmartPointer<vtkActor> m_averageActor;
     vtkSmartPointer<vtkThreshold> m_threshold;
     vector<vtkSmartPointer<vtkActor> > m_constraintSurface;
     vector<vtkSmartPointer<vtkActor> > m_object;
+    // for each object, 3 forces acting on it
+    vector<boost::array<vtkSmartPointer<vtkActor>, 3> > m_forceActor;
 };
 
 

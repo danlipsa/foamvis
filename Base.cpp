@@ -52,12 +52,10 @@ const Simulation& Base::GetSimulation (size_t index) const
 
 bool Base::IsVtkView (ViewNumber::Enum viewNumber) const
 {
-    __ENABLE_LOGGING__;
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
     bool isVtkView = 
         simulation.Is3D () && vs.GetViewType () == ViewType::AVERAGE;
-    __LOG__ (cdbg << isVtkView << endl;);
     return isVtkView;
 }
 

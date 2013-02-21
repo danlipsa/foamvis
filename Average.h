@@ -48,6 +48,9 @@ public:
     const Foam& GetFoam (size_t timeStep) const;
     const Foam& GetFoam () const;
     size_t GetBodyScalar () const;
+    G3D::Vector3 GetTranslation (size_t timeStep) const;
+    G3D::Vector3 GetTranslation () const;
+
 
 protected:
     //@todo write and add/remove in one operations instead of two.

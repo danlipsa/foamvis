@@ -341,7 +341,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tabSettings">
         <attribute name="title">
@@ -363,7 +363,7 @@
             <bool>true</bool>
            </property>
            <property name="currentIndex">
-            <number>5</number>
+            <number>4</number>
            </property>
            <widget class="QWidget" name="tabFirst">
             <attribute name="title">
@@ -2369,6 +2369,9 @@
                   <property name="checked">
                    <bool>false</bool>
                   </property>
+                  <attribute name="buttonGroup">
+                   <string>buttonGroupForce</string>
+                  </attribute>
                  </widget>
                 </item>
                 <item row="0" column="1">
@@ -2379,6 +2382,9 @@
                   <property name="checked">
                    <bool>false</bool>
                   </property>
+                  <attribute name="buttonGroup">
+                   <string>buttonGroupForce</string>
+                  </attribute>
                  </widget>
                 </item>
                 <item row="1" column="0">
@@ -2389,6 +2395,9 @@
                   <property name="checked">
                    <bool>false</bool>
                   </property>
+                  <attribute name="buttonGroup">
+                   <string>buttonGroupForce</string>
+                  </attribute>
                  </widget>
                 </item>
                 <item row="1" column="1">
@@ -2396,6 +2405,9 @@
                   <property name="text">
                    <string>Difference</string>
                   </property>
+                  <attribute name="buttonGroup">
+                   <string>buttonGroupForce</string>
+                  </attribute>
                  </widget>
                 </item>
                </layout>
@@ -2421,6 +2433,9 @@
                   <property name="checked">
                    <bool>false</bool>
                   </property>
+                  <attribute name="buttonGroup">
+                   <string>buttonGroupTorque</string>
+                  </attribute>
                  </widget>
                 </item>
                 <item row="0" column="1">
@@ -2431,6 +2446,9 @@
                   <property name="checked">
                    <bool>false</bool>
                   </property>
+                  <attribute name="buttonGroup">
+                   <string>buttonGroupTorque</string>
+                  </attribute>
                  </widget>
                 </item>
                 <item row="1" column="0">
@@ -2441,6 +2459,9 @@
                   <property name="checked">
                    <bool>false</bool>
                   </property>
+                  <attribute name="buttonGroup">
+                   <string>buttonGroupTorque</string>
+                  </attribute>
                  </widget>
                 </item>
                 <item row="2" column="0">
@@ -2886,58 +2907,42 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxForcePressure</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledForcePressureShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1018</x>
-     <y>391</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>240</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxForceNetwork</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledForceNetworkShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>862</x>
-     <y>391</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>265</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxForceResult</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledForceResultShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>852</x>
-     <y>418</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>287</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>buttonGroupViewType</sender>
    <signal>buttonClicked(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>ButtonClickedViewType(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>521</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonGroupForce</sender>
+   <signal>buttonClicked(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ButtonClickedForce(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>521</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonGroupTorque</sender>
+   <signal>buttonClicked(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ButtonClickedTorque(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -3234,70 +3239,6 @@
     <hint type="destinationlabel">
      <x>643</x>
      <y>429</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxForceDifference</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledForceDifference(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1018</x>
-     <y>418</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1039</x>
-     <y>582</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxTorqueNetwork</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledTorqueNetworkShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>862</x>
-     <y>472</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>643</x>
-     <y>392</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxTorquePressure</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledTorquePressureShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1018</x>
-     <y>472</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>643</x>
-     <y>464</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxTorqueResult</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledTorqueResultShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>852</x>
-     <y>499</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>643</x>
-     <y>483</y>
     </hint>
    </hints>
   </connection>
@@ -4605,7 +4546,6 @@
   <slot>CurrentIndexChangedSimulation(int)</slot>
   <slot>ValueChangedAverageTimeWindow(int)</slot>
   <slot>ToggledTwoHalvesView(bool)</slot>
-  <slot>ToggledForceDifference(bool)</slot>
   <slot>ToggledHistogramShown(bool)</slot>
   <slot>ToggledHistogramColorMapped(bool)</slot>
   <slot>ToggledHistogramAllTimesteps(bool)</slot>
@@ -4622,6 +4562,16 @@
   <buttongroup name="buttonGroupVelocityVis"/>
   <buttongroup name="buttonGroupInteractionObject"/>
   <buttongroup name="buttonGroupTimeLinkage"/>
+  <buttongroup name="buttonGroupTorque">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroupForce">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
   <buttongroup name="buttonGroupViewType"/>
   <buttongroup name="buttonGroupDuplicateDomain">
    <property name="exclusive">

@@ -369,7 +369,7 @@ void Simulation::storeVelocity (
     (void)afterEnd;
     G3D::Vector3 velocity = end.m_point - begin.m_point;
     begin.m_body->SetVelocity (velocity);
-    if (end.m_location == StripPointLocation::END)
+    if (end.m_location == StripPointLocation::END_POINT)
 	end.m_body->SetVelocity (velocity);
 }
 

@@ -40,7 +40,7 @@ public:
 	m_interval = interval;
 	m_clampInterval = interval;
     }
-    const QwtDoubleInterval& GetInterval () const
+    const QwtDoubleInterval GetInterval () const
     {
 	return m_interval;
     }

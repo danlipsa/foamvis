@@ -6,7 +6,7 @@
  * Definition of the AttributeHistogram class
  */
 
-#include "DebugStream.h"
+#include "Debug.h"
 #include "Enums.h"
 #include "HistogramSettings.h"
 #include "TransferFunctionHistogram.h"

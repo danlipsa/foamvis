@@ -211,19 +211,3 @@ vtkSmartPointer<vtkImageData> RegularGridAverage::GetAverage ()
     return m_average;
 }
 
-G3D::Vector3 RegularGridAverage::GetTranslation (size_t timeStep) const
-{
-    const ViewSettings& vs = GetViewSettings ();
-    const Simulation& simulation = GetSimulation ();
-    G3D::AABox bb = simulation.GetBoundingBox ();
-    G3D::Vector3 center = bb.center ();
-    const ObjectPosition current = vs.GetAverageAroundPosition (timeStep);
-    G3D::Vector3 t = center - current.m_rotationCenter;
-    return t;
-}
-
-G3D::Vector3 RegularGridAverage::GetTranslation () const
-{
-    const ViewSettings& vs = GetViewSettings ();
-    return GetTranslation (vs.GetTime ());
-}

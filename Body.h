@@ -109,7 +109,7 @@ public:
      * Gets the center
      * @return the center of the body
      */
-    const G3D::Vector3& GetCenter () const
+    const G3D::Vector3 GetCenter () const
     {
 	return m_center;
     }

@@ -446,3 +446,12 @@ LightNumber::Enum LightNumber::FromSizeT (size_t i)
 		   "Value outside of LightNumber::Enum: ", i);
     return LightNumber::Enum (i);
 }
+
+// Methods ForceType
+// ======================================================================
+ForceType::Enum ForceType::FromSizeT (size_t i)
+{
+    RuntimeAssert (i <= ForceType::COUNT,
+		   "Value outside of ForceType::Enum: ", i);
+    return ForceType::Enum (i);
+}

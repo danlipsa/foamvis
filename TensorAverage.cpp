@@ -8,7 +8,7 @@
  */
 
 #include "AverageShaders.h"
-#include "DebugStream.h"
+#include "Debug.h"
 #include "Foam.h"
 #include "WidgetGl.h"
 #include "OpenGLUtils.h"

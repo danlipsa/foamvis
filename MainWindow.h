@@ -72,11 +72,12 @@ public Q_SLOTS:
 
     void CellClickedLinkedTimeEvents (int row, int column);
     void ButtonClickedViewType (int viewType);
+    void ButtonClickedForce (int type);
+    void ButtonClickedTorque (int type);
     void ButtonClickedVelocityVis (int velocityVis);
     void ButtonClickedTimeLinkage (int id);
 
     void ToggledTwoHalvesView (bool checked);
-    void ToggledForceDifference (bool checked);
 
     /**
      * Called when the Begin Slider button is pressed. Shows the first

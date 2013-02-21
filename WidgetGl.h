@@ -161,7 +161,6 @@ public:
     {
 	return GetRangeT1sKDE (GetViewNumber ());
     }
-    void SetForceDifferenceShown (bool forceDifference);
     AttributeAverages2D& GetAttributeAverages2D (
         ViewNumber::Enum viewNumber) const
     {
@@ -241,12 +240,6 @@ public Q_SLOTS:
     void ToggledBubblePathsLineUsed (bool checked);
     void ToggledBubblePathsTubeUsed (bool checked);
     void ToggledContextView (bool checked);
-    void ToggledForceNetworkShown (bool checked);
-    void ToggledForcePressureShown (bool checked);
-    void ToggledForceResultShown (bool checked);
-    void ToggledTorqueNetworkShown (bool checked);
-    void ToggledTorquePressureShown (bool checked);
-    void ToggledTorqueResultShown (bool checked);
     void ToggledDirectionalLightEnabled (bool checked);
     void ToggledBodyCenterShown (bool checked);
     void ToggledBodyNeighborsShown (bool checked);

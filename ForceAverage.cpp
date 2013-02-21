@@ -27,7 +27,7 @@ void ForceAverage::AverageInit ()
     const vector<ForceOneObject>& forces = GetForces (0);
     m_average.resize (forces.size ());
     for (size_t i = 0; i < forces.size (); ++i)
-	m_average[i] = ForceOneObject (forces[i].m_bodyId, forces[i].m_body);
+	m_average[i] = ForceOneObject (forces[i].GetBody ());
 }
 
 void ForceAverage::addStep (size_t timeStep, size_t subStep)
@@ -39,11 +39,7 @@ void ForceAverage::addStep (size_t timeStep, size_t subStep)
     for (size_t i = 0; i < forces.size (); ++i)
     {
 	if (forward)
-	{
-	    m_average[i].m_body = forces[i].m_body;
-	    // bodyId stays the same
-	    //m_average[i].m_bodyId = forces[i].m_bodyId;
-	}
+	    m_average[i].SetBody (forces[i].GetBody ());
 	m_average[i] += forces[i];
     }
 }
@@ -59,7 +55,7 @@ void ForceAverage::removeStep (size_t timeStep, size_t subStep)
 	if (backward)
 	{
 	    const vector<ForceOneObject>& prevForces = GetForces (timeStep - 1);
-	    m_average[i].m_body = prevForces[i].m_body;
+	    m_average[i].SetBody (prevForces[i].GetBody ());
 	    // bodyId stays the same
 	    // m_average[i].m_bodyId = forces[i].m_bodyId;
 	}
@@ -103,7 +99,7 @@ void ForceAverage::displayForcesAllObjects (
                 vs.GetTime (), -1, ViewSettings::DONT_TRANSLATE);
 	}
 	glDisable (GL_DEPTH_TEST);
-	if (vs.IsForceDifferenceShown ())
+	if (vs.IsForceShown (ForceType::DIFFERENCE))
 	    displayForcesTorqueOneObject (getForceDifference (forces), count);
 	else
 	    BOOST_FOREACH (const ForceOneObject& force, forces)
@@ -114,19 +110,17 @@ void ForceAverage::displayForcesAllObjects (
     }
 }
 
-const ForceOneObject ForceAverage::getForceDifference (
+ForceOneObject ForceAverage::getForceDifference (
     const vector<ForceOneObject>& forces) const
 {
     RuntimeAssert (forces.size () == 2, 
 		   "Force difference can be shown for two objects only.");
     ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
-    size_t index2 = (vs.GetDifferenceBodyId () != forces[0].m_bodyId);
+    size_t index2 = (vs.GetDifferenceBodyId () != 
+                     forces[0].GetBody ()->GetId ());
     size_t index1 = ! index2;
     ForceOneObject forceDifference = forces[index2];
-    forceDifference.m_networkForce = 
-	forces[index2].m_networkForce - forces[index1].m_networkForce;
-    forceDifference.m_pressureForce = 
-	forces[index2].m_pressureForce - forces[index1].m_pressureForce;
+    forceDifference -= forces[index1];
     return forceDifference;
 }
 
@@ -140,31 +134,27 @@ void ForceAverage::displayForcesTorqueOneObject (
 
 
 void ForceAverage::displayForceOneObject (
-    const ForceOneObject& forcesOneObject, size_t count) const
+    const ForceOneObject& forceOneObject, size_t count) const
 {
     ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
     const Simulation& simulation = GetSimulation ();
     float bubbleSize = simulation.GetBubbleDiameter ();
     float unitForceTorqueSize = vs.GetForceTorqueSize () * bubbleSize / count;
-    G3D::Vector2 center = forcesOneObject.m_body->GetCenter ().xy ();
+    G3D::Vector2 center = forceOneObject.GetBody ()->GetCenter ().xy ();
 
-    boost::array<bool, 3> isForceShown = {{
-	    vs.IsForceNetworkShown (),
-	    vs.IsForcePressureShown (),
-	    vs.IsForceResultShown ()}};
     boost::array<HighlightNumber::Enum, 3> highlight = {{
 	    HighlightNumber::H0,
 	    HighlightNumber::H1,
 	    HighlightNumber::H2}};
-    boost::array<G3D::Vector3, 3> force = {{
-	    forcesOneObject.m_networkForce,
-	    forcesOneObject.m_pressureForce,
-	    forcesOneObject.m_networkForce + forcesOneObject.m_pressureForce}};
-    for (size_t i = 0; i < isForceShown.size (); ++i)
-	if (isForceShown[i])
-	    displayForce (GetSettings ().GetHighlightColor (
-			      GetViewNumber (), highlight[i]), center,
-			  unitForceTorqueSize * force[i].xy ());    
+    for (size_t i = ForceType::NETWORK; i <= ForceType::RESULT; ++i)
+    {
+        ForceType::Enum ft = ForceType::Enum (i);
+	if (vs.IsForceShown (ft))
+	    displayForce (
+                GetSettings ().GetHighlightColor (
+                    GetViewNumber (), highlight[i]), center,
+                unitForceTorqueSize * forceOneObject.GetForce (ft).xy ());
+    }
 }
 
 
@@ -175,7 +165,7 @@ void ForceAverage::displayTorqueOneObject (
 {
     ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
     const Simulation& simulation = GetSimulation ();
-    G3D::Vector2 center = forcesOneObject.m_body->GetCenter ().xy ();
+    G3D::Vector2 center = forcesOneObject.GetBody ()->GetCenter ().xy ();
     const Foam& foam = GetFoam (GetSettings ().GetViewTime (GetViewNumber ()));
     float bubbleSize = simulation.GetBubbleDiameter ();
     float unitForceTorqueSize = vs.GetForceTorqueSize () * bubbleSize / count;
@@ -184,28 +174,23 @@ void ForceAverage::displayTorqueOneObject (
 	    HighlightNumber::H0,
 	    HighlightNumber::H1,
 	    HighlightNumber::H2}};
-    boost::array<bool, 3> isTorqueShown = {{
-	    vs.IsTorqueNetworkShown (),
-	    vs.IsTorquePressureShown (),
-	    vs.IsTorqueResultShown ()}};
-    boost::array<float, 3> torque = {{
-	    forcesOneObject.m_networkTorque,
-	    forcesOneObject.m_pressureTorque,
-	    forcesOneObject.m_networkTorque + forcesOneObject.m_pressureTorque}};
     float onePixel = GetOnePixelInObjectSpace (simulation.Is2D ());
     boost::array<G3D::Vector2, 3> displacement = {{
 	    G3D::Vector2 (0, 0),
 	    G3D::Vector2 (onePixel, onePixel),
 	    G3D::Vector2 (-onePixel, -onePixel)}};
-    for (size_t i = 0; i < isTorqueShown.size (); ++i)
-	if (isTorqueShown[i])
+    for (size_t i = ForceType::NETWORK; i <= ForceType::RESULT; ++i)
+    {
+        ForceType::Enum ft = ForceType::Enum (i);
+	if (vs.IsTorqueShown (ft))
 	    displayTorque (
 		GetSettings ().GetHighlightColor (
 		    GetViewNumber (), highlight[i]),
 		center.xy () + displacement[i], 
 		vs.GetTorqueDistance () * bubbleSize,
 		foam.GetDmpObjectPosition ().m_angleRadians,
-		unitForceTorqueSize * torque[i]);
+		unitForceTorqueSize * forcesOneObject.GetTorque (ft));
+    }
 }
 
 void ForceAverage::displayTorque (

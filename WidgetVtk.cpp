@@ -8,7 +8,8 @@
 
 #include "PipelineAverage3D.h"
 #include "Body.h"
-#include "DebugStream.h"
+#include "ColorBarModel.h"
+#include "Debug.h"
 #include "Foam.h"
 #include "FoamvisInteractorStyle.h"
 #include "OpenGLUtils.h"
@@ -19,8 +20,6 @@
 #include "ViewSettings.h"
 #include "WidgetVtk.h"
 
-//#define __LOG__(code) code
-#define __LOG__(code)
 
 // Private Classes/Functions
 // ======================================================================
@@ -71,14 +70,6 @@ WidgetVtk::WidgetVtk (QWidget* parent) :
 
 // ======================================================================
 // PipelineBase
-void WidgetVtk::UpdateColorTransferFunction (
-    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction, 
-    const char* name)
-{
-    m_pipeline[GetSettings ()->GetViewNumber ()]->UpdateColorTransferFunction (
-	colorTransferFunction, name);
-    update ();
-}
 
 void WidgetVtk::UpdateFocus ()
 {
@@ -180,7 +171,7 @@ void WidgetVtk::Average3dCreatePipeline (
 
 void WidgetVtk::UpdateScalarThreshold (QwtDoubleInterval interval)
 {
-    ViewNumber::Enum viewNumber = GetSettings ()->GetViewNumber ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
     if (GetPipelineType (viewNumber) == PipelineType::AVERAGE_3D)
     {
         m_pipelineAverage3d[viewNumber]->UpdateThreshold (interval);
@@ -205,8 +196,6 @@ void WidgetVtk::ViewToAverage3D ()
 }
 
 
-
-
 void WidgetVtk::UpdateAverage3dTitle ()
 {
     ForAllViews (PipelineType::AVERAGE_3D,
@@ -227,10 +216,19 @@ void WidgetVtk::updateViewTitle (ViewNumber::Enum viewNumber)
 }
 
 
-void WidgetVtk::Average3DAddView (
+void WidgetVtk::UpdateForceAverage ()
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();    
+    if (! IsVtkView (viewNumber))
+        return;
+    PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
+    pipeline.UpdateForceAverage (m_average[viewNumber]->GetForceAverage ());    
+    update ();
+}
+
+void WidgetVtk::AddAverageView (
     ViewNumber::Enum viewNumber,
-    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
-    QwtDoubleInterval interval)
+    const ColorBarModel& colorBarModel, QwtDoubleInterval interval)
 {
     vtkSmartPointer<vtkRenderWindow> renderWindow = GetRenderWindow ();
     boost::shared_ptr<RegularGridAverage> scalarAverage = 
@@ -243,11 +241,13 @@ void WidgetVtk::Average3DAddView (
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
     G3D::AABox vv = CalculateViewingVolume (viewNumber, simulation);
     m_average[viewNumber]->AverageInitStep (vs.GetTimeWindow ());
-    pipeline.UpdateAverage (scalarAverage);
+    pipeline.UpdateScalarAverage (scalarAverage);
+    pipeline.UpdateForceAverage (m_average[viewNumber]->GetForceAverage ());
     pipeline.ViewToVtk (vs, simulation.GetBoundingBox ().center (), foam);
     pipeline.UpdateContextAlpha (vs.GetContextAlpha ());
+    pipeline.UpdateObjectAlpha (vs.GetObjectAlpha ());
     pipeline.UpdateThreshold (interval);
-    pipeline.UpdateColorTransferFunction (colorTransferFunction, scalarName);
+    pipeline.UpdateColorBarModel (colorBarModel, scalarName);
     pipeline.UpdateFocus (GetSettings ()->GetViewNumber () == viewNumber);
 
     G3D::Rect2D viewRect = GetNormalizedViewRect (viewNumber);
@@ -271,7 +271,8 @@ void WidgetVtk::UpdateAverage (
     boost::shared_ptr<RegularGridAverage> scalarAverage = 
         m_average[viewNumber]->GetScalarAveragePtr ();
     m_average[viewNumber]->AverageStep (direction, vs.GetTimeWindow ());
-    pipeline.UpdateAverage (scalarAverage);
+    pipeline.UpdateScalarAverage (scalarAverage);
+    pipeline.UpdateForceAverage (m_average[viewNumber]->GetForceAverage ());
     updateViewTitle (viewNumber);
 }
 

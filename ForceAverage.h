@@ -36,7 +36,10 @@ public:
     void AverageRelease () {}
     virtual void AverageInit ();
     const vector<ForceOneObject>& GetForces (size_t timeStep) const;
-
+    const ForceOneObject& GetForceOneObject (size_t i) const
+    {
+        return m_average[i];
+    }
 
 protected:
     virtual void addStep (size_t timeStep, size_t subStep);
@@ -57,7 +60,7 @@ private:
     void displayTorque (
 	QColor color, const G3D::Vector2& center, 
 	float distance, float angleRadians, float torque) const;
-    const ForceOneObject getForceDifference (
+    ForceOneObject getForceDifference (
 	const vector<ForceOneObject>& forces) const;
     pair<G3D::Vector2, G3D::Vector2> calculateTorque (
 	G3D::Vector2 center, float distance, float angle, float torque) const;

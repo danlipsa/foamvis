@@ -54,9 +54,9 @@ void StripIterator::ForEachSegment (ProcessSegment processSegment,
 	StripIteratorPoint afterEnd = 
 	    HasNext () ? Next () : StripIteratorPoint ();
 	if (// middle or end of a segment
-	    end.m_location != StripPointLocation::BEGIN &&
+	    end.m_location != StripPointLocation::BEGIN_POINT &&
 	    // the segment is not between two strips
-	    begin.m_location != StripPointLocation::END &&
+	    begin.m_location != StripPointLocation::END_POINT &&
             begin.m_timeStep >= timeBegin &&
             end.m_timeStep <= timeEnd)
 	    processSegment (beforeBegin, begin, end, afterEnd);
@@ -85,13 +85,13 @@ StripIteratorPoint StripIterator::Next ()
 	if (// at the end of last wrap
 	    m_timeCurrent == m_bodyAlongTime.GetTimeEnd () - 1)
 	{
-	    location = StripPointLocation::END;
+	    location = StripPointLocation::END_POINT;
 	    m_isNextBeginOfStrip = false;
 	}
 	else
 	{   // not at the end of a middle wrap or last wrap
 	    location = m_isNextBeginOfStrip ? 
-		StripPointLocation::BEGIN : StripPointLocation::MIDDLE;
+		StripPointLocation::BEGIN_POINT : StripPointLocation::MIDDLE_POINT;
 	    m_isNextBeginOfStrip = false;
 	}
 	body = m_bodyAlongTime.GetBody (m_timeCurrent);
@@ -109,7 +109,7 @@ StripIteratorPoint StripIterator::Next ()
 		body->GetCenter (),
 		Vector3int16Zero - m_bodyAlongTime.GetTranslation (
 		    m_currentWrap++)), 
-	    StripPointLocation::END, m_timeCurrent, body);
+	    StripPointLocation::END_POINT, m_timeCurrent, body);
     }
     return point;
 }
@@ -117,15 +117,15 @@ StripIteratorPoint StripIterator::Next ()
 SegmentPerpendicularEnd::Enum StripIterator::GetSegmentPerpendicularEnd (
     const StripIteratorPoint& begin, const StripIteratorPoint& end)
 {
-    if (begin.m_location == StripPointLocation::BEGIN)
+    if (begin.m_location == StripPointLocation::BEGIN_POINT)
     {
-	if (end.m_location == StripPointLocation::END)
-	    return SegmentPerpendicularEnd::BEGIN_END;
+	if (end.m_location == StripPointLocation::END_POINT)
+	    return SegmentPerpendicularEnd::BEGIN_END_SEGMENT;
 	else
-	    return SegmentPerpendicularEnd::BEGIN;
+	    return SegmentPerpendicularEnd::BEGIN_SEGMENT;
     }
-    else if (end.m_location == StripPointLocation::END)
-	return SegmentPerpendicularEnd::END;
+    else if (end.m_location == StripPointLocation::END_POINT)
+	return SegmentPerpendicularEnd::END_SEGMENT;
     else
 	return SegmentPerpendicularEnd::NONE;
 }

@@ -2912,12 +2912,6 @@ void WidgetGl::ActivateViewShader (
 			rotationCenter, angleDegrees);
 }
 
-void WidgetGl::SetForceDifferenceShown (bool value)
-{
-    GetViewSettings ().SetForceDifferenceShown (value);
-    update ();
-}
-
 void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
 {
     T1sKDE& t1sKDE = GetAttributeAverages2D (viewNumber).GetT1sKDE ();
@@ -3399,8 +3393,10 @@ void WidgetGl::ShowMessageBox (const char* message)
 
 void WidgetGl::CompileUpdate (ViewNumber::Enum viewNumber)
 {
+    if (! IsGlView (viewNumber))
+        return;
     makeCurrent ();
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     switch (vs.GetViewType ())
     {
     case ViewType::CENTER_PATHS:
@@ -4181,49 +4177,6 @@ void WidgetGl::ToggledContextBoxShown (bool checked)
     m_contextBoxShown = checked;
     CompileUpdate ();
 }
-
-void WidgetGl::ToggledForceNetworkShown (bool checked)
-{
-    makeCurrent ();
-    GetViewSettings ().SetForceNetworkShown (checked);
-    CompileUpdate ();
-}
-
-void WidgetGl::ToggledForcePressureShown (bool checked)
-{
-    makeCurrent ();
-    GetViewSettings ().SetForcePressureShown (checked);
-    CompileUpdate ();
-}
-
-void WidgetGl::ToggledForceResultShown (bool checked)
-{
-    makeCurrent ();
-    GetViewSettings ().SetForceResultShown (checked);
-    CompileUpdate ();
-}
-
-void WidgetGl::ToggledTorqueNetworkShown (bool checked)
-{
-    makeCurrent ();
-    GetViewSettings ().SetTorqueNetworkShown (checked);
-    CompileUpdate ();
-}
-
-void WidgetGl::ToggledTorquePressureShown (bool checked)
-{
-    makeCurrent ();
-    GetViewSettings ().SetTorquePressureShown (checked);
-    CompileUpdate ();
-}
-
-void WidgetGl::ToggledTorqueResultShown (bool checked)
-{
-    makeCurrent ();
-    GetViewSettings ().SetTorqueResultShown (checked);
-    CompileUpdate ();
-}
-
 
 void WidgetGl::ToggledAxesShown (bool checked)
 {

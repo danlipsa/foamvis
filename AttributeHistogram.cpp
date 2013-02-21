@@ -9,7 +9,7 @@
 #include "AttributeHistogram.h"
 #include "ColorBarModel.h"
 #include "Enums.h"
-#include "DebugStream.h"
+#include "Debug.h"
 
 AttributeHistogram::AttributeHistogram (QWidget* parent) :
     Histogram (parent)

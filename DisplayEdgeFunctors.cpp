@@ -142,7 +142,7 @@ void DisplaySegmentTube::operator() (const Segment& segment)
     Disk beginDisk, endDisk;
     switch (segment.m_perpendicularEnd)
     {
-    case SegmentPerpendicularEnd::BEGIN:
+    case SegmentPerpendicularEnd::BEGIN_SEGMENT:
     {
 	beginDisk = perpendicularDisk (segment.m_begin, segment.m_end,
 				       segment.m_begin);
@@ -150,7 +150,7 @@ void DisplaySegmentTube::operator() (const Segment& segment)
 			      segment.m_afterEnd, segment.m_end);
 	break;
     }
-    case SegmentPerpendicularEnd::END:
+    case SegmentPerpendicularEnd::END_SEGMENT:
     {
 	beginDisk = angledDisk (segment.m_beforeBegin, segment.m_begin, 
 				segment.m_end, segment.m_begin);
@@ -158,7 +158,7 @@ void DisplaySegmentTube::operator() (const Segment& segment)
 				     segment.m_end);
 	break;
     }
-    case SegmentPerpendicularEnd::BEGIN_END:
+    case SegmentPerpendicularEnd::BEGIN_END_SEGMENT:
     {
 	beginDisk = perpendicularDisk (segment.m_begin, segment.m_end,
 				       segment.m_begin);

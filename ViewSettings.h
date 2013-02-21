@@ -82,63 +82,24 @@ public:
      * @{
      * @name Attributes
      */
-    void SetForceNetworkShown (bool value)
+    void SetForceShown (ForceType::Enum type, bool value)
     {
-	m_forceNetworkShown = value;
+	m_forceShown[type] = value;
     }
-    bool IsForceNetworkShown () const
+    bool IsForceShown (ForceType::Enum type) const
     {
-	return m_forceNetworkShown;
-    }
-    void SetForcePressureShown (bool value)
-    {
-	m_forcePressureShown = value;
-    }
-    bool IsForcePressureShown () const
-    {
-	return m_forcePressureShown;
-    }
-    void SetForceResultShown (bool value)
-    {
-	m_forceResultShown = value;
-    }
-    bool IsForceResultShown () const
-    {
-	return m_forceResultShown;
-    }
-    void SetTorqueNetworkShown (bool value)
-    {
-	m_torqueNetworkShown = value;
-    }
-    bool IsTorqueNetworkShown () const
-    {
-	return m_torqueNetworkShown;
-    }
-    void SetTorquePressureShown (bool value)
-    {
-	m_torquePressureShown = value;
-    }
-    bool IsTorquePressureShown () const
-    {
-	return m_torquePressureShown;
-    }
-    void SetTorqueResultShown (bool value)
-    {
-	m_torqueResultShown = value;
-    }
-    bool IsTorqueResultShown () const
-    {
-	return m_torqueResultShown;
+	return m_forceShown[type];
     }
 
-    void SetForceDifferenceShown (bool value)
+    void SetTorqueShown (ForceType::Enum type, bool value)
     {
-	m_forceDifferenceShown = value;
+	m_torqueShown[type] = value;
     }
-    bool IsForceDifferenceShown () const
+    bool IsTorqueShown (ForceType::Enum type) const
     {
-	return m_forceDifferenceShown;
+	return m_torqueShown[type];
     }
+
     float GetForceTorqueSize () const
     {
 	return m_forceTorqueSize;
@@ -811,13 +772,8 @@ private:
     size_t m_differenceBodyId;
     // Context view
     bool m_contextView;
-    bool m_forceNetworkShown;
-    bool m_forcePressureShown;
-    bool m_forceResultShown;
-    bool m_torqueNetworkShown;
-    bool m_torquePressureShown;
-    bool m_torqueResultShown;
-    bool m_forceDifferenceShown;
+    boost::array<bool, 4> m_forceShown;
+    boost::array<bool, 3> m_torqueShown;
     bool m_deformationShown;
     bool m_velocityShown;
     VectorVis::Enum m_velocityVis;

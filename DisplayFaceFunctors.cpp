@@ -8,7 +8,7 @@
 
 #include "Body.h"
 #include "DataProperties.h"
-#include "DebugStream.h"
+#include "Debug.h"
 #include "DisplayFaceFunctors.h"
 #include "DisplayEdgeFunctors.h"
 #include "Face.h"

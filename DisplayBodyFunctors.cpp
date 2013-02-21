@@ -9,7 +9,7 @@
 #include "Body.h"
 #include "BodySelector.h"
 #include "ColorBarModel.h"
-#include "DebugStream.h"
+#include "Debug.h"
 #include "DisplayBodyFunctors.h"
 #include "DisplayFaceFunctors.h"
 #include "DisplayEdgeFunctors.h"
@@ -359,15 +359,15 @@ valueStep (
     halfValueStep (
 	begin,
 	Segment (
-	    beforeBegin.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END :
-	    SegmentPerpendicularEnd::END,
+	    beforeBegin.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END_SEGMENT :
+	    SegmentPerpendicularEnd::END_SEGMENT,
 	    getPoint (beforeBegin), pointBegin, middle, G3D::Vector3 (),
 	    vs.IsContextDisplayBody (begin.m_body->GetId ())));
     halfValueStep (
 	end,
 	Segment (
-	    afterEnd.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END :
-	    SegmentPerpendicularEnd::BEGIN,
+	    afterEnd.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END_SEGMENT :
+	    SegmentPerpendicularEnd::BEGIN_SEGMENT,
 	    G3D::Vector3 (), middle, pointEnd, getPoint (afterEnd),
 	    vs.IsContextDisplayBody (end.m_body->GetId ())));
 }

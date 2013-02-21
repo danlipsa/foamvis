@@ -14,7 +14,6 @@
 %{
 #include "ParsingData.h"
 #include "EvolverData_yacc.h"
-#include "DebugStream.h"
 #include "Debug.h"
 using EvolverData::parser;
 #define YY_EXTRA_TYPE ParsingData*

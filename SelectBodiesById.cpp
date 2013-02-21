@@ -7,7 +7,7 @@
  */
 
 #include "SelectBodiesById.h"
-#include "DebugStream.h"
+#include "Debug.h"
 
 SelectBodiesById::SelectBodiesById (QWidget* parent) :
     QDialog (parent)

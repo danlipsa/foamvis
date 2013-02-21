@@ -25,7 +25,7 @@ public:
     {
         return m_renderer;
     }
-    virtual void UpdateColorTransferFunction (
+    virtual void UpdateColorBarModel (
         vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction, 
         const char * name);
     void PositionScalarBar (G3D::Rect2D position);

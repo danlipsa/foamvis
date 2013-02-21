@@ -62,13 +62,6 @@ ViewSettings::ViewSettings () :
     m_averageAround (false),
     m_differenceBodyId (INVALID_INDEX),
     m_contextView (false),
-    m_forceNetworkShown (false),
-    m_forcePressureShown (false),
-    m_forceResultShown (false),
-    m_torqueNetworkShown (false),
-    m_torquePressureShown (false),
-    m_torqueResultShown (false),
-    m_forceDifferenceShown (false),
     m_deformationShown (false),
     m_velocityShown (false),
     m_velocityVis (VectorVis::GLYPH),
@@ -76,7 +69,7 @@ ViewSettings::ViewSettings () :
     m_bodySelector (AllBodySelector::Get ()),
     m_selectionContextShown (true),
     m_contextAlpha (ALPHA_RANGE.first),
-    m_objectAlpha (ALPHA_RANGE.second),
+    m_objectAlpha (ALPHA_RANGE.first),
     m_centerPathHidden (false),
     m_simulationIndex (0),
     m_time (0),
@@ -105,6 +98,8 @@ ViewSettings::ViewSettings () :
     setInitialLightParameters ();
     for (size_t i = 0; i < m_averageAroundBodyId.size (); ++i)
 	m_averageAroundBodyId[i] = INVALID_INDEX;
+    fill (m_forceShown.begin (), m_forceShown.end (), false);
+    fill (m_torqueShown.begin (), m_torqueShown.end (), false);
 }
 
 ViewSettings::~ViewSettings ()
