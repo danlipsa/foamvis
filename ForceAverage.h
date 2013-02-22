@@ -36,10 +36,7 @@ public:
     void AverageRelease () {}
     virtual void AverageInit ();
     const vector<ForceOneObject>& GetForces (size_t timeStep) const;
-    const ForceOneObject& GetForceOneObject (size_t i) const
-    {
-        return m_average[i];
-    }
+    ForceOneObject GetAverageOneObject (size_t i) const;
 
 protected:
     virtual void addStep (size_t timeStep, size_t subStep);
@@ -49,12 +46,9 @@ private:
     void displayForcesAllObjects (
 	const vector<ForceOneObject>& forces, size_t timeWindow,
 	bool isAverageAroundRotationShown = false) const;
-    void displayForceOneObject (
-	const ForceOneObject& force, size_t count) const;
-    void displayTorqueOneObject (const ForceOneObject& force, 
-				 size_t count) const;
-    void displayForcesTorqueOneObject (const ForceOneObject& force, 
-				       size_t count) const;
+    void displayForceOneObject (const ForceOneObject& force) const;
+    void displayTorqueOneObject (const ForceOneObject& force) const;
+    void displayForcesTorqueOneObject (const ForceOneObject& force) const;
     void displayForce (QColor color, const G3D::Vector2& center, 
 		       const G3D::Vector2& force) const;
     void displayTorque (

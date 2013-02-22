@@ -100,10 +100,10 @@ void ForceAverage::displayForcesAllObjects (
 	}
 	glDisable (GL_DEPTH_TEST);
 	if (vs.IsForceShown (ForceType::DIFFERENCE))
-	    displayForcesTorqueOneObject (getForceDifference (forces), count);
+	    displayForcesTorqueOneObject (getForceDifference (forces) / count);
 	else
 	    BOOST_FOREACH (const ForceOneObject& force, forces)
-		displayForcesTorqueOneObject (force, count);
+		displayForcesTorqueOneObject (force / count);
 	if (isAverageAroundRotationShown)
 	    glPopMatrix ();
 	glPopAttrib ();
@@ -124,56 +124,44 @@ ForceOneObject ForceAverage::getForceDifference (
     return forceDifference;
 }
 
-
 void ForceAverage::displayForcesTorqueOneObject (
-    const ForceOneObject& forcesOneObject, size_t count) const
+    const ForceOneObject& forceOneObject) const
 {
-    displayForceOneObject (forcesOneObject, count);
-    displayTorqueOneObject (forcesOneObject, count);
+    displayForceOneObject (forceOneObject);
+    displayTorqueOneObject (forceOneObject);
 }
 
-
 void ForceAverage::displayForceOneObject (
-    const ForceOneObject& forceOneObject, size_t count) const
+    const ForceOneObject& forceOneObject) const
 {
-    ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
+    const ViewSettings& vs = GetViewSettings ();
     const Simulation& simulation = GetSimulation ();
     float bubbleSize = simulation.GetBubbleDiameter ();
-    float unitForceTorqueSize = vs.GetForceTorqueSize () * bubbleSize / count;
+    float unitForceSize = vs.GetForceSize () * bubbleSize;
     G3D::Vector2 center = forceOneObject.GetBody ()->GetCenter ().xy ();
 
-    boost::array<HighlightNumber::Enum, 3> highlight = {{
-	    HighlightNumber::H0,
-	    HighlightNumber::H1,
-	    HighlightNumber::H2}};
     for (size_t i = ForceType::NETWORK; i <= ForceType::RESULT; ++i)
     {
         ForceType::Enum ft = ForceType::Enum (i);
+        HighlightNumber::Enum h = HighlightNumber::Enum (i);
 	if (vs.IsForceShown (ft))
 	    displayForce (
-                GetSettings ().GetHighlightColor (
-                    GetViewNumber (), highlight[i]), center,
-                unitForceTorqueSize * forceOneObject.GetForce (ft).xy ());
+                GetSettings ().GetHighlightColor (GetViewNumber (), h), center,
+                unitForceSize * forceOneObject.GetForce (ft).xy ());
     }
 }
 
-
-
-
 void ForceAverage::displayTorqueOneObject (
-    const ForceOneObject& forcesOneObject, size_t count) const
+    const ForceOneObject& forceOneObject) const
 {
-    ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    const ViewSettings& vs = GetViewSettings ();
     const Simulation& simulation = GetSimulation ();
-    G3D::Vector2 center = forcesOneObject.GetBody ()->GetCenter ().xy ();
-    const Foam& foam = GetFoam (GetSettings ().GetViewTime (GetViewNumber ()));
+    G3D::Vector2 center = forceOneObject.GetBody ()->GetCenter ().xy ();
+    const Foam& foam = GetFoam ();
     float bubbleSize = simulation.GetBubbleDiameter ();
-    float unitForceTorqueSize = vs.GetForceTorqueSize () * bubbleSize / count;
+    float unitForceSize = vs.GetForceSize () * bubbleSize;
 
-    boost::array<HighlightNumber::Enum, 3> highlight = {{
-	    HighlightNumber::H0,
-	    HighlightNumber::H1,
-	    HighlightNumber::H2}};
     float onePixel = GetOnePixelInObjectSpace (simulation.Is2D ());
     boost::array<G3D::Vector2, 3> displacement = {{
 	    G3D::Vector2 (0, 0),
@@ -182,14 +170,14 @@ void ForceAverage::displayTorqueOneObject (
     for (size_t i = ForceType::NETWORK; i <= ForceType::RESULT; ++i)
     {
         ForceType::Enum ft = ForceType::Enum (i);
+        HighlightNumber::Enum h = HighlightNumber::Enum (i);
 	if (vs.IsTorqueShown (ft))
 	    displayTorque (
-		GetSettings ().GetHighlightColor (
-		    GetViewNumber (), highlight[i]),
+		GetSettings ().GetHighlightColor (viewNumber, h),
 		center.xy () + displacement[i], 
 		vs.GetTorqueDistance () * bubbleSize,
 		foam.GetDmpObjectPosition ().m_angleRadians,
-		unitForceTorqueSize * forcesOneObject.GetTorque (ft));
+		unitForceSize * forceOneObject.GetTorque (ft));
     }
 }
 
@@ -201,7 +189,7 @@ void ForceAverage::displayTorque (
     pair<G3D::Vector2, G3D::Vector2> centerTorque = 
 	calculateTorque (center, distance, angleRadians, torque);
     displayForce (color, centerTorque.first, centerTorque.second);
-    glLineWidth (vs.GetForceTorqueLineWidth ());
+    glLineWidth (vs.GetForceLineWidth ());
     glBegin (GL_LINES);
     ::glVertex (center);
     ::glVertex (centerTorque.first);
@@ -227,7 +215,7 @@ void ForceAverage::displayForce (
     const Simulation& simulation = GetSimulation ();
     glColor (color);
     DisplaySegmentArrow (
-	center, force, vs.GetForceTorqueLineWidth (),
+	center, force, vs.GetForceLineWidth (),
 	GetOnePixelInObjectSpace (simulation.Is2D ()), false);
 }
 
@@ -236,4 +224,9 @@ const vector<ForceOneObject>& ForceAverage::GetForces (
     size_t timeStep) const
 {
     return GetFoam (timeStep).GetForces ();
+}
+
+ForceOneObject ForceAverage::GetAverageOneObject (size_t i) const
+{
+    return m_average[i] / GetCurrentTimeWindow ();
 }

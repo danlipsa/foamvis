@@ -59,11 +59,14 @@ Q_SIGNALS:
 public Q_SLOTS:
     void SelectionChangedSettings (ViewNumber::Enum viewNumber);
     void ToggledBarLarge (bool large);
+    void ToggledAxesShown (bool checked);
     void ToggledViewFocusShown (bool checked);
     void ToggledTitleShown (bool checked);
     void ToggledBubblePathsLineUsed (bool checked);
     void ValueChangedContextAlpha (int sliderValue);
     void ValueChangedObjectAlpha (int sliderValue);
+    void ValueChangedForceSize (int index);
+    void ValueChangedForceLineWidth (int index);
     void ToggledVelocityShown (bool checked);
     void ToggledHistogramGridShown (bool checked);
     void ToggledHistogramShown (bool checked);

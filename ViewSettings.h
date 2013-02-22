@@ -100,13 +100,13 @@ public:
 	return m_torqueShown[type];
     }
 
-    float GetForceTorqueSize () const
+    float GetForceSize () const
     {
-	return m_forceTorqueSize;
+	return m_forceSize;
     }
-    void SetForceTorqueSize (float value)
+    void SetForceSize (float value)
     {
-	m_forceTorqueSize = value;
+	m_forceSize = value;
     }
     float GetTorqueDistance () const
     {
@@ -116,13 +116,13 @@ public:
     {
 	m_torqueDistance = value;
     }
-    float GetForceTorqueLineWidth () const
+    float GetForceLineWidth () const
     {
-	return m_forceTorqueLineWidth;
+	return m_forceLineWidth;
     }
-    void SetForceTorqueLineWidth (float value)
+    void SetForceLineWidth (float value)
     {
-	m_forceTorqueLineWidth = value;
+	m_forceLineWidth = value;
     }
     void SetDeformationTensorShown (bool deformationTensorShown)
     {
@@ -708,6 +708,9 @@ public:
     static const double STREAMLINE_LENGTH;
     static const double STREAMLINE_STEP_LENGTH;
     const static pair<float,float> ALPHA_RANGE;
+    const static pair<float,float> TENSOR_LINE_WIDTH_EXP2;
+    const static pair<float,float> FORCE_SIZE_EXP2;
+
 
 Q_SIGNALS:
     void SelectionChanged ();
@@ -800,9 +803,9 @@ private:
     float m_deformationSize;
     float m_deformationLineWidth;
     float m_velocityLineWidth;
-    float m_forceTorqueSize;
+    float m_forceSize;
+    float m_forceLineWidth;
     float m_torqueDistance;
-    float m_forceTorqueLineWidth;
     G3D::Vector2 m_scaleCenter;
     bool m_histogramShown;
     HistogramType::Options m_histogramOptions;

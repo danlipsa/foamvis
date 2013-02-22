@@ -2320,7 +2320,7 @@
                  </widget>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QSlider" name="horizontalSliderForceTorqueLineWidth">
+                 <widget class="QSlider" name="horizontalSliderForceLineWidth">
                   <property name="value">
                    <number>0</number>
                   </property>
@@ -2337,7 +2337,7 @@
                  </widget>
                 </item>
                 <item row="1" column="1">
-                 <widget class="QSlider" name="horizontalSliderForceTorqueSize">
+                 <widget class="QSlider" name="horizontalSliderForceSize">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
@@ -2571,7 +2571,6 @@
     <slot>ToggledTorusDomainShown(bool)</slot>
     <slot>ToggledLightingEnabled(bool)</slot>
     <slot>ToggledDirectionalLightEnabled(bool)</slot>
-    <slot>ToggledAxesShown(bool)</slot>
     <slot>ToggledFullColorBarShown(bool)</slot>
     <slot>ToggledOnlyPathsWithSelectionShown(bool)</slot>
     <slot>ToggledCenterPathBodyShown(bool)</slot>
@@ -2650,7 +2649,6 @@
     <slot>ToggledShowVelocityGrid(bool)</slot>
     <slot>ValueChangedVelocitySizeExp(int)</slot>
     <slot>ValueChangedVelocityLineWidthExp(int)</slot>
-    <slot>ValueChangedForceLineWidthExp(int)</slot>
     <slot>ToggledViewSelectionShown(bool)</slot>
     <slot>ToggledViewFocusShown(bool)</slot>
     <slot>ToggledConstraintsShown(bool)</slot>
@@ -2677,8 +2675,6 @@
     <slot>ToggledTorqueResultShown(bool)</slot>
     <slot>ValueChangedTorqueSize(int)</slot>
     <slot>ValueChangedTorqueDistance(int)</slot>
-    <slot>ValueChangedForceTorqueSize(int)</slot>
-    <slot>ValueChangedForceTorqueLineWidth(int)</slot>
     <slot>ValueChangedT1sTimeWindow(int)</slot>
     <slot>ToggledFoamContainerShown(bool)</slot>
     <slot>ToggledContextBoxShown(bool)</slot>
@@ -2887,22 +2883,6 @@
     <hint type="destinationlabel">
      <x>509</x>
      <y>410</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSliderForceTorqueSize</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedForceTorqueSize(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1027</x>
-     <y>339</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>498</y>
     </hint>
    </hints>
   </connection>
@@ -3163,22 +3143,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>horizontalSliderForceTorqueLineWidth</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedForceTorqueLineWidth(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1027</x>
-     <y>314</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>602</x>
-     <y>369</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkBoxVelocityGlyphClampingShown</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
@@ -3415,22 +3379,6 @@
     <hint type="destinationlabel">
      <x>424</x>
      <y>436</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxAxes</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledAxesShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1027</x>
-     <y>322</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>457</x>
-     <y>510</y>
     </hint>
    </hints>
   </connection>
@@ -4219,6 +4167,22 @@
    </hints>
   </connection>
   <connection>
+   <sender>checkBoxAxes</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledAxesShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1027</x>
+     <y>322</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>457</x>
+     <y>510</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>checkBoxBarLarge</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -4522,6 +4486,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>horizontalSliderForceLineWidth</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ValueChangedForceLineWidth(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1027</x>
+     <y>314</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>602</x>
+     <y>369</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderForceSize</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ValueChangedForceSize(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1027</x>
+     <y>339</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>498</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ToggledColorBarShown(bool)</slot>
@@ -4555,8 +4551,11 @@
   <slot>ToggledBubblePathsLineUsed(bool)</slot>
   <slot>ToggledVelocityShown(bool)</slot>
   <slot>ToggledBarLarge(bool)</slot>
+  <slot>ToggledAxesShown(bool)</slot>
   <slot>ValueChangedContextAlpha(int)</slot>
   <slot>ValueChangedObjectAlpha(int)</slot>
+  <slot>ValueChangedForceSize(int)</slot>
+  <slot>ValueChangedForceLineWidth(int)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupVelocityVis"/>

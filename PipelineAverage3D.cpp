@@ -152,16 +152,18 @@ void PipelineAverage3D::updateAlpha (
 void PipelineAverage3D::UpdateForceAverage (
     const ForceAverage& forceAverage)
 {
+    __ENABLE_LOGGING__;
     const Foam& foam = forceAverage.GetFoam ();
     const ViewSettings& vs = forceAverage.GetViewSettings ();
     const Foam::Bodies& objects = foam.GetObjects ();
     for (size_t i = 0; i < objects.size (); ++i)
     {
         G3D::Vector3 position = objects[i]->GetCenter ();
+        __LOG__ (cdbg << "pos: " << position << endl;);
 	if (vs.IsAverageAround ())
 	    position += forceAverage.GetTranslation ();
         const ForceOneObject& forceOneObject = 
-            forceAverage.GetForceOneObject (i);
+            forceAverage.GetAverageOneObject (i);
         for (size_t j = ForceType::NETWORK; j <= ForceType::RESULT; ++j)
         {
             ForceType::Enum ft = ForceType::Enum (j);
@@ -178,10 +180,13 @@ void PipelineAverage3D::updateForce (
     vtkActor& actor = *m_forceActor[objectIndex][forceType];
     actor.SetPosition (position.x, position.y, position.z);
     actor.SetScale (force.length ());
-    float rotZRad = atan2 (force.y, force.x);
-    float rotYRad = atan2 (force.z, sqrt (force.y*force.y + force.x * force.x));
-    actor.SetOrientation (
-        0, G3D::toDegrees (rotYRad), G3D::toDegrees (rotZRad));
+    float rotZDegrees = G3D::toDegrees (atan2 (force.y, force.x));
+    // use the right hand rule
+    float rotYDegrees = - G3D::toDegrees (
+        atan2 (force.z, sqrt (force.y*force.y + force.x * force.x)));
+    actor.SetOrientation (0, rotYDegrees, rotZDegrees);
+    __LOG__ (cdbg << "force: " << forceType << 
+             " rotY: " << rotYDegrees << " rotZ: " << rotZDegrees << endl;);
     actor.SetVisibility (shown);
 }
 

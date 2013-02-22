@@ -38,6 +38,8 @@ boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
 const double ViewSettings::STREAMLINE_LENGTH (0.2);
 const double ViewSettings::STREAMLINE_STEP_LENGTH (0.005);
 const pair<float,float> ViewSettings::ALPHA_RANGE (0.05, 0.5);
+const pair<float,float> ViewSettings::TENSOR_LINE_WIDTH_EXP2 (0, 3);
+const pair<float,float> ViewSettings::FORCE_SIZE_EXP2 (-2, 2);
 
 
 // Methods
@@ -79,9 +81,9 @@ ViewSettings::ViewSettings () :
     m_deformationSize (1),
     m_deformationLineWidth (1),
     m_velocityLineWidth (1),
-    m_forceTorqueSize (1),
+    m_forceSize (1),
+    m_forceLineWidth (1),
     m_torqueDistance (1),
-    m_forceTorqueLineWidth (1),
     m_histogramShown (false),
     m_histogramOptions (HistogramType::UNICOLOR_TIME_STEP),
     m_domainClipped (false),

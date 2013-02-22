@@ -153,7 +153,9 @@ public:
 
     /**
      * @{
-     * @name Save velocity field. Used for showing T1s KDE together with 
+     * @name Save velocity field.
+     *
+     * Used for showing T1s KDE together with 
      * velocity fields.
      */
     bool IsVelocityFieldSaved () const
@@ -168,7 +170,7 @@ public:
 
     /**
      * @{
-     * @name attribute shown
+     * @name Attributes
      */
     bool IsMissingPropertyShown (BodyScalar::Enum bodyProperty) const;
     void SetMissingPressureShown (bool shown)
@@ -187,7 +189,7 @@ public:
 
     /**
      * @{
-     * @name color bar
+     * @name Color Bar
      */
     bool IsBarLarge () const
     {
@@ -322,6 +324,14 @@ public:
     {
 	m_viewFocusShown = shown;
     }
+    bool AxesShown () const
+    {
+        return m_axesShown;
+    }
+    void SetAxesShown (bool shown)
+    {
+        m_axesShown = shown;
+    }
     // @}
     
 
@@ -444,6 +454,7 @@ private:
     bool m_barLarge;
     bool m_velocityFieldSaved;
     bool m_barLabelsShown;
+    bool m_axesShown;
     boost::shared_ptr<QSignalMapper> m_signalMapperSelectionChanged;    
     InteractionMode::Enum m_interactionMode;
 };

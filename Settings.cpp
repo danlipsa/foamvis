@@ -125,6 +125,7 @@ Settings::Settings (const SimulationGroup& simulationGroup, float w, float h) :
     m_barLarge (false),
     m_velocityFieldSaved (false),
     m_barLabelsShown (true),
+    m_axesShown (false),
     m_interactionMode (InteractionMode::ROTATE)
 {
     initAllViewsSettings (simulationGroup, w, h);

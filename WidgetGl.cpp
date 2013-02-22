@@ -123,8 +123,6 @@ const size_t WidgetGl::DISPLAY_ALL(numeric_limits<size_t>::max());
 
 const pair<float,float> WidgetGl::T1S_SIZE (1, 32);
 const pair<float,float> WidgetGl::TENSOR_SIZE_EXP2 (0, 10);
-const pair<float,float> WidgetGl::TENSOR_LINE_WIDTH_EXP2 (0, 3);
-const pair<float,float> WidgetGl::FORCE_SIZE_EXP2 (-2, 2);
 const pair<float,float> WidgetGl::TORQUE_SIZE_EXP2 (-4, 4);
 const GLfloat WidgetGl::HIGHLIGHT_LINE_WIDTH = 2.0;
 
@@ -144,7 +142,6 @@ WidgetGl::WidgetGl(QWidget *parent)
       m_boundingBoxSimulationShown (false),
       m_boundingBoxFoamShown (false),
       m_boundingBoxBodyShown (false),
-      m_axesShown (false),
       m_standaloneElementsShown (true),
       m_selectBodiesByIdList (new SelectBodiesById (this)),
       m_t1sShown (false),
@@ -1622,7 +1619,7 @@ void WidgetGl::displayBoundingBox (ViewNumber::Enum viewNumber) const
 
 void WidgetGl::displayAxes (ViewNumber::Enum viewNumber)
 {
-    if (m_axesShown)
+    if (GetSettings ()->AxesShown ())
     {
 	glPushAttrib (GL_CURRENT_BIT);
 	DisplayOrientedSegmentQuadric displayOrientedEdge (
@@ -4178,13 +4175,6 @@ void WidgetGl::ToggledContextBoxShown (bool checked)
     CompileUpdate ();
 }
 
-void WidgetGl::ToggledAxesShown (bool checked)
-{
-    makeCurrent ();
-    m_axesShown = checked;
-    CompileUpdate ();
-}
-
 void WidgetGl::ToggledStandaloneElementsShown (bool checked)
 {
     makeCurrent ();
@@ -4598,18 +4588,8 @@ void WidgetGl::ValueChangedDeformationLineWidthExp (int index)
     ViewSettings& vs = GetViewSettings ();
     vs.SetDeformationLineWidth (
 	IndexExponent2Value (
-	    static_cast<QSlider*> (sender ()), TENSOR_LINE_WIDTH_EXP2));
-    CompileUpdate ();
-}
-
-void WidgetGl::ValueChangedForceTorqueSize (int index)
-{
-    makeCurrent ();
-    (void)index;
-    ViewSettings& vs = GetViewSettings ();
-    vs.SetForceTorqueSize (
-	IndexExponent2Value (
-	    static_cast<QSlider*> (sender ()), FORCE_SIZE_EXP2));
+	    static_cast<QSlider*> (sender ()), 
+            ViewSettings::TENSOR_LINE_WIDTH_EXP2));
     CompileUpdate ();
 }
 
@@ -4620,23 +4600,9 @@ void WidgetGl::ValueChangedTorqueDistance (int index)
     ViewSettings& vs = GetViewSettings ();
     vs.SetTorqueDistance (
 	IndexExponent2Value (
-	    static_cast<QSlider*> (sender ()), FORCE_SIZE_EXP2));
+	    static_cast<QSlider*> (sender ()), ViewSettings::FORCE_SIZE_EXP2));
     CompileUpdate ();
 }
-
-
-
-void WidgetGl::ValueChangedForceTorqueLineWidth (int index)
-{
-    makeCurrent ();
-    (void)index;
-    ViewSettings& vs = GetViewSettings ();
-    vs.SetForceTorqueLineWidth (
-	IndexExponent2Value (static_cast<QSlider*> (sender ()),
-			     TENSOR_LINE_WIDTH_EXP2));
-    CompileUpdate ();
-}
-
 
 void WidgetGl::ValueChangedVelocityLineWidthExp (int index)
 {
@@ -4645,7 +4611,7 @@ void WidgetGl::ValueChangedVelocityLineWidthExp (int index)
     ViewSettings& vs = GetViewSettings ();
     vs.SetVelocityLineWidth (
 	IndexExponent2Value (static_cast<QSlider*> (sender ()),
-			     TENSOR_LINE_WIDTH_EXP2));
+			     ViewSettings::TENSOR_LINE_WIDTH_EXP2));
     CompileUpdate ();
 }
 

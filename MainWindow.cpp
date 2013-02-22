@@ -144,7 +144,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
 
 void MainWindow::configureInterface ()
 {
-    horizontalSliderForceTorqueSize->setValue (49);
+    horizontalSliderForceSize->setValue (49);
     horizontalSliderTorqueDistance->setValue (49);
     horizontalSliderT1Size->setValue (10);
     comboBoxColor->setCurrentIndex (BodyScalar::PRESSURE);
@@ -1109,6 +1109,13 @@ void MainWindow::ToggledBarLarge (bool large)
     widgetGl->update ();
 }
 
+void MainWindow::ToggledAxesShown (bool checked)
+{
+    GetSettings ()->SetAxesShown (checked);
+    widgetGl->CompileUpdateAll ();
+}
+
+
 void MainWindow::ToggledViewFocusShown (bool checked)
 {
     GetSettings ()->SetViewFocusShown (checked);
@@ -1237,6 +1244,27 @@ void MainWindow::TimeoutTimer ()
 	    clickedPlay (PLAY_REVERSE);
     }
 }
+
+void MainWindow::ValueChangedForceSize (int index)
+{
+    (void)index;
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetForceSize (
+	IndexExponent2Value (
+	    static_cast<QSlider*> (sender ()), ViewSettings::FORCE_SIZE_EXP2));
+    widgetGl->CompileUpdate ();
+}
+
+void MainWindow::ValueChangedForceLineWidth (int index)
+{
+    (void)index;
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetForceLineWidth (
+	IndexExponent2Value (static_cast<QSlider*> (sender ()),
+			     ViewSettings::TENSOR_LINE_WIDTH_EXP2));
+    widgetGl->CompileUpdate ();
+}
+
 
 void MainWindow::ValueChangedContextAlpha (int index)
 {
@@ -1701,7 +1729,7 @@ void MainWindow::deformationViewToUI ()
     SetValueNoSignals (
 	horizontalSliderDeformationLineWidth, 
 	Value2ExponentIndex (horizontalSliderDeformationLineWidth,
-		     WidgetGl::TENSOR_LINE_WIDTH_EXP2,
+		     ViewSettings::TENSOR_LINE_WIDTH_EXP2,
 		     vs.GetDeformationLineWidth ()));
 }
 
@@ -1737,7 +1765,7 @@ void MainWindow::velocityViewToUI ()
     SetValueNoSignals (
 	horizontalSliderVelocityGlyphLineWidth, 
 	Value2ExponentIndex (horizontalSliderVelocityGlyphLineWidth,
-			     WidgetGl::TENSOR_LINE_WIDTH_EXP2,
+			     ViewSettings::TENSOR_LINE_WIDTH_EXP2,
 			     vs.GetVelocityLineWidth ()));
     // streamlines
     const int ratio = 5;
@@ -1780,16 +1808,16 @@ void MainWindow::forceViewToUI ()
     SetValueNoSignals (
 	horizontalSliderTorqueDistance, Value2ExponentIndex (
             horizontalSliderTorqueDistance,
-            WidgetGl::FORCE_SIZE_EXP2, vs.GetTorqueDistance ()));
+            ViewSettings::FORCE_SIZE_EXP2, vs.GetTorqueDistance ()));
     // size and width
     SetValueNoSignals (
-	horizontalSliderForceTorqueSize, Value2ExponentIndex (
-            horizontalSliderForceTorqueSize,
-            WidgetGl::FORCE_SIZE_EXP2, vs.GetForceTorqueSize ()));
+	horizontalSliderForceSize, Value2ExponentIndex (
+            horizontalSliderForceSize,
+            ViewSettings::FORCE_SIZE_EXP2, vs.GetForceSize ()));
     SetValueNoSignals (
-	horizontalSliderForceTorqueLineWidth, Value2ExponentIndex (
-            horizontalSliderForceTorqueLineWidth,
-            WidgetGl::TENSOR_LINE_WIDTH_EXP2, vs.GetForceTorqueLineWidth ()));
+	horizontalSliderForceLineWidth, Value2ExponentIndex (
+            horizontalSliderForceLineWidth,
+            ViewSettings::TENSOR_LINE_WIDTH_EXP2, vs.GetForceLineWidth ()));
 }
 
 void MainWindow::t1sKDEViewToUI (ViewNumber::Enum viewNumber)

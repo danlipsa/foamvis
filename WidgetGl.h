@@ -229,7 +229,6 @@ public Q_SLOTS:
     void ToggledKDESeeds (bool toggled);
     void ToggledSeedsShown (bool shown);
     void ToggledStandaloneElementsShown (bool checked);
-    void ToggledAxesShown (bool checked);
     void ToggledBoundingBoxSimulation (bool checked);
     void ToggledBoundingBoxFoam (bool checked);
     void ToggledBoundingBoxBody (bool checked);
@@ -316,9 +315,7 @@ public Q_SLOTS:
     void ValueChangedDeformationSizeExp (int index);
     void ValueChangedDeformationLineWidthExp (int index);
     void ValueChangedVelocityLineWidthExp (int index);
-    void ValueChangedForceTorqueSize (int index);
     void ValueChangedTorqueDistance (int index);
-    void ValueChangedForceTorqueLineWidth (int index);
     void ValueChangedHighlightLineWidth (int newWidth);
     // Actions
     void ResetTransformAll ();
@@ -361,8 +358,6 @@ public Q_SLOTS:
 public:
     const static  size_t DISPLAY_ALL;
     const static pair<float,float> TENSOR_SIZE_EXP2;
-    const static pair<float,float> TENSOR_LINE_WIDTH_EXP2;
-    const static pair<float,float> FORCE_SIZE_EXP2;
     const static pair<float,float> TORQUE_SIZE_EXP2;
 
 protected:
@@ -693,7 +688,6 @@ private:
     bool m_boundingBoxSimulationShown;    
     bool m_boundingBoxFoamShown;
     bool m_boundingBoxBodyShown;
-    bool m_axesShown;
     bool m_standaloneElementsShown;
     boost::array<ViewTypeDisplay, ViewType::COUNT> m_display;
 

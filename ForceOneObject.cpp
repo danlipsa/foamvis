@@ -11,11 +11,17 @@
 #include "ForceOneObject.h"
 #include "Utils.h"
 
+
+// ForceNamesOneObject
+// ===========================================================================
 ForceNamesOneObject::ForceNamesOneObject () :
     m_bodyId (INVALID_INDEX)
 {
 }
 
+
+// ForceOneObject
+// ===========================================================================
 ForceOneObject::ForceOneObject () :
     m_networkTorque (0),
     m_pressureTorque (0)
@@ -36,6 +42,16 @@ ForceOneObject& ForceOneObject::operator+= (const ForceOneObject& other)
     m_networkTorque += other.m_networkTorque;
     m_pressureTorque += other.m_pressureTorque;
     return *this;
+}
+
+ForceOneObject ForceOneObject::operator/ (float value) const
+{
+    ForceOneObject foo = *this;
+    foo.m_networkForce /= value;
+    foo.m_pressureForce /= value;
+    foo.m_networkTorque /= value;
+    foo.m_pressureTorque /= value;
+    return foo;
 }
 
 ForceOneObject& ForceOneObject::operator-= (const ForceOneObject& other)

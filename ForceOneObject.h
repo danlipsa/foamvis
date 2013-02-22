@@ -32,6 +32,7 @@ public:
     ForceOneObject (boost::shared_ptr<Body> body);
     ForceOneObject& operator+= (const ForceOneObject& other);
     ForceOneObject& operator-= (const ForceOneObject& other);
+    ForceOneObject operator/ (float value) const;
 
     G3D::Vector3 GetForce (ForceType::Enum type) const;
     void SetForce (ForceType::Enum type, float x, float y, float z);
@@ -50,7 +51,6 @@ public:
 
 private:
     boost::shared_ptr<Body> m_body;
-
     G3D::Vector3 m_networkForce;
     G3D::Vector3 m_pressureForce;
     float m_networkTorque;
