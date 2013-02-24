@@ -16,12 +16,9 @@
 
 
 Average::Average (
-    ViewNumber::Enum viewNumber, 
-    const Settings& settings, const SimulationGroup& simulationGroup) :
-    AverageInterface (viewNumber),
-    
-    m_settings (settings),
-    m_simulationGroup (simulationGroup),
+    ViewNumber::Enum viewNumber, boost::shared_ptr<Settings> settings, 
+    boost::shared_ptr<const SimulationGroup> simulationGroup) :
+    AverageInterface (viewNumber), Base (settings, simulationGroup),
     m_currentTimeWindow (0)
 {
 }
@@ -68,7 +65,7 @@ void Average::AverageStep (int timeDifference, size_t timeWindow)
 	return;
     }
     Operation firstOp, secondOp;
-    size_t currentTime = m_settings.GetViewTime (GetViewNumber ());
+    size_t currentTime = GetSettings ().GetViewTime (GetViewNumber ());
     if (timeDifference < 0)
     {
 	++currentTime;
@@ -92,29 +89,6 @@ void Average::AverageStep (int timeDifference, size_t timeWindow)
     WarnOnOpenGLError ("AverageStep");
 }
 
-const ViewSettings& Average::GetViewSettings () const
-{
-    return GetSettings ().GetViewSettings (GetViewNumber ());
-}
-
-
-const Simulation& Average::GetSimulation () const
-{
-    return
-	GetSimulationGroup ().GetSimulation (GetSettings (), GetViewNumber ());
-}
-
-const Foam& Average::GetFoam (size_t timeStep) const
-{
-    return GetSimulation ().GetFoam (timeStep);
-}
-
-const Foam& Average::GetFoam () const
-{
-    size_t currentTime = GetViewSettings ().GetTime ();
-    return GetSimulation ().GetFoam (currentTime);
-}
-
 
 size_t Average::GetBodyScalar () const
 {
@@ -136,4 +110,9 @@ G3D::Vector3 Average::GetTranslation () const
 {
     const ViewSettings& vs = GetViewSettings ();
     return GetTranslation (vs.GetTime ());
+}
+
+ViewNumber::Enum Average::GetViewNumber () const
+{
+    return AverageInterface::GetViewNumber ();
 }

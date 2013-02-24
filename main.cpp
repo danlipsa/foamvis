@@ -63,8 +63,9 @@ void readOptions (int argc, char *argv[],
 }
 
 
-void parseOptions (int argc, char *argv[], 
-		   SimulationGroup* simulationGroup, bool* outputText)
+void parseOptions (
+    int argc, char *argv[], 
+    boost::shared_ptr<SimulationGroup> simulationGroup, bool* outputText)
 {
     CommandLineOptions clo;
     vector< boost::shared_ptr<CommonOptions> > co;
@@ -124,8 +125,9 @@ int main(int argc, char *argv[])
     bool outputText;
     try
     {
-	SimulationGroup simulationGroup;
-	parseOptions (argc, argv, &simulationGroup, &outputText);
+        boost::shared_ptr<SimulationGroup> simulationGroup (
+            new SimulationGroup ());
+	parseOptions (argc, argv, simulationGroup, &outputText);
 	if (outputText)
 	    cdbg << simulationGroup;
 	else

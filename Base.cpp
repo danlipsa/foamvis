@@ -13,19 +13,15 @@
 #include "Simulation.h"
 #include "ViewSettings.h"
 
-Base::Base () :
-    m_simulationGroup (0)
-{
-}
 
 ViewNumber::Enum Base::GetViewNumber () const
 {
-    return GetSettings ()->GetViewNumber ();
+    return GetSettings ().GetViewNumber ();
 }
 
 ViewSettings& Base::GetViewSettings (ViewNumber::Enum viewNumber) const
 {
-    return GetSettings ()->GetViewSettings (viewNumber);
+    return GetSettings ().GetViewSettings (viewNumber);
 }
 
 size_t Base::GetTime (ViewNumber::Enum viewNumber) const
@@ -35,12 +31,12 @@ size_t Base::GetTime (ViewNumber::Enum viewNumber) const
 
 size_t Base::GetViewCount () const
 {
-    return GetSettings ()->GetViewCount ();
+    return GetSettings ().GetViewCount ();
 }
 
 const Simulation& Base::GetSimulation (ViewNumber::Enum viewNumber) const
 {
-    return GetSimulationGroup ().GetSimulation (*GetSettings (), viewNumber);
+    return GetSimulationGroup ().GetSimulation (GetSettings (), viewNumber);
 }
 
 const Simulation& Base::GetSimulation (size_t index) const
@@ -48,6 +44,16 @@ const Simulation& Base::GetSimulation (size_t index) const
     return GetSimulationGroup ().GetSimulation (index);
 }
 
+const Foam& Base::GetFoam (size_t timeStep) const
+{
+    return GetSimulation ().GetFoam (timeStep);
+}
+
+const Foam& Base::GetFoam () const
+{
+    size_t currentTime = GetViewSettings ().GetTime ();
+    return GetSimulation ().GetFoam (currentTime);
+}
 
 
 bool Base::IsVtkView (ViewNumber::Enum viewNumber) const

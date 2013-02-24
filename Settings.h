@@ -27,7 +27,8 @@ public:
 
 
 public:
-    Settings (const SimulationGroup& simulationGroup, float w, float h);
+    Settings (boost::shared_ptr<const SimulationGroup> simulationGroup, 
+              float w, float h);
 
     /**
      * @{
@@ -78,7 +79,7 @@ public:
     {
 	return GetViewSettings (GetViewNumber ());
     }
-    size_t GetViewSettingsSize ()
+    size_t GetViewSettingsSize () const
     {
 	return m_viewSettings.size ();
     }

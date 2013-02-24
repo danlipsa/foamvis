@@ -22,8 +22,9 @@ class AttributeAverages3D : public AttributeAverages
 public:
     AttributeAverages3D (
         ViewNumber::Enum viewNumber,
-        const Settings& settings, const SimulationGroup& simulationGroup);
-
+        boost::shared_ptr<Settings> settings, 
+        boost::shared_ptr<const SimulationGroup> simulationGroup);
+    
     const RegularGridAverage& GetScalarAverage () const
     {
 	return *boost::static_pointer_cast<RegularGridAverage> (

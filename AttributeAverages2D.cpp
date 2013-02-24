@@ -27,8 +27,8 @@
 
 AttributeAverages2D::AttributeAverages2D (ViewNumber::Enum viewNumber,
                                           const WidgetGl& widgetGl) :
-    AttributeAverages (viewNumber, *widgetGl.GetSettings (),
-                       widgetGl.GetSimulationGroup ())
+    AttributeAverages (viewNumber, widgetGl.GetSettingsPtr (),
+                       widgetGl.GetSimulationGroupPtr ())
 {
     m_scalarAverage.reset (new ScalarAverage (viewNumber, widgetGl));
     m_t1sKDE.reset (new T1sKDE (viewNumber, widgetGl));

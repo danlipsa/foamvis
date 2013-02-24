@@ -34,7 +34,7 @@ public:
 public:
     WidgetHistogram (QWidget* parent = 0);
     void Init (boost::shared_ptr<Settings> settings, 
-	       const SimulationGroup* simulationGroup);
+	       boost::shared_ptr<const SimulationGroup> simulationGroup);
     int GetHeight () const;
     void UpdateFocus ();
     void UpdateSelection (ViewNumber::Enum viewNumber);

@@ -31,7 +31,8 @@ WidgetBase::WidgetBase (QWidget* widget,
 
 void WidgetBase::Init (
     boost::shared_ptr<Settings> settings,
-    const SimulationGroup* simulationGroup, AverageCaches* averageCache)
+    boost::shared_ptr<const SimulationGroup> simulationGroup, 
+    AverageCaches* averageCache)
 {
     SetSettings (settings);
     SetSimulationGroup (simulationGroup);
@@ -66,7 +67,7 @@ G3D::AABox WidgetBase::CalculateViewingVolume (
     vector<ViewNumber::Enum> mapping;
     ViewCount::Enum viewCount = 
 	CALL_MEMBER (*this, m_getViewCount) (&mapping);
-    G3D::AABox vv = GetSettings ()->CalculateViewingVolume (
+    G3D::AABox vv = GetSettings ().CalculateViewingVolume (
 	mapping[viewNumber], viewCount, simulation, 
 	m_widget->width (), m_widget->height (), enclose);
     return vv;
@@ -77,7 +78,7 @@ G3D::Rect2D WidgetBase::GetViewRect (ViewNumber::Enum viewNumber) const
     vector<ViewNumber::Enum> mapping;
     ViewCount::Enum viewCount = 
         CALL_MEMBER (*this, m_getViewCount) (&mapping);
-    return GetSettings ()->GetViewRect (
+    return GetSettings ().GetViewRect (
 	m_widget->width (), m_widget->height (), mapping[viewNumber], viewCount);
 }
 
@@ -91,7 +92,7 @@ void WidgetBase::setView (ViewNumber::Enum viewNumber,
 {
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     if (viewRect.contains (clickedPoint))
-	GetSettings ()->SetViewNumber (viewNumber);
+	GetSettingsPtr ()->SetViewNumber (viewNumber);
 }
 
 void WidgetBase::addCopyMenu (
@@ -116,7 +117,7 @@ void WidgetBase::addCopyCompatibleMenu (
     const boost::shared_ptr<QAction>* actionCopyOp, 
     IsCopyCompatibleType isCopyCompatible) const
 {
-    size_t viewCount = GetSettings ()->GetViewCount ();
+    size_t viewCount = GetSettings ().GetViewCount ();
     bool actions = false;
     QMenu* menuOp = menu->addMenu (nameOp);
     if (viewCount > 1)
@@ -141,13 +142,13 @@ bool WidgetBase::IsColorBarCopyCompatible (
     ViewNumber::Enum vn, ViewNumber::Enum otherVn) const
 {
     ColorBarType::Enum currentColorBarType = 
-        GetSettings ()->GetColorBarType (vn);
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (vn);
+        GetSettings ().GetColorBarType (vn);
+    const ViewSettings& vs = GetViewSettings (vn);
     const ViewSettings& otherVs = GetViewSettings (otherVn);
     size_t currentProperty = vs.GetBodyOrFaceScalar ();
     return otherVn != vn &&
         
-        currentColorBarType == GetSettings ()->GetColorBarType (otherVn) &&
+        currentColorBarType == GetSettings ().GetColorBarType (otherVn) &&
         
         ((currentColorBarType == ColorBarType::T1S_KDE) 
          ||
@@ -158,7 +159,7 @@ bool WidgetBase::IsColorBarCopyCompatible (
 bool WidgetBase::IsSelectionCopyCompatible (
     ViewNumber::Enum vn, ViewNumber::Enum otherVn) const
 {
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (vn);
+    const ViewSettings& vs = GetViewSettings (vn);
     const ViewSettings& otherVs = GetViewSettings (otherVn);
     return otherVn != vn &&
         vs.GetSimulationIndex () == otherVs.GetSimulationIndex ();

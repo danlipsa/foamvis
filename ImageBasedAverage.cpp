@@ -74,7 +74,7 @@ ImageBasedAverage<PropertySetter>::ImageBasedAverage (
     FramebufferObjects& countFbos, size_t countIndex) :
 
     Average (viewNumber, 
-	     *widgetGl.GetSettings (), widgetGl.GetSimulationGroup ()), 
+	     widgetGl.GetSettingsPtr (), widgetGl.GetSimulationGroupPtr ()), 
     m_countFbos (countFbos), 
     m_countIndex (countIndex),
     m_id (id),

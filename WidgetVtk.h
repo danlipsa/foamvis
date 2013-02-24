@@ -35,7 +35,7 @@ public:
      * @name Common for all pipelines
      */
     void Init (boost::shared_ptr<Settings> settings,
-               const SimulationGroup* simulationGroup);
+               boost::shared_ptr<const SimulationGroup> simulationGroup);
     void UpdateFocus ();
     void ViewToVtk (ViewNumber::Enum viewNumber);
     void VtkToView (ViewNumber::Enum viewNumber);

@@ -38,7 +38,7 @@ public:
      * Constructor
      * @param simulationGroup data to be displayed
      */
-    MainWindow(SimulationGroup& simulationGroup);
+    MainWindow(boost::shared_ptr<const SimulationGroup> simulationGroup);
     /**
      * Called when a key is pressed
      * @param event object describing the key
@@ -214,7 +214,7 @@ private:
 
     void processBodyTorusStep ();
     void translatedBodyInit ();
-    void initComboBoxSimulation (SimulationGroup& simulationGroup);
+    void initComboBoxSimulation (const SimulationGroup& simulationGroup);
     void translatedBodyStep ();
     void createActions ();
     HistogramInfo getHistogramInfo (

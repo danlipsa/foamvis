@@ -9,8 +9,8 @@
 #ifndef __AVERAGE_H__
 #define __AVERAGE_H__
 
-#include "Enums.h"
 #include "AverageInterface.h"
+#include "Base.h"
 
 class Foam;
 class Settings;
@@ -24,32 +24,23 @@ class ViewSettings;
  * for a time window behind the current time step for forward and
  * backward moving time.
  */
-class Average : public AverageInterface
+class Average : public AverageInterface, public Base
 {
 public:
     Average (ViewNumber::Enum viewNumber, 
-	     const Settings& settings, const SimulationGroup& simulationGroup);
-    const SimulationGroup& GetSimulationGroup () const
-    {
-	return m_simulationGroup;
-    }
-    const Settings& GetSettings () const
-    {
-	return m_settings;
-    }
-    const ViewSettings& GetViewSettings () const;   
+	     boost::shared_ptr<Settings> settings, 
+             boost::shared_ptr<const SimulationGroup> simulationGroup);
     void AverageStep (int timeDifference, size_t timeWindow);
     size_t GetCurrentTimeWindow () const
     {
 	return m_currentTimeWindow;
     }
     virtual void AverageInit ();
-    const Simulation& GetSimulation () const;
-    const Foam& GetFoam (size_t timeStep) const;
-    const Foam& GetFoam () const;
     size_t GetBodyScalar () const;
     G3D::Vector3 GetTranslation (size_t timeStep) const;
     G3D::Vector3 GetTranslation () const;
+
+    virtual ViewNumber::Enum GetViewNumber () const;
 
 
 protected:
@@ -74,8 +65,6 @@ private:
         bool atEnd, size_t timeWindow);
 
 private:
-    const Settings& m_settings;
-    const SimulationGroup& m_simulationGroup;
     size_t m_currentTimeWindow;
 };
 

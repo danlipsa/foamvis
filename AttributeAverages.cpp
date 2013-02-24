@@ -22,7 +22,9 @@
 
 AttributeAverages::AttributeAverages (
     ViewNumber::Enum viewNumber,
-    const Settings& settings, const SimulationGroup& simulationGroup) :
+    boost::shared_ptr<Settings> settings, 
+    boost::shared_ptr<const SimulationGroup> simulationGroup) :
+
     AverageInterface (viewNumber),
     m_forceAverage (new ForceAverage (viewNumber, settings, simulationGroup))
 {

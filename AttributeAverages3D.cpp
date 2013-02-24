@@ -15,13 +15,14 @@
 
 AttributeAverages3D::AttributeAverages3D (
     ViewNumber::Enum viewNumber,
-    const Settings& settings, const SimulationGroup& simulationGroup) :
+    boost::shared_ptr<Settings> settings, 
+    boost::shared_ptr<const SimulationGroup> simulationGroup) :
 
     AttributeAverages (viewNumber, settings, simulationGroup)
 {
     m_scalarAverage.reset (
         new RegularGridAverage (
-            settings.GetViewSettings (viewNumber).GetBodyOrFaceScalar (),
+            settings->GetViewSettings (viewNumber).GetBodyOrFaceScalar (),
             viewNumber, settings, simulationGroup));
     m_velocityAverage.reset (
         new RegularGridAverage (

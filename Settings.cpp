@@ -99,7 +99,8 @@ const size_t Settings::QUADRIC_SLICES = 8;
 const size_t Settings::QUADRIC_STACKS = 1;
 
 
-Settings::Settings (const SimulationGroup& simulationGroup, float w, float h) :
+Settings::Settings (
+    boost::shared_ptr<const SimulationGroup> simulationGroup, float w, float h) :
     m_edgeRadius (0),
     m_edgeWidth (0),
     m_edgeRadiusRatio (0),
@@ -128,7 +129,7 @@ Settings::Settings (const SimulationGroup& simulationGroup, float w, float h) :
     m_axesShown (false),
     m_interactionMode (InteractionMode::ROTATE)
 {
-    initAllViewsSettings (simulationGroup, w, h);
+    initAllViewsSettings (*simulationGroup, w, h);
     initEndTranslationColor ();
 }
 

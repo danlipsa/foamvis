@@ -100,7 +100,9 @@ private:
 
 RegularGridAverage::RegularGridAverage (
     size_t bodyAttribute, ViewNumber::Enum viewNumber,
-    const Settings& settings, const SimulationGroup& simulationGroup) :
+    boost::shared_ptr<Settings> settings, 
+    boost::shared_ptr<const SimulationGroup> simulationGroup) :
+
     Average (viewNumber, settings, simulationGroup),
     m_bodyAttribute (bodyAttribute)
 {

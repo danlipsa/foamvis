@@ -25,7 +25,8 @@ public:
 public:
     RegularGridAverage (
         size_t bodyAttribute, ViewNumber::Enum viewNumber, 
-        const Settings& settings, const SimulationGroup& simulationGroup);
+        boost::shared_ptr<Settings> settings, 
+        boost::shared_ptr<const SimulationGroup> simulationGroup);
     virtual void AverageInit ();
     virtual void AverageRotateAndDisplay (
 	StatisticsType::Enum displayType = StatisticsType::AVERAGE,

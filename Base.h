@@ -10,10 +10,11 @@
 #define __BASE_H__
 
 #include "Enums.h"
-class ViewSettings;
+class Foam;
 class Settings;
 class Simulation;
 class SimulationGroup;
+class ViewSettings;
 
 class Base
 {
@@ -25,8 +26,19 @@ public:
 
 
 public:
-    Base ();
-    boost::shared_ptr<Settings> GetSettings () const
+    Base ()
+    {}
+    Base (boost::shared_ptr<Settings> settings, 
+          boost::shared_ptr<const SimulationGroup> simulationGroup) :
+        m_settings (settings), 
+        m_simulationGroup (simulationGroup)
+    {
+    }
+    const Settings& GetSettings () const
+    {
+	return *m_settings;
+    }
+    boost::shared_ptr<Settings> GetSettingsPtr () const
     {
 	return m_settings;
     }
@@ -35,7 +47,6 @@ public:
         m_settings = s;
     }
 
-    ViewNumber::Enum GetViewNumber () const;
     ViewSettings& GetViewSettings (ViewNumber::Enum viewNumber) const;
     size_t GetTime (ViewNumber::Enum viewNumber) const;
     size_t GetViewCount () const;
@@ -52,7 +63,11 @@ public:
     {
 	return *m_simulationGroup;
     }
-    void SetSimulationGroup (const SimulationGroup* sg)
+    const boost::shared_ptr<const SimulationGroup> GetSimulationGroupPtr () const
+    {
+        return m_simulationGroup;
+    }
+    void SetSimulationGroup (boost::shared_ptr<const SimulationGroup> sg)
     {
         m_simulationGroup = sg;
     }
@@ -62,6 +77,9 @@ public:
     {
         return GetSimulation (GetViewNumber ());
     }
+    const Foam& GetFoam (size_t timeStep) const;
+    const Foam& GetFoam () const;
+
 
     /**
      * @{
@@ -76,6 +94,8 @@ public:
 	vector<ViewNumber::Enum>* mapping = 0) const;
     // @}
 
+    virtual ViewNumber::Enum GetViewNumber () const;
+
 private:
     ViewCount::Enum getViewCount (
 	vector<ViewNumber::Enum>* mapping, IsViewType isView) const;
@@ -83,7 +103,7 @@ private:
 
 private:
     boost::shared_ptr<Settings> m_settings;
-    const SimulationGroup* m_simulationGroup;
+    boost::shared_ptr<const SimulationGroup> m_simulationGroup;
 };
 
 

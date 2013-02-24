@@ -27,8 +27,9 @@ int WidgetHistogram::GetHeight () const
     return m_histogram[0]->sizeHint ().height ();
 }
 
-void WidgetHistogram::Init (boost::shared_ptr<Settings> settings, 
-                            const SimulationGroup* simulationGroup)
+void WidgetHistogram::Init (
+    boost::shared_ptr<Settings> settings, 
+    boost::shared_ptr<const SimulationGroup> simulationGroup)
 {    
     WidgetBase::Init (settings, simulationGroup, 0);
     m_signalMapperSelectionChanged.reset (new QSignalMapper (this));
@@ -60,7 +61,7 @@ void WidgetHistogram::UpdateColorMapped (
     ViewNumber::Enum viewNumber,
     boost::shared_ptr<ColorBarModel> colorBarModel)
 {
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     bool colorMapped = vs.HasHistogramOption (HistogramType::COLOR_MAPPED);
     m_histogram[viewNumber]->SetColorCoded (colorMapped);
     if (colorMapped)
@@ -71,7 +72,7 @@ void WidgetHistogram::UpdateData (
     ViewNumber::Enum viewNumber, SelectionOperation histogramSelection, 
     MaxValueOperation maxValueOperation)
 {
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     BodyScalar::Enum property = BodyScalar::FromSizeT (
         vs.GetBodyOrFaceScalar ());
     const Simulation& simulation = GetSimulation (viewNumber);
@@ -87,7 +88,7 @@ void WidgetHistogram::UpdateData (
     }
     else
     {
-        intervalData = simulation.GetFoam (GetSettings ()->GetViewTime ()).
+        intervalData = simulation.GetFoam (GetSettings ().GetViewTime ()).
             GetHistogram (property).ToQwtIntervalData ();
         maxYValue = simulation.GetMaxCountPerBinIndividual (property);
     }
@@ -118,7 +119,7 @@ void WidgetHistogram::UpdateSelection (ViewNumber::Enum viewNumber)
         UpdateData (viewNumber, KEEP_SELECTION, KEEP_MAX_VALUE);
     else
     {
-        const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+        const ViewSettings& vs = GetViewSettings (viewNumber);
         histogram.SetSelectedBinsNoSignal (vs.GetBodySelector ().GetBins ());
     }
 }
@@ -133,7 +134,7 @@ void WidgetHistogram::mousePressEvent(QMouseEvent *event)
 void WidgetHistogram::setView (ViewNumber::Enum viewNumber, QWidget* widget)
 {
     if (m_histogram[viewNumber]->canvas () == widget)
-        GetSettings ()->SetViewNumber (viewNumber);
+        GetSettingsPtr ()->SetViewNumber (viewNumber);
 }
 
 
@@ -150,9 +151,8 @@ void WidgetHistogram::UpdateFocus ()
 void WidgetHistogram::updateFocus (ViewNumber::Enum viewNumber)
 {
     m_histogram[viewNumber]->DisplayFocus (
-        viewNumber == GetSettings ()->GetViewNumber () && 
-        GetSettings ()->IsViewFocusShown () &&
-        GetSettings ()->GetViewCount () != ViewCount::ONE);
+        viewNumber == GetViewNumber () && GetSettings ().IsViewFocusShown () && 
+        GetViewCount () != ViewCount::ONE);
 }
 
 
@@ -163,7 +163,7 @@ void WidgetHistogram::UpdateHidden ()
 }
 void WidgetHistogram::hide (ViewNumber::Enum viewNumber)
 {
-    ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetHistogramShown (false);
     m_histogram[viewNumber]->setVisible (false);    
 }

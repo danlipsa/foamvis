@@ -34,7 +34,7 @@ public:
 		IsViewType isView,
 		GetViewCountType getViewCount);
     void Init (boost::shared_ptr<Settings> settings,
-	       const SimulationGroup* simulationGroup, 
+	       boost::shared_ptr<const SimulationGroup> simulationGroup, 
                AverageCaches* averageCache);
 
     void ForAllViews (boost::function <void (ViewNumber::Enum)> f);

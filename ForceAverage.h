@@ -23,8 +23,9 @@ class Foam;
 class ForceAverage : public Average
 {
 public:
-    ForceAverage (ViewNumber::Enum viewNumber, const Settings& settings, 
-		  const SimulationGroup& simulationGroup) :
+    ForceAverage (ViewNumber::Enum viewNumber,
+                  boost::shared_ptr<Settings> settings, 
+		  boost::shared_ptr<const SimulationGroup> simulationGroup) :
 	Average (viewNumber, settings, simulationGroup)
     {
     }

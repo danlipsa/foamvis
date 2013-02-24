@@ -480,7 +480,8 @@ void WidgetGl::initDisplayView ()
 }
 
 void WidgetGl::Init (
-    boost::shared_ptr<Settings> settings, SimulationGroup* simulationGroup,
+    boost::shared_ptr<Settings> settings, 
+    boost::shared_ptr<const SimulationGroup> simulationGroup,
     AverageCaches* averageCache)
 {
     WidgetBase::Init (settings, simulationGroup, averageCache);
@@ -499,7 +500,7 @@ void WidgetGl::Init (
 float WidgetGl::GetBubbleDiameter (ViewNumber::Enum viewNumber) const
 {    
     vector<ViewNumber::Enum> vn = 
-	GetSettings ()->GetTwoHalvesViewNumbers (viewNumber);
+	GetSettings ().GetTwoHalvesViewNumbers (viewNumber);
     float size = GetSimulation (vn[0]).GetBubbleDiameter ();
     for (size_t i = 1; i < vn.size (); ++i)
     {
@@ -637,7 +638,7 @@ G3D::AABox WidgetGl::calculateEyeViewingVolume (
     
     vector<ViewNumber::Enum> mapping;
     ViewCount::Enum viewCount = GetGlCount (&mapping);
-    return GetSettings ()->CalculateEyeViewingVolume (
+    return GetSettings ().CalculateEyeViewingVolume (
 	mapping[viewNumber], viewCount, 
 	GetSimulation (viewNumber), width (), height (), enclose);
 }
@@ -648,7 +649,7 @@ G3D::AABox WidgetGl::CalculateCenteredViewingVolume (
 {
     vector<ViewNumber::Enum> mapping;
     ViewCount::Enum viewCount = GetGlCount (&mapping);
-    return GetSettings ()->CalculateCenteredViewingVolume (
+    return GetSettings ().CalculateCenteredViewingVolume (
 	mapping[viewNumber], viewCount, GetSimulation (viewNumber), width (),
 	height (), ViewingVolumeOperation::DONT_ENCLOSE2D);
 }
@@ -810,7 +811,7 @@ void WidgetGl::initializeGL()
 	VectorAverage::InitShaders ();
 	T1sKDE::InitShaders ();
 	initializeLighting ();
-	GetSettings ()->SetViewNumber (ViewNumber::VIEW0);
+	GetSettingsPtr ()->SetViewNumber (ViewNumber::VIEW0);
 	WarnOnOpenGLError ("initializeGL");
     }
     catch (const exception& e)
@@ -842,7 +843,7 @@ void WidgetGl::averageInitStep (ViewNumber::Enum viewNumber)
 
 void WidgetGl::SetViewTypeAndCameraDistance (ViewNumber::Enum viewNumber)
 {
-    ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.GetViewType () == ViewType::COUNT)
 	vs.SetViewType (ViewType::FACES);
     vs.CalculateCameraDistance (CalculateCenteredViewingVolume (viewNumber));
@@ -852,7 +853,7 @@ void WidgetGl::SetViewTypeAndCameraDistance (ViewNumber::Enum viewNumber)
 
 void WidgetGl::displayViews ()
 {
-    size_t viewCount = GetSettings ()->GetViewCount ();
+    size_t viewCount = GetViewCount ();
     switch (viewCount)
     {
     case ViewCount::COUNT:
@@ -906,8 +907,8 @@ void WidgetGl::displayView (ViewNumber::Enum viewNumber)
     vs.SetGlLightParameters (CalculateCenteredViewingVolume (viewNumber));
     allTransform (viewNumber);
     setTorusDomainClipPlanes (viewNumber);
-    GetSettings ()->SetEdgeArrow (GetOnePixelInObjectSpace
- (simulation.Is2D ()));
+    GetSettingsPtr ()->SetEdgeArrow (GetOnePixelInObjectSpace
+                                     (simulation.Is2D ()));
     displayAllViewTransforms (viewNumber);
     displayViewDecorations (viewNumber);
     displayAxes (viewNumber);
@@ -978,7 +979,7 @@ G3D::Matrix3 WidgetGl::getRotationAround (int axis, double angleRadians)
 float WidgetGl::ratioFromScaleCenter (
     ViewNumber::Enum viewNumber, const QPoint& p)
 {
-    G3D::Vector2 center = GetSettings ()->CalculateScaleCenter (
+    G3D::Vector2 center = GetSettings ().CalculateScaleCenter (
 	viewNumber, GetViewRect (viewNumber));
     int windowHeight = height ();
     G3D::Vector2 lastPos = QtToOpenGl (m_lastPos, windowHeight);
@@ -1242,7 +1243,7 @@ void WidgetGl::displayAverageAroundBodyOne (
     glPointSize (4.0);
     glColor (Qt::black);
     DisplayBodyCenter (
-        *GetSettings (), IdBodySelector (bodyId)) (focusBody[0]);
+        GetSettings (), IdBodySelector (bodyId)) (focusBody[0]);
 }
 
 void WidgetGl::displayAverageAroundBodyTwo (
@@ -1355,7 +1356,7 @@ void WidgetGl::displayContextBox (
                 vs.GetTime (), -1, ViewSettings::DONT_TRANSLATE);
 	}
 	DisplayBox (GetSimulation (viewNumber), 
-		    GetSettings ()->GetHighlightColor (
+		    GetSettings ().GetHighlightColor (
 			viewNumber, HighlightNumber::H1),
 		    GetHighlightLineWidth ());
 	if (isAverageAroundRotationShown)
@@ -1432,7 +1433,7 @@ string WidgetGl::getInteractionLabel ()
 {
     ostringstream ostr;
     const ViewSettings& vs = GetViewSettings ();
-    switch (GetSettings ()->GetInteractionMode ())
+    switch (GetSettings ().GetInteractionMode ())
     {
     case InteractionMode::ROTATE:
 	ostr << "Rotate: " << 
@@ -1587,7 +1588,7 @@ void WidgetGl::displayFocusBox (ViewNumber::Enum viewNumber) const
 			    - vs.GetContextScaleRatio () * 
 			    vs.GetTranslation (), true);
 	glScale (vs.GetContextScaleRatio ());
-	DisplayBox (focusBox, GetSettings ()->GetHighlightColor (
+	DisplayBox (focusBox, GetSettings ().GetHighlightColor (
 			viewNumber, HighlightNumber::H0), 
 		    GetHighlightLineWidth ());
 	glPopMatrix ();
@@ -1619,13 +1620,13 @@ void WidgetGl::displayBoundingBox (ViewNumber::Enum viewNumber) const
 
 void WidgetGl::displayAxes (ViewNumber::Enum viewNumber)
 {
-    if (GetSettings ()->AxesShown ())
+    if (GetSettings ().AxesShown ())
     {
 	glPushAttrib (GL_CURRENT_BIT);
 	DisplayOrientedSegmentQuadric displayOrientedEdge (
 	    GetQuadricObject (), 
-	    GetSettings ()->GetArrowBaseRadius (), 
-	    GetSettings ()->GetEdgeRadius (), GetSettings ()->GetArrowHeight (),
+	    GetSettings ().GetArrowBaseRadius (), 
+	    GetSettings ().GetEdgeRadius (), GetSettings ().GetArrowHeight (),
 	    DisplaySegmentArrow1::TOP_END);
 
 	const Simulation& simulation = GetSimulation (viewNumber);
@@ -1691,7 +1692,7 @@ void WidgetGl::displayEdges (ViewNumber::Enum viewNumber) const
 	      DisplayBody<
 	      DisplayFaceHighlightColor<HighlightNumber::H0,
 	      DisplayFaceEdges<displayEdge> > > (
-		  *GetSettings (), simulation.Is2D (), bodySelector));
+		  GetSettings (), simulation.Is2D (), bodySelector));
     displayStandaloneEdges<displayEdge> (simulation.GetFoam (0));
     glPopAttrib ();
 }
@@ -1706,7 +1707,7 @@ void WidgetGl::displayStandaloneEdges (
         const Simulation& simulation = GetSimulation (viewNumber);
 	glPushAttrib (GL_ENABLE_BIT);    
 	glDisable (GL_DEPTH_TEST);
-	displayEdge de (*GetSettings (), viewNumber, simulation.Is2D (),
+	displayEdge de (GetSettings (), viewNumber, simulation.Is2D (),
 			DisplayElement::FOCUS, useZPos, zPos);
 	const Foam::Edges& standaloneEdges = foam.GetStandaloneEdges ();
 	BOOST_FOREACH (boost::shared_ptr<Edge> edge, standaloneEdges)
@@ -1739,7 +1740,7 @@ void WidgetGl::displayDeformation (ViewNumber::Enum viewNumber) const
     glDisable (GL_DEPTH_TEST);
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBodyDeformation (
-		  *GetSettings (), viewNumber, simulation.Is2D (),
+		  GetSettings (), viewNumber, simulation.Is2D (),
                   vs.GetBodySelector (),
 		  GetDeformationSizeInitialRatio (viewNumber)));
     glPopAttrib ();    
@@ -1767,7 +1768,7 @@ void WidgetGl::displayVelocityGlyphs (ViewNumber::Enum viewNumber) const
     for_each (
 	bodies.begin (), bodies.end (),
 	DisplayBodyVelocity (
-	    *GetSettings (), viewNumber, simulation.Is2D (),
+	    GetSettings (), viewNumber, simulation.Is2D (),
 	    vs.GetBodySelector (), GetBubbleDiameter (viewNumber), 
 	    GetVelocitySizeInitialRatio (viewNumber),
 	    GetOnePixelInObjectSpace (simulation.Is2D ()), 
@@ -1791,7 +1792,7 @@ void WidgetGl::displayBodyDeformation (
 	glDisable (GL_DEPTH_TEST);
 	glColor (Qt::black);
 	DisplayBodyDeformation (
-	    *GetSettings (), viewNumber, simulation.Is2D (),
+	    GetSettings (), viewNumber, simulation.Is2D (),
 	    vs.GetBodySelector (), 
 	    GetDeformationSizeInitialRatio (viewNumber)) (
 		*foam.FindBody (m_showBodyId));
@@ -1816,7 +1817,7 @@ void WidgetGl::displayBodyVelocity (
 	const VectorAverage& va = 
 	    m_average[viewNumber]->GetVelocityAverage ();
 	DisplayBodyVelocity (
-	    *GetSettings (), viewNumber, simulation.Is2D (),
+	    GetSettings (), viewNumber, simulation.Is2D (),
 	    vs.GetBodySelector (), 
 	    GetBubbleDiameter (viewNumber), 
 	    GetVelocitySizeInitialRatio (viewNumber),
@@ -1892,7 +1893,7 @@ void WidgetGl::displayT1sTimestep (
 		  GL_CURRENT_BIT | GL_POLYGON_BIT);
     glDisable (GL_DEPTH_TEST);
     glPointSize (m_t1sSize);
-    glColor (GetSettings ()->GetHighlightColor (viewNumber, 
+    glColor (GetSettings ().GetHighlightColor (viewNumber, 
                                                 HighlightNumber::H1));
     glBegin (GL_POINTS);
     BOOST_FOREACH (const G3D::Vector3 t1Pos, 
@@ -1986,7 +1987,7 @@ pair<float, float> WidgetGl::GetRangeT1sKDE (ViewNumber::Enum viewNumber) const
 void WidgetGl::displayEdgesTorus (ViewNumber::Enum viewNumber) const
 {
     (void)viewNumber;
-    if (GetSettings ()->GetEdgeRadiusRatio () > 0)
+    if (GetSettings ().GetEdgeRadiusRatio () > 0)
 	displayEdgesTorusTubes (viewNumber);
     else
 	displayEdgesTorusLines (viewNumber);
@@ -1994,7 +1995,7 @@ void WidgetGl::displayEdgesTorus (ViewNumber::Enum viewNumber) const
 
 void WidgetGl::displayFacesTorus (ViewNumber::Enum viewNumber) const
 {
-    if (GetSettings ()->GetEdgeRadiusRatio () > 0)
+    if (GetSettings ().GetEdgeRadiusRatio () > 0)
 	displayFacesTorusTubes (viewNumber);
     else
 	displayFacesTorusLines ();
@@ -2013,7 +2014,7 @@ void WidgetGl::displayEdgesTorusTubes (ViewNumber::Enum viewNumber) const
 	edgeSet.begin (), edgeSet.end (),
 	DisplayEdgeTorus<DisplaySegmentQuadric, 
 	DisplaySegmentArrowQuadric, false>(
-	    *GetSettings (), viewNumber, simulation.Is2D (),
+	    GetSettings (), viewNumber, simulation.Is2D (),
             DisplayElement::FOCUS, 
 	    false, 0.0, GetQuadricObject ()));
     glPopAttrib ();
@@ -2028,7 +2029,7 @@ void WidgetGl::displayEdgesTorusLines (ViewNumber::Enum viewNumber) const
     for_each (edgeSet.begin (), edgeSet.end (),
 	      DisplayEdgeTorus<DisplaySegment, 
 	      DisplaySegmentArrow1, false> (
-		  *GetSettings (), viewNumber, simulation.Is2D (),
+		  GetSettings (), viewNumber, simulation.Is2D (),
                   DisplayElement::FOCUS, false, 0.0, GetQuadricObject ()));
     glPopAttrib ();
 }
@@ -2036,7 +2037,7 @@ void WidgetGl::displayEdgesTorusLines (ViewNumber::Enum viewNumber) const
 
 void WidgetGl::displayRotationCenter (ViewNumber::Enum viewNumber) const
 {
-    if (GetSettings ()->GetInteractionMode () == InteractionMode::ROTATE)
+    if (GetSettings ().GetInteractionMode () == InteractionMode::ROTATE)
     {
 	const ViewSettings& vs = GetViewSettings (viewNumber);
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
@@ -2072,7 +2073,7 @@ void WidgetGl::displayBodyCenters (
 	    simulation.GetFoam (currentTime).GetBodies ();
 	for_each (bodies.begin (), bodies.end (),
 		  DisplayBodyCenter (
-		      *GetSettings (), bodySelector, useZPos, zPos));
+		      GetSettings (), bodySelector, useZPos, zPos));
 	glPopAttrib ();
     }
 }
@@ -2233,7 +2234,7 @@ void WidgetGl::displayFacesContour (const Foam::Faces& faces, bool is2D) const
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     for_each (faces.begin (), faces.end (),
               DisplayFaceHighlightColor<HighlightNumber::H0,
-              DisplayFaceEdges<DisplayEdge> > (*GetSettings (), is2D));
+              DisplayFaceEdges<DisplayEdge> > (GetSettings (), is2D));
 
     glPopAttrib ();
 }
@@ -2251,7 +2252,7 @@ void WidgetGl::displayFacesContour (
 	      DisplayBody<
 	      DisplayFaceHighlightColor<HighlightNumber::H0,
 	      DisplayFaceEdges<DisplayEdge> > > (
-                  *GetSettings (), simulation.Is2D (), bodySelector, 
+                  GetSettings (), simulation.Is2D (), bodySelector, 
                   DisplayElement::USER_DEFINED_CONTEXT, viewNumber));
     glPopAttrib ();
 }
@@ -2302,7 +2303,7 @@ void WidgetGl::displayFacesInterior (
 	    DisplayBodyBase<>::BeginContext ();
 	for_each (beginEnd[i].m_begin, beginEnd[i].m_end,
 		  DisplayBody<DisplayFaceBodyScalarColor<> > (
-		      *GetSettings (), simulation.Is2D (), bodySelector, 
+		      GetSettings (), simulation.Is2D (), bodySelector, 
 		      DisplayElement::USER_DEFINED_CONTEXT, viewNumber));
 	if (beginEnd[i].m_isContext)
 	    DisplayBodyBase<>::EndContext ();
@@ -2317,7 +2318,7 @@ void WidgetGl::displayFacesInterior (const Foam::Faces& faces) const
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
     for_each (faces.begin (), faces.end (),
-	      DisplayFaceDmpColor<0xff000000>(*GetSettings ()));
+	      DisplayFaceDmpColor<0xff000000>(GetSettings ()));
     glPopAttrib ();
 }
 
@@ -2333,7 +2334,7 @@ void WidgetGl::displayFacesTorusTubes (ViewNumber::Enum viewNumber) const
 	DisplayEdgeTorus<
 	DisplaySegmentQuadric, 
 	DisplaySegmentArrowQuadric, true> > > (
-            *GetSettings (), simulation.Is2D ()));
+            GetSettings (), simulation.Is2D ()));
     glPopAttrib ();
 }
 
@@ -2348,7 +2349,7 @@ void WidgetGl::displayFacesTorusLines () const
 	      DisplayFaceHighlightColor<HighlightNumber::H0,
 	      DisplayFaceEdges<
 	      DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow1, true> > > (
-		  *GetSettings (), DisplayElement::FOCUS) );
+		  GetSettings (), DisplayElement::FOCUS) );
     glPopAttrib ();
 }
 
@@ -2368,7 +2369,7 @@ void WidgetGl::displayBubblePathsBody (ViewNumber::Enum viewNumber) const
 	    DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H0,
 	    DisplayFaceEdges<DisplayEdgePropertyColor<
 	    DisplayElement::DONT_DISPLAY_TESSELLATION_EDGES> > > > (
-		*GetSettings (), simulation.Is2D (), bodySelector, 
+		GetSettings (), simulation.Is2D (), bodySelector, 
                 DisplayElement::USER_DEFINED_CONTEXT,
 		viewNumber, vs.IsTimeDisplacementUsed (), zPos));
     }
@@ -2423,15 +2424,15 @@ void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     const BodiesAlongTime::BodyMap& bats = 
 	GetSimulation ().GetBodiesAlongTime ().GetBodyMap ();
-    if (GetSettings ()->GetEdgeRadiusRatio () > 0 && 
-	! GetSettings ()->IsBubblePathsLineUsed ())
+    if (GetSettings ().GetEdgeRadiusRatio () > 0 && 
+	! GetSettings ().IsBubblePathsLineUsed ())
     {
-	if (GetSettings ()->IsBubblePathsTubeUsed ())
+	if (GetSettings ().IsBubblePathsTubeUsed ())
 	    for_each (
 		bats.begin (), bats.end (),
 		DisplayBubblePaths<
 		SetterTextureCoordinate, DisplaySegmentTube> (
-		    *GetSettings (), GetViewNumber (), simulation.Is2D (),
+		    GetSettings (), GetViewNumber (), simulation.Is2D (),
                     bodySelector, GetQuadricObject (),
 		    GetSimulation (viewNumber),
                     vs.GetBubblePathsTimeBegin (), vs.GetBubblePathsTimeEnd (),
@@ -2441,7 +2442,7 @@ void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
 		bats.begin (), bats.end (),
 		DisplayBubblePaths<
 		SetterTextureCoordinate, DisplaySegmentQuadric> (
-		    *GetSettings (), GetViewNumber (), simulation.Is2D (),
+		    GetSettings (), GetViewNumber (), simulation.Is2D (),
                     bodySelector, GetQuadricObject (),
 		    GetSimulation (viewNumber),
                     vs.GetBubblePathsTimeBegin (), vs.GetBubblePathsTimeEnd (),
@@ -2451,7 +2452,7 @@ void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
 	for_each (bats.begin (), bats.end (),
 		  DisplayBubblePaths<SetterTextureCoordinate, 
 		  DisplaySegment> (
-		      *GetSettings (), GetViewNumber (), simulation.Is2D (),
+		      GetSettings (), GetViewNumber (), simulation.Is2D (),
                       bodySelector, GetQuadricObject (),
 		      GetSimulation (viewNumber),
                       vs.GetBubblePathsTimeBegin (), vs.GetBubblePathsTimeEnd (),
@@ -2580,10 +2581,10 @@ void WidgetGl::contextMenuEvent (QContextMenuEvent *event)
     m_contextMenuPosObject = toObjectTransform (m_contextMenuPosWindow);
     QMenu menu (this);
     G3D::Rect2D barRect = 
-        GetSettings ()->GetViewColorBarRect (GetViewRect ());
-    float xTranslateBar = GetSettings ()->GetBarLabelsSize ().x;
+        GetSettings ().GetViewColorBarRect (GetViewRect ());
+    float xTranslateBar = GetSettings ().GetBarLabelsSize ().x;
     G3D::Rect2D overlayBarRect = 
-	GetSettings ()->GetViewOverlayBarRect (GetViewRect ()) + 
+	GetSettings ().GetViewOverlayBarRect (GetViewRect ()) + 
         G3D::Vector2 (xTranslateBar, 0);
     if (barRect.contains (QtToOpenGl (m_contextMenuPosWindow, height ())))
 	contextMenuEventColorBar (&menu);
@@ -2598,7 +2599,7 @@ void WidgetGl::contextMenuEvent (QContextMenuEvent *event)
 
 void WidgetGl::displayTwoHalvesLine (ViewNumber::Enum viewNumber) const
 {
-    const Settings& settings = *GetSettings ();
+    const Settings& settings = GetSettings ();
     if (viewNumber == ViewNumber::VIEW1 && settings.IsTwoHalvesView ())
     {
         glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
@@ -2623,19 +2624,19 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
     glDisable (GL_DEPTH_TEST);
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     float xTranslateBar = 0;
-    if (GetSettings ()->GetColorBarType (viewNumber) != ColorBarType::NONE)
+    if (GetSettings ().GetColorBarType (viewNumber) != ColorBarType::NONE)
     {
 	G3D::Rect2D viewColorBarRect = 
-            GetSettings ()->GetViewColorBarRect (viewRect);
+            GetSettings ().GetViewColorBarRect (viewRect);
 	displayTextureColorBar (
 	    m_colorBarTexture[viewNumber], viewNumber, viewColorBarRect);
-        xTranslateBar = GetSettings ()->GetBarLabelsSize (viewNumber).x;
+        xTranslateBar = GetSettings ().GetBarLabelsSize (viewNumber).x;
     }
     if (vs.IsVelocityShown ())
     {
         const VectorAverage& va = 
             GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
-        G3D::Rect2D barRect = GetSettings ()->GetViewOverlayBarRect (viewRect) + 
+        G3D::Rect2D barRect = GetSettings ().GetViewOverlayBarRect (viewRect) + 
             G3D::Vector2 (xTranslateBar, 0);
         if (va.IsColorMapped ())
             displayTextureColorBar (
@@ -2645,8 +2646,8 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
     }
     displayViewTitle (viewNumber);
     if (viewNumber == GetViewNumber () && 
-	GetSettings ()->IsViewFocusShown () &&
-	GetSettings ()->GetViewCount () != ViewCount::ONE)
+	GetSettings ().IsViewFocusShown () &&
+	GetSettings ().GetViewCount () != ViewCount::ONE)
 	displayViewFocus (viewNumber);
     displayTwoHalvesLine (viewNumber);
     cleanupTransformViewport ();
@@ -2676,7 +2677,7 @@ void WidgetGl::cleanupTransformViewport ()
 
 void WidgetGl::displayViewTitle (ViewNumber::Enum viewNumber)
 {
-    if (! GetSettings ()->IsTitleShown ())
+    if (! GetSettings ().IsTitleShown ())
 	return;
     ViewSettings& vs = GetViewSettings (viewNumber);
     displayViewText (viewNumber, GetSimulation (viewNumber).GetName (), 0);
@@ -2694,7 +2695,7 @@ void WidgetGl::displayViewText (
 	viewRect.x0 () + (float (viewRect.width ()) - fm.width (text)) / 2;
     const int textY = OpenGlToQt (
 	viewRect.y1 () - fm.lineSpacing () * (row + 1), height ());
-    glColor (GetSettings ()->GetHighlightColor (viewNumber, HighlightNumber::H0));
+    glColor (GetSettings ().GetHighlightColor (viewNumber, HighlightNumber::H0));
     renderText (textX, textY, text, font);    
 }
 
@@ -2713,7 +2714,7 @@ void WidgetGl::displayViewFocus (ViewNumber::Enum viewNumber)
     G3D::Rect2D rect = G3D::Rect2D::xyxy(
 	viewRect.x0y0 () + margin, viewRect.x1y1 () - margin);
     glColor (
-        GetSettings ()->GetHighlightColor (viewNumber, HighlightNumber::H0));
+        GetSettings ().GetHighlightColor (viewNumber, HighlightNumber::H0));
     glPolygonMode (GL_FRONT, GL_LINE);
     DisplayBox (rect);
 }
@@ -2722,7 +2723,7 @@ void WidgetGl::displayTextureColorBar (
     GLuint texture,
     ViewNumber::Enum viewNumber, const G3D::Rect2D& br)
 {
-    G3D::Vector2 s = GetSettings ()->GetBarLabelsSize (viewNumber);
+    G3D::Vector2 s = GetSettings ().GetBarLabelsSize (viewNumber);
     G3D::Rect2D barRect = G3D::Rect2D::xywh (
         br.x0 (), br.y0 () + s.y, 
         br.width (), br.height () - s.y);
@@ -2742,7 +2743,7 @@ void WidgetGl::displayTextureColorBar (
     glDisable (GL_TEXTURE_1D);
 
     glColor (
-        GetSettings ()->GetHighlightColor (viewNumber, HighlightNumber::H0));
+        GetSettings ().GetHighlightColor (viewNumber, HighlightNumber::H0));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glColor (Qt::black);
     DisplayBox (barRect);
@@ -2756,7 +2757,7 @@ void WidgetGl::displayBarLabels (
     ViewNumber::Enum viewNumber,
     const ColorBarModel& cbm, const G3D::Rect2D& barRect)
 {
-    if (! GetSettings ()->BarLabelsShown ())
+    if (! GetSettings ().BarLabelsShown ())
         return;
     const Simulation& simulation = GetSimulation (viewNumber);
     float onePixelInObjectSpace = GetOnePixelInObjectSpace (simulation.Is2D ());
@@ -3145,7 +3146,7 @@ void WidgetGl::CacheUpdateSeedsCalculateStreamline (ViewNumber::Enum viewNumber)
 void WidgetGl::saveVelocity (ViewNumber::Enum viewNumber,
                              vtkSmartPointer<vtkImageData> velocity) const
 {
-    if (! GetSettings ()->IsVelocityFieldSaved ())
+    if (! GetSettings ().IsVelocityFieldSaved ())
         return;
     string cacheDir = GetSimulation (viewNumber).GetCacheDir ();
     ostringstream ostr;    
@@ -3314,8 +3315,8 @@ void WidgetGl::displayVelocityStreamlines (ViewNumber::Enum viewNumber) const
         vtkSmartPointer<vtkPolyData> streamline = m_streamline[viewNumber];
         vtkSmartPointer<vtkCellArray> lines = streamline->GetLines ();
         lines->InitTraversal ();
-        glColor (GetSettings ()->GetHighlightColor (viewNumber, 
-                                                    HighlightNumber::H0));
+        glColor (GetSettings ().GetHighlightColor (viewNumber, 
+                                                   HighlightNumber::H0));
         VTK_CREATE(vtkIdList, points);
         while (lines->GetNextCell (points))
             displayVelocityStreamline (viewNumber, points);
@@ -3409,7 +3410,7 @@ void WidgetGl::CompileUpdate (ViewNumber::Enum viewNumber)
 
 void WidgetGl::CompileUpdateAll ()
 {
-    for (size_t i = 0; i < GetSettings ()->GetViewCount (); ++i)
+    for (size_t i = 0; i < GetViewCount (); ++i)
         CompileUpdate (ViewNumber::Enum (i));
 }
 
@@ -3649,7 +3650,7 @@ void WidgetGl::AddLinkedTimeEvent ()
     makeCurrent ();
     try
     {
-	GetSettings ()->AddLinkedTimeEvent ();
+	GetSettingsPtr ()->AddLinkedTimeEvent ();
     }
     catch (exception& e)        
     {
@@ -3662,7 +3663,7 @@ void WidgetGl::ResetLinkedTimeEvents ()
     makeCurrent ();
     try
     {
-	GetSettings ()->ResetLinkedTimeEvents ();
+	GetSettingsPtr ()->ResetLinkedTimeEvents ();
     }
     catch (exception& e)        
     {
@@ -3723,7 +3724,7 @@ void WidgetGl::mousePressEvent(QMouseEvent *event)
     setView (p);
     if (event->button () != Qt::LeftButton)
 	return;
-    switch (GetSettings ()->GetInteractionMode ())
+    switch (GetSettings ().GetInteractionMode ())
     {
     case InteractionMode::SELECT:
 	select (event->pos ());
@@ -3741,11 +3742,11 @@ void WidgetGl::mousePressEvent(QMouseEvent *event)
 void WidgetGl::mouseMoveEvent(QMouseEvent *event)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
-	switch (GetSettings ()->GetInteractionMode ())
+	switch (GetSettings ().GetInteractionMode ())
 	{
 	case InteractionMode::ROTATE:
 	    mouseMoveRotate (event, viewNumber);
@@ -3788,7 +3789,7 @@ void WidgetGl::ResetTransformAll ()
 void WidgetGl::ResetTransformFocus ()
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3808,7 +3809,7 @@ void WidgetGl::ResetTransformFocus ()
 void WidgetGl::ResetTransformContext ()
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3826,7 +3827,7 @@ void WidgetGl::ResetTransformContext ()
 void WidgetGl::ResetTransformGrid ()
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3841,7 +3842,7 @@ void WidgetGl::ResetTransformGrid ()
 void WidgetGl::ResetTransformLight ()
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3935,13 +3936,13 @@ void WidgetGl::OverlayBarClampClear ()
 
 void WidgetGl::ToggledVelocityFieldSaved (bool saved)
 {
-    GetSettings ()->SetVelocityFieldSaved (saved);
+    GetSettingsPtr ()->SetVelocityFieldSaved (saved);
     update ();
 }
 
 void WidgetGl::ToggledBarLabelsShown (bool shown)
 {
-    GetSettings ()->SetBarLabelsShown (shown);
+    GetSettingsPtr ()->SetBarLabelsShown (shown);
     update ();
 }
 
@@ -3974,7 +3975,7 @@ void WidgetGl::ToggledDirectionalLightEnabled (bool checked)
 void WidgetGl::ToggledDeformationShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3987,7 +3988,7 @@ void WidgetGl::ToggledDeformationShown (bool checked)
 void WidgetGl::ToggledDeformationShownGrid (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -4001,7 +4002,7 @@ void WidgetGl::ToggledDeformationShownGrid (bool checked)
 void WidgetGl::ToggledVelocityShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -4014,7 +4015,7 @@ void WidgetGl::ToggledVelocityShown (bool checked)
 void WidgetGl::ToggledVelocityGridShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -4027,7 +4028,7 @@ void WidgetGl::ToggledVelocityGridShown (bool checked)
 void WidgetGl::ToggledVelocityClampingShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -4041,7 +4042,7 @@ void WidgetGl::ToggledVelocityClampingShown (bool checked)
 void WidgetGl::ToggledDeformationGridCellCenterShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -4055,7 +4056,7 @@ void WidgetGl::ToggledDeformationGridCellCenterShown (bool checked)
 void WidgetGl::ToggledVelocityGridCellCenterShown (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -4069,7 +4070,7 @@ void WidgetGl::ToggledVelocityGridCellCenterShown (bool checked)
 void WidgetGl::ToggledVelocitySameSize (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -4081,7 +4082,7 @@ void WidgetGl::ToggledVelocitySameSize (bool checked)
 void WidgetGl::ToggledVelocityColorMapped (bool checked)
 {
     makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
         ViewNumber::Enum viewNumber = vn[i];
@@ -4094,21 +4095,21 @@ void WidgetGl::ToggledVelocityColorMapped (bool checked)
 void WidgetGl::ToggledMissingPressureShown (bool checked)
 {
     makeCurrent ();
-    GetSettings ()->SetMissingPressureShown (checked);
+    GetSettingsPtr ()->SetMissingPressureShown (checked);
     CompileUpdateAll ();
 }
 
 void WidgetGl::ToggledMissingVolumeShown (bool checked)
 {
     makeCurrent ();
-    GetSettings ()->SetMissingVolumeShown (checked);
+    GetSettingsPtr ()->SetMissingVolumeShown (checked);
     CompileUpdateAll ();
 }
 
 void WidgetGl::ToggledObjectVelocityShown (bool checked)
 {
     makeCurrent ();
-    GetSettings ()->SetObjectVelocityShown (checked);
+    GetSettingsPtr ()->SetObjectVelocityShown (checked);
     CompileUpdateAll ();
 }
 
@@ -4185,14 +4186,14 @@ void WidgetGl::ToggledStandaloneElementsShown (bool checked)
 void WidgetGl::ToggledConstraintsShown (bool checked)
 {
     makeCurrent ();
-    GetSettings ()->SetConstraintsShown (checked);
+    GetSettingsPtr ()->SetConstraintsShown (checked);
     CompileUpdateAll ();
 }
 
 void WidgetGl::ToggledConstraintPointsShown (bool checked)
 {
     makeCurrent ();
-    GetSettings ()->SetConstraintPointsShown (checked);
+    GetSettingsPtr ()->SetConstraintPointsShown (checked);
     CompileUpdateAll ();
 }
 
@@ -4250,7 +4251,7 @@ void WidgetGl::ToggledEdgesShown (bool checked)
 void WidgetGl::ToggledEdgesTessellationShown (bool checked)
 {
     makeCurrent ();
-    GetSettings ()->SetEdgesTessellationShown (checked);
+    GetSettingsPtr ()->SetEdgesTessellationShown (checked);
     CompileUpdateAll ();
 }
 
@@ -4260,7 +4261,7 @@ void WidgetGl::ToggledBubblePathsTubeUsed (bool checked)
 {
     cdbg << "center path tube used: " << checked << endl;
     makeCurrent ();
-    GetSettings ()->SetBubblePathsTubeUsed (checked);
+    GetSettingsPtr ()->SetBubblePathsTubeUsed (checked);
     CompileUpdateAll ();
 }
 
@@ -4268,7 +4269,7 @@ void WidgetGl::ToggledBubblePathsLineUsed (bool checked)
 {
     cdbg << "center path line used: " << checked << endl;
     makeCurrent ();
-    GetSettings ()->SetBubblePathsLineUsed (checked);
+    GetSettingsPtr ()->SetBubblePathsLineUsed (checked);
     CompileUpdateAll ();
 }
 
@@ -4276,7 +4277,7 @@ void WidgetGl::ToggledBubblePathsLineUsed (bool checked)
 void WidgetGl::ToggledTorusDomainClipped (bool checked)
 {
     makeCurrent ();
-    GetSettings ()->GetViewSettings ().SetDomainClipped (checked);
+    GetSettingsPtr ()->GetViewSettings ().SetDomainClipped (checked);
     update ();
 }
 
@@ -4338,7 +4339,7 @@ void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
 	setVisible (false);
     else
     {
-	vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+	vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
 	for (size_t i = 0; i < vn.size (); ++i)
 	{
 	    ViewNumber::Enum viewNumber = vn[i];
@@ -4449,7 +4450,7 @@ void WidgetGl::ValueChangedKDEMultiplier (int multiplier)
 void WidgetGl::ValueChangedNoiseStart (int index)
 {
     makeCurrent ();
-    for (size_t i = 0; i < GetSettings ()->GetViewCount (); ++i)
+    for (size_t i = 0; i < GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	float noiseStart = 0.5 + 0.5 * index / 99;
@@ -4466,7 +4467,7 @@ void WidgetGl::ValueChangedNoiseStart (int index)
 void WidgetGl::ValueChangedNoiseAmplitude (int index)
 {
     makeCurrent ();
-    for (size_t i = 0; i < GetSettings ()->GetViewCount (); ++i)
+    for (size_t i = 0; i < GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	float noiseAmplitude = 5.0 + index / 10.0;
@@ -4483,7 +4484,7 @@ void WidgetGl::ValueChangedNoiseAmplitude (int index)
 void WidgetGl::ValueChangedNoiseFrequency (int index)
 {
     makeCurrent ();
-    for (size_t i = 0; i < GetSettings ()->GetViewCount (); ++i)
+    for (size_t i = 0; i < GetViewCount (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	float noiseFrequency = (1.0 + index) / 2.0;
@@ -4558,7 +4559,7 @@ void WidgetGl::ValueChangedT1sKernelSigma (double value)
 {
     (void)value;
     makeCurrent ();
-    GetSettings ()->SetOneOrTwoViews (
+    GetSettingsPtr ()->SetOneOrTwoViews (
         this, &WidgetGl::valueChangedT1sKernelSigma);
 }
 
@@ -4566,7 +4567,7 @@ void WidgetGl::ToggledT1sKernelTextureShown (bool checked)
 {
     makeCurrent ();
     (void)checked;
-    GetSettings ()->SetOneOrTwoViews (
+    GetSettingsPtr ()->SetOneOrTwoViews (
         this, &WidgetGl::toggledT1sKernelTextureShown);
 }
 
@@ -4627,10 +4628,11 @@ void WidgetGl::ValueChangedEdgesRadius (int sliderValue)
 {
     makeCurrent ();
     size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
-    GetSettings ()->SetEdgeRadiusRatio (
+    GetSettingsPtr ()->SetEdgeRadiusRatio (
         static_cast<double>(sliderValue) / maximum);
     const Simulation& simulation = GetSimulation ();
-    GetSettings ()->SetEdgeArrow (GetOnePixelInObjectSpace (simulation.Is2D ()));
+    GetSettingsPtr ()->SetEdgeArrow (
+        GetOnePixelInObjectSpace (simulation.Is2D ()));
     CompileUpdateAll ();
 }
 

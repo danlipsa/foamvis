@@ -24,7 +24,8 @@ class AttributeAverages : public AverageInterface
 public:
     AttributeAverages (
         ViewNumber::Enum viewNumber,
-        const Settings& settings, const SimulationGroup& simulationGroup);
+        boost::shared_ptr<Settings> settings, 
+        boost::shared_ptr<const SimulationGroup> simulationGroup);
 
     const ForceAverage& GetForceAverage () const
     {

@@ -62,7 +62,8 @@ const char* MainWindow::PAUSE_TEXT ("||");
 // Methods
 // ======================================================================
 
-MainWindow::MainWindow (SimulationGroup& simulationGroup) : 
+MainWindow::MainWindow (
+    boost::shared_ptr<const SimulationGroup> simulationGroup) : 
     m_timer (new QTimer(this)),
     m_processBodyTorus (0), 
     m_debugTranslatedBody (false),
@@ -71,7 +72,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     m_playForward (false),
     m_playReverse (false)
 {
-    SetSimulationGroup (&simulationGroup);
+    SetSimulationGroup (simulationGroup);
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
         m_averageCache[i].reset (new AverageCache ());
     // for anti-aliased lines
@@ -84,11 +85,11 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     SetSettings(boost::shared_ptr<Settings> (
                     new Settings (simulationGroup, 
                                   widgetGl->width (), widgetGl->height ())));
-    connect (GetSettings ().get (),
+    connect (GetSettingsPtr ().get (),
              SIGNAL (SelectionChanged (ViewNumber::Enum)),
              this,
              SLOT (SelectionChangedSettings (ViewNumber::Enum)));
-    widgetHistogram->Init (GetSettings (), &simulationGroup);
+    widgetHistogram->Init (GetSettingsPtr (), simulationGroup);
     connect (
 	widgetHistogram,
 	SIGNAL (SelectionChanged (int)),
@@ -99,15 +100,14 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     setupButtonGroups ();
 
 
-    widgetGl->Init (GetSettings (), &simulationGroup, &m_averageCache);
+    widgetGl->Init (GetSettingsPtr (), simulationGroup, &m_averageCache);
     widgetGl->SetStatus (labelStatusBar);
 
-    widgetVtk->Init (GetSettings (), &simulationGroup);
-    size_t index3DSimulation = simulationGroup.GetIndex3DSimulation ();
+    widgetVtk->Init (GetSettingsPtr (), simulationGroup);
+    size_t index3DSimulation = simulationGroup->GetIndex3DSimulation ();
     if (index3DSimulation != INVALID_INDEX)
     {
-	const Foam& foam = 
-            simulationGroup.GetSimulation (index3DSimulation).GetFoam (0);
+	const Foam& foam = GetSimulation (index3DSimulation).GetFoam (0);
         boost::shared_ptr<Application> app = Application::Get ();
         QFont defaultFont = app->font ();
 	widgetVtk->Average3dCreatePipeline (
@@ -116,14 +116,14 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     }
     setupColorBarModels ();
     setupViews ();
-    initComboBoxSimulation (simulationGroup);
+    initComboBoxSimulation (*simulationGroup);
     configureInterface ();
     createActions ();
     setTabOrder (radioButtonBubblesPaths, sliderTimeSteps);
     string title ("FoamVis");
-    if (simulationGroup.size () == 1)
+    if (simulationGroup->size () == 1)
     {
-	Simulation& simulation = simulationGroup.GetSimulation (0);
+	const Simulation& simulation = GetSimulation (0);
 	title += " - ";
 	title += simulation.GetName ();
     }
@@ -134,7 +134,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
 
     m_timer->setInterval (20);
     //initTranslatedBody ();
-    configureInterfaceDataDependent (simulationGroup);    
+    configureInterfaceDataDependent (*simulationGroup);    
     ValueChangedSliderTimeSteps (0);
     ButtonClickedViewType (ViewType::FACES);
     widgetSave->resize (720, 480);
@@ -215,14 +215,14 @@ void MainWindow::configureInterfaceDataDependent (
     for (size_t i = 1; i < viewCount; ++i)
     {
         ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	GetSettings ()->SetViewNumber (viewNumber);
+	GetSettingsPtr ()->SetViewNumber (viewNumber);
 	comboBoxSimulation->setCurrentIndex (i);
     }
     initOverlayBarModel ();
 }
 
 
-void MainWindow::initComboBoxSimulation (SimulationGroup& simulationGroup)
+void MainWindow::initComboBoxSimulation (const SimulationGroup& simulationGroup)
 {
     size_t simulationsCount = simulationGroup.size ();
     if (simulationsCount == 1)
@@ -316,7 +316,7 @@ void MainWindow::connectSignals ()
     connectColorBarHistogram (true);
     
     connect (
-	GetSettings ().get (),
+	GetSettingsPtr ().get (),
 	SIGNAL (ViewChanged (ViewNumber::Enum)),
 	this,
 	SLOT (ViewToUI (ViewNumber::Enum)));
@@ -576,7 +576,7 @@ void MainWindow::updateAllViews3DAverage ()
 
 void MainWindow::addVtkView (ViewNumber::Enum viewNumber)
 {
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     const BodySelector& bodySelector = vs.GetBodySelector ();
     const ColorBarModel& colorBarModel = *getColorBarModel (viewNumber);
     QwtDoubleInterval interval;
@@ -720,10 +720,10 @@ void MainWindow::setupColorBarModels (size_t simulationIndex,
 
 void MainWindow::setupViews ()
 {
-    for (size_t i = 0; i < GetSettings ()->GetViewSettingsSize (); ++i)
+    for (size_t i = 0; i < GetSettings ().GetViewSettingsSize (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-        const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+        const ViewSettings& vs = GetViewSettings (viewNumber);
 	widgetGl->SetBodyOrFaceScalar (
 	    viewNumber, 
 	    m_colorBarModelBodyScalar
@@ -865,7 +865,7 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel () const
 boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
     ViewNumber::Enum viewNumber) const
 {
-    ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
     size_t simulationIndex = vs.GetSimulationIndex ();
     ViewType::Enum viewType = vs.GetViewType ();
     size_t property = vs.GetBodyOrFaceScalar ();
@@ -971,7 +971,7 @@ void MainWindow::SelectionChangedSettings (ViewNumber::Enum viewNumber)
 void MainWindow::SelectionChangedHistogram (int vn)
 {
     ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (vn);
-    ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
     const Histogram& histogram = widgetHistogram->GetHistogram (viewNumber);
     BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT (
@@ -1038,7 +1038,7 @@ void MainWindow::updateStretch ()
     size_t vtkCount = GetVtkCount ();
     if (glCount && vtkCount)
     {
-	ViewLayout::Enum layout = GetSettings ()->GetViewLayout ();
+	ViewLayout::Enum layout = GetSettings ().GetViewLayout ();
 	updateStretch (widgetGl, layout, glCount);
 	updateStretch (widgetVtk, layout, vtkCount);
     }
@@ -1051,7 +1051,7 @@ void MainWindow::updateStretch ()
 
 void MainWindow::CurrentIndexChangedViewLayout (int index)
 {
-    GetSettings ()->SetViewLayout (ViewLayout::Enum (index));
+    GetSettingsPtr ()->SetViewLayout (ViewLayout::Enum (index));
     updateStretch ();
     widgetGl->CompileUpdate ();
     widgetVtk->update ();
@@ -1062,8 +1062,8 @@ void MainWindow::CurrentIndexChangedViewLayout (int index)
 void MainWindow::CurrentIndexChangedViewCount (int index)
 {
     ViewCount::Enum viewCount = ViewCount::FromSizeT (index + 1);
-    GetSettings ()->SetViewCount (viewCount);
-    GetSettings ()->SetViewNumber (ViewNumber::VIEW0);
+    GetSettingsPtr ()->SetViewCount (viewCount);
+    GetSettingsPtr ()->SetViewNumber (ViewNumber::VIEW0);
     widgetGl->ForAllViews (
 	boost::bind (&WidgetGl::SetViewTypeAndCameraDistance, widgetGl, _1));
 
@@ -1074,7 +1074,8 @@ void MainWindow::CurrentIndexChangedViewCount (int index)
     else
 	::setVisible (widgetsViewLayout, false);
     checkBoxTitleShown->setChecked (viewCount != ViewCount::ONE);    
-    GetSettings ()->SetAverageTimeWindow (GetSettings ()->GetLinkedTimeSteps ());
+    GetSettingsPtr ()->SetAverageTimeWindow (
+        GetSettings ().GetLinkedTimeSteps ());
     widgetHistogram->UpdateHidden ();
     updateAllViews3DAverage ();
 }
@@ -1105,20 +1106,20 @@ void MainWindow::CurrentIndexChangedWindowLayout (int index)
 
 void MainWindow::ToggledBarLarge (bool large)
 {
-    GetSettings ()->SetBarLarge (large);
+    GetSettingsPtr ()->SetBarLarge (large);
     widgetGl->update ();
 }
 
 void MainWindow::ToggledAxesShown (bool checked)
 {
-    GetSettings ()->SetAxesShown (checked);
+    GetSettingsPtr ()->SetAxesShown (checked);
     widgetGl->CompileUpdateAll ();
 }
 
 
 void MainWindow::ToggledViewFocusShown (bool checked)
 {
-    GetSettings ()->SetViewFocusShown (checked);
+    GetSettingsPtr ()->SetViewFocusShown (checked);
     widgetGl->CompileUpdate ();
     widgetVtk->UpdateFocus ();
     widgetHistogram->UpdateFocus ();
@@ -1126,7 +1127,7 @@ void MainWindow::ToggledViewFocusShown (bool checked)
 
 void MainWindow::initOverlayBarModel ()
 {
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -1156,7 +1157,7 @@ void MainWindow::ToggledHistogramGridShown (bool checked)
 void MainWindow::ToggledHistogramShown (bool checked)
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetHistogramShown (checked);
     widgetHistogram->UpdateColorMapped (viewNumber, 
                                         getColorBarModel (viewNumber));
@@ -1169,7 +1170,7 @@ void MainWindow::ToggledHistogramShown (bool checked)
 void MainWindow::ToggledHistogramColorMapped (bool checked)
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetHistogramOption (HistogramType::COLOR_MAPPED, checked);
     widgetHistogram->UpdateColorMapped (
         viewNumber, getColorBarModel (viewNumber));
@@ -1181,7 +1182,7 @@ void MainWindow::ToggledHistogramColorMapped (bool checked)
 void MainWindow::ToggledHistogramAllTimesteps (bool checked)
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetHistogramOption (HistogramType::ALL_TIME_STEPS_SHOWN, checked);
     widgetHistogram->UpdateColorMapped (
         viewNumber, getColorBarModel (viewNumber));
@@ -1194,11 +1195,11 @@ void MainWindow::ToggledHistogramAllTimesteps (bool checked)
 void MainWindow::CellClickedLinkedTimeEvents (int row, int column)
 {
     (void) column;
-    if (GetSettings ()->GetTimeLinkage () == TimeLinkage::LINKED)
-        sliderTimeSteps->setValue (GetSettings ()->GetLinkedTimeEventTime (row));
+    if (GetSettings ().GetTimeLinkage () == TimeLinkage::LINKED)
+        sliderTimeSteps->setValue (GetSettings ().GetLinkedTimeEventTime (row));
     else
         sliderTimeSteps->setValue (
-            GetSettings ()->GetLinkedTimeEvents (GetViewNumber ())[row]);
+            GetSettings ().GetLinkedTimeEvents (GetViewNumber ())[row]);
 }
 
 void MainWindow::ButtonClickedPlay ()
@@ -1304,7 +1305,7 @@ void MainWindow::ValueChangedFontSize (int fontSize)
 void MainWindow::ValueChangedT1sKernelSigma (double value)
 {
     (void)value;
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -1319,22 +1320,22 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
     __LOG__ (cdbg << "MainWindow::ValueChangedSliderTimeSteps" 
              << timeStep << endl;);
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetLinkedTimeViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetLinkedTimeViewNumbers ();
     boost::array<int, ViewNumber::COUNT> direction;
 
-    GetSettings ()->SetTime (timeStep, &direction);
-    if (GetSettings ()->GetTimeLinkage () == TimeLinkage::LINKED)
+    GetSettingsPtr ()->SetTime (timeStep, &direction);
+    if (GetSettings ().GetTimeLinkage () == TimeLinkage::LINKED)
     {
-        GetSettings ()->UpdateAverageTimeWindow ();
+        GetSettingsPtr ()->UpdateAverageTimeWindow ();
         timeViewToUI (GetViewNumber ());
     }
     for (size_t i = 0; i < vn.size (); ++i)
     {
         ViewNumber::Enum viewNumber = vn[i];
-        ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+        ViewSettings& vs = GetViewSettings (viewNumber);
         const Simulation& simulation = GetSimulation (viewNumber);
         ViewType::Enum viewType = vs.GetViewType ();
-        if (vs.GetTime () < GetSettings ()->GetLinkedTime ())
+        if (vs.GetTime () < GetSettings ().GetLinkedTime ())
             continue;
         widgetHistogram->UpdateColorMapped (
             viewNumber, getColorBarModel (viewNumber));
@@ -1364,10 +1365,10 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 void MainWindow::ValueChangedAverageTimeWindow (int timeSteps)
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
-    if (GetSettings ()->GetTimeLinkage () == TimeLinkage::INDEPENDENT)
+    if (GetSettings ().GetTimeLinkage () == TimeLinkage::INDEPENDENT)
         GetViewSettings (viewNumber).SetTimeWindow (timeSteps);
     else
-        GetSettings ()->SetAverageTimeWindow (timeSteps);
+        GetSettingsPtr ()->SetAverageTimeWindow (timeSteps);
     timeViewToUI (viewNumber);
 }
 
@@ -1376,7 +1377,7 @@ void MainWindow::ButtonClickedVelocityVis (int vv)
 {
     VectorVis::Enum velocityVis = VectorVis::Enum (vv);
 
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
         ViewNumber::Enum viewNumber = vn[i];
@@ -1416,15 +1417,16 @@ void MainWindow::ButtonClickedTorque (int t)
 
 void MainWindow::ButtonClickedViewType (int vt)
 {
-    vector<ViewNumber::Enum> vn = GetSettings ()->GetTwoHalvesViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     ViewType::Enum viewType = ViewType::Enum(vt);
-    ViewType::Enum oldViewType = GetSettings ()->SetTwoHalvesViewType (viewType);
+    ViewType::Enum oldViewType = 
+        GetSettingsPtr ()->SetTwoHalvesViewType (viewType);
     widgetTimeWindow->setVisible (
         viewType == ViewType::AVERAGE || viewType == ViewType::T1S_KDE);
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
-	ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+	ViewSettings& vs = GetViewSettings (viewNumber);
 	const Simulation& simulation = GetSimulation (viewNumber);
 
 	size_t simulationIndex = vs.GetSimulationIndex ();
@@ -1471,14 +1473,14 @@ void MainWindow::ButtonClickedTimeLinkage (int id)
 {
     TimeLinkage::Enum timeLinkage = TimeLinkage::Enum (id);
     if (timeLinkage == TimeLinkage::LINKED && ! 
-        GetSettings ()->HasEqualNumberOfEvents ())
+        GetSettings ().HasEqualNumberOfEvents ())
     {
         ShowMessageBox ("You have to have an equal number of events "
                         "in boths views");
         radioButtonTimeIndependent->setChecked (true);
         return;
     }
-    GetSettings ()->SetTimeLinkage (timeLinkage);
+    GetSettingsPtr ()->SetTimeLinkage (timeLinkage);
     widgetGl->CompileUpdateAll ();
 }
 
@@ -1508,7 +1510,7 @@ void MainWindow::CurrentIndexChangedSelectedLight (int i)
 void MainWindow::CurrentIndexChangedFaceColor (int value)
 {
     (void)value;
-    GetSettings ()->SetOneOrTwoViews (
+    GetSettingsPtr ()->SetOneOrTwoViews (
         this, &MainWindow::currentIndexChangedFaceColor);
 }
 
@@ -1545,8 +1547,8 @@ void MainWindow::ToggledBubblePathsLineUsed (bool checked)
 void MainWindow::ToggledTwoHalvesView (bool reflectedHalfView)
 {
     if (reflectedHalfView &&
-	(GetSettings ()->GetViewCount () != ViewCount::TWO || 
-	 GetSettings ()->GetViewLayout () != ViewLayout::VERTICAL))
+	(GetViewCount () != ViewCount::TWO || 
+	 GetSettings ().GetViewLayout () != ViewLayout::VERTICAL))
     {
 	ShowMessageBox ("This feature works only with two views "
                         "in vertical layout");
@@ -1554,14 +1556,15 @@ void MainWindow::ToggledTwoHalvesView (bool reflectedHalfView)
 	return;
     }
     checkBoxTitleShown->setChecked (false);
-    GetSettings ()->SetTwoHalvesView (reflectedHalfView, GetSimulation (), 
-                                      widgetGl->width (), widgetGl->height ());
+    GetSettingsPtr ()->SetTwoHalvesView (
+        reflectedHalfView, GetSimulation (), 
+        widgetGl->width (), widgetGl->height ());
     widgetGl->CompileUpdate ();
 }
 
 void MainWindow::ToggledTitleShown (bool checked)
 {
-    GetSettings ()->SetTitleShown (checked);
+    GetSettingsPtr ()->SetTitleShown (checked);
     widgetGl->update ();
     widgetVtk->UpdateAverage3dTitle ();
 }
@@ -1604,7 +1607,7 @@ void MainWindow::ShowEditOverlayMap ()
 void MainWindow::ShowEditColorMap ()
 {
     HistogramInfo p = getHistogramInfo (
-	GetSettings ()->GetColorBarType (), widgetGl->GetBodyOrFaceScalar ());
+	GetSettings ().GetColorBarType (), widgetGl->GetBodyOrFaceScalar ());
     m_editColorMap->SetData (
 	p.first, p.second, *getColorBarModel (),
 	checkBoxHistogramGridShown->isChecked ());
@@ -1627,7 +1630,7 @@ void MainWindow::SetHistogramColorBarModel (
 
 void MainWindow::CurrentIndexChangedInteractionMode (int index)
 {
-    GetSettings ()->SetInteractionMode (InteractionMode::Enum(index));
+    GetSettingsPtr ()->SetInteractionMode (InteractionMode::Enum(index));
     InteractionMode::Enum im = InteractionMode::Enum(index);
     radioButtonInteractionLight->setDisabled (true);
     radioButtonInteractionContext->setDisabled (true);
@@ -1669,7 +1672,7 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
 
 void MainWindow::linkedTimeEventsViewToUI (ViewNumber::Enum viewNumber)
 {
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     ostringstream ostr;
     ostr << vs.GetTimeSteps ();
     labelTimeSteps->setText (ostr.str ().c_str ());
@@ -1690,9 +1693,9 @@ void MainWindow::linkedTimeEventsViewToUI (ViewNumber::Enum viewNumber)
         tableWidgetEvents->setItem (eventIndex, 1, item);
 
         string s;
-        if (GetSettings ()->HasEqualNumberOfEvents ())
+        if (GetSettings ().HasEqualNumberOfEvents ())
         {
-            float stretch = GetSettings ()->GetLinkedTimeStretch (
+            float stretch = GetSettings ().GetLinkedTimeStretch (
                 viewNumber, eventIndex);
             ostr.str ("");
             ostr << setprecision (3) << stretch;
@@ -1780,7 +1783,7 @@ void MainWindow::velocityViewToUI ()
 void MainWindow::forceViewToUI ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
     // force
     SetCheckedNoSignals (
@@ -1840,7 +1843,7 @@ void MainWindow::t1sKDEViewToUI (ViewNumber::Enum viewNumber)
 void MainWindow::bubblePathsViewToUI ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
-    const ViewSettings& vs = GetSettings ()->GetViewSettings ();
+    const ViewSettings& vs = GetViewSettings ();
     int property = vs.GetBodyOrFaceScalar ();
     const Simulation& simulation = GetSimulation ();
 
@@ -1863,21 +1866,21 @@ void MainWindow::bubblePathsViewToUI ()
 
 void MainWindow::timeViewToUI (ViewNumber::Enum viewNumber)
 {
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     size_t scalarAverageTimeWindow = 0;
-    if (GetSettings ()->GetTimeLinkage () == TimeLinkage::INDEPENDENT)
+    if (GetSettings ().GetTimeLinkage () == TimeLinkage::INDEPENDENT)
         scalarAverageTimeWindow = vs.GetTimeWindow ();
     else
     {
         ostringstream ostr;
-        scalarAverageTimeWindow = GetSettings ()->GetLinkedTimeWindow ();
+        scalarAverageTimeWindow = GetSettings ().GetLinkedTimeWindow ();
         ostr << vs.GetTimeWindow ();
         labelViewTimeWindow->setText (ostr.str ().c_str ());
     }
     size_t steps;
-    if (GetSettings ()->GetTimeLinkage () == TimeLinkage::INDEPENDENT)
+    if (GetSettings ().GetTimeLinkage () == TimeLinkage::INDEPENDENT)
     {
-        steps = GetSettings ()->GetTimeSteps (viewNumber);
+        steps = GetSettings ().GetTimeSteps (viewNumber);
         if (sliderTimeSteps->maximum () == static_cast<int> (steps) - 1)
             sliderTimeSteps->SetValueNoSignals (vs.GetTime ());
         else
@@ -1885,13 +1888,13 @@ void MainWindow::timeViewToUI (ViewNumber::Enum viewNumber)
     }
     else
     {
-	steps = GetSettings ()->GetLinkedTimeSteps ();
+	steps = GetSettings ().GetLinkedTimeSteps ();
         if (sliderTimeSteps->maximum () == static_cast<int> (steps) - 1)
             sliderTimeSteps->SetValueNoSignals (
-                GetSettings ()->GetLinkedTime ());
+                GetSettings ().GetLinkedTime ());
         else
             sliderTimeSteps->SetValueAndMaxNoSignals (
-                GetSettings ()->GetLinkedTime (), steps - 1);
+                GetSettings ().GetLinkedTime (), steps - 1);
     }
     ViewType::Enum viewType = vs.GetViewType ();
     widgetTimeWindow->setVisible (
@@ -1903,7 +1906,7 @@ void MainWindow::timeViewToUI (ViewNumber::Enum viewNumber)
 
 void MainWindow::settingsViewToUI (ViewNumber::Enum viewNumber)
 {
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     SetValueNoSignals (
         horizontalSliderContextAlpha, 
         ValueToIndex (horizontalSliderContextAlpha, 
@@ -1918,7 +1921,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 {
     (void)prevViewNumber;
     ViewNumber::Enum viewNumber = GetViewNumber ();
-    const ViewSettings& vs = GetSettings ()->GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     int property = vs.GetBodyOrFaceScalar ();
     size_t simulationIndex = vs.GetSimulationIndex ();
