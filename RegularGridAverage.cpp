@@ -12,7 +12,7 @@
 #include "RegularGridAverage.h"
 #include "Settings.h"
 #include "Simulation.h"
-#include "VectorOperations.h"
+#include "VectorOperation.h"
 #include "ViewSettings.h"
 
 

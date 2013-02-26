@@ -1,15 +1,15 @@
 /**
- * @file   VectorOperations.cpp
+ * @file   VectorOperation.cpp
  * @author Dan R. Lipsa
  * @date  25 Feb 2013
  *
- * Implementation for VectorOperations
+ * Implementation for VectorOperation
  *
  */
 
 #include "Debug.h"
 #include "Enums.h"
-#include "VectorOperations.h"
+#include "VectorOperation.h"
 
 // VectorOperation
 //============================================================================

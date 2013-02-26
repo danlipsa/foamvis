@@ -12,7 +12,7 @@
 #include "Face.h"
 #include "Foam.h"
 #include "Utils.h"
-#include "VectorOperations.h"
+#include "VectorOperation.h"
 #include "Vertex.h"
 
 

@@ -20,7 +20,7 @@
 #include "OrientedFace.h"
 #include "ParsingData.h"
 #include "ProcessBodyTorus.h"
-#include "VectorOperations.h"
+#include "VectorOperation.h"
 #include "Vertex.h"
 #include "Simulation.h"
 
