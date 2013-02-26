@@ -230,7 +230,7 @@ public:
 	      boost::function<float (
 		  const boost::shared_ptr<Body>& body)> getBodyScalar) const;
 
-    void AdjustPressure (double adjustment);
+    void SubtractFromPressure (double adjustment);
 
     void CalculateHistogramStatistics (BodyScalar::Enum property,
 				       double min, double max);
@@ -312,6 +312,10 @@ public:
     {
 	return m_constraintFaces;
     }
+    float GetPressureSubtraction () const
+    {
+        return m_pressureSubtraction;
+    }
 
     /**
      * Pretty print the Foam object
@@ -392,6 +396,9 @@ private:
 			       size_t constraintIndex) const;
     G3D::Vector3int16 getVectorOnConstraintTranslation (
 	const G3D::Vector3& v, size_t constraintIndex) const;
+    void subtractFromPressureRegularGrid (
+        vtkSmartPointer<vtkImageData> data) const;
+
 
 public:
     static const double Z_COORDINATE_2D = 0.0;
@@ -447,6 +454,7 @@ private:
     ParametersOperation m_parametersOperation;
     AttributesInfoElements m_attributesInfoElements;
     string m_cachePath;
+    float m_pressureSubtraction;
 };
 
 /**

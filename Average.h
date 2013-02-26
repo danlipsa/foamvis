@@ -36,7 +36,7 @@ public:
 	return m_currentTimeWindow;
     }
     virtual void AverageInit ();
-    size_t GetBodyScalar () const;
+
     G3D::Vector3 GetTranslation (size_t timeStep) const;
     G3D::Vector3 GetTranslation () const;
 

@@ -90,10 +90,6 @@ void Average::AverageStep (int timeDifference, size_t timeWindow)
 }
 
 
-size_t Average::GetBodyScalar () const
-{
-    return GetViewSettings ().GetBodyOrFaceScalar ();
-}
 
 G3D::Vector3 Average::GetTranslation (size_t timeStep) const
 {

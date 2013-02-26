@@ -100,7 +100,7 @@ void parseOptions (
 	    exit (13);
 	}
 	
-	simulation.SetAdjustPressure (
+	simulation.SetPressureAdjusted (
 	    ! co[i]->m_vm.count (Option::m_name[Option::ORIGINAL_PRESSURE]));
 	simulation.Preprocess ();
     }

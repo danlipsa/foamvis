@@ -152,9 +152,9 @@ public:
     void SetTimeSteps (size_t timeSteps);
     string ToString () const;
     string ToHtml () const;
-    void SetAdjustPressure (bool adjustPressure)
+    void SetPressureAdjusted (bool adjustPressure)
     {
-	m_adjustPressure = adjustPressure;
+	m_pressureAdjusted = adjustPressure;
     }
     const DmpObjectInfo& GetDmpObjectInfo () const
     {
@@ -271,7 +271,7 @@ private:
      */
     string m_name;
     vector<HistogramStatistics> m_histogram;
-    bool m_adjustPressure;
+    bool m_pressureAdjusted;
     vector< vector<G3D::Vector3> > m_t1s;
     int m_t1sShift;
     DmpObjectInfo m_dmpObjectInfo;

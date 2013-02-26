@@ -1,5 +1,6 @@
 HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
-	Attribute.h AttributeCreator.h AttributeInfo.h \
+	Attribute.h AttributeAverages.h AttributeCreator.h AttributeInfo.h \
+	AttributeAverages2D.h AttributeAverages3D.h \
 	AttributeHistogram.h Average.h AverageInterface.h\
 	AverageShaders.h PipelineAverage3D.h \
 	Base.h Body.h BrowseSimulations.h\
@@ -28,10 +29,10 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	stable.h StripIterator.h SystemDifferences.h ScalarDisplay.h \
 	T1sKDE.h TensorAverage.h TransferFunctionHistogram.h \
 	TimeStepsSlider.h Utils.h VectorAverage.h \
-	Vertex.h AttributeAverages.h \
-	AttributeAverages2D.h AttributeAverages3D.h ViewSettings.h
+	Vertex.h  VectorOperations.h ViewSettings.h
 SOURCES += Application.cpp ApproximationEdge.cpp\
 	Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
+	AttributeAverages.cpp AttributeAverages2D.cpp AttributeAverages3D.cpp \
 	AttributeHistogram.cpp Average.cpp AverageShaders.cpp \
 	AdjacentBody.cpp PipelineAverage3D.cpp \
 	Base.cpp Body.cpp BodyAlongTime.cpp \
@@ -62,8 +63,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	StripIterator.cpp ScalarDisplay.cpp T1sKDE.cpp TimeStepsSlider.cpp \
 	TransferFunctionHistogram.cpp TensorAverage.cpp \
 	Utils.cpp VectorAverage.cpp Vertex.cpp \
-	AttributeAverages.cpp \
-	AttributeAverages2D.cpp AttributeAverages3D.cpp ViewSettings.cpp
+	ViewSettings.cpp VectorOperations.cpp
 FORMS += BrowseSimulations.ui SelectBodiesById.ui EditColorMap.ui \
 	 HistogramSettings.ui RestrictedRangeSlider.ui MainWindow.ui Info.ui
 LEXSOURCES        += EvolverData.l

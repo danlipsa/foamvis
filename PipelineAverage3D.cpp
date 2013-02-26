@@ -152,7 +152,6 @@ void PipelineAverage3D::updateAlpha (
 void PipelineAverage3D::UpdateForceAverage (
     const ForceAverage& forceAverage)
 {
-    __ENABLE_LOGGING__;
     const Foam& foam = forceAverage.GetFoam ();
     const ViewSettings& vs = forceAverage.GetViewSettings ();
     const Foam::Bodies& objects = foam.GetObjects ();

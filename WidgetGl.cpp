@@ -871,8 +871,7 @@ void WidgetGl::displayViews ()
 
 void WidgetGl::displayAllViewTransforms (ViewNumber::Enum viewNumber)
 {
-    const OOBox& domain = GetSimulation (viewNumber).
-        GetFoam(GetTime (viewNumber)).GetTorusDomain ();
+    const OOBox& domain = GetFoam(viewNumber).GetTorusDomain ();
     // WARNING: use the same order as DuplicateDomain::Enum
     const boost::array<G3D::Vector3, DuplicateDomain::COUNT> 
         duplicateDomainTranslation = {{
@@ -1146,7 +1145,7 @@ G3D::Vector3 WidgetGl::brushedBodies (
 {
     const BodySelector& selector = GetViewSettings ().GetBodySelector ();
     G3D::Vector3 op = toObjectTransform (position);
-    const Foam& foam = GetSimulation ().GetFoam (GetTime ());
+    const Foam& foam = GetFoam ();
     BOOST_FOREACH (boost::shared_ptr<Body> body, foam.GetBodies ())
     {
 	G3D::AABox box = body->GetBoundingBox ();
@@ -1752,7 +1751,8 @@ void WidgetGl::displayVelocityGlyphs (ViewNumber::Enum viewNumber) const
 	GetSimulation (viewNumber).GetFoam (GetTime (viewNumber));
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
-    const VectorAverage& va = GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
+    const VectorAverage& va = 
+        GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
     if (! foam.Is2D () || ! vs.IsVelocityShown ())
 	return;
     Foam::Bodies bodies = foam.GetBodies ();
@@ -2121,9 +2121,7 @@ void WidgetGl::displayFacesNormal (ViewNumber::Enum viewNumber) const
 
 void WidgetGl::compileFacesNormal (ViewNumber::Enum viewNumber) const
 {
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    const Foam& foam = 
-	GetSimulation (viewNumber).GetFoam (vs.GetTime ());
+    const Foam& foam = GetFoam (viewNumber);
     const Foam::Bodies& bodies = foam.GetBodies ();
 
     glNewList (m_listFacesNormal[viewNumber], GL_COMPILE);
@@ -3801,7 +3799,8 @@ void WidgetGl::ResetTransformFocus ()
 	ProjectionTransform (viewNumber);
 	glMatrixMode (GL_MODELVIEW);
 	glLoadIdentity ();
-	GetAttributeAverages2D (viewNumber).AverageInitStep (vs.GetTimeWindow ());
+	GetAttributeAverages2D (viewNumber).AverageInitStep (
+            vs.GetTimeWindow ());
     }
     update ();
 }
@@ -4019,7 +4018,8 @@ void WidgetGl::ToggledVelocityGridShown (bool checked)
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
-	VectorAverage& va = GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
+	VectorAverage& va = 
+            GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
 	va.SetGridShown (checked);
     }
     update ();
@@ -4032,7 +4032,8 @@ void WidgetGl::ToggledVelocityClampingShown (bool checked)
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
-	VectorAverage& va = GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
+	VectorAverage& va = 
+            GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
 	va.SetClampingShown (checked);
         CompileUpdate (viewNumber);
     }
@@ -4074,7 +4075,8 @@ void WidgetGl::ToggledVelocitySameSize (bool checked)
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
-	GetAttributeAverages2D (viewNumber).GetVelocityAverage ().SetSameSize (checked);
+	GetAttributeAverages2D (
+            viewNumber).GetVelocityAverage ().SetSameSize (checked);
         CompileUpdate (viewNumber);
     }
 }

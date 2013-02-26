@@ -20,6 +20,7 @@
 #include "OrientedFace.h"
 #include "ParsingData.h"
 #include "ProcessBodyTorus.h"
+#include "VectorOperations.h"
 #include "Vertex.h"
 #include "Simulation.h"
 
@@ -89,7 +90,8 @@ Foam::Foam (bool useOriginal,
     m_histogram (
 	BodyScalar::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
     m_properties (dataProperties),
-    m_parametersOperation (paramsOp)
+    m_parametersOperation (paramsOp),
+    m_pressureSubtraction (0)
 {
     m_parsingData->SetVariable ("pi", M_PI);
 }
@@ -188,10 +190,10 @@ void Foam::CalculateBoundingBox ()
     // using the BB for bodies to calculate BB for the foam does not
     // work when there are no bodies
     VertexSet vertexSet = GetVertexSet ();
-    CalculateAggregate <VertexSet, VertexSet::iterator, VertexPtrLessThanAlong>() (
-	min_element, vertexSet, &low);
-    CalculateAggregate <VertexSet, VertexSet::iterator, VertexPtrLessThanAlong>()(
-	max_element, vertexSet, &high);
+    CalculateAggregate <VertexSet, VertexSet::iterator, 
+        VertexPtrLessThanAlong>() (min_element, vertexSet, &low);
+    CalculateAggregate <VertexSet, VertexSet::iterator, 
+        VertexPtrLessThanAlong>()(max_element, vertexSet, &high);
     m_boundingBox.set(low, high);
     if (IsTorus ())
 	calculateBoundingBoxTorus (&low, &high);
@@ -618,7 +620,7 @@ void Foam::setMissingPressureZero ()
     }
 }
 
-void Foam::AdjustPressure (double adjustment)
+void Foam::SubtractFromPressure (double adjustment)
 {
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
@@ -632,6 +634,7 @@ void Foam::AdjustPressure (double adjustment)
     }
     m_min[BodyScalar::PRESSURE] -= adjustment;
     m_max[BodyScalar::PRESSURE] -= adjustment;
+    m_pressureSubtraction += adjustment;
 }
 
 double Foam::CalculateMedian (BodyScalar::Enum property)
@@ -1107,17 +1110,16 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::getTetraGrid () const
     return aTetraGrid;
 }
 
-void Foam::SaveRegularGrid (size_t regularGridResolution) const
+void Foam::SaveRegularGrid (size_t resolution) const
 {
     string message = string ("Resampling ") + GetDmpName () + " ...\n";
     cdbg << message;
     if (! QFile (getVtiPath ().c_str ()).exists ())
     {
-	vtkSmartPointer<vtkImageData> id = calculateRegularGrid (
-	    regularGridResolution);
+	vtkSmartPointer<vtkImageData> data = calculateRegularGrid (resolution);
 	VTK_CREATE (vtkXMLImageDataWriter, writer);
 	writer->SetFileName (getVtiPath ().c_str ());
-	writer->SetInputDataObject (id);
+	writer->SetInputDataObject (data);
 	writer->Write ();
     }
 }
@@ -1129,11 +1131,19 @@ vtkSmartPointer<vtkImageData> Foam::GetRegularGrid (size_t bodyAttribute) const
     reader->Update ();
     vtkSmartPointer<vtkImageData> foamImageData = reader->GetOutput ();
     addRedundantAttributes (foamImageData);
+    subtractFromPressureRegularGrid (foamImageData);
     foamImageData->GetPointData ()->SetActiveAttribute (
 	BodyAttribute::ToString (bodyAttribute),
 	BodyAttribute::GetType (bodyAttribute));
     __LOG__ (cdbg << "Foam::GetRegularGrid: " << getVtiPath () << endl;)
     return foamImageData;
+}
+
+void Foam::subtractFromPressureRegularGrid (
+    vtkSmartPointer<vtkImageData> data) const
+{
+    ImageOpScalar (data, data, m_pressureSubtraction, 
+                   std::minus<double> (), BodyScalar::PRESSURE);
 }
 
 vtkSmartPointer<vtkImageData> Foam::calculateRegularGrid (

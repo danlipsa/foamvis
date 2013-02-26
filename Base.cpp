@@ -55,6 +55,11 @@ const Foam& Base::GetFoam () const
     return GetSimulation ().GetFoam (currentTime);
 }
 
+const Foam& Base::GetFoam (ViewNumber::Enum viewNumber) const
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    return GetSimulation (viewNumber).GetFoam (vs.GetTime ());
+}
 
 bool Base::IsVtkView (ViewNumber::Enum viewNumber) const
 {

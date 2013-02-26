@@ -15,6 +15,9 @@ Release log
         - bug fix: crash for comparing simulations with different number of 
           time steps.
         - Allowing comparison of 2D and 3D simulations
+        - Display forces for 3D average
+        - Bug fix: save regular version of the dataset before adjusting 
+          pressures and then adjust pressures when loading data from disk.
 0.8.2699
         - bug fix: transformations are slow
         - allow keywords inside SCALAR_INTEGRANT (for shearv_35)

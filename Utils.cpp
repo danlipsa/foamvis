@@ -12,6 +12,7 @@
 #include "Face.h"
 #include "Foam.h"
 #include "Utils.h"
+#include "VectorOperations.h"
 #include "Vertex.h"
 
 
@@ -680,9 +681,9 @@ int ValueToIndex (QSlider* slider,
 }
 
 void addEmptyPointAttribute (
-    vtkSmartPointer<vtkImageData> regularGrid, size_t attribute)
+    vtkSmartPointer<vtkImageData> data, size_t attribute)
 {
-    vtkIdType numberOfPoints = regularGrid->GetNumberOfPoints ();
+    vtkIdType numberOfPoints = data->GetNumberOfPoints ();
     VTK_CREATE(vtkFloatArray, attributes);
     attributes->SetNumberOfComponents (
 	BodyAttribute::GetNumberOfComponents (attribute));
@@ -690,9 +691,23 @@ void addEmptyPointAttribute (
     attributes->SetName (BodyAttribute::ToString (attribute));
     vector<float> v (BodyAttribute::MAX_NUMBER_OF_COMPONENTS, 0);
     for (vtkIdType i = 0; i < numberOfPoints; ++i)
-	attributes->SetTuple (i, &v[0]);
-    regularGrid->GetPointData ()->AddArray (attributes);
+	attributes->SetTupleValue (i, &v[0]);
+    data->GetPointData ()->AddArray (attributes);
 }
+
+void AddValidPointMask (vtkSmartPointer<vtkImageData> data)
+{
+    vtkIdType numberOfPoints = data->GetNumberOfPoints ();
+    VTK_CREATE(vtkCharArray, attributes);
+    attributes->SetNumberOfComponents (1);
+    attributes->SetNumberOfTuples (numberOfPoints);
+    attributes->SetName (VectorOperation::VALID_NAME);
+    char c (1);
+    for (vtkIdType i = 0; i < numberOfPoints; ++i)
+	attributes->SetTupleValue (i, &c);
+    data->GetPointData ()->AddArray (attributes);
+}
+
 
 vtkSmartPointer<vtkImageData> CreateEmptyRegularGrid (
     size_t bodyAttribute, int extent[6], G3D::AABox bb)

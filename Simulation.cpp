@@ -124,7 +124,7 @@ const char* CACHE_DIR_NAME = ".foamvis";
 Simulation::Simulation () :
     m_histogram (
         BodyScalar::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
-    m_adjustPressure (false),
+    m_pressureAdjusted (false),
     m_t1sShift (0),
     m_useOriginal (false),
     m_rotation2D (0),
@@ -214,9 +214,7 @@ void Simulation::Preprocess ()
     calculateVelocity ();
     FoamParamMethod f = boost::bind (&Foam::CalculateMinMaxStatistics, _1);
     MapPerFoam (&f, 1);
-    if (m_adjustPressure && ! GetFoam (0).HasFreeFace ())
-        adjustPressureAlignMedians ();
-    calculateStatistics ();
+    // save the regular grid before adjusting pressure
     if (Is3D () && GetRegularGridResolution () != 0)
     {
 	cdbg << "Resampling to a regular grid ..." << endl;
@@ -224,6 +222,9 @@ void Simulation::Preprocess ()
 			 GetRegularGridResolution ());
 	MapPerFoam (&f, 1);
     }
+    if (m_pressureAdjusted && ! GetFoam (0).HasFreeFace ())
+        adjustPressureAlignMedians ();
+    calculateStatistics ();
 }
 
 
@@ -264,7 +265,7 @@ void Simulation::adjustPressureSubtractReference ()
 {
     QtConcurrent::blockingMap (
 	m_foams.begin (), m_foams.end (),
-	boost::bind (&Foam::AdjustPressure, _1, 
+	boost::bind (&Foam::SubtractFromPressure, _1, 
 		     boost::bind (GetPressureBody0, _1)));
 }
 
@@ -275,7 +276,7 @@ void Simulation::adjustPressureAlignMedians ()
     // this makes every pressure greater than 0.
     QtConcurrent::blockingMap (
 	m_foams.begin (), m_foams.end (),
-	boost::bind (&Foam::AdjustPressure, _1, 
+	boost::bind (&Foam::SubtractFromPressure, _1, 
 		     boost::bind (&Foam::GetMin, _1, BodyScalar::PRESSURE)));
 
     // adjust the pressure by aligning the medians in every time step,
@@ -286,7 +287,7 @@ void Simulation::adjustPressureAlignMedians ()
 	    boost::bind (&Foam::CalculateMedian, _1, BodyScalar::PRESSURE));
     double maxMedian = *max_element (medians.begin (), medians.end ());
     for (size_t i = 0; i < m_foams.size (); ++i)
-	m_foams[i]->AdjustPressure (medians[i] - maxMedian);
+	m_foams[i]->SubtractFromPressure (medians[i] - maxMedian);
 }
 
 void Simulation::calculateStatistics ()

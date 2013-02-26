@@ -224,6 +224,7 @@ void ShowMessageBox (QWidget* parent, const char* message);
  * @name Others
  */
 const static size_t INVALID_INDEX = numeric_limits<size_t>::max ();
+void AddValidPointMask (vtkSmartPointer<vtkImageData> data);
 vtkSmartPointer<vtkImageData> CreateEmptyRegularGrid (
     size_t bodyAttribute, int extent[6], G3D::AABox bb);
 vtkSmartPointer<vtkImageData> CreateRegularGridNoAttributes (

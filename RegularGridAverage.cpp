@@ -12,86 +12,13 @@
 #include "RegularGridAverage.h"
 #include "Settings.h"
 #include "Simulation.h"
+#include "VectorOperations.h"
 #include "ViewSettings.h"
 
 
 // Private Classes/Functions
 // ======================================================================
 
-typedef boost::function<void (vtkSmartPointer<vtkFloatArray>, 
-			      vtkSmartPointer<vtkFloatArray>, 
-			      double)> VectorOpScalarType;
-
-/*
- * left = left op right
- */
-struct VectorOpVector
-{
-    VectorOpVector (RegularGridAverage::OpType f) : 
-	m_f (f)
-    {
-    }
-    
-    void operator() (vtkSmartPointer<vtkFloatArray> left,
-		     vtkSmartPointer<vtkFloatArray> right)
-    {
-	size_t components = left->GetNumberOfComponents ();
-	vtkIdType tuples = left->GetNumberOfTuples ();
-	for (vtkIdType i = 0; i < tuples; ++i)
-	{
-	    double leftValue[BodyAttribute::MAX_NUMBER_OF_COMPONENTS];
-	    double rightValue[BodyAttribute::MAX_NUMBER_OF_COMPONENTS];
-	    left->GetTuple (i, leftValue);
-	    right->GetTuple (i, rightValue);
-	    for (size_t j = 0; j < components; ++j)
-	    {
-		leftValue[j] = m_f (leftValue[j], rightValue[j]);
-	    }
-	    left->SetTuple (i, leftValue);
-	}
-    }
-
-    void operator () (G3D::Vector3& left, const G3D::Vector3& right)
-    {
-	for (size_t i = 0; i < 3; ++i)
-	    left[i] = m_f (left[i], right[i]);
-    }
-    
-private:
-    RegularGridAverage::OpType m_f;
-};
-
-struct VectorOpScalar
-{
-    typedef boost::function<double (double, double)> OpType;
-
-    VectorOpScalar (OpType f) : 
-	m_f (f)
-    {
-    }
-    
-    void operator() (
-	vtkSmartPointer<vtkFloatArray> left, 
-	vtkSmartPointer<vtkFloatArray> right, double scalar)
-    {
-	size_t components = left->GetNumberOfComponents ();
-	vtkIdType tuples = left->GetNumberOfTuples ();
-	for (vtkIdType i = 0; i < tuples; ++i)
-	{
-	    double leftValue[BodyAttribute::MAX_NUMBER_OF_COMPONENTS];
-	    double rightValue[BodyAttribute::MAX_NUMBER_OF_COMPONENTS];
-	    right->GetTuple (i, rightValue);
-	    for (size_t j = 0; j < components; ++j)
-	    {
-		leftValue[j] = m_f (rightValue[j], scalar);
-	    }
-	    left->SetTuple (i, leftValue);
-	}
-    }
-    
-private:
-    OpType m_f;
-};
 
 
 
@@ -118,8 +45,10 @@ void RegularGridAverage::AverageInit ()
                      0, regularGridResolution -1};
     m_sum = CreateEmptyRegularGrid (GetBodyAttribute (), extent, 
                                     simulation.GetBoundingBox ());
+    AddValidPointMask (m_sum);
     m_average = CreateEmptyRegularGrid (
 	GetBodyAttribute (), extent, simulation.GetBoundingBox ());
+    AddValidPointMask (m_average);
 }
 
 void RegularGridAverage::AverageRelease ()
@@ -157,8 +86,6 @@ void RegularGridAverage::opStep (size_t timeStep, RegularGridAverage::OpType f)
     const ViewSettings& vs = GetViewSettings ();
     size_t attribute = GetBodyAttribute ();
     vtkSmartPointer<vtkImageData> regularFoam = foam.GetRegularGrid (attribute);
-    const char* attributeName = BodyAttribute::ToString (attribute);
-    VectorOpVector vf (f);
     if (vs.IsAverageAround ())
     {
 	const Simulation& simulation = GetSimulation ();
@@ -181,29 +108,13 @@ void RegularGridAverage::opStep (size_t timeStep, RegularGridAverage::OpType f)
 	regularFoam = 
 	    vtkImageData::SafeDownCast(translatedDataProbe->GetOutput ());
     }
-    vtkSmartPointer<vtkFloatArray> sumAttribute = 
-	vtkFloatArray::SafeDownCast (
-	    m_sum->GetPointData ()->GetArray (attributeName));
-    vtkSmartPointer<vtkFloatArray> newAttribute = 
-	vtkFloatArray::SafeDownCast (
-	    regularFoam->GetPointData ()->GetArray (attributeName));
-    vf (sumAttribute, newAttribute);
-    m_sum->Modified ();
+    ImageOpImage (m_sum, regularFoam, f, attribute);
 }
 
 void RegularGridAverage::computeAverage ()
 {
-    size_t attribute = GetBodyAttribute ();
-    const char* attributeName = BodyAttribute::ToString (attribute);
-    vtkSmartPointer<vtkFloatArray> averageAttribute = 
-	vtkFloatArray::SafeDownCast (
-	    m_average->GetPointData ()->GetArray (attributeName));
-    vtkSmartPointer<vtkFloatArray> sumAttribute = 
-	vtkFloatArray::SafeDownCast (
-	    m_sum->GetPointData ()->GetArray (attributeName));
-    VectorOpScalarType f = VectorOpScalar (std::divides<double> ()); 
-    f (averageAttribute, sumAttribute, GetCurrentTimeWindow ());
-    m_average->Modified ();
+    ImageOpScalar (m_average, m_sum, GetCurrentTimeWindow (),
+                   std::divides<double> (), GetBodyAttribute ());
 }
 
 vtkSmartPointer<vtkImageData> RegularGridAverage::GetAverage ()

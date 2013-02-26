@@ -77,8 +77,12 @@ public:
     {
         return GetSimulation (GetViewNumber ());
     }
+    // current viewNumber, different time steps
     const Foam& GetFoam (size_t timeStep) const;
+    // current viewNumber, current time step
     const Foam& GetFoam () const;
+    // different view number
+    const Foam& GetFoam (ViewNumber::Enum viewNumber) const;
 
 
     /**
