@@ -32,7 +32,8 @@ void VectorOpVector::operator() (ValidData left, ValidData right)
         right.m_valid->GetTupleValue (i, &rightValid);
         if (! leftValid || ! rightValid)
         {
-            left.m_valid->SetTupleValue (i, 0);
+            char c (0);
+            left.m_valid->SetTupleValue (i, &c);
             continue;
         }
         left.m_data->GetTupleValue (i, leftData);
@@ -69,7 +70,8 @@ void VectorOpScalar::operator() (ValidData left, ValidData right, double scalar)
         right.m_valid->GetTupleValue (i, &rightValid);
         if (! leftValid || ! rightValid)
         {
-            left.m_valid->SetTupleValue (i, 0);
+            char c (0);
+            left.m_valid->SetTupleValue (i, &c);
             continue;
         }
         right.m_data->GetTupleValue (i, rightData);

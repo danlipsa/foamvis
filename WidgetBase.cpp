@@ -6,6 +6,7 @@
  * Definitions for the widget for displaying foam bubbles
  */
 
+#include "BodySelector.h"
 #include "ColorBarModel.h"
 #include "Debug.h"
 #include "Settings.h"
@@ -161,8 +162,11 @@ bool WidgetBase::IsSelectionCopyCompatible (
 {
     const ViewSettings& vs = GetViewSettings (vn);
     const ViewSettings& otherVs = GetViewSettings (otherVn);
-    return otherVn != vn &&
-        vs.GetSimulationIndex () == otherVs.GetSimulationIndex ();
+    return otherVn != vn && 
+        vs.GetSimulationIndex () == otherVs.GetSimulationIndex () &&
+        (vs.GetBodyOrFaceScalar () == otherVs.GetBodyOrFaceScalar () ||
+         otherVs.GetBodySelector ().GetType () == BodySelectorType::ID || 
+         otherVs.GetBodySelector ().GetType () == BodySelectorType::ALL);
 }
 
 

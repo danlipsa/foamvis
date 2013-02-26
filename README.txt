@@ -1,6 +1,7 @@
 Release log
 ===========
 0.8.
+        - update to vtk-6.0-20130125.tgz
         - bug fix: next step did not update the OpenGL window when both 
           VTK and OpenGL windows are displayed.
         - bug fix: when set average vis the program segfaults
@@ -14,10 +15,14 @@ Release log
           components for each force and the separator is comma.
         - bug fix: crash for comparing simulations with different number of 
           time steps.
-        - Allowing comparison of 2D and 3D simulations
+        - Allowing loading/comparison of 2D and 3D simulations
         - Display forces for 3D average
         - Bug fix: save regular version of the dataset before adjusting 
-          pressures and then adjust pressures when loading data from disk.
+          pressures and then adjust pressures when loading data from disk. 
+          This is needed to allow loading different number of time steps for 
+          different executions of the program.
+        - Bug fix: copy selection works only for the same scalar or 
+          selection by id.
 0.8.2699
         - bug fix: transformations are slow
         - allow keywords inside SCALAR_INTEGRANT (for shearv_35)
