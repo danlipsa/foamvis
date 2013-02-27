@@ -240,6 +240,7 @@ void WidgetVtk::AddAverageView (
     m_pipeline[viewNumber] = m_pipelineAverage3d[viewNumber];
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
     G3D::AABox vv = CalculateViewingVolume (viewNumber, simulation);
+    scalarAverage->SetBodyAttribute (vs.GetBodyOrFaceScalar ());
     m_average[viewNumber]->AverageInitStep (vs.GetTimeWindow ());
     pipeline.UpdateScalarAverage (scalarAverage);
     pipeline.UpdateForceAverage (m_average[viewNumber]->GetForceAverage ());

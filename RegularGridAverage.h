@@ -24,7 +24,7 @@ public:
 
 public:
     RegularGridAverage (
-        size_t bodyAttribute, ViewNumber::Enum viewNumber, 
+        ViewNumber::Enum viewNumber, 
         boost::shared_ptr<Settings> settings, 
         boost::shared_ptr<const SimulationGroup> simulationGroup);
     virtual void AverageInit ();
@@ -37,6 +37,10 @@ public:
     size_t GetBodyAttribute () const
     {
         return m_bodyAttribute;
+    }
+    void SetBodyAttribute (size_t attribute)
+    {
+        m_bodyAttribute = attribute;
     }
 
 protected:

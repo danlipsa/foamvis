@@ -106,8 +106,10 @@ void PipelineAverage3D::UpdateThreshold (QwtDoubleInterval interval)
 {
     if (m_threshold != 0)
     {
+        __ENABLE_LOGGING__;
 	m_threshold->ThresholdBetween (
 	    interval.minValue (), interval.maxValue ());
+        __LOG__ (cdbg << interval << endl;);
     }
 }
 
@@ -194,7 +196,7 @@ void PipelineAverage3D::UpdateScalarAverage (
 {
     const Foam& foam = average->GetFoam ();
     const ViewSettings& vs = average->GetViewSettings ();
-
+    // update scalar
     m_threshold->SetInputDataObject (average->GetAverage ());
 
     // update objects

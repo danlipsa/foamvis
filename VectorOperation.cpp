@@ -11,6 +11,51 @@
 #include "Enums.h"
 #include "VectorOperation.h"
 
+// Private Classes/Functions
+// ======================================================================
+void logValidPoints (vtkSmartPointer<vtkImageData> data)
+{
+    vtkSmartPointer<vtkCharArray> validPoints = 
+	vtkCharArray::SafeDownCast (
+            data->GetPointData ()->GetArray (VectorOperation::VALID_NAME));
+    if (validPoints != 0)
+    {
+        vtkIdType tuples = validPoints->GetNumberOfTuples ();
+        vtkIdType validTuples = 0;
+        for (vtkIdType i = 0; i < tuples; ++i)
+        {
+            char valid;
+            validPoints->GetTupleValue (i, &valid);
+            if (valid)
+                ++validTuples;
+        }
+        cdbg << validTuples << " valid of " << tuples << endl;
+    }
+    else
+        cdbg << "all tuples valid" << endl;
+}
+
+void convertDataToArrays (
+    size_t attribute, vtkSmartPointer<vtkImageData> left, 
+    vtkSmartPointer<vtkImageData> right,
+    VectorOperation::ValidData* l, VectorOperation::ValidData* r)
+{
+    const char* attributeName = BodyAttribute::ToString (attribute);
+    *l = VectorOperation::ValidData ( 
+	vtkFloatArray::SafeDownCast (
+	    left->GetPointData ()->GetArray (attributeName)),
+	vtkCharArray::SafeDownCast (
+            left->GetPointData ()->GetArray (VectorOperation::VALID_NAME)));
+
+    *r = VectorOperation::ValidData ( 
+	vtkFloatArray::SafeDownCast (
+	    right->GetPointData ()->GetArray (attributeName)),
+	vtkCharArray::SafeDownCast (
+            right->GetPointData ()->GetArray (VectorOperation::VALID_NAME)));
+}
+
+
+
 // VectorOperation
 //============================================================================
 const char* VectorOperation::VALID_NAME = "vtkValidPointMask";
@@ -85,46 +130,6 @@ void VectorOpScalar::operator() (ValidData left, ValidData right, double scalar)
 
 // standalone functions
 // ===========================================================================
-void logValidPoints (vtkSmartPointer<vtkImageData> data)
-{
-    vtkSmartPointer<vtkCharArray> validPoints = 
-	vtkCharArray::SafeDownCast (
-            data->GetPointData ()->GetArray (VectorOperation::VALID_NAME));
-    if (validPoints != 0)
-    {
-        vtkIdType tuples = validPoints->GetNumberOfTuples ();
-        vtkIdType validTuples = 0;
-        for (vtkIdType i = 0; i < tuples; ++i)
-        {
-            char valid;
-            validPoints->GetTupleValue (i, &valid);
-            if (valid)
-                ++validTuples;
-        }
-        cdbg << validTuples << " valid of " << tuples << endl;
-    }
-    else
-        cdbg << "all tuples valid" << endl;
-}
-
-void convertDataToArrays (
-    size_t attribute, vtkSmartPointer<vtkImageData> left, 
-    vtkSmartPointer<vtkImageData> right,
-    VectorOperation::ValidData* l, VectorOperation::ValidData* r)
-{
-    const char* attributeName = BodyAttribute::ToString (attribute);
-    *l = VectorOperation::ValidData ( 
-	vtkFloatArray::SafeDownCast (
-	    left->GetPointData ()->GetArray (attributeName)),
-	vtkCharArray::SafeDownCast (
-            left->GetPointData ()->GetArray (VectorOperation::VALID_NAME)));
-
-    *r = VectorOperation::ValidData ( 
-	vtkFloatArray::SafeDownCast (
-	    right->GetPointData ()->GetArray (attributeName)),
-	vtkCharArray::SafeDownCast (
-            right->GetPointData ()->GetArray (VectorOperation::VALID_NAME)));
-}
 
 void ImageOpImage (
     vtkSmartPointer<vtkImageData> left, 

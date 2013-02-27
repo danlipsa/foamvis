@@ -26,12 +26,12 @@
 // ======================================================================
 
 RegularGridAverage::RegularGridAverage (
-    size_t bodyAttribute, ViewNumber::Enum viewNumber,
+    ViewNumber::Enum viewNumber,
     boost::shared_ptr<Settings> settings, 
     boost::shared_ptr<const SimulationGroup> simulationGroup) :
 
     Average (viewNumber, settings, simulationGroup),
-    m_bodyAttribute (bodyAttribute)
+    m_bodyAttribute (BodyAttribute::COUNT)
 {
 }
 

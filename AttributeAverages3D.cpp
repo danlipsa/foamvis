@@ -21,15 +21,18 @@ AttributeAverages3D::AttributeAverages3D (
     AttributeAverages (viewNumber, settings, simulationGroup)
 {
     m_scalarAverage.reset (
-        new RegularGridAverage (
-            settings->GetViewSettings (viewNumber).GetBodyOrFaceScalar (),
-            viewNumber, settings, simulationGroup));
-    m_velocityAverage.reset (
-        new RegularGridAverage (
-            BodyAttribute::VELOCITY, viewNumber, settings, simulationGroup));
-    m_deformationAverage.reset (
-        new RegularGridAverage (
-            BodyAttribute::VELOCITY, viewNumber, settings, simulationGroup));
+        new RegularGridAverage (viewNumber, settings, simulationGroup));
+    
+    boost::shared_ptr<RegularGridAverage> velocityAverage (
+        new RegularGridAverage (viewNumber, settings, simulationGroup));
+    velocityAverage->SetBodyAttribute (BodyAttribute::VELOCITY);
+    m_velocityAverage = velocityAverage;
+
+    boost::shared_ptr<RegularGridAverage> deformationAverage (
+        new RegularGridAverage (viewNumber, settings, simulationGroup));
+    deformationAverage->SetBodyAttribute (BodyAttribute::DEFORMATION);
+    m_deformationAverage = deformationAverage;
+
     m_forceAverage.reset (
         new ForceAverage (viewNumber, settings, simulationGroup));
 }
