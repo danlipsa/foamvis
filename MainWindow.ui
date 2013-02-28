@@ -1950,7 +1950,7 @@
          <item>
           <widget class="QTabWidget" name="tabWidgetShow">
            <property name="currentIndex">
-            <number>3</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tabT1">
             <attribute name="title">
@@ -2036,46 +2036,62 @@
                   </property>
                  </widget>
                 </item>
+                <item row="2" column="0">
+                 <widget class="QRadioButton" name="radioButtonVelocityGlyph">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Glyph</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string>buttonGroupVelocityVis</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QRadioButton" name="radioButtonVelocityStreamline">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Streamline</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string>buttonGroupVelocityVis</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QRadioButton" name="radioButtonVelocityPathline">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Pathline</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string>buttonGroupVelocityVis</string>
+                  </attribute>
+                 </widget>
+                </item>
                </layout>
               </widget>
              </item>
              <item>
-              <widget class="QTabWidget" name="tabWidget_2">
+              <widget class="QStackedWidget" name="stackedWidgetVelocity">
                <property name="currentIndex">
-                <number>1</number>
+                <number>0</number>
                </property>
-               <widget class="QWidget" name="tabGlyph">
-                <attribute name="title">
-                 <string>Glyph</string>
-                </attribute>
+               <widget class="QWidget" name="stackedWidgetVelocityGlyph" native="true">
                 <layout class="QGridLayout" name="gridLayout_7">
-                 <item row="0" column="0">
-                  <widget class="QRadioButton" name="radioButtonVelocityGlyph">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="text">
-                    <string>Glyph</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                   <attribute name="buttonGroup">
-                    <string>buttonGroupVelocityVis</string>
-                   </attribute>
-                  </widget>
-                 </item>
                  <item row="0" column="1">
                   <widget class="QCheckBox" name="checkBoxVelocityGlyphClampingShown">
                    <property name="text">
                     <string>Clamping shown</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QCheckBox" name="checkBoxVelocityGlyphSameSize">
-                   <property name="text">
-                    <string>Same size</string>
                    </property>
                   </widget>
                  </item>
@@ -2109,39 +2125,17 @@
                    </property>
                   </spacer>
                  </item>
+                 <item row="0" column="0">
+                  <widget class="QCheckBox" name="checkBoxVelocityGlyphSameSize">
+                   <property name="text">
+                    <string>Same size</string>
+                   </property>
+                  </widget>
+                 </item>
                 </layout>
                </widget>
-               <widget class="QWidget" name="tabStreamline">
-                <attribute name="title">
-                 <string>Streamline</string>
-                </attribute>
+               <widget class="QWidget" name="stackedWidgetVelocityStreamline" native="true">
                 <layout class="QGridLayout" name="gridLayout_5">
-                 <item row="0" column="0">
-                  <widget class="QRadioButton" name="radioButtonVelocityStreamline">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="text">
-                    <string>Streamline</string>
-                   </property>
-                   <attribute name="buttonGroup">
-                    <string>buttonGroupVelocityVis</string>
-                   </attribute>
-                  </widget>
-                 </item>
-                 <item row="0" column="1">
-                  <widget class="QRadioButton" name="radioButtonVelocityPathline">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="text">
-                    <string>Pathline</string>
-                   </property>
-                   <attribute name="buttonGroup">
-                    <string>buttonGroupVelocityVis</string>
-                   </attribute>
-                  </widget>
-                 </item>
                  <item row="1" column="0">
                   <widget class="QLabel" name="label_15">
                    <property name="text">
@@ -3127,38 +3121,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>horizontalSliderVelocityGlyphLineWidth</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedVelocityLineWidthExp(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>837</x>
-     <y>416</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>579</x>
-     <y>344</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxVelocityGlyphClampingShown</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledVelocityClampingShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>837</x>
-     <y>406</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>638</x>
-     <y>369</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkBoxVelocityGlyphGridCellCenterShown</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
@@ -3171,22 +3133,6 @@
     <hint type="destinationlabel">
      <x>643</x>
      <y>323</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxVelocityGlyphSameSize</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledVelocitySameSize(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>793</x>
-     <y>411</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>643</x>
-     <y>406</y>
     </hint>
    </hints>
   </connection>
@@ -4039,38 +3985,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>doubleSpinBoxStreamlineLength</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedStreamlineLength(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>978</x>
-     <y>459</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>610</x>
-     <y>359</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>doubleSpinBoxStreamlineStepLength</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedStreamlineStepLength(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>978</x>
-     <y>491</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>629</x>
-     <y>392</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkBoxT1sAllTimesteps</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
@@ -4083,70 +3997,6 @@
     <hint type="destinationlabel">
      <x>643</x>
      <y>89</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxSeedsShown</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledSeedsShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>843</x>
-     <y>518</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>638</x>
-     <y>445</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxKDESeeds</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledKDESeeds(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>978</x>
-     <y>518</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>628</x>
-     <y>37</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>doubleSpinBoxKDEValue</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedKDEValue(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>978</x>
-     <y>550</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>624</x>
-     <y>57</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxKDEMultiplier</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedKDEMultiplier(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>978</x>
-     <y>582</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>618</x>
-     <y>78</y>
     </hint>
    </hints>
   </connection>
@@ -4195,22 +4045,6 @@
     <hint type="destinationlabel">
      <x>1012</x>
      <y>363</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxVelocityFieldSaved</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledVelocityFieldSaved(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1016</x>
-     <y>609</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>650</x>
-     <y>514</y>
     </hint>
    </hints>
   </connection>

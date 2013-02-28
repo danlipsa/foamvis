@@ -598,14 +598,6 @@ void Foam::setMissingVolume ()
             body->SetTargetVolumeDeduced ();
             StoreAttribute (body.get (), BodyScalar::TARGET_VOLUME, volume);
         }
-        /*
-          else
-          {
-          cdbg << "area: " << area 
-          << body->GetScalarValue (BodyScalar::TARGET_VOLUME) 
-          << endl;
-          }
-        */
         if (! body->HasScalarValue (BodyScalar::ACTUAL_VOLUME))
         {
             body->SetActualVolumeDeduced ();

@@ -24,6 +24,7 @@ Release log
           different executions of the program.
         - Bug fix: copy selection works only for the same scalar or 
           selection by id.
+        - Compute volume for 3D if it is not available in the DMP file
 0.8.2699
         - bug fix: transformations are slow
         - allow keywords inside SCALAR_INTEGRANT (for shearv_35)

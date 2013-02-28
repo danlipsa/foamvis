@@ -161,7 +161,8 @@ private:
     void bubblePathsViewToUI ();
     HistogramInfo createHistogramInfo (
 	pair<float, float> minMax, size_t count) const;    
-    void setStackedWidget (ViewType::Enum viewType);
+    void setStackedWidgetVisualization (ViewType::Enum viewType);
+    void setStackedWidgetVelocity (VectorVis::Enum vis);
     void updateLightControls (
 	const ViewSettings& vs, LightNumber::Enum lightNumber);
     void connectSignals ();

@@ -936,7 +936,7 @@ void MainWindow::currentIndexChangedFaceColor (
     }
 }
 
-void MainWindow::setStackedWidget (ViewType::Enum viewType)
+void MainWindow::setStackedWidgetVisualization (ViewType::Enum viewType)
 {
     // WARNING: Has to match ViewType::Enum order
     QWidget* pages[] = 
@@ -951,6 +951,17 @@ void MainWindow::setStackedWidget (ViewType::Enum viewType)
 	    pageT1sProbabilityDensity
 	};
     stackedWidgetVisualization->setCurrentWidget (pages[viewType]);
+}
+
+void MainWindow::setStackedWidgetVelocity (VectorVis::Enum vectorVis)
+{
+    QWidget* pages[] = 
+    {
+        stackedWidgetVelocityGlyph,
+        stackedWidgetVelocityStreamline,
+        stackedWidgetVelocityStreamline
+    };
+    stackedWidgetVelocity->setCurrentWidget (pages[vectorVis]);
 }
 
 void MainWindow::ShowMessageBox (const char* message)
@@ -1376,7 +1387,7 @@ void MainWindow::ValueChangedAverageTimeWindow (int timeSteps)
 void MainWindow::ButtonClickedVelocityVis (int vv)
 {
     VectorVis::Enum velocityVis = VectorVis::Enum (vv);
-
+    setStackedWidgetVelocity (velocityVis); 
     vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
@@ -1434,7 +1445,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 	size_t property = vs.GetBodyOrFaceScalar ();
 	StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
 
-	setStackedWidget (viewType);
+	setStackedWidgetVisualization (viewType);
 	Q_EMIT ColorBarModelChanged (
 	    viewNumber,
 	    getColorBarModel (simulationIndex, 
@@ -1932,7 +1943,8 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     widgetGl->update ();
 
     SetCheckedNoSignals (buttonGroupViewType, viewType, true);    
-    setStackedWidget (viewType);
+    setStackedWidgetVisualization (viewType);
+    setStackedWidgetVelocity (vs.GetVelocityVis ());
     SetCheckedNoSignals (checkBoxHistogramShown, vs.IsHistogramShown ());
     SetCheckedNoSignals (
 	checkBoxHistogramColorMapped, 
