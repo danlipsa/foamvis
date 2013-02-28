@@ -579,31 +579,38 @@ Foam::FindBody (size_t bodyId) const
 
 void Foam::setMissingVolume ()
 {
-    if (Is2D ())
+    using EvolverData::parser;
+    BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
-	using EvolverData::parser;
-	BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
-	{
-	    double area = body->GetOrientedFace (0).GetArea ();
-	    if (! body->HasScalarValue (BodyScalar::TARGET_VOLUME))
-	    {
-		body->SetTargetVolumeDeduced ();
-		StoreAttribute (body.get (), BodyScalar::TARGET_VOLUME, area);
-	    }
-	    /*
-	    else
-	    {
-		cdbg << "area: " << area 
-		     << body->GetScalarValue (BodyScalar::TARGET_VOLUME) 
-		     << endl;
-	    }
-	    */
-	    if (! body->HasScalarValue (BodyScalar::ACTUAL_VOLUME))
-	    {
-		body->SetActualVolumeDeduced ();
-		StoreAttribute (body.get (), BodyScalar::ACTUAL_VOLUME, area);
-	    }
-	}
+        float volume;
+        if (! body->HasScalarValue (BodyScalar::TARGET_VOLUME) || 
+            ! body->HasScalarValue (BodyScalar::ACTUAL_VOLUME))
+        {
+            if (Is2D ())
+                volume = body->GetOrientedFace (0).GetArea ();
+            else
+            {
+                volume = body->CalculateVolume ();
+            }
+        }
+        if (! body->HasScalarValue (BodyScalar::TARGET_VOLUME))
+        {
+            body->SetTargetVolumeDeduced ();
+            StoreAttribute (body.get (), BodyScalar::TARGET_VOLUME, volume);
+        }
+        /*
+          else
+          {
+          cdbg << "area: " << area 
+          << body->GetScalarValue (BodyScalar::TARGET_VOLUME) 
+          << endl;
+          }
+        */
+        if (! body->HasScalarValue (BodyScalar::ACTUAL_VOLUME))
+        {
+            body->SetActualVolumeDeduced ();
+            StoreAttribute (body.get (), BodyScalar::ACTUAL_VOLUME, volume);
+        }
     }
 }
 

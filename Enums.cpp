@@ -99,8 +99,8 @@ boost::array<const char*, BodyScalar::COUNT> BodyScalar::NAME = {{
 	"Velocity along y",
 	"Velocity along z",
 	"Velocity magnitude",
-	"Edges per face",
-	"Deformation", // P / sqrt(A) (2D) or A / V^(2/3) (3D)
+	"Sides per bubble",
+	"Deformation simple", // P / sqrt(A) (2D) or A / V^(2/3) (3D)
 	"Deformation eigen",
 	"Pressure",
 	"Target volume",

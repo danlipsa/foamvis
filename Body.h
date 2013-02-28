@@ -244,6 +244,7 @@ public:
     {
 	return m_hasFreeFace;
     }
+    float CalculateVolume () const;
 
 private:
     /**
@@ -251,7 +252,7 @@ private:
      */
     void calculatePhysicalVertices (
 	bool is2D, vector< boost::shared_ptr<Vertex> >* physicalVertices);
-    void calculateArea ();
+    float calculateArea () const;
 
     /**
      * Splits a  set of  vertices in  physical and
@@ -284,6 +285,7 @@ private:
     G3D::AABox m_boundingBox;
     G3D::Vector3 m_velocity;
     float m_area;
+    float m_volume;
     float m_growthRate;
     float m_deformationSimple;
     bool m_pressureDeduced;

@@ -2,6 +2,7 @@ Release log
 ===========
 0.8.
         - update to vtk-6.0-20130125.tgz
+        - remove folders inside .foamvis to regenerate regular grid data for 3D
         - bug fix: next step did not update the OpenGL window when both 
           VTK and OpenGL windows are displayed.
         - bug fix: when set average vis the program segfaults

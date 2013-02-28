@@ -101,6 +101,7 @@ Body::Body(
     Element(id, duplicateStatus),
     m_hasFreeFace (false),
     m_area (0),
+    m_volume (0),
     m_growthRate (0),
     m_deformationSimple (0),
     m_pressureDeduced (false),
@@ -117,6 +118,7 @@ Body::Body (boost::shared_ptr<Face> face, size_t id) :
     Element (id, ElementStatus::ORIGINAL),
     m_hasFreeFace (false),
     m_area (0),
+    m_volume (0),
     m_growthRate (0),
     m_deformationSimple (0),
     m_pressureDeduced (false),
@@ -418,19 +420,39 @@ void Body::CalculateBoundingBox ()
     m_boundingBox = ::CalculateBoundingBox (*this);
 }
 
-void Body::calculateArea ()
+float Body::calculateArea () const
 {
-    m_area = 0;
+    float area = 0;
     BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, GetOrientedFaces ())
-	m_area += (of->GetArea ());
+	area += (of->GetArea ());
+    return area;
+}
+
+float Body::CalculateVolume () const
+{
+    float volume = 0;
+    G3D::Vector3 d = GetCenter ();
+    BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, GetOrientedFaces ())
+    {
+        if (of->size () != 3)
+        {
+            volume = 0;
+            break;
+        }
+        G3D::Vector3 a = of->GetOrientedEdge (0).GetBegin ().GetVector ();
+        G3D::Vector3 b = of->GetOrientedEdge (1).GetBegin ().GetVector ();
+        G3D::Vector3 c = of->GetOrientedEdge (2).GetBegin ().GetVector ();
+        volume += (a - d).dot ((b - d).cross (c - d)) / 6;
+    }
+    return volume;
 }
 
 
 void Body::CalculateDeformationSimple (bool is2D)
 {
     if (! HasScalarValue (BodyScalar::TARGET_VOLUME))
-	return;    
-    calculateArea ();
+	return;
+    m_area = calculateArea ();
     if (is2D)
     {
 	boost::shared_ptr<OrientedFace> of = GetOrientedFacePtr (0);
@@ -439,10 +461,12 @@ void Body::CalculateDeformationSimple (bool is2D)
 	    sqrt (GetScalarValue (BodyScalar::TARGET_VOLUME, is2D));
     }
     else
+    {
 	m_deformationSimple = 
 	    GetArea () / 
 	    pow (GetScalarValue (BodyScalar::TARGET_VOLUME, is2D), 
 		 static_cast<float>(2.0 / 3.0));
+    }
 }
 
 const char* Body::GetAttributeKeywordString (BodyScalar::Enum bp)
