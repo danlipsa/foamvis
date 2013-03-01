@@ -228,9 +228,9 @@
                </widget>
               </item>
               <item>
-               <widget class="QRadioButton" name="radioButtonInteractionGrid">
+               <widget class="QRadioButton" name="radioButtonInteractionSeeds">
                 <property name="text">
-                 <string>&amp;Grid</string>
+                 <string>&amp;Seeds</string>
                 </property>
                 <attribute name="buttonGroup">
                  <string>buttonGroupInteractionObject</string>
@@ -2086,7 +2086,7 @@
                <property name="currentIndex">
                 <number>0</number>
                </property>
-               <widget class="QWidget" name="stackedWidgetVelocityGlyph" native="true">
+               <widget class="QWidget" name="stackedWidgetVelocityGlyph">
                 <layout class="QGridLayout" name="gridLayout_7">
                  <item row="0" column="1">
                   <widget class="QCheckBox" name="checkBoxVelocityGlyphClampingShown">
@@ -2134,7 +2134,7 @@
                  </item>
                 </layout>
                </widget>
-               <widget class="QWidget" name="stackedWidgetVelocityStreamline" native="true">
+               <widget class="QWidget" name="stackedWidgetVelocityStreamline">
                 <layout class="QGridLayout" name="gridLayout_5">
                  <item row="1" column="0">
                   <widget class="QLabel" name="label_15">
@@ -2704,8 +2704,8 @@
     <slot>ValueChangedBubblePathsTimeEnd(int)</slot>
     <slot>ToggledT1sKernelTextureShown(bool)</slot>
     <slot>ValueChangedT1sKernelSigma(double)</slot>
-    <slot>ToggledSeedsShown(bool)</slot>
-    <slot>ToggledKDESeeds(bool)</slot>
+    <slot>ToggledSeedShown(bool)</slot>
+    <slot>ToggledKDESeed(bool)</slot>
     <slot>ValueChangedKDEValue(double)</slot>
     <slot>ValueChangedKDEMultiplier(int)</slot>
     <slot>ToggledBarLabelsShown(bool)</slot>

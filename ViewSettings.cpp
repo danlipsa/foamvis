@@ -51,7 +51,9 @@ ViewSettings::ViewSettings () :
     m_rotationFocus (G3D::Matrix3::identity ()),
     m_rotationCenterType (ROTATION_CENTER_FOAM),
     m_scaleRatio (1),
-    m_gridScaleRatio (1),
+    m_seedShown (false),
+    m_kdeSeedEnabled (false),
+    m_seedScaleRatio (1),
     m_contextScaleRatio (1),
     m_lightingEnabled (false),
     m_selectedLight (LightNumber::LIGHT0),
@@ -92,8 +94,6 @@ ViewSettings::ViewSettings () :
     m_timeDisplacement (0.0),
     m_bubblePathsTimeBegin (0),
     m_bubblePathsTimeEnd (0),
-    m_seedsShown (false),
-    m_kdeSeedsEnabled (false),
     m_kdeValue (0),
     m_kdeMultiplier (3)
 {

@@ -227,8 +227,8 @@ Q_SIGNALS:
 public Q_SLOTS:
     void ToggledVelocityFieldSaved (bool saved);
     void ToggledBarLabelsShown (bool shown);
-    void ToggledKDESeeds (bool toggled);
-    void ToggledSeedsShown (bool shown);
+    void ToggledKDESeed (bool toggled);
+    void ToggledSeedShown (bool shown);
     void ToggledStandaloneElementsShown (bool checked);
     void ToggledBoundingBoxSimulation (bool checked);
     void ToggledBoundingBoxFoam (bool checked);

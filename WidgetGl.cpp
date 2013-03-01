@@ -1096,7 +1096,7 @@ void WidgetGl::translateGrid (
     G3D::Vector3 translationRatio = calculateTranslationRatio (
 	viewNumber, position, G3D::Vector3::X_AXIS, G3D::Vector3::Y_AXIS);
     G3D::Vector3 extent = calculateViewingVolumeScaledExtent (viewNumber);
-    vs.SetGridTranslation (vs.GetGridTranslation () + 
+    vs.SetSeedTranslation (vs.GetSeedTranslation () + 
                            vs.GetScaleRatio () * translationRatio * extent);
     CacheUpdateSeedsCalculateStreamline (viewNumber);
 }
@@ -1115,7 +1115,7 @@ void WidgetGl::scaleGrid (ViewNumber::Enum viewNumber, const QPoint& position)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     float ratio = ratioFromScaleCenter (viewNumber, position);
-    vs.SetGridScaleRatio (vs.GetGridScaleRatio () * ratio);
+    vs.SetSeedScaleRatio (vs.GetSeedScaleRatio () * ratio);
     CacheUpdateSeedsCalculateStreamline (viewNumber);
 }
 
@@ -2932,7 +2932,7 @@ void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
         m_average[viewNumber]->AverageStep (direction, vs.GetTimeWindow ());
         if (vs.GetVelocityVis () == VectorVis::STREAMLINE)
         {
-            if (vs.KDESeedsEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
+            if (vs.IsKDESeedEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
                 CacheUpdateSeedsCalculateStreamline (viewNumber);
             else
                 CacheCalculateStreamline (viewNumber);
@@ -2967,8 +2967,8 @@ void WidgetGl::GetGridParams (
     G3D::Matrix2 currentMV = ToMatrix2 (m);
     G3D::Matrix2 currentMVInverse = currentMV.inverse ();
     G3D::Vector2 gridTranslation =  
-        currentMVInverse * vs.GetGridTranslation ().xy ();
-    *gridCellLength = GetBubbleDiameter (viewNumber) * vs.GetGridScaleRatio ();
+        currentMVInverse * vs.GetSeedTranslation ().xy ();
+    *gridCellLength = GetBubbleDiameter (viewNumber) * vs.GetSeedScaleRatio ();
     *gridOrigin = rotationCenter.xy () + gridTranslation;
 }
 
@@ -3075,7 +3075,7 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
         return;
 
     bool useKDESeeds = false;
-    if (vs.KDESeedsEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
+    if (vs.IsKDESeedEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
     {
         useKDESeeds = true;
         if (GetAverageCache (viewNumber)->GetT1sKDE () == 0)
@@ -3126,7 +3126,7 @@ void WidgetGl::CacheUpdateSeedsCalculateStreamline (ViewNumber::Enum viewNumber)
         GetAverageCache (viewNumber));
     saveVelocity (viewNumber, GetAverageCache (viewNumber)->GetVelocity ());
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    if (vs.KDESeedsEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
+    if (vs.IsKDESeedEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
     {
         m_average[viewNumber]->GetT1sKDE ().CacheData (
             GetAverageCache (viewNumber));
@@ -3319,7 +3319,7 @@ void WidgetGl::displayVelocityStreamlines (ViewNumber::Enum viewNumber) const
         while (lines->GetNextCell (points))
             displayVelocityStreamline (viewNumber, points);
         glPopMatrix ();
-        if (vs.SeedsShown ())
+        if (vs.IsSeedShown ())
             displayVelocityStreamlineSeeds (viewNumber);
         glPopAttrib ();
     }
@@ -3831,8 +3831,8 @@ void WidgetGl::ResetTransformGrid ()
     {
 	ViewNumber::Enum viewNumber = vn[i];
 	ViewSettings& vs = GetViewSettings (viewNumber);
-	vs.SetGridScaleRatio (1);
-	vs.SetGridTranslation (G3D::Vector3::zero ());
+	vs.SetSeedScaleRatio (1);
+	vs.SetSeedTranslation (G3D::Vector3::zero ());
         CacheUpdateSeedsCalculateStreamline (viewNumber);
     }    
     update ();
@@ -3945,20 +3945,20 @@ void WidgetGl::ToggledBarLabelsShown (bool shown)
     update ();
 }
 
-void WidgetGl::ToggledKDESeeds (bool enabled)
+void WidgetGl::ToggledKDESeed (bool enabled)
 {
     makeCurrent ();
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    vs.SetKDESeedsEnabled (enabled);
+    vs.SetKDESeedEnabled (enabled);
     CacheUpdateSeedsCalculateStreamline (viewNumber);
     CompileUpdate ();
 }
 
-void WidgetGl::ToggledSeedsShown (bool shown)
+void WidgetGl::ToggledSeedShown (bool shown)
 {
     ViewSettings& vs = GetViewSettings ();
-    vs.SetSeedsShown (shown);
+    vs.SetSeedShown (shown);
     update ();
 }
 

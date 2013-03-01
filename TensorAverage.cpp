@@ -220,13 +220,13 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
     const Simulation& simulation = this->GetSimulation ();
     ViewSettings& vs = widgetGl.GetViewSettings (viewNumber);
     float scaleRatio = vs.GetScaleRatio ();
-    float gridScaleRatio = vs.GetScaleRatio () * vs.GetGridScaleRatio ();
+    float gridScaleRatio = vs.GetScaleRatio () * vs.GetSeedScaleRatio ();
 
     *onePixelInObjectSpace = 
         GetOnePixelInObjectSpace (simulation.Is2D ()) * scaleRatio;
     *lineWidth = *onePixelInObjectSpace * CALL_MEMBER (vs, m_lineWidthRatio) ();
 
-    *gridTranslation = vs.GetGridTranslation ().xy ();
+    *gridTranslation = vs.GetSeedTranslation ().xy ();
     *gridCellLength = widgetGl.GetBubbleDiameter (viewNumber) * 
         gridScaleRatio;
     *enclosingRect = toRect2D (

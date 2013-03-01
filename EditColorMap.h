@@ -1,5 +1,5 @@
 /**
- * @file   HistogramHeight.h
+ * @file   EditColorMap.h
  * @author Dan R. Lipsa
  * @date 23 August 2010
  *

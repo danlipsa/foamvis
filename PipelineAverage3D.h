@@ -48,6 +48,8 @@ private:
     vector<vtkSmartPointer<vtkActor> > m_object;
     // for each object, 3 forces acting on it
     vector<boost::array<vtkSmartPointer<vtkActor>, 3> > m_forceActor;
+    vtkSmartPointer<vtkPointSource> m_glyphsSeeds;
+    vtkSmartPointer<vtkActor> m_velocityGlyphs;
 };
 
 

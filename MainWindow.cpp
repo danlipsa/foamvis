@@ -383,7 +383,7 @@ void MainWindow::setupButtonGroups ()
     buttonGroupInteractionObject->setId (
 	radioButtonInteractionContext, InteractionObject::CONTEXT);
     buttonGroupInteractionObject->setId (
-	radioButtonInteractionGrid, InteractionObject::GRID);
+	radioButtonInteractionSeeds, InteractionObject::GRID);
 
     buttonGroupTimeLinkage->setId (
 	radioButtonTimeIndependent, TimeLinkage::INDEPENDENT);
@@ -1645,7 +1645,7 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
     InteractionMode::Enum im = InteractionMode::Enum(index);
     radioButtonInteractionLight->setDisabled (true);
     radioButtonInteractionContext->setDisabled (true);
-    radioButtonInteractionGrid->setDisabled (true);
+    radioButtonInteractionSeeds->setDisabled (true);
     switch (im)
     {
     case InteractionMode::ROTATE:
@@ -1659,13 +1659,13 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
 
     case InteractionMode::SCALE:
 	radioButtonInteractionContext->setEnabled (true);
-	radioButtonInteractionGrid->setEnabled (true);
+	radioButtonInteractionSeeds->setEnabled (true);
 	comboBoxInteractionMode->setToolTip ("");
 	break;
 	
     case InteractionMode::TRANSLATE:
 	radioButtonInteractionLight->setEnabled (true);
-	radioButtonInteractionGrid->setEnabled (true);
+	radioButtonInteractionSeeds->setEnabled (true);
 	comboBoxInteractionMode->setToolTip (
 	    "Translate in the X and Y plane<br>"
 	    "press Ctrl to translate along the X axis<br>"

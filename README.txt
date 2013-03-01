@@ -558,4 +558,4 @@ make distclean;release.pl;svn commit -m "";
 doxygen
 cd ..;tar czf foam-<version>.tgz foam
 cd xxx-private/src/
-tar czf xxx-ini-<version>.tgz xxx xxx.ini
+   tar czf xxx-ini-<version>.tgz xxx xxx.ini

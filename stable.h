@@ -141,6 +141,7 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkPolyDataMapper2D.h>
 #include <vtkPointData.h>
+#include <vtkPointSource.h>
 #include <vtkPolyData.h>
 #include <vtkProbeFilter.h>
 #include <vtkProperty.h>

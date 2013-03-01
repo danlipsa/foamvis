@@ -192,22 +192,6 @@ public:
     {
         m_streamlineStepLength = steps;
     }
-    bool SeedsShown () const
-    {
-        return m_seedsShown;
-    }
-    void SetSeedsShown (bool shown)
-    {
-        m_seedsShown = shown;
-    }
-    bool KDESeedsEnabled () const
-    {
-        return m_kdeSeedsEnabled;
-    }
-    void SetKDESeedsEnabled (bool enabled)
-    {
-        m_kdeSeedsEnabled = enabled;
-    }
     float GetKDEValue () const
     {
         return m_kdeValue;
@@ -344,24 +328,39 @@ public:
 
     /**
      * @{
-     * @name Transforms grid
+     * @name Seeds for glyphs and streamlines
      */
-    double GetGridScaleRatio () const
+    bool IsSeedShown () const
     {
-	return m_gridScaleRatio;
+        return m_seedShown;
     }
-    void SetGridScaleRatio (double gridScaleRatio)
+    void SetSeedShown (bool shown)
     {
-	m_gridScaleRatio = gridScaleRatio;
+        m_seedShown = shown;
     }
-
-    const G3D::Vector3& GetGridTranslation () const
+    bool IsKDESeedEnabled () const
     {
-	return m_gridTranslation;
+        return m_kdeSeedEnabled;
     }
-    void SetGridTranslation (const G3D::Vector3& gridTranslation)
+    void SetKDESeedEnabled (bool enabled)
     {
-	m_gridTranslation = gridTranslation;
+        m_kdeSeedEnabled = enabled;
+    }
+    float GetSeedScaleRatio () const
+    {
+	return m_seedScaleRatio;
+    }
+    void SetSeedScaleRatio (float gridScaleRatio)
+    {
+	m_seedScaleRatio = gridScaleRatio;
+    }
+    const G3D::Vector3& GetSeedTranslation () const
+    {
+	return m_seedTranslation;
+    }
+    void SetSeedTranslation (const G3D::Vector3& gridTranslation)
+    {
+	m_seedTranslation = gridTranslation;
     }
     // @}
 
@@ -746,10 +745,12 @@ private:
     G3D::Vector3 m_rotationCenter;
     RotationCenterType m_rotationCenterType;
     float m_scaleRatio;
-    double m_gridScaleRatio;
+    bool m_seedShown;
+    bool m_kdeSeedEnabled;
+    float m_seedScaleRatio;
+    G3D::Vector3 m_seedTranslation;
     double m_contextScaleRatio;
     G3D::Vector3 m_translation;
-    G3D::Vector3 m_gridTranslation;
     // lighting state
     bool m_lightingEnabled;
     LightNumber::Enum m_selectedLight;
@@ -815,8 +816,6 @@ private:
     float m_timeDisplacement;
     size_t m_bubblePathsTimeBegin;
     size_t m_bubblePathsTimeEnd;
-    bool m_seedsShown;
-    bool m_kdeSeedsEnabled;
     float m_kdeValue;
     int m_kdeMultiplier;
 };

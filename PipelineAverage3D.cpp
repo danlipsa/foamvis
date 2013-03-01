@@ -27,12 +27,13 @@ PipelineAverage3D::PipelineAverage3D (
     size_t objectCount, size_t constraintSurfaceCount, size_t fontSize) :
     PipelineBase (fontSize, PipelineType::AVERAGE_3D)
 {
+    // Actors:
     // vtkImageData->vtkThreshold->vtkDatasetMapper->vtkActor->vtkRenderer
-    //                                      vtkScalarBarActor 
-    // 
-    // (foam objects)    vtkPolyData->vtkPolyDataMapper->vtkActor
-    // (constraint faces)
+    //                                               vtkScalarBarActor
+    // (objects)     
+    // (constraint faces) vtkPolyData->vtkPolyDataMapper->vtkActor
     // (forces)          vtkArrowSource->vtkPolyDataMapper->vtkActor
+    // (velocity glyphs)  vtkPointSource
 
     // threshold
     VTK_CREATE (vtkThreshold, threshold);
@@ -71,6 +72,15 @@ PipelineAverage3D::PipelineAverage3D (
     // constraint faces rendered transparent
     m_constraintSurface.resize (constraintSurfaceCount);
     setPolyActors (m_constraintSurface.begin (), m_constraintSurface.end ());
+
+    // velocity glyphs
+    VTK_CREATE (vtkPointSource, seeds);
+    m_glyphsSeeds = seeds;
+    VTK_CREATE (vtkPolyDataMapper, velocityGlyphsMapper);
+    VTK_CREATE (vtkActor, velocityGlyphsActor);
+    velocityGlyphsActor->SetMapper (velocityGlyphsMapper);
+    GetRenderer ()->AddViewProp (velocityGlyphsActor);
+    m_velocityGlyphs = velocityGlyphsActor;
 }
 
 template <typename Iterator>
