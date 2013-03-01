@@ -1,6 +1,6 @@
 Release log
 ===========
-0.8.
+0.8.2738
         - update to vtk-6.0-20130125.tgz
         - remove folders inside .foamvis to regenerate regular grid data for 3D
         - bug fix: next step did not update the OpenGL window when both 
@@ -14,10 +14,10 @@ Release log
         - bug fix: go-to-end button causes an exception
         - changed parameter format for --force such that it takes three 
           components for each force and the separator is comma.
+        - Display forces for 3D average
         - bug fix: crash for comparing simulations with different number of 
           time steps.
         - Allowing loading/comparison of 2D and 3D simulations
-        - Display forces for 3D average
         - Bug fix: save regular version of the dataset before adjusting 
           pressures and then adjust pressures when loading data from disk. 
           This is needed to allow loading different number of time steps for 
