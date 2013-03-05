@@ -164,6 +164,7 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLImageDataWriter.h>
 #include <vtkXMLImageDataReader.h>
+#include <vtkVertexGlyphFilter.h>
 
 
 // OpenGL G3D headers

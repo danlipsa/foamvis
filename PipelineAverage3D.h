@@ -22,6 +22,7 @@ class PipelineAverage3D : public PipelineBase
 public:
     PipelineAverage3D (
         size_t objects, size_t constraintSurfaces, size_t fontSize);
+
     virtual void UpdateColorBarModel (
         const ColorBarModel& colorBarModel, const char* name);
     void UpdateThreshold (QwtDoubleInterval interval);
@@ -32,6 +33,7 @@ public:
     void UpdateViewTitle (
         bool titleShown, const G3D::Vector2& postion,
         const string& simulationName, const string& viewTitle);
+    void UpdateGlyphSeeds (const G3D::AABox& simulationBox);
 
 private:
     void updateAlpha (
@@ -48,8 +50,9 @@ private:
     vector<vtkSmartPointer<vtkActor> > m_object;
     // for each object, 3 forces acting on it
     vector<boost::array<vtkSmartPointer<vtkActor>, 3> > m_forceActor;
-    vtkSmartPointer<vtkPointSource> m_glyphsSeeds;
-    vtkSmartPointer<vtkActor> m_velocityGlyphs;
+    // velocity glyphs
+    vtkSmartPointer<vtkPointSource> m_glyphSeeds;
+    vtkSmartPointer<vtkActor> m_velocityGlyph;
 };
 
 

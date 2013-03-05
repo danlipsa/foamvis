@@ -1,5 +1,11 @@
 Release log
 ===========
+0.8.
+        - add Reset transform/All and Focus to the VTK view (3D average)
+        - set scalar values for invalid regular grid points to - MAX_FLOAT. As 
+          a result, images in average view are always trimed of the "empty" 
+          space.
+        
 0.8.2740
         - update to vtk-6.0-20130125.tgz
         - remove folders inside .foamvis to regenerate regular grid data for 3D

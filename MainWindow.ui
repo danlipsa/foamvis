@@ -341,7 +341,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tabSettings">
         <attribute name="title">
@@ -363,7 +363,7 @@
             <bool>true</bool>
            </property>
            <property name="currentIndex">
-            <number>4</number>
+            <number>5</number>
            </property>
            <widget class="QWidget" name="tabFirst">
             <attribute name="title">
@@ -2704,12 +2704,14 @@
     <slot>ValueChangedBubblePathsTimeEnd(int)</slot>
     <slot>ToggledT1sKernelTextureShown(bool)</slot>
     <slot>ValueChangedT1sKernelSigma(double)</slot>
-    <slot>ToggledSeedShown(bool)</slot>
-    <slot>ToggledKDESeed(bool)</slot>
+    <slot>ToggledSeedsShown(bool)</slot>
+    <slot>ToggledKDESeeds(bool)</slot>
     <slot>ValueChangedKDEValue(double)</slot>
     <slot>ValueChangedKDEMultiplier(int)</slot>
     <slot>ToggledBarLabelsShown(bool)</slot>
     <slot>ToggledVelocityFieldSaved(bool)</slot>
+    <slot>ToggledSeedShown(bool)</slot>
+    <slot>ToggledKDESeed(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>

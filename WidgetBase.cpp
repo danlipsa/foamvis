@@ -28,7 +28,26 @@ WidgetBase::WidgetBase (QWidget* widget,
     m_isView (isView),
     m_getViewCount (getViewCount)
 {
+    initCopy (m_actionCopySelection, m_signalMapperCopySelection);
+    initCopy (m_actionCopyTransformation, m_signalMapperCopyTransformation);
+
+    m_actionResetTransformAll = 
+        boost::make_shared<QAction> (tr("&All"), m_widget);
+    m_actionResetTransformAll->setShortcut(QKeySequence (tr ("Ctrl+R")));
+    m_actionResetTransformAll->setStatusTip(tr("Reset transform all"));
+
+    m_actionResetTransformFocus = boost::make_shared<QAction> (
+	tr("&Focus"), m_widget);
+    m_actionResetTransformFocus->setStatusTip(tr("Reset transform focus"));
 }
+
+
+QString WidgetBase::tr (const char * sourceText, 
+                        const char * disambiguation, int n)
+{
+    return m_widget->tr (sourceText, disambiguation, n);
+}
+
 
 void WidgetBase::Init (
     boost::shared_ptr<Settings> settings,
@@ -207,3 +226,15 @@ G3D::Matrix3 WidgetBase::GetRotationForAxesOrder (ViewNumber::Enum viewNumber,
     return vs.GetRotationForAxesOrder (foam);
 }
 
+void WidgetBase::ResetTransformFocus ()
+{
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	vs.SetRotation (G3D::Matrix3::identity ());
+	vs.SetScaleRatio (1);
+	vs.SetTranslation (G3D::Vector3::zero ());
+    }
+}

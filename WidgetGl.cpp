@@ -272,18 +272,6 @@ void WidgetGl::createActions ()
     connect(m_actionSelectThisBodyOnly.get (), SIGNAL(triggered()),
 	    this, SLOT(SelectThisBodyOnly ()));
 
-    m_actionResetTransformAll = boost::make_shared<QAction> (tr("&All"), this);
-    m_actionResetTransformAll->setShortcut(QKeySequence (tr ("Ctrl+R")));
-    m_actionResetTransformAll->setStatusTip(tr("Reset transform all"));
-    connect(m_actionResetTransformAll.get (), SIGNAL(triggered()),
-	    this, SLOT(ResetTransformAll ()));
-
-    m_actionResetTransformFocus = boost::make_shared<QAction> (
-	tr("&Focus"), this);
-    m_actionResetTransformFocus->setStatusTip(tr("Reset transform focus"));
-    connect(m_actionResetTransformFocus.get (), SIGNAL(triggered()),
-	    this, SLOT(ResetTransformFocus ()));
-
     m_actionResetTransformContext = boost::make_shared<QAction> (
 	tr("&Context"), this);
     m_actionResetTransformContext->setStatusTip(tr("Reset transform context"));
@@ -297,11 +285,11 @@ void WidgetGl::createActions ()
     connect(m_actionResetTransformLight.get (), SIGNAL(triggered()),
 	    this, SLOT(ResetTransformLight ()));
 
-    m_actionResetTransformGrid = boost::make_shared<QAction> (
-	tr("&Grid"), this);
-    m_actionResetTransformGrid->setStatusTip(tr("Reset transform grid"));
-    connect(m_actionResetTransformGrid.get (), SIGNAL(triggered()),
-	    this, SLOT(ResetTransformGrid ()));
+    m_actionResetTransformSeed = boost::make_shared<QAction> (
+	tr("&Seeds"), this);
+    m_actionResetTransformSeed->setStatusTip(tr("Reset transform seeds"));
+    connect(m_actionResetTransformSeed.get (), SIGNAL(triggered()),
+	    this, SLOT(ResetTransformSeed ()));
 
     m_actionRotationCenterBody = boost::make_shared<QAction> (
 	tr("&Body"), this);
@@ -445,17 +433,7 @@ void WidgetGl::createActions ()
     connect(m_actionOverlayBarCopyVelocityMagnitude.get (), SIGNAL(triggered()),
 	    this, SLOT(OverlayBarCopyVelocityMagnitude ()));
 
-    initCopy (m_actionCopyTransformation, m_signalMapperCopyTransformation);
-    connect (m_signalMapperCopyTransformation.get (),
-             SIGNAL (mapped (int)),
-             this,
-             SLOT (CopyTransformationFrom (int)));
-
-    initCopy (m_actionCopySelection, m_signalMapperCopySelection);
-    connect (m_signalMapperCopySelection.get (),
-	     SIGNAL (mapped (int)),
-	     this,
-	     SLOT (CopySelectionFrom (int)));
+    MAKE_COMMON_CONNECTIONS;
     
     initCopy (m_actionCopyPaletteClamping, m_signalMapperCopyPaletteClamping);
     connect (m_signalMapperCopyPaletteClamping.get (),
@@ -2549,7 +2527,7 @@ void WidgetGl::contextMenuEventView (QMenu* menu) const
 	menuReset->addAction (m_actionResetTransformFocus.get ());
 	menuReset->addAction (m_actionResetTransformContext.get ());
 	menuReset->addAction (m_actionResetTransformLight.get ());
-	menuReset->addAction (m_actionResetTransformGrid.get ());
+	menuReset->addAction (m_actionResetTransformSeed.get ());
     }
     {
 	QMenu* menuRotationCenter = menu->addMenu ("Rotation center");
@@ -3777,24 +3755,26 @@ void WidgetGl::mouseMoveEvent(QMouseEvent *event)
 
 void WidgetGl::ResetTransformAll ()
 {
+    __ENABLE_LOGGING__;
+    __LOG__ (cdbg << "WidgetGl::ResetTransformAll" << endl;);
+    if (! IsGlView ())
+        return;
     makeCurrent ();
     ResetTransformFocus ();
     ResetTransformContext ();
-    ResetTransformGrid ();
+    ResetTransformSeed ();
     ResetTransformLight ();
 }
 
 void WidgetGl::ResetTransformFocus ()
 {
+    WidgetBase::ResetTransformFocus ();
     makeCurrent ();
     vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
 	ViewSettings& vs = GetViewSettings (viewNumber);
-	vs.SetRotation (G3D::Matrix3::identity ());
-	vs.SetScaleRatio (1);
-	vs.SetTranslation (G3D::Vector3::zero ());
 	glMatrixMode (GL_PROJECTION);
 	ProjectionTransform (viewNumber);
 	glMatrixMode (GL_MODELVIEW);
@@ -3823,7 +3803,7 @@ void WidgetGl::ResetTransformContext ()
 
 }
 
-void WidgetGl::ResetTransformGrid ()
+void WidgetGl::ResetTransformSeed ()
 {
     makeCurrent ();
     vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();

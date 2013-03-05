@@ -55,18 +55,14 @@ WidgetVtk::WidgetVtk (QWidget* parent) :
     m_fontSize (10)
 {
     setVisible (false);
-
-    initCopy (m_actionCopyTransformation, m_signalMapperCopyTransformation);
-    connect (m_signalMapperCopyTransformation.get (),
-	     SIGNAL (mapped (int)),
-	     this,
-	     SLOT (CopyTransformationFrom (int)));
-    initCopy (m_actionCopySelection, m_signalMapperCopySelection);
-    connect (m_signalMapperCopySelection.get (),
-	     SIGNAL (mapped (int)),
-	     this,
-	     SLOT (CopySelectionFrom (int)));
+    createActions ();
 }
+
+void WidgetVtk::createActions ()
+{
+    MAKE_COMMON_CONNECTIONS;
+}
+
 
 // ======================================================================
 // PipelineBase
@@ -243,6 +239,8 @@ void WidgetVtk::AddAverageView (
     scalarAverage->SetBodyAttribute (vs.GetBodyOrFaceScalar ());
     m_average[viewNumber]->AverageInitStep (vs.GetTimeWindow ());
     pipeline.UpdateScalarAverage (scalarAverage);
+    pipeline.UpdateGlyphSeeds (
+        scalarAverage->GetSimulation ().GetBoundingBox ());
     pipeline.UpdateForceAverage (m_average[viewNumber]->GetForceAverage ());
     pipeline.ViewToVtk (vs, simulation.GetBoundingBox ().center (), foam);
     pipeline.UpdateContextAlpha (vs.GetContextAlpha ());
@@ -304,6 +302,19 @@ void WidgetVtk::CopySelectionFrom (int fromViewNumber)
     update ();
 }
 
+void WidgetVtk::ResetTransformAll ()
+{
+    __ENABLE_LOGGING__;
+    __LOG__ (cdbg << "WidgetVtk::ResetTransformAll" << endl;);
+    ResetTransformFocus ();
+}
+
+void WidgetVtk::ResetTransformFocus ()
+{
+    WidgetBase::ResetTransformFocus ();
+    ViewToVtk ();
+}
+
 
 void WidgetVtk::ForAllViews (
     PipelineType::Enum type, boost::function <void (ViewNumber::Enum)> f)
@@ -338,10 +349,17 @@ void WidgetVtk::contextMenuEvent (QContextMenuEvent *event)
 {
     QVTKWidget::contextMenuEvent (event);
     QMenu menu (this);
-    QMenu* menuCopy = menu.addMenu ("Copy");
-    addCopyMenu (menuCopy, "Transformation", &m_actionCopyTransformation[0]);
-    addCopyCompatibleMenu (menuCopy, "Selection", &m_actionCopySelection[0], 
-                           &WidgetBase::IsSelectionCopyCompatible);
+    {
+        QMenu* menuCopy = menu.addMenu ("Copy");
+        addCopyMenu (menuCopy, "Transformation", &m_actionCopyTransformation[0]);
+        addCopyCompatibleMenu (menuCopy, "Selection", &m_actionCopySelection[0], 
+                               &WidgetBase::IsSelectionCopyCompatible);
+    }
+    {
+	QMenu* menuReset = menu.addMenu ("Reset transform");
+	menuReset->addAction (m_actionResetTransformAll.get ());
+	menuReset->addAction (m_actionResetTransformFocus.get ());
+    }
     menu.exec (event->globalPos());
 }
 

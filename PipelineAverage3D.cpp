@@ -33,7 +33,7 @@ PipelineAverage3D::PipelineAverage3D (
     // (objects)     
     // (constraint faces) vtkPolyData->vtkPolyDataMapper->vtkActor
     // (forces)          vtkArrowSource->vtkPolyDataMapper->vtkActor
-    // (velocity glyphs)  vtkPointSource
+    // (velocity glyphs)  vtkPointSource->vtkPolyDataMapper->vtkActor
 
     // threshold
     VTK_CREATE (vtkThreshold, threshold);
@@ -75,13 +75,27 @@ PipelineAverage3D::PipelineAverage3D (
 
     // velocity glyphs
     VTK_CREATE (vtkPointSource, seeds);
-    m_glyphsSeeds = seeds;
-    VTK_CREATE (vtkPolyDataMapper, velocityGlyphsMapper);
-    VTK_CREATE (vtkActor, velocityGlyphsActor);
-    velocityGlyphsActor->SetMapper (velocityGlyphsMapper);
-    GetRenderer ()->AddViewProp (velocityGlyphsActor);
-    m_velocityGlyphs = velocityGlyphsActor;
+    VTK_CREATE (vtkVertexGlyphFilter, vertexGlyphs);
+    vertexGlyphs->SetInputConnection (seeds->GetOutputPort ());
+    VTK_CREATE (vtkPolyDataMapper, velocityGlyphMapper);
+    velocityGlyphMapper->SetInputConnection (vertexGlyphs->GetOutputPort ());
+    VTK_CREATE (vtkActor, velocityGlyphActor);
+    velocityGlyphActor->SetMapper (velocityGlyphMapper);
+    velocityGlyphActor->GetProperty()->SetPointSize(5);
+    velocityGlyphActor->GetProperty ()->SetColor (0, 0, 0);
+    GetRenderer ()->AddViewProp (velocityGlyphActor);
+    m_glyphSeeds = seeds;
+    m_velocityGlyph = velocityGlyphActor;
 }
+
+void PipelineAverage3D::UpdateGlyphSeeds (const G3D::AABox& b)
+{
+    // update velocity glyphs
+    G3D::Vector3 c = b.center ();
+    m_glyphSeeds->SetCenter (c.x, c.y, c.z);
+    m_glyphSeeds->SetRadius (b.extent ().max () / 2);
+}
+
 
 template <typename Iterator>
 void PipelineAverage3D::setPolyActors (Iterator begin, Iterator end)
@@ -116,7 +130,7 @@ void PipelineAverage3D::UpdateThreshold (QwtDoubleInterval interval)
 {
     if (m_threshold != 0)
     {
-        __ENABLE_LOGGING__;
+        //__ENABLE_LOGGING__;
 	m_threshold->ThresholdBetween (
 	    interval.minValue (), interval.maxValue ());
         __LOG__ (cdbg << interval << endl;);
@@ -201,6 +215,7 @@ void PipelineAverage3D::updateForce (
     actor.SetVisibility (shown);
 }
 
+
 void PipelineAverage3D::UpdateScalarAverage (
     boost::shared_ptr<RegularGridAverage> average)
 {
@@ -208,6 +223,7 @@ void PipelineAverage3D::UpdateScalarAverage (
     const ViewSettings& vs = average->GetViewSettings ();
     // update scalar
     m_threshold->SetInputDataObject (average->GetAverage ());
+
 
     // update objects
     const Foam::Bodies& objects = foam.GetObjects ();

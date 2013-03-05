@@ -91,6 +91,11 @@ public:
      */
     bool IsVtkView (ViewNumber::Enum viewNumber) const;
     bool IsGlView (ViewNumber::Enum viewNumber) const;
+    bool IsGlView () const
+    {
+        return IsGlView (GetViewNumber ());
+    }
+    
     bool IsHistogramShown (ViewNumber::Enum viewNumber) const;
     ViewCount::Enum GetVtkCount (vector<ViewNumber::Enum>* mapping = 0) const;
     ViewCount::Enum GetGlCount (vector<ViewNumber::Enum>* mapping = 0) const;

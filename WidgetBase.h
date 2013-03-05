@@ -33,6 +33,9 @@ public:
     WidgetBase (QWidget* widget,
 		IsViewType isView,
 		GetViewCountType getViewCount);
+
+    QString tr (const char * sourceText, 
+                const char * disambiguation = 0, int n = -1);
     void Init (boost::shared_ptr<Settings> settings,
 	       boost::shared_ptr<const SimulationGroup> simulationGroup, 
                AverageCaches* averageCache);
@@ -76,6 +79,7 @@ public:
         ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
     bool IsSelectionCopyCompatible (
         ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
+    void ResetTransformFocus ();
 
 protected:
     typedef bool (WidgetBase::*IsCopyCompatibleType) (
@@ -101,11 +105,14 @@ protected:
 protected:
     boost::array<boost::shared_ptr<QAction>, 
 		 ViewNumber::COUNT> m_actionCopyTransformation;
-boost::shared_ptr<QSignalMapper> m_signalMapperCopyTransformation;
-
+    boost::shared_ptr<QSignalMapper> m_signalMapperCopyTransformation;
+    
     boost::array<boost::shared_ptr<QAction>, 
-		 ViewNumber::COUNT> m_actionCopySelection;
+                 ViewNumber::COUNT> m_actionCopySelection;
     boost::shared_ptr<QSignalMapper> m_signalMapperCopySelection;
+
+    boost::shared_ptr<QAction> m_actionResetTransformAll;
+    boost::shared_ptr<QAction> m_actionResetTransformFocus;
 
 private:
     AverageCaches* m_averageCache;
@@ -113,6 +120,23 @@ private:
     IsViewType m_isView;
     GetViewCountType m_getViewCount;
 };
+
+#define MAKE_COMMON_CONNECTIONS\
+    connect (m_signalMapperCopySelection.get (),\
+             SIGNAL (mapped (int)),\
+             this,\
+             SLOT (CopySelectionFrom (int)));\
+    connect (m_signalMapperCopyTransformation.get (),\
+	     SIGNAL (mapped (int)),\
+	     this,\
+	     SLOT (CopyTransformationFrom (int)));\
+    connect (m_actionResetTransformAll.get (), SIGNAL(triggered()),\
+             this, SLOT(ResetTransformAll ()));\
+    connect(m_actionResetTransformFocus.get (), SIGNAL(triggered()),\
+	    this, SLOT(ResetTransformFocus ()))
+
+
+
 
 
 #endif //__WIDGET_BASE_H__

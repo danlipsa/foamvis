@@ -323,7 +323,7 @@ public Q_SLOTS:
     void ResetTransformFocus ();
     void ResetTransformContext ();
     void ResetTransformLight ();    
-    void ResetTransformGrid ();
+    void ResetTransformSeed ();
     void RotationCenterBody ();
     void RotationCenterFoam ();
     void AddLinkedTimeEvent ();
@@ -701,11 +701,9 @@ private:
     boost::shared_ptr<QAction> m_actionSelectBodiesByIdList;
     boost::shared_ptr<QAction> m_actionSelectThisBodyOnly;
 
-    boost::shared_ptr<QAction> m_actionResetTransformAll;
-    boost::shared_ptr<QAction> m_actionResetTransformFocus;
     boost::shared_ptr<QAction> m_actionResetTransformContext;
     boost::shared_ptr<QAction> m_actionResetTransformLight;
-    boost::shared_ptr<QAction> m_actionResetTransformGrid;
+    boost::shared_ptr<QAction> m_actionResetTransformSeed;
 
     boost::shared_ptr<QAction> m_actionRotationCenterBody;
     boost::shared_ptr<QAction> m_actionRotationCenterFoam;

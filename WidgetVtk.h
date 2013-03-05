@@ -38,6 +38,11 @@ public:
                boost::shared_ptr<const SimulationGroup> simulationGroup);
     void UpdateFocus ();
     void ViewToVtk (ViewNumber::Enum viewNumber);
+    void ViewToVtk ()
+    {
+        ViewToVtk (GetViewNumber ());
+    }
+
     void VtkToView (ViewNumber::Enum viewNumber);
     void VtkToView ()
     {
@@ -85,8 +90,11 @@ Q_SIGNALS:
     void PaintEnd ();
 
 public Q_SLOTS:
-    void CopyTransformationFrom (int fromViewNumber);
     void CopySelectionFrom (int fromViewNumber);
+    void CopyTransformationFrom (int fromViewNumber);
+    void ResetTransformAll ();
+    void ResetTransformFocus ();    
+
 
 protected:
     virtual void resizeEvent (QResizeEvent * event);
@@ -98,6 +106,7 @@ private:
     void updateViewFocus (ViewNumber::Enum viewNumber);
     void resizeViewEvent (ViewNumber::Enum viewNumber);
     void removeView (ViewNumber::Enum viewNumber);
+    void createActions ();
 
 private:
     Q_OBJECT

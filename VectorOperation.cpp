@@ -54,6 +54,26 @@ void convertDataToArrays (
             right->GetPointData ()->GetArray (VectorOperation::VALID_NAME)));
 }
 
+bool isDataValid (size_t i, VectorOperation::ValidData left, 
+                  VectorOperation::ValidData right)
+{
+    char leftValid, rightValid;
+    left.m_valid->GetTupleValue (i, &leftValid);
+    right.m_valid->GetTupleValue (i, &rightValid);
+    if (! leftValid || ! rightValid)
+    {
+        char c (0);
+        left.m_valid->SetTupleValue (i, &c);
+        boost::array<float, BodyAttribute::MAX_NUMBER_OF_COMPONENTS> leftData;
+        fill (leftData.begin (), leftData.end (), 
+              -numeric_limits<float>::max ());
+        left.m_data->SetTupleValue (i, &leftData[0]);
+        return false;
+    }
+    else
+        return true;
+}
+
 
 
 // VectorOperation
@@ -70,25 +90,16 @@ void VectorOpVector::operator() (ValidData left, ValidData right)
     vtkIdType tuples = left.m_data->GetNumberOfTuples ();
     for (vtkIdType i = 0; i < tuples; ++i)
     {
-        float leftData[BodyAttribute::MAX_NUMBER_OF_COMPONENTS];
-        float rightData[BodyAttribute::MAX_NUMBER_OF_COMPONENTS];
-        char leftValid, rightValid;
-        left.m_valid->GetTupleValue (i, &leftValid);
-        right.m_valid->GetTupleValue (i, &rightValid);
-        if (! leftValid || ! rightValid)
-        {
-            char c (0);
-            left.m_valid->SetTupleValue (i, &c);
+        if (! isDataValid (i, left, right))
             continue;
-        }
-        left.m_data->GetTupleValue (i, leftData);
-        right.m_data->GetTupleValue (i, rightData);
+        boost::array<float, BodyAttribute::MAX_NUMBER_OF_COMPONENTS> leftData;
+        boost::array<float, BodyAttribute::MAX_NUMBER_OF_COMPONENTS> rightData;
+        left.m_data->GetTupleValue (i, &leftData[0]);
+        right.m_data->GetTupleValue (i, &rightData[0]);
         for (size_t j = 0; j < components; ++j)
-        {
             leftData[j] = 
                 GetBinaryOperation () (leftData[j], rightData[j]);
-        }
-        left.m_data->SetTupleValue (i, leftData);
+        left.m_data->SetTupleValue (i, &leftData[0]);
     }
 }
 
@@ -108,23 +119,14 @@ void VectorOpScalar::operator() (ValidData left, ValidData right, double scalar)
     vtkIdType tuples = left.m_data->GetNumberOfTuples ();
     for (vtkIdType i = 0; i < tuples; ++i)
     {
-        float leftData[BodyAttribute::MAX_NUMBER_OF_COMPONENTS];
-        float rightData[BodyAttribute::MAX_NUMBER_OF_COMPONENTS];
-        char leftValid, rightValid;
-        left.m_valid->GetTupleValue (i, &leftValid);
-        right.m_valid->GetTupleValue (i, &rightValid);
-        if (! leftValid || ! rightValid)
-        {
-            char c (0);
-            left.m_valid->SetTupleValue (i, &c);
+        if (! isDataValid (i, left, right))
             continue;
-        }
-        right.m_data->GetTupleValue (i, rightData);
+        boost::array<float, BodyAttribute::MAX_NUMBER_OF_COMPONENTS> leftData;
+        boost::array<float, BodyAttribute::MAX_NUMBER_OF_COMPONENTS> rightData;
+        right.m_data->GetTupleValue (i, &rightData[0]);
         for (size_t j = 0; j < components; ++j)
-        {
             leftData[j] = GetBinaryOperation () (rightData[j], scalar);
-        }
-        left.m_data->SetTupleValue (i, leftData);
+        left.m_data->SetTupleValue (i, &leftData[0]);
     }
 }
 
