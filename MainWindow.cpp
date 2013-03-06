@@ -424,6 +424,16 @@ void MainWindow::setupSliderData (const Simulation& simulation)
     sliderTimeSteps->setPageStep (10);
 }
 
+void MainWindow::ResetTransformAll ()
+{
+    __ENABLE_LOGGING__;
+    __LOG__ (cdbg << "MainWindow::ResetTransformAll" << endl;);
+    if (IsGlView (GetViewNumber ()))
+        widgetGl->ResetTransformAll ();
+    else
+        widgetVtk->ResetTransformAll ();
+}
+
 void MainWindow::RotateShown ()
 {
     comboBoxInteractionMode->setCurrentIndex (InteractionMode::ROTATE);
@@ -637,6 +647,15 @@ void MainWindow::createActions ()
 	    this, SLOT(ShowEditOverlayMap ()));
     addAction (sliderTimeSteps->GetActionNextSelectedTimeStep ().get ());
     addAction (sliderTimeSteps->GetActionPreviousSelectedTimeStep ().get ());
+
+    m_actionResetTransformAll = 
+        boost::make_shared<QAction> (tr("&All"), this);
+    m_actionResetTransformAll->setShortcut(QKeySequence (tr ("Ctrl+R")));
+    m_actionResetTransformAll->setStatusTip(tr("Reset transform all"));
+    connect (m_actionResetTransformAll.get (), SIGNAL(triggered()),     
+             this, SLOT(ResetTransformAll ()));
+    addAction (m_actionResetTransformAll.get ());
+
 
     addAction (m_actionRotateShown.get ());
     addAction (m_actionTranslateShown.get ());

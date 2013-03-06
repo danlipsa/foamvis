@@ -117,6 +117,7 @@ public Q_SLOTS:
     void TranslateShown ();    
     void SelectShown ();
     void DeselectShown ();
+    void ResetTransformAll ();
 
     void SelectionChangedHistogram (int viewNumber);
     /**
@@ -264,6 +265,8 @@ private:
     boost::shared_ptr<QAction> m_actionScaleShown;
     boost::shared_ptr<QAction> m_actionSelectShown;
     boost::shared_ptr<QAction> m_actionDeselectShown;
+    // Shortcuts for actions shared between GL and VTK
+    boost::shared_ptr<QAction> m_actionResetTransformAll;
     
     // index order: simulation index, view number, body property
     vector <

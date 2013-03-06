@@ -88,6 +88,7 @@ void WidgetVtk::ViewToVtk (ViewNumber::Enum viewNumber)
     const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
     PipelineBase& pipeline = *m_pipeline[viewNumber];
     pipeline.ViewToVtk (vs, simulation.GetBoundingBox ().center (), foam);
+    update ();
 }
 
 void WidgetVtk::VtkToView (ViewNumber::Enum viewNumber)

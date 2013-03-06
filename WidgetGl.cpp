@@ -131,7 +131,7 @@ const GLfloat WidgetGl::HIGHLIGHT_LINE_WIDTH = 2.0;
 
 WidgetGl::WidgetGl(QWidget *parent)
     : QGLWidget(parent),
-      WidgetBase (this, &WidgetBase::IsGlView, &WidgetBase::GetGlCount),
+      WidgetBase (this, &Base::IsGlView, &Base::GetGlCount),
       m_torusDomainShown (false),
       m_interactionObject (InteractionObject::FOCUS),
       m_edgesShown (true),

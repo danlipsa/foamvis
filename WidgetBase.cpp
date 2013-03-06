@@ -33,12 +33,12 @@ WidgetBase::WidgetBase (QWidget* widget,
 
     m_actionResetTransformAll = 
         boost::make_shared<QAction> (tr("&All"), m_widget);
-    m_actionResetTransformAll->setShortcut(QKeySequence (tr ("Ctrl+R")));
     m_actionResetTransformAll->setStatusTip(tr("Reset transform all"));
 
     m_actionResetTransformFocus = boost::make_shared<QAction> (
 	tr("&Focus"), m_widget);
     m_actionResetTransformFocus->setStatusTip(tr("Reset transform focus"));
+    
 }
 
 
