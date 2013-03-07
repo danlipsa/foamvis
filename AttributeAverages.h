@@ -33,7 +33,7 @@ public:
     }
     const Settings& GetSettings () const;
     const ViewSettings& GetViewSettings () const;
-    const Foam& GetFoam () const;
+    const Foam& GetFoam (ViewNumber::Enum viewNumber) const;
     const Simulation& GetSimulation () const;
 
     virtual void AverageInit ();

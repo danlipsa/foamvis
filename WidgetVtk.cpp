@@ -84,7 +84,7 @@ void WidgetVtk::updateViewFocus (ViewNumber::Enum viewNumber)
 void WidgetVtk::ViewToVtk (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    const Foam& foam = m_average[viewNumber]->GetFoam ();
+    const Foam& foam = m_average[viewNumber]->GetFoam (viewNumber);
     const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
     PipelineBase& pipeline = *m_pipeline[viewNumber];
     pipeline.ViewToVtk (vs, simulation.GetBoundingBox ().center (), foam);
@@ -98,7 +98,7 @@ void WidgetVtk::VtkToView (ViewNumber::Enum viewNumber)
     if (IsVtkView (viewNumber))
     {
         ViewSettings& vs = GetViewSettings (viewNumber);
-        const Foam& foam = m_average[viewNumber]->GetFoam ();
+        const Foam& foam = m_average[viewNumber]->GetFoam (viewNumber);
         PipelineBase& pipeline = *m_pipeline[viewNumber];
         pipeline.VtkToView (vs, foam);
     }

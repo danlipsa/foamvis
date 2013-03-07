@@ -46,9 +46,9 @@ const Simulation& AttributeAverages::GetSimulation () const
     return m_scalarAverage->GetSimulation ();
 }
 
-const Foam& AttributeAverages::GetFoam () const
+const Foam& AttributeAverages::GetFoam (ViewNumber::Enum viewNumber) const
 {
-    return m_scalarAverage->GetFoam ();
+    return m_scalarAverage->GetFoam (viewNumber);
 }
 
 void AttributeAverages::AverageInit ()
