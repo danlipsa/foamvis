@@ -134,8 +134,7 @@ void WidgetVtk::Init (boost::shared_ptr<Settings> settings,
     WidgetBase::Init (settings, simulationGroup, 0);
     // interactor style
     VTK_CREATE (FoamvisInteractorStyle, interactorStyle);
-    interactorStyle->SetInteractionModeQuery (
-        boost::bind (&Settings::GetInteractionMode, GetSettingsPtr ()));
+    interactorStyle->SetSettings (GetSettingsPtr ());
     
     QVTKInteractor *interactor = GetInteractor();
     interactor->SetInteractorStyle (interactorStyle);
@@ -263,8 +262,7 @@ void WidgetVtk::AddAverageView (
     setVisible (true);
 }
 
-void WidgetVtk::UpdateAverage (
-    ViewNumber::Enum viewNumber, int direction)
+void WidgetVtk::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
 {
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -305,8 +303,6 @@ void WidgetVtk::CopySelectionFrom (int fromViewNumber)
 
 void WidgetVtk::ResetTransformAll ()
 {
-    __ENABLE_LOGGING__;
-    __LOG__ (cdbg << "WidgetVtk::ResetTransformAll" << endl;);
     ResetTransformFocus ();
 }
 

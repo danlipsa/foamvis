@@ -465,8 +465,16 @@ public:
 
     /**
      * @{
-     * @name Average around
+     * @name Average
      */
+    bool IsAverageShown () const
+    {
+        return m_averageShown;
+    }
+    void SetAverageShown (bool averageShown)
+    {
+        m_averageShown = averageShown;
+    }
     bool IsAverageAround () const
     {
 	return m_averageAround;
@@ -475,7 +483,6 @@ public:
     {
 	m_averageAround = averageAround;
     }
-
     size_t GetAverageAroundBodyId () const
     {
 	return m_averageAroundBodyId[0];
@@ -519,6 +526,7 @@ public:
     void RotateAndTranslateAverageAround (
         size_t timeStep, int direction, RotateAndTranslateOperation op) const;
     // @}
+
 
     // ContextDisplay
     void AddContextDisplayBody (size_t bodyId)
@@ -771,8 +779,11 @@ private:
     float m_cameraDistance;
 
     //Stationary
+    bool m_averageShown;
     bool m_averageAround;
     boost::array<size_t, 2> m_averageAroundBodyId;
+    bool m_averageAroundRotationShown;
+    vector<ObjectPosition> m_averageAroundPositions;
     size_t m_differenceBodyId;
     // Context view
     bool m_contextView;
@@ -784,7 +795,6 @@ private:
     // Context display
     set<size_t> m_contextBody;
     // Context stationary
-    bool m_averageAroundRotationShown;
     boost::shared_ptr<BodySelector> m_bodySelector;
     bool m_selectionContextShown;
     float m_contextAlpha;
@@ -792,7 +802,6 @@ private:
     bool m_centerPathHidden;
     // Simulation related variables
     size_t m_simulationIndex;
-    vector<ObjectPosition> m_averageAroundPositions;
     /**
      * Index into m_foam that shows the current DMP file displayed
      */

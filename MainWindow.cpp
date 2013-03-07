@@ -426,8 +426,6 @@ void MainWindow::setupSliderData (const Simulation& simulation)
 
 void MainWindow::ResetTransformAll ()
 {
-    __ENABLE_LOGGING__;
-    __LOG__ (cdbg << "MainWindow::ResetTransformAll" << endl;);
     if (IsGlView (GetViewNumber ()))
         widgetGl->ResetTransformAll ();
     else
@@ -1146,6 +1144,12 @@ void MainWindow::ToggledAxesShown (bool checked)
     widgetGl->CompileUpdateAll ();
 }
 
+void MainWindow::ToggledAverageShown (bool checked)
+{
+    GetViewSettings ().SetAverageShown (checked);
+    widgetVtk->update ();
+}
+
 
 void MainWindow::ToggledViewFocusShown (bool checked)
 {
@@ -1231,6 +1235,12 @@ void MainWindow::CellClickedLinkedTimeEvents (int row, int column)
         sliderTimeSteps->setValue (
             GetSettings ().GetLinkedTimeEvents (GetViewNumber ())[row]);
 }
+
+void MainWindow::ButtonClickedInteractionObject (int index)
+{
+    GetSettingsPtr ()->SetInteractionObject (InteractionObject::Enum (index));
+}
+
 
 void MainWindow::ButtonClickedPlay ()
 {
@@ -1671,6 +1681,7 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
 	radioButtonInteractionLight->setEnabled (true);
 	comboBoxInteractionMode->setToolTip (
 	    "Rotate around the X and Y axes<br>"
+            "2D only:<br>"
 	    "press Ctrl to rotate around the X axis<br>"
 	    "press Shift to rotate around the Y axis<br>"
 	    "press Alt (or Ctrl+Shift) to rotate around the Z axis.");
@@ -1687,6 +1698,7 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
 	radioButtonInteractionSeeds->setEnabled (true);
 	comboBoxInteractionMode->setToolTip (
 	    "Translate in the X and Y plane<br>"
+            "2D only:<br>"
 	    "press Ctrl to translate along the X axis<br>"
 	    "press Shift to translate along the Y axis<br>"
 	    "press Alt (or Ctrl+Shift) to translate along the Z axis.");

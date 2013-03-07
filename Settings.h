@@ -212,10 +212,9 @@ public:
     ColorBarType::Enum GetColorBarType () const;
     // @}
 
-
     /**
      * @{
-     * @name Various
+     * @name Interaction
      */
     InteractionMode::Enum GetInteractionMode () const
     {
@@ -225,6 +224,21 @@ public:
     {
         m_interactionMode = mode;
     }
+    InteractionObject::Enum GetInteractionObject () const
+    {
+        return m_interactionObject;
+    }
+    void SetInteractionObject (InteractionObject::Enum mode)
+    {
+        m_interactionObject = mode;
+    }    
+    // @}
+
+
+    /**
+     * @{
+     * @name Various
+     */
     float GetEdgeRadius () const 
     {
 	return m_edgeRadius;
@@ -458,6 +472,7 @@ private:
     bool m_axesShown;
     boost::shared_ptr<QSignalMapper> m_signalMapperSelectionChanged;    
     InteractionMode::Enum m_interactionMode;
+    InteractionObject::Enum m_interactionObject;
 };
 
 

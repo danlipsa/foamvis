@@ -133,7 +133,6 @@ WidgetGl::WidgetGl(QWidget *parent)
     : QGLWidget(parent),
       WidgetBase (this, &Base::IsGlView, &Base::GetGlCount),
       m_torusDomainShown (false),
-      m_interactionObject (InteractionObject::FOCUS),
       m_edgesShown (true),
       m_bodyCenterShown (false),
       m_bodyNeighborsShown (false),
@@ -1474,8 +1473,9 @@ void WidgetGl::deselect (const QPoint& position)
 
 void WidgetGl::mouseMoveRotate (QMouseEvent *event, ViewNumber::Enum viewNumber)
 {
+    const Settings& settings = GetSettings ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    switch (m_interactionObject)
+    switch (settings.GetInteractionObject ())
     {
     case InteractionObject::FOCUS:
 	vs.SetRotation (
@@ -1498,7 +1498,7 @@ void WidgetGl::mouseMoveRotate (QMouseEvent *event, ViewNumber::Enum viewNumber)
 void WidgetGl::mouseMoveTranslate (QMouseEvent *event, 
 				   ViewNumber::Enum viewNumber)
 {
-    switch (m_interactionObject)
+    switch (GetSettings ().GetInteractionObject ())
     {
     case InteractionObject::FOCUS:
 	translate (viewNumber, event->pos (), event->modifiers ());
@@ -1521,7 +1521,7 @@ void WidgetGl::mouseMoveTranslate (QMouseEvent *event,
 
 void WidgetGl::mouseMoveScale (QMouseEvent *event, ViewNumber::Enum viewNumber)
 {
-    switch (m_interactionObject)
+    switch (GetSettings ().GetInteractionObject ())
     {
     case InteractionObject::FOCUS:
 	scale (viewNumber, event->pos ());
@@ -3755,8 +3755,6 @@ void WidgetGl::mouseMoveEvent(QMouseEvent *event)
 
 void WidgetGl::ResetTransformAll ()
 {
-    __ENABLE_LOGGING__;
-    __LOG__ (cdbg << "WidgetGl::ResetTransformAll" << endl;);
     if (! IsGlView ())
         return;
     makeCurrent ();
@@ -4339,14 +4337,6 @@ void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
 	}
     	setVisible (true);
     }
-    CompileUpdate ();
-}
-
-
-void WidgetGl::ButtonClickedInteractionObject (int index)
-{
-    makeCurrent ();
-    m_interactionObject = InteractionObject::Enum (index);
     CompileUpdate ();
 }
 

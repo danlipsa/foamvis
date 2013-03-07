@@ -150,7 +150,7 @@ void PipelineBase::ViewToVtk (
     G3D::Vector3 rotationCenter = vs.GetRotationCenter ();
     G3D::Vector3 up = G3D::Vector3 (0, 1, 0);
     G3D::Vector3 position = center + G3D::Vector3 (0, 0, 1);
-    // apply the transforms from ModelViewTransform in reverse order
+    // apply the transforms from WidgetGl::ModelViewTransform in reverse order
     // rotation around the rotationCenter
     up = cameraRotation * up;
     position = cameraRotation * (position - rotationCenter) + rotationCenter;

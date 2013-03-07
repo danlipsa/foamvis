@@ -9,6 +9,7 @@
 
 #include "FoamvisInteractorStyle.h"
 #include "Debug.h"
+#include "Settings.h"
 
 vtkStandardNewMacro(FoamvisInteractorStyle);
 
@@ -34,7 +35,9 @@ void FoamvisInteractorStyle::OnLeftButtonDown()
   
     this->GrabFocus(this->EventCallbackCommand);
 
-    switch (m_getInteractionMode ())
+    if (m_settings->GetInteractionObject () != InteractionObject::FOCUS)
+        return;
+    switch (m_settings->GetInteractionMode ())
     {
     case InteractionMode::ROTATE:
         if (this->Interactor->GetShiftKey () &&

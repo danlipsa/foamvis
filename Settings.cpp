@@ -127,7 +127,8 @@ Settings::Settings (
     m_velocityFieldSaved (false),
     m_barLabelsShown (true),
     m_axesShown (false),
-    m_interactionMode (InteractionMode::ROTATE)
+    m_interactionMode (InteractionMode::ROTATE),
+    m_interactionObject (InteractionObject::FOCUS)
 {
     initAllViewsSettings (*simulationGroup, w, h);
     initEndTranslationColor ();

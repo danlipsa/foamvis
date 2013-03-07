@@ -12,6 +12,8 @@
 
 
 #include "Enums.h"
+class Settings;
+
 
 class VTKINTERACTIONSTYLE_EXPORT FoamvisInteractorStyle : 
     public vtkInteractorStyleTrackballCamera
@@ -20,9 +22,9 @@ public:
   static FoamvisInteractorStyle *New();
   vtkTypeMacro(FoamvisInteractorStyle,vtkInteractorStyle);
 
-  void SetInteractionModeQuery (boost::function<InteractionMode::Enum ()> f)
+  void SetSettings (boost::shared_ptr<Settings> settings)
   {
-      m_getInteractionMode = f;
+      m_settings = settings;
   }
 
   // Description:
@@ -44,7 +46,7 @@ private:
   void operator=(const FoamvisInteractorStyle&);  // Not implemented.
 
 private:
-  boost::function<InteractionMode::Enum ()> m_getInteractionMode;
+  boost::shared_ptr<Settings> m_settings;
 };
 
 

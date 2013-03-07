@@ -270,7 +270,6 @@ public Q_SLOTS:
     void ToggledContextBoxShown (bool checked);
     void ToggledT1sKernelTextureShown (bool checked);
     void ToggledAverageAroundAllowRotation (bool checked);
-    void ButtonClickedInteractionObject (int id);
     void ButtonClickedDuplicateDomain (int id);
     void SetBodyOrFaceScalar (
 	ViewNumber::Enum viewNumber,
@@ -672,7 +671,6 @@ private:
      * What do we display
      */
     bool m_torusDomainShown;
-    InteractionObject::Enum m_interactionObject;
     /**
      * Used for rotation, translation and scale
      */

@@ -60,6 +60,7 @@ public Q_SLOTS:
     void SelectionChangedSettings (ViewNumber::Enum viewNumber);
     void ToggledBarLarge (bool large);
     void ToggledAxesShown (bool checked);
+    void ToggledAverageShown (bool shown);
     void ToggledViewFocusShown (bool checked);
     void ToggledTitleShown (bool checked);
     void ToggledBubblePathsLineUsed (bool checked);
@@ -74,6 +75,7 @@ public Q_SLOTS:
     void ToggledHistogramAllTimesteps (bool checked);
 
     void CellClickedLinkedTimeEvents (int row, int column);
+    void ButtonClickedInteractionObject (int id);
     void ButtonClickedViewType (int viewType);
     void ButtonClickedForce (int type);
     void ButtonClickedTorque (int type);
