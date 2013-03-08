@@ -10,6 +10,7 @@
 #define __PIPELINE_BASE_H__
 
 #include "Enums.h"
+class Base;
 class ViewSettings;
 class Foam;
 
@@ -32,9 +33,8 @@ public:
     void UpdateViewTitle (
         const char* title, const G3D::Vector2& position);
     void UpdateFocus (bool focus);
-    void ViewToVtk (const ViewSettings& vs, 
-                    G3D::Vector3 simulationCenter, const Foam& foam);
-    void VtkToView (ViewSettings& vs, const Foam& foam);
+    void FromViewTransform (ViewNumber::Enum viewNumber, const Base& base);
+    void ToViewTransform (ViewNumber::Enum viewNumber, Base* base) const;
     PipelineType::Enum GetType () const
     {
         return m_type;

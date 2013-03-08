@@ -209,10 +209,10 @@ template<typename ControlType, typename ValueType>
 void SetValueNoSignals (ControlType* control, ValueType value);
 template<typename Control, typename T>
 void SetValueAndMaxNoSignals (Control* slider, T value, T max);
-float IndexExponent2Value (const QSlider* slider, 
-			   const pair<float,float>& minMax);
-int Value2ExponentIndex (QSlider* slider, 
-			 const pair<float,float>& minMax, float value);
+float IndexExponentToValue (const QSlider* slider, 
+                            const pair<float,float>& minMax);
+int ValueToExponentIndex (QSlider* slider, 
+                          const pair<float,float>& minMax, float value);
 float IndexToValue (const QSlider* slider, const pair<float,float>& minMax);
 int ValueToIndex (QSlider* slider, const pair<float,float>& minMax, float value);
 void RemoveLayout (QWidget* widget);

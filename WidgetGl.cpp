@@ -4549,7 +4549,7 @@ void WidgetGl::ValueChangedDeformationSizeExp (int index)
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetDeformationSize (
-	IndexExponent2Value (
+	IndexExponentToValue (
 	    static_cast<QSlider*> (sender ()), TENSOR_SIZE_EXP2));
     CompileUpdate ();
 }
@@ -4560,7 +4560,7 @@ void WidgetGl::ValueChangedDeformationLineWidthExp (int index)
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetDeformationLineWidth (
-	IndexExponent2Value (
+	IndexExponentToValue (
 	    static_cast<QSlider*> (sender ()), 
             ViewSettings::TENSOR_LINE_WIDTH_EXP2));
     CompileUpdate ();
@@ -4572,7 +4572,7 @@ void WidgetGl::ValueChangedTorqueDistance (int index)
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetTorqueDistance (
-	IndexExponent2Value (
+	IndexExponentToValue (
 	    static_cast<QSlider*> (sender ()), ViewSettings::FORCE_SIZE_EXP2));
     CompileUpdate ();
 }
@@ -4583,7 +4583,7 @@ void WidgetGl::ValueChangedVelocityLineWidthExp (int index)
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetVelocityLineWidth (
-	IndexExponent2Value (static_cast<QSlider*> (sender ()),
+	IndexExponentToValue (static_cast<QSlider*> (sender ()),
 			     ViewSettings::TENSOR_LINE_WIDTH_EXP2));
     CompileUpdate ();
 }

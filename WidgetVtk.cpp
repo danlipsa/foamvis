@@ -41,7 +41,7 @@ void RenderWindowPaintEnd::Execute (
     vtkObject *caller, unsigned long eventId, void *callData)
 {
     (void) caller;(void)callData;(void)eventId;
-    m_widgetVtk->VtkToView ();
+    m_widgetVtk->ToViewTransform ();
     m_widgetVtk->SendPaintEnd ();
 }
 
@@ -81,26 +81,20 @@ void WidgetVtk::updateViewFocus (ViewNumber::Enum viewNumber)
     pipeline.UpdateFocus (focus);
 }
 
-void WidgetVtk::ViewToVtk (ViewNumber::Enum viewNumber)
+void WidgetVtk::FromViewTransform (ViewNumber::Enum viewNumber)
 {
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    const Foam& foam = m_average[viewNumber]->GetFoam (viewNumber);
-    const Simulation& simulation = m_average[viewNumber]->GetSimulation ();
-    PipelineBase& pipeline = *m_pipeline[viewNumber];
-    pipeline.ViewToVtk (vs, simulation.GetBoundingBox ().center (), foam);
+    m_pipeline[viewNumber]->FromViewTransform (viewNumber, *this);
     update ();
 }
 
-void WidgetVtk::VtkToView (ViewNumber::Enum viewNumber)
+void WidgetVtk::ToViewTransform (ViewNumber::Enum viewNumber)
 {
     // This may be called by RenderWindowPaintEnd and may arrive after the 
     // view was switched to a Gl view
     if (IsVtkView (viewNumber))
     {
-        ViewSettings& vs = GetViewSettings (viewNumber);
-        const Foam& foam = m_average[viewNumber]->GetFoam (viewNumber);
         PipelineBase& pipeline = *m_pipeline[viewNumber];
-        pipeline.VtkToView (vs, foam);
+        pipeline.ToViewTransform (viewNumber, this);
     }
 }
 
@@ -176,17 +170,12 @@ void WidgetVtk::UpdateScalarThreshold (QwtDoubleInterval interval)
 }
 
 
-void WidgetVtk::ViewToAverage3D ()
+void WidgetVtk::FromView ()
 {
-    const Settings& settings = GetSettings ();
-    ViewNumber::Enum viewNumber = settings.GetViewNumber ();
-    const ViewSettings& vs = settings.GetViewSettings (viewNumber);
+    ViewNumber::Enum viewNumber = GetViewNumber ();
     if (GetPipelineType (viewNumber) == PipelineType::AVERAGE_3D)
     {
-        m_pipelineAverage3d[viewNumber]->UpdateContextAlpha (
-            vs.GetContextAlpha ());
-        m_pipelineAverage3d[viewNumber]->UpdateObjectAlpha (
-            vs.GetObjectAlpha ());
+        m_pipelineAverage3d[viewNumber]->FromView (viewNumber, *this);
         update ();
     }
 }
@@ -232,7 +221,6 @@ void WidgetVtk::AddAverageView (
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const char* scalarName = FaceScalar::ToString (vs.GetBodyOrFaceScalar ());
     const Simulation& simulation = scalarAverage->GetSimulation ();
-    const Foam& foam = scalarAverage->GetFoam ();
     m_pipeline[viewNumber] = m_pipelineAverage3d[viewNumber];
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
     G3D::AABox vv = CalculateViewingVolume (viewNumber, simulation);
@@ -242,9 +230,8 @@ void WidgetVtk::AddAverageView (
     pipeline.UpdateGlyphSeeds (
         scalarAverage->GetSimulation ().GetBoundingBox ());
     pipeline.UpdateForceAverage (m_average[viewNumber]->GetForceAverage ());
-    pipeline.ViewToVtk (vs, simulation.GetBoundingBox ().center (), foam);
-    pipeline.UpdateContextAlpha (vs.GetContextAlpha ());
-    pipeline.UpdateObjectAlpha (vs.GetObjectAlpha ());
+    pipeline.FromViewTransform (viewNumber, *this);
+    pipeline.FromView (viewNumber, *this);
     pipeline.UpdateThreshold (interval);
     pipeline.UpdateColorBarModel (colorBarModel, scalarName);
     pipeline.UpdateFocus (GetViewNumber () == viewNumber);
@@ -290,7 +277,7 @@ void WidgetVtk::CopyTransformationFrom (int fromViewNumber)
     ViewNumber::Enum viewNumber = GetViewNumber ();
     GetViewSettings (viewNumber).CopyTransformation (
 	GetViewSettings (ViewNumber::Enum (fromViewNumber)));
-    ViewToVtk (viewNumber);
+    FromViewTransform (viewNumber);
 }
 
 void WidgetVtk::CopySelectionFrom (int fromViewNumber)
@@ -309,7 +296,7 @@ void WidgetVtk::ResetTransformAll ()
 void WidgetVtk::ResetTransformFocus ()
 {
     WidgetBase::ResetTransformFocus ();
-    ViewToVtk ();
+    FromViewTransform ();
 }
 
 

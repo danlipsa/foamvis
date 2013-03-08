@@ -37,16 +37,16 @@ public:
     void Init (boost::shared_ptr<Settings> settings,
                boost::shared_ptr<const SimulationGroup> simulationGroup);
     void UpdateFocus ();
-    void ViewToVtk (ViewNumber::Enum viewNumber);
-    void ViewToVtk ()
+    void FromViewTransform (ViewNumber::Enum viewNumber);
+    void FromViewTransform ()
     {
-        ViewToVtk (GetViewNumber ());
+        FromViewTransform (GetViewNumber ());
     }
 
-    void VtkToView (ViewNumber::Enum viewNumber);
-    void VtkToView ()
+    void ToViewTransform (ViewNumber::Enum viewNumber);
+    void ToViewTransform ()
     {
-        VtkToView (GetViewNumber ());
+        ToViewTransform (GetViewNumber ());
     }
     void RemoveViews ();
     PipelineType::Enum GetPipelineType (ViewNumber::Enum viewNumber);
@@ -78,7 +78,7 @@ public:
     void AddAverageView (
 	ViewNumber::Enum viewNumber, const ColorBarModel& colorBarModel,	
 	QwtDoubleInterval interval);
-    void ViewToAverage3D ();
+    void FromView ();
     void UpdateAverage (ViewNumber::Enum viewNumber, int direction);
     void UpdateForceAverage ();
     void Average3dCreatePipeline (size_t objects, size_t constraintSurfaces, 

@@ -26,14 +26,13 @@ public:
     virtual void UpdateColorBarModel (
         const ColorBarModel& colorBarModel, const char* name);
     void UpdateThreshold (QwtDoubleInterval interval);
-    void UpdateContextAlpha (float alpha);
-    void UpdateObjectAlpha (float alpha);
     void UpdateScalarAverage (boost::shared_ptr<RegularGridAverage> average);
     void UpdateForceAverage (const ForceAverage& forceAverage);
     void UpdateViewTitle (
         bool titleShown, const G3D::Vector2& postion,
         const string& simulationName, const string& viewTitle);
     void UpdateGlyphSeeds (const G3D::AABox& simulationBox);
+    virtual void FromView (ViewNumber::Enum viewNumber, const Base& base);
 
 private:
     void updateAlpha (
@@ -42,7 +41,7 @@ private:
     void setPolyActors (Iterator begin, Iterator end);
     void updateForce (size_t objectIndex, ForceType::Enum forceType,
                       G3D::Vector3 force, G3D::Vector3 position, bool shown);
-
+    
 private:
     vtkSmartPointer<vtkActor> m_averageActor;
     vtkSmartPointer<vtkThreshold> m_threshold;

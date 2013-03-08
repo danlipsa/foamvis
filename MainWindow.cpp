@@ -1147,7 +1147,7 @@ void MainWindow::ToggledAxesShown (bool checked)
 void MainWindow::ToggledAverageShown (bool checked)
 {
     GetViewSettings ().SetAverageShown (checked);
-    widgetVtk->update ();
+    widgetVtk->FromView ();
 }
 
 
@@ -1291,7 +1291,7 @@ void MainWindow::ValueChangedForceSize (int index)
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetForceSize (
-	IndexExponent2Value (
+	IndexExponentToValue (
 	    static_cast<QSlider*> (sender ()), ViewSettings::FORCE_SIZE_EXP2));
     widgetGl->CompileUpdate ();
 }
@@ -1301,9 +1301,16 @@ void MainWindow::ValueChangedForceLineWidth (int index)
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetForceLineWidth (
-	IndexExponent2Value (static_cast<QSlider*> (sender ()),
+	IndexExponentToValue (static_cast<QSlider*> (sender ()),
 			     ViewSettings::TENSOR_LINE_WIDTH_EXP2));
     widgetGl->CompileUpdate ();
+}
+
+void MainWindow::ValueChangedGlyphSeedsCount (int count)
+{
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetGlyphSeedsCount (count);
+    widgetVtk->FromView ();
 }
 
 
@@ -1314,7 +1321,7 @@ void MainWindow::ValueChangedContextAlpha (int index)
 	IndexToValue (static_cast<QSlider*> (sender ()),
                      ViewSettings::ALPHA_RANGE));
     widgetGl->CompileUpdate ();
-    widgetVtk->ViewToAverage3D ();
+    widgetVtk->FromView ();
 }
 
 void MainWindow::ValueChangedObjectAlpha (int index)
@@ -1323,7 +1330,7 @@ void MainWindow::ValueChangedObjectAlpha (int index)
     GetViewSettings ().SetObjectAlpha (
 	IndexToValue (static_cast<QSlider*> (sender ()),
                      ViewSettings::ALPHA_RANGE));
-    widgetVtk->ViewToAverage3D ();
+    widgetVtk->FromView ();
 }
 
 void MainWindow::ValueChangedHistogramHeight (int s)
@@ -1769,11 +1776,11 @@ void MainWindow::deformationViewToUI ()
 			 gridCellCenterShown);
     SetValueNoSignals (
 	horizontalSliderDeformationSize, 
-	Value2ExponentIndex (horizontalSliderDeformationSize, 
+	ValueToExponentIndex (horizontalSliderDeformationSize, 
 		    WidgetGl::TENSOR_SIZE_EXP2, vs.GetDeformationSize ()));
     SetValueNoSignals (
 	horizontalSliderDeformationLineWidth, 
-	Value2ExponentIndex (horizontalSliderDeformationLineWidth,
+	ValueToExponentIndex (horizontalSliderDeformationLineWidth,
 		     ViewSettings::TENSOR_LINE_WIDTH_EXP2,
 		     vs.GetDeformationLineWidth ()));
 }
@@ -1809,9 +1816,10 @@ void MainWindow::velocityViewToUI ()
     SetCheckedNoSignals (checkBoxVelocityColorMapped, colorMapped);
     SetValueNoSignals (
 	horizontalSliderVelocityGlyphLineWidth, 
-	Value2ExponentIndex (horizontalSliderVelocityGlyphLineWidth,
+	ValueToExponentIndex (horizontalSliderVelocityGlyphLineWidth,
 			     ViewSettings::TENSOR_LINE_WIDTH_EXP2,
 			     vs.GetVelocityLineWidth ()));
+    SetValueNoSignals (spinBoxGlyphSeedsCount, vs.GetGlyphSeedsCount ());
     // streamlines
     const int ratio = 5;
     SetValueAndMaxNoSignals (doubleSpinBoxStreamlineLength,
@@ -1851,16 +1859,16 @@ void MainWindow::forceViewToUI ()
 	checkBoxTorqueResult, 
         vs.IsTorqueShown (ForceType::RESULT), simulation.IsTorqueAvailable ());
     SetValueNoSignals (
-	horizontalSliderTorqueDistance, Value2ExponentIndex (
+	horizontalSliderTorqueDistance, ValueToExponentIndex (
             horizontalSliderTorqueDistance,
             ViewSettings::FORCE_SIZE_EXP2, vs.GetTorqueDistance ()));
     // size and width
     SetValueNoSignals (
-	horizontalSliderForceSize, Value2ExponentIndex (
+	horizontalSliderForceSize, ValueToExponentIndex (
             horizontalSliderForceSize,
             ViewSettings::FORCE_SIZE_EXP2, vs.GetForceSize ()));
     SetValueNoSignals (
-	horizontalSliderForceLineWidth, Value2ExponentIndex (
+	horizontalSliderForceLineWidth, ValueToExponentIndex (
             horizontalSliderForceLineWidth,
             ViewSettings::TENSOR_LINE_WIDTH_EXP2, vs.GetForceLineWidth ()));
 }

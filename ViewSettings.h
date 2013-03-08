@@ -338,6 +338,14 @@ public:
     {
         m_seedShown = shown;
     }
+    size_t GetGlyphSeedsCount () const
+    {
+        return m_glyphSeedsCount;
+    }
+    void SetGlyphSeedsCount (size_t count)
+    {
+        m_glyphSeedsCount = count;
+    }
     bool IsKDESeedEnabled () const
     {
         return m_kdeSeedEnabled;
@@ -718,7 +726,6 @@ public:
     const static pair<float,float> TENSOR_LINE_WIDTH_EXP2;
     const static pair<float,float> FORCE_SIZE_EXP2;
 
-
 Q_SIGNALS:
     void SelectionChanged ();
 
@@ -754,6 +761,7 @@ private:
     RotationCenterType m_rotationCenterType;
     float m_scaleRatio;
     bool m_seedShown;
+    size_t m_glyphSeedsCount;
     bool m_kdeSeedEnabled;
     float m_seedScaleRatio;
     G3D::Vector3 m_seedTranslation;

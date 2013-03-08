@@ -68,6 +68,7 @@ public Q_SLOTS:
     void ValueChangedObjectAlpha (int sliderValue);
     void ValueChangedForceSize (int index);
     void ValueChangedForceLineWidth (int index);
+    void ValueChangedGlyphSeedsCount (int index);
     void ToggledVelocityShown (bool checked);
     void ToggledHistogramGridShown (bool checked);
     void ToggledHistogramShown (bool checked);

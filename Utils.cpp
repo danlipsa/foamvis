@@ -639,7 +639,7 @@ G3D::Vector2 TexCoord (G3D::Rect2D enclosingRect, G3D::Vector2 v)
 
 
 
-float IndexExponent2Value (
+float IndexExponentToValue (
     const QSlider* slider, const pair<float,float>& exponentMinMax)
 {
     int index = slider->value ();
@@ -649,7 +649,7 @@ float IndexExponent2Value (
     return pow (2, exp);
 }
 
-int Value2ExponentIndex (QSlider* slider, 
+int ValueToExponentIndex (QSlider* slider, 
 		 const pair<float,float>& exponentMinMax, float value)
 {
     size_t maxSlider = slider->maximum ();
@@ -795,6 +795,8 @@ template void SetValueNoSignals<QSlider, float>(
     QSlider*, float);
 template void SetValueNoSignals<QDoubleSpinBox, float> (
     QDoubleSpinBox*, float);
+template void SetValueNoSignals<QSpinBox>(QSpinBox*, unsigned long);
+
 
 // SetValueAndMaxNoSignals
 template void SetValueAndMaxNoSignals<QSpinBox>(

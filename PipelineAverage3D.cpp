@@ -157,24 +157,6 @@ void PipelineAverage3D::UpdateColorBarModel (
         }
 }
 
-void PipelineAverage3D::UpdateContextAlpha (float alpha)
-{
-    updateAlpha (alpha, m_constraintSurface);
-}
-
-void PipelineAverage3D::UpdateObjectAlpha (float alpha)
-{
-    updateAlpha (alpha, m_object);
-}
-
-void PipelineAverage3D::updateAlpha (
-    float alpha, vector<vtkSmartPointer<vtkActor> >& actors)
-{
-    BOOST_FOREACH (vtkSmartPointer<vtkActor> actor, actors)
-	actor->GetProperty ()->SetOpacity (alpha);
-}
-
-
 void PipelineAverage3D::UpdateForceAverage (
     const ForceAverage& forceAverage)
 {
@@ -247,4 +229,21 @@ void PipelineAverage3D::UpdateScalarAverage (
 	    ->SetInputDataObject (foam.GetConstraintFacesPolyData (p.first));
 	++i;
     }
+}
+
+void PipelineAverage3D::FromView (ViewNumber::Enum viewNumber, const Base& base)
+{
+    const ViewSettings& vs = base.GetViewSettings (viewNumber);
+
+    updateAlpha (vs.GetContextAlpha (), m_constraintSurface);
+    updateAlpha (vs.GetObjectAlpha (), m_object);
+    m_averageActor->SetVisibility (vs.IsAverageShown ());
+    m_glyphSeeds->SetNumberOfPoints (vs.GetGlyphSeedsCount ());
+}
+
+void PipelineAverage3D::updateAlpha (
+    float alpha, vector<vtkSmartPointer<vtkActor> >& actors)
+{
+    BOOST_FOREACH (vtkSmartPointer<vtkActor> actor, actors)
+	actor->GetProperty ()->SetOpacity (alpha);
 }

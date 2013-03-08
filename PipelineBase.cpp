@@ -7,8 +7,10 @@
  * 
  */
 
+#include "Base.h"
 #include "Foam.h"
 #include "PipelineBase.h"
+#include "Simulation.h"
 #include "Utils.h"
 #include "ViewSettings.h"
 
@@ -140,9 +142,13 @@ void PipelineBase::UpdateFocus (bool focus)
 	GetRenderer ()->RemoveViewProp (m_focusRectActor);
 }
 
-void PipelineBase::ViewToVtk (
-    const ViewSettings& vs, G3D::Vector3 center, const Foam& foam)
+void PipelineBase::FromViewTransform (ViewNumber::Enum viewNumber, const Base& base)
 {
+
+    const ViewSettings& vs = base.GetViewSettings (viewNumber);
+    const Simulation& simulation = base.GetSimulation (viewNumber);
+    const Foam& foam = base.GetFoam (viewNumber);
+    G3D::Vector3 center = simulation.GetBoundingBox ().center ();
     G3D::Matrix3 cameraRotationAxes = 
         vs.GetRotationForAxesOrder (foam).inverse ();
     G3D::Matrix3 cameraRotation = vs.GetRotation ().inverse ();
@@ -168,9 +174,10 @@ void PipelineBase::ViewToVtk (
     GetRenderer ()->ResetCamera ();
 }
 
-void PipelineBase::VtkToView (
-    ViewSettings& vs, const Foam& foam)
+void PipelineBase::ToViewTransform (ViewNumber::Enum viewNumber, Base* base) const
 {
+    ViewSettings& vs = base->GetViewSettings (viewNumber);
+    const Foam& foam = base->GetFoam (viewNumber);
     vtkCamera* camera = GetRenderer ()->GetActiveCamera ();
     double center[3];
     double position[3];
