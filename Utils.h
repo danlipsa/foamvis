@@ -189,7 +189,7 @@ string LastDirFile (const string& fileName);
     vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 #define CALL_MEMBER(object,ptrToMember)  ((object).*(ptrToMember))
 #define RESOURCE(name) ":/" name
-#define CALL_NOT_NULL(objectPtr,memberName)                     \
+#define CALL_IF_NOT_NULL(objectPtr,memberName)                     \
     if (objectPtr != 0) objectPtr->memberName
 // @}
 

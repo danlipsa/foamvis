@@ -55,18 +55,18 @@ void AttributeAverages::AverageInit ()
 {
     m_scalarAverage->AverageInit ();
     m_forceAverage->AverageInit ();
-    CALL_NOT_NULL(m_velocityAverage,AverageInit) ();
-    CALL_NOT_NULL(m_deformationAverage,AverageInit) ();
-    CALL_NOT_NULL(m_t1sKDE,AverageInit) ();
+    CALL_IF_NOT_NULL(m_velocityAverage,AverageInit) ();
+    CALL_IF_NOT_NULL(m_deformationAverage,AverageInit) ();
+    CALL_IF_NOT_NULL(m_t1sKDE,AverageInit) ();
 }
 
 void AttributeAverages::AverageRelease ()
 {
     m_scalarAverage->AverageRelease ();
     m_forceAverage->AverageRelease ();
-    CALL_NOT_NULL(m_velocityAverage,AverageRelease) ();
-    CALL_NOT_NULL(m_deformationAverage,AverageRelease) ();
-    CALL_NOT_NULL(m_t1sKDE,AverageRelease) ();
+    CALL_IF_NOT_NULL(m_velocityAverage,AverageRelease) ();
+    CALL_IF_NOT_NULL(m_deformationAverage,AverageRelease) ();
+    CALL_IF_NOT_NULL(m_t1sKDE,AverageRelease) ();
 }
 
 
@@ -79,13 +79,13 @@ void AttributeAverages::AverageStep (int direction, size_t timeWindow)
     case ViewType::AVERAGE:
 	m_scalarAverage->AverageStep (direction, timeWindow);
 	m_forceAverage->AverageStep (direction, timeWindow);
-	CALL_NOT_NULL(m_velocityAverage,AverageStep) (direction, timeWindow);
-	CALL_NOT_NULL(m_deformationAverage,AverageStep) (direction, timeWindow);
+	CALL_IF_NOT_NULL(m_velocityAverage,AverageStep) (direction, timeWindow);
+	CALL_IF_NOT_NULL(m_deformationAverage,AverageStep) (direction, timeWindow);
 	break;
 	
     case ViewType::T1S_KDE:
-	CALL_NOT_NULL(m_velocityAverage,AverageStep) (direction, timeWindow);
-	CALL_NOT_NULL(m_t1sKDE,AverageStep) (direction, timeWindow);
+	CALL_IF_NOT_NULL(m_velocityAverage,AverageStep) (direction, timeWindow);
+	CALL_IF_NOT_NULL(m_t1sKDE,AverageStep) (direction, timeWindow);
 	break;
     default:
 	break;
@@ -105,19 +105,19 @@ void AttributeAverages::AverageRotateAndDisplay (
         m_forceAverage->AverageRotateAndDisplay (
 	    displayType, rotationCenter, angleDegrees);
 	if (vs.IsDeformationShown ())
-	    CALL_NOT_NULL(m_deformationAverage,AverageRotateAndDisplay) (
+	    CALL_IF_NOT_NULL(m_deformationAverage,AverageRotateAndDisplay) (
 		displayType, rotationCenter, angleDegrees);
 	break;
 	
     case ViewType::T1S_KDE:
-	CALL_NOT_NULL(m_t1sKDE,AverageRotateAndDisplay) (
+	CALL_IF_NOT_NULL(m_t1sKDE,AverageRotateAndDisplay) (
 	    displayType, rotationCenter, angleDegrees);
 	break;
     default:
 	break;
     }
     if (vs.IsVelocityShown ())
-        CALL_NOT_NULL(m_velocityAverage,AverageRotateAndDisplay) (
+        CALL_IF_NOT_NULL(m_velocityAverage,AverageRotateAndDisplay) (
             displayType, rotationCenter, angleDegrees);
 }
 
