@@ -43,9 +43,9 @@ public:
 
 protected:
     void createRenderer ();
-    void createScalarBar ();
-    void createViewTitle (size_t fontSize);
-    void createFocusRect ();
+    void createScalarBarActor ();
+    void createViewTitleActor (size_t fontSize);
+    void createFocusRectActor ();
 
 private:
     vtkSmartPointer<vtkRenderer> m_renderer;

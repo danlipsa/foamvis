@@ -27,13 +27,17 @@ PipelineAverage3D::PipelineAverage3D (
     size_t objectCount, size_t constraintSurfaceCount, size_t fontSize) :
     PipelineBase (fontSize, PipelineType::AVERAGE_3D)
 {
-    // Actors:
+    createScalarAverageActor ();
+    createObjectActor (objectCount);
+    createForceActor (objectCount);
+    createConstraintSurfaceActor (constraintSurfaceCount);
+    createVelocityGlyphActor ();
+}
+
+void PipelineAverage3D::createScalarAverageActor ()
+{
     // vtkImageData->vtkThreshold->vtkDatasetMapper->vtkActor->vtkRenderer
     //                                               vtkScalarBarActor
-    // (objects)     
-    // (constraint faces) vtkPolyData->vtkPolyDataMapper->vtkActor
-    // (forces)          vtkArrowSource->vtkPolyDataMapper->vtkActor
-    // (velocity glyphs)  vtkPointSource->vtkPolyDataMapper->vtkActor
 
     // threshold
     VTK_CREATE (vtkThreshold, threshold);
@@ -47,12 +51,18 @@ PipelineAverage3D::PipelineAverage3D (
     averageActor->SetMapper(averageMapper);
     m_averageActor = averageActor;
     GetRenderer ()->AddViewProp(averageActor);
+}
 
+void PipelineAverage3D::createObjectActor (size_t objectCount)
+{
     // foam objects
     m_object.resize (objectCount);
-    setPolyActors (m_object.begin (), m_object.end ());
+    setPolyActors (m_object.begin (), m_object.end ());    
+}
 
-    // forces acting on objects
+void PipelineAverage3D::createForceActor (size_t objectCount)
+{
+    // (forces)          vtkArrowSource->vtkPolyDataMapper->vtkActor
     m_forceActor.resize (objectCount);
     VTK_CREATE (vtkArrowSource, arrow);
     for (size_t i = 0; i < m_forceActor.size (); ++i)
@@ -67,33 +77,57 @@ PipelineAverage3D::PipelineAverage3D (
             GetRenderer ()->AddViewProp (actor);
             m_forceActor[i][j] = actor;
         }
-    }
+    }    
+}
 
+void PipelineAverage3D::createConstraintSurfaceActor (
+    size_t constraintSurfaceCount)
+{
     // constraint faces rendered transparent
+    // (constraint faces) vtkPolyData->vtkPolyDataMapper->vtkActor
     m_constraintSurface.resize (constraintSurfaceCount);
-    setPolyActors (m_constraintSurface.begin (), m_constraintSurface.end ());
+    setPolyActors (m_constraintSurface.begin (), m_constraintSurface.end ());    
+}
 
-    // velocity glyphs
+void PipelineAverage3D::createVelocityGlyphActor ()
+{
+    // (velocity glyphs)  
+    //vtkPointSource->vtkProbeFilter->vtkGlyph3D->vtkPolyDataMapper->vtkActor
     VTK_CREATE (vtkPointSource, seeds);
-    VTK_CREATE (vtkVertexGlyphFilter, vertexGlyphs);
-    vertexGlyphs->SetInputConnection (seeds->GetOutputPort ());
+    
+    VTK_CREATE (vtkProbeFilter, probe);
+    probe->SetInputConnection (seeds->GetOutputPort ());
+    //probe.SetSourceConnection(velocity_average);
+
+    // velocity glyph is a cone
+    VTK_CREATE (vtkConeSource, cone);
+    cone->SetResolution (6);
+    VTK_CREATE (vtkTransform, transform);
+    transform->Translate (0.5, 0.0, 0.0);
+    VTK_CREATE (vtkTransformPolyDataFilter, transformF);
+    transformF->SetInputConnection (cone->GetOutputPort());
+    transformF->SetTransform (transform);
+
+    // oriented and scaled glyph geometry at every point
+    VTK_CREATE (vtkGlyph3D, glyph);
+    glyph->SetInputConnection(probe->GetOutputPort());
+    glyph->SetSourceConnection(transformF->GetOutputPort());
+    glyph->SetVectorModeToUseVector ();
+    glyph->SetScaleModeToScaleByVector ();
+    glyph->SetScaleFactor (0.004);
+
+    // mapper
     VTK_CREATE (vtkPolyDataMapper, velocityGlyphMapper);
-    velocityGlyphMapper->SetInputConnection (vertexGlyphs->GetOutputPort ());
+    velocityGlyphMapper->SetInputConnection (glyph->GetOutputPort ());
     VTK_CREATE (vtkActor, velocityGlyphActor);
     velocityGlyphActor->SetMapper (velocityGlyphMapper);
     velocityGlyphActor->GetProperty()->SetPointSize(5);
     velocityGlyphActor->GetProperty ()->SetColor (0, 0, 0);
     GetRenderer ()->AddViewProp (velocityGlyphActor);
-    m_glyphSeeds = seeds;
-    m_velocityGlyph = velocityGlyphActor;
-}
 
-void PipelineAverage3D::UpdateGlyphSeeds (const G3D::AABox& b)
-{
-    // update velocity glyphs
-    G3D::Vector3 c = b.center ();
-    m_glyphSeeds->SetCenter (c.x, c.y, c.z);
-    m_glyphSeeds->SetRadius (b.extent ().max () / 2);
+    m_glyphSeeds = seeds;
+    m_glyphProbe = probe;
+    m_velocityGlyph = velocityGlyphActor;
 }
 
 
@@ -110,6 +144,18 @@ void PipelineAverage3D::setPolyActors (Iterator begin, Iterator end)
 	*it = actor;
     }
 }
+
+
+
+void PipelineAverage3D::UpdateGlyphSeeds (const G3D::AABox& b)
+{
+    // update velocity glyphs
+    G3D::Vector3 c = b.center ();
+    m_glyphSeeds->SetCenter (c.x, c.y, c.z);
+    m_glyphSeeds->SetRadius (b.extent ().max () / 2);
+}
+
+
 
 void PipelineAverage3D::UpdateViewTitle (
     bool titleShown, const G3D::Vector2& position,

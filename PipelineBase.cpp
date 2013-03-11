@@ -18,9 +18,9 @@ PipelineBase::PipelineBase (size_t fontSize, PipelineType::Enum type) :
     m_type (type)
 {
     createRenderer ();
-    createScalarBar ();
-    createViewTitle (fontSize);
-    createFocusRect ();
+    createScalarBarActor ();
+    createViewTitleActor (fontSize);
+    createFocusRectActor ();
 }
 
 
@@ -32,7 +32,7 @@ void PipelineBase::createRenderer ()
     m_renderer = renderer;
 }
 
-void PipelineBase::createScalarBar ()
+void PipelineBase::createScalarBarActor ()
 {
     VTK_CREATE (vtkScalarBarActor, scalarBar);
     scalarBar->SetOrientationToVertical ();
@@ -41,7 +41,7 @@ void PipelineBase::createScalarBar ()
     m_renderer->AddViewProp (scalarBar);
 }
 
-void PipelineBase::createViewTitle (size_t fontSize)
+void PipelineBase::createViewTitleActor (size_t fontSize)
 {
     VTK_CREATE (vtkTextProperty, singleLineTextProp);
     singleLineTextProp->SetFontSize (fontSize);
@@ -70,7 +70,7 @@ void PipelineBase::createViewTitle (size_t fontSize)
     m_viewTitleActor = textActor;
 }
 
-void PipelineBase::createFocusRect ()
+void PipelineBase::createFocusRectActor ()
 {
     VTK_CREATE(vtkPoints, Pts);
     Pts->InsertNextPoint (0.0, 0.0, 0.0);
@@ -142,7 +142,8 @@ void PipelineBase::UpdateFocus (bool focus)
 	GetRenderer ()->RemoveViewProp (m_focusRectActor);
 }
 
-void PipelineBase::FromViewTransform (ViewNumber::Enum viewNumber, const Base& base)
+void PipelineBase::FromViewTransform (
+    ViewNumber::Enum viewNumber, const Base& base)
 {
 
     const ViewSettings& vs = base.GetViewSettings (viewNumber);

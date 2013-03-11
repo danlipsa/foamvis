@@ -125,10 +125,12 @@
 #include <vtkCharArray.h>
 #include <vtkCleanPolyData.h>
 #include <vtkColorTransferFunction.h>
+#include <vtkConeSource.h>
 #include <vtkCommand.h>
 #include <vtkDataSetMapper.h>
 #include <vtkEventQtSlotConnect.h>
 #include <vtkFloatArray.h>
+#include <vtkGlyph3D.h>
 #include <vtkIdList.h>
 #include <vtkImageData.h>
 #include <vtkIndent.h>
@@ -160,6 +162,8 @@
 #include <vtkTextProperty.h>
 #include <vtkTetra.h>
 #include <vtkThreshold.h>
+#include <vtkTransform.h>
+#include <vtkTransformPolyDataFilter.h>
 #include <vtkTriangle.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLImageDataWriter.h>

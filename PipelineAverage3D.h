@@ -35,6 +35,12 @@ public:
     virtual void FromView (ViewNumber::Enum viewNumber, const Base& base);
 
 private:
+    void createScalarAverageActor ();
+    void createObjectActor (size_t objectCount);
+    void createForceActor (size_t objectCount);
+    void createConstraintSurfaceActor (size_t constraintSurfaceCount);
+    void createVelocityGlyphActor ();
+
     void updateAlpha (
         float alpha, vector<vtkSmartPointer<vtkActor> >& actors);
     template <typename Iterator>
@@ -51,6 +57,7 @@ private:
     vector<boost::array<vtkSmartPointer<vtkActor>, 3> > m_forceActor;
     // velocity glyphs
     vtkSmartPointer<vtkPointSource> m_glyphSeeds;
+    vtkSmartPointer<vtkProbeFilter> m_glyphProbe;
     vtkSmartPointer<vtkActor> m_velocityGlyph;
 };
 

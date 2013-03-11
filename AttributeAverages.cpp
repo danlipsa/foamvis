@@ -80,7 +80,8 @@ void AttributeAverages::AverageStep (int direction, size_t timeWindow)
 	m_scalarAverage->AverageStep (direction, timeWindow);
 	m_forceAverage->AverageStep (direction, timeWindow);
 	CALL_IF_NOT_NULL(m_velocityAverage,AverageStep) (direction, timeWindow);
-	CALL_IF_NOT_NULL(m_deformationAverage,AverageStep) (direction, timeWindow);
+	CALL_IF_NOT_NULL(m_deformationAverage,AverageStep) (
+            direction, timeWindow);
 	break;
 	
     case ViewType::T1S_KDE:
