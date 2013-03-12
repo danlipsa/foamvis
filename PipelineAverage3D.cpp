@@ -93,11 +93,11 @@ void PipelineAverage3D::createVelocityGlyphActor ()
 {
     // (velocity glyphs)  
     //vtkPointSource->vtkProbeFilter->vtkGlyph3D->vtkPolyDataMapper->vtkActor
-    VTK_CREATE (vtkPointSource, seeds);
+    VTK_CREATE (vtkPointSource, seed);
     
     VTK_CREATE (vtkProbeFilter, probe);
-    probe->SetInputConnection (seeds->GetOutputPort ());
-    //probe.SetSourceConnection(velocity_average);
+    probe->SetSourceConnection (seed->GetOutputPort ());
+    //probe.SetInputData (velocityAverage);
 
     // velocity glyph is a cone
     VTK_CREATE (vtkConeSource, cone);
@@ -114,20 +114,19 @@ void PipelineAverage3D::createVelocityGlyphActor ()
     glyph->SetSourceConnection(transformF->GetOutputPort());
     glyph->SetVectorModeToUseVector ();
     glyph->SetScaleModeToScaleByVector ();
-    glyph->SetScaleFactor (0.004);
+    glyph->SetScaleFactor (2);
 
     // mapper
-    VTK_CREATE (vtkPolyDataMapper, velocityGlyphMapper);
-    velocityGlyphMapper->SetInputConnection (glyph->GetOutputPort ());
-    VTK_CREATE (vtkActor, velocityGlyphActor);
-    velocityGlyphActor->SetMapper (velocityGlyphMapper);
-    velocityGlyphActor->GetProperty()->SetPointSize(5);
-    velocityGlyphActor->GetProperty ()->SetColor (0, 0, 0);
-    GetRenderer ()->AddViewProp (velocityGlyphActor);
+    VTK_CREATE (vtkPolyDataMapper, mapper);
+    mapper->SetInputConnection (glyph->GetOutputPort ());
+    VTK_CREATE (vtkActor, actor);
+    actor->SetMapper (mapper);
+    actor->GetProperty ()->SetColor (0, 0, 0);
+    GetRenderer ()->AddViewProp (actor);
 
-    m_glyphSeeds = seeds;
+    m_glyphSeeds = seed;
     m_glyphProbe = probe;
-    m_velocityGlyph = velocityGlyphActor;
+    m_velocityGlyphActor = actor;
 }
 
 
@@ -147,7 +146,7 @@ void PipelineAverage3D::setPolyActors (Iterator begin, Iterator end)
 
 
 
-void PipelineAverage3D::UpdateGlyphSeeds (const G3D::AABox& b)
+void PipelineAverage3D::SetGlyphSeeds (const G3D::AABox& b)
 {
     // update velocity glyphs
     G3D::Vector3 c = b.center ();
@@ -243,14 +242,23 @@ void PipelineAverage3D::updateForce (
     actor.SetVisibility (shown);
 }
 
-
-void PipelineAverage3D::UpdateScalarAverage (
-    boost::shared_ptr<RegularGridAverage> average)
+void PipelineAverage3D::UpdateVelocityAverage (
+    const RegularGridAverage& velocityAverage)
 {
-    const Foam& foam = average->GetFoam ();
-    const ViewSettings& vs = average->GetViewSettings ();
+    const ViewSettings& vs = velocityAverage.GetViewSettings ();
+    if (vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::GLYPH)
+        m_glyphProbe->SetInputDataObject (
+            const_cast<vtkImageData*>(&velocityAverage.GetAverage ()));
+}
+
+
+void PipelineAverage3D::UpdateScalarAverage (const RegularGridAverage& average)
+{
+    const Foam& foam = average.GetFoam ();
+    const ViewSettings& vs = average.GetViewSettings ();
     // update scalar
-    m_threshold->SetInputDataObject (average->GetAverage ());
+    m_threshold->SetInputDataObject (
+        const_cast<vtkImageData*> (&average.GetAverage ()));
 
 
     // update objects
@@ -261,7 +269,7 @@ void PipelineAverage3D::UpdateScalarAverage (
 	    ->SetInputDataObject (objects[i]->GetPolyData ());
 	if (vs.IsAverageAround ())
 	{
-	    G3D::Vector3 t = average->GetTranslation ();
+	    G3D::Vector3 t = average.GetTranslation ();
 	    m_object[i]->SetPosition (t.x, t.y, t.z);
 	}
     }
@@ -283,8 +291,10 @@ void PipelineAverage3D::FromView (ViewNumber::Enum viewNumber, const Base& base)
 
     updateAlpha (vs.GetContextAlpha (), m_constraintSurface);
     updateAlpha (vs.GetObjectAlpha (), m_object);
-    m_averageActor->SetVisibility (vs.IsAverageShown ());
+    m_averageActor->SetVisibility (vs.IsAverageShown ());    
     m_glyphSeeds->SetNumberOfPoints (vs.GetGlyphSeedsCount ());
+    m_velocityGlyphActor->SetVisibility (
+        vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::GLYPH);
 }
 
 void PipelineAverage3D::updateAlpha (

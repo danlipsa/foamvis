@@ -19,6 +19,10 @@
 #include "ViewSettings.h"
 #include "VectorAverage.h"
 
+// Private Classes/Functions
+// ======================================================================
+
+
 struct ContextSegment : public Segment
 {
     ContextSegment () : Segment ()
@@ -59,6 +63,23 @@ struct FocusColorSegment : public Segment
     }
     QColor m_color;
 };
+
+G3D::Vector2 clamp (G3D::Vector2 v, float maxLength, bool* clamped)
+{
+    float length = v.length ();
+    if (length > maxLength)
+    {
+	*clamped = true;
+	return v * (maxLength / length);
+    }
+    else
+    {
+	*clamped = false;
+	return v;
+    }
+}
+
+
 
 // DisplayBodyBase
 // ======================================================================
@@ -165,21 +186,6 @@ DisplayBodyVelocity::DisplayBodyVelocity (
     m_sameSize (sameSize),
     m_clampingShown (clampingShown)
 {}
-
-G3D::Vector2 clamp (G3D::Vector2 v, float maxLength, bool* clamped)
-{
-    float length = v.length ();
-    if (length > maxLength)
-    {
-	*clamped = true;
-	return v * (maxLength / length);
-    }
-    else
-    {
-	*clamped = false;
-	return v;
-    }
-}
 
 void DisplayBodyVelocity::display (boost::shared_ptr<Body> body)
 {

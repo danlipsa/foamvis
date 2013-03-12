@@ -226,15 +226,18 @@ void WidgetVtk::AddAverageView (
     G3D::AABox vv = CalculateViewingVolume (viewNumber, simulation);
     scalarAverage->SetBodyAttribute (vs.GetBodyOrFaceScalar ());
     m_average[viewNumber]->AverageInitStep (vs.GetTimeWindow ());
-    pipeline.UpdateScalarAverage (scalarAverage);
-    pipeline.UpdateGlyphSeeds (
-        scalarAverage->GetSimulation ().GetBoundingBox ());
+    m_average[viewNumber]->ComputeAverage ();
+    pipeline.UpdateScalarAverage (m_average[viewNumber]->GetScalarAverage ());
     pipeline.UpdateForceAverage (m_average[viewNumber]->GetForceAverage ());
-    pipeline.FromViewTransform (viewNumber, *this);
+    pipeline.UpdateVelocityAverage (
+        m_average[viewNumber]->GetVelocityAverage ());
+    pipeline.SetGlyphSeeds (
+        scalarAverage->GetSimulation ().GetBoundingBox ());
     pipeline.FromView (viewNumber, *this);
     pipeline.UpdateThreshold (interval);
     pipeline.UpdateColorBarModel (colorBarModel, scalarName);
     pipeline.UpdateFocus (GetViewNumber () == viewNumber);
+    pipeline.FromViewTransform (viewNumber, *this);
 
     G3D::Rect2D viewRect = GetNormalizedViewRect (viewNumber);
     G3D::Vector2 position = G3D::Vector2 (
@@ -253,11 +256,12 @@ void WidgetVtk::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
 {
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    boost::shared_ptr<RegularGridAverage> scalarAverage = 
-        m_average[viewNumber]->GetScalarAveragePtr ();
     m_average[viewNumber]->AverageStep (direction, vs.GetTimeWindow ());
-    pipeline.UpdateScalarAverage (scalarAverage);
+    m_average[viewNumber]->ComputeAverage ();
+    pipeline.UpdateScalarAverage (m_average[viewNumber]->GetScalarAverage ());
     pipeline.UpdateForceAverage (m_average[viewNumber]->GetForceAverage ());
+    pipeline.UpdateVelocityAverage (
+        m_average[viewNumber]->GetVelocityAverage ());
     updateViewTitle (viewNumber);
 }
 

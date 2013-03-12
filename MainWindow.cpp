@@ -1176,11 +1176,19 @@ void MainWindow::initOverlayBarModel ()
 
 void MainWindow::ToggledVelocityShown (bool shown)
 {
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	vs.SetVelocityShown (shown);
+    }
     initOverlayBarModel ();
     radioButtonVelocityGlyph->setEnabled (shown);
     radioButtonVelocityStreamline->setEnabled (shown);
     radioButtonVelocityPathline->setEnabled (shown);
-    widgetGl->ToggledVelocityShown (shown);
+    widgetGl->CompileUpdateAll ();
+    widgetVtk->FromView ();
 }
 
 void MainWindow::ToggledHistogramGridShown (bool checked)

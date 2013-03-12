@@ -36,3 +36,24 @@ AttributeAverages3D::AttributeAverages3D (
     m_forceAverage.reset (
         new ForceAverage (viewNumber, settings, simulationGroup));
 }
+
+void AttributeAverages3D::ComputeAverage ()
+{
+    const ViewSettings& vs = GetViewSettings ();
+    switch (vs.GetViewType ())
+    {
+    case ViewType::AVERAGE:
+	GetScalarAveragePtr ()->ComputeAverage ();
+	if (vs.IsDeformationShown ())
+	    CALL_IF_NOT_NULL(GetDeformationAveragePtr (),ComputeAverage) ();
+	break;
+	
+    case ViewType::T1S_KDE:
+	CALL_IF_NOT_NULL(GetT1sKDEPtr (),ComputeAverage) ();
+	break;
+    default:
+	break;
+    }
+    if (vs.IsVelocityShown ())
+        CALL_IF_NOT_NULL(GetVelocityAveragePtr (),ComputeAverage) ();
+}

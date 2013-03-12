@@ -33,7 +33,11 @@ public:
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
     virtual void AverageRelease ();
-    vtkSmartPointer<vtkImageData> GetAverage ();
+    void ComputeAverage ();
+    const vtkImageData& GetAverage () const
+    {
+        return *m_average;
+    }
     size_t GetBodyAttribute () const
     {
         return m_bodyAttribute;
@@ -50,7 +54,6 @@ protected:
 
 private:
     void opStep (size_t timeStep, OpType f);
-    void computeAverage ();
 
 private:
     size_t m_bodyAttribute;

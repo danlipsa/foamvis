@@ -103,7 +103,17 @@ public:
 	vector<ViewNumber::Enum>* mapping = 0) const;
     // @}
 
+    float GetBubbleDiameter (ViewNumber::Enum viewNumber) const;
+    float GetBubbleDiameter () const
+    {
+        return GetBubbleDiameter (GetViewNumber ());
+    }
+
+
+
     virtual ViewNumber::Enum GetViewNumber () const;
+
+
 
 private:
     ViewCount::Enum getViewCount (

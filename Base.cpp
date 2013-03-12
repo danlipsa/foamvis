@@ -119,3 +119,16 @@ ViewCount::Enum Base::GetGlCount (vector<ViewNumber::Enum>* mapping) const
 {
     return getViewCount (mapping, &Base::IsGlView);
 }
+
+float Base::GetBubbleDiameter (ViewNumber::Enum viewNumber) const
+{    
+    vector<ViewNumber::Enum> vn = 
+	GetSettings ().GetTwoHalvesViewNumbers (viewNumber);
+    float size = GetSimulation (vn[0]).GetBubbleDiameter ();
+    for (size_t i = 1; i < vn.size (); ++i)
+    {
+	float s = GetSimulation (vn[i]).GetBubbleDiameter ();
+	size = min (size, s);
+    }
+    return size;
+}

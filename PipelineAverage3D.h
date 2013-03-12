@@ -26,12 +26,13 @@ public:
     virtual void UpdateColorBarModel (
         const ColorBarModel& colorBarModel, const char* name);
     void UpdateThreshold (QwtDoubleInterval interval);
-    void UpdateScalarAverage (boost::shared_ptr<RegularGridAverage> average);
+    void UpdateScalarAverage (const RegularGridAverage& average);
     void UpdateForceAverage (const ForceAverage& forceAverage);
+    void UpdateVelocityAverage (const RegularGridAverage& velocity);
     void UpdateViewTitle (
         bool titleShown, const G3D::Vector2& postion,
         const string& simulationName, const string& viewTitle);
-    void UpdateGlyphSeeds (const G3D::AABox& simulationBox);
+    void SetGlyphSeeds (const G3D::AABox& simulationBox);
     virtual void FromView (ViewNumber::Enum viewNumber, const Base& base);
 
 private:
@@ -58,7 +59,7 @@ private:
     // velocity glyphs
     vtkSmartPointer<vtkPointSource> m_glyphSeeds;
     vtkSmartPointer<vtkProbeFilter> m_glyphProbe;
-    vtkSmartPointer<vtkActor> m_velocityGlyph;
+    vtkSmartPointer<vtkActor> m_velocityGlyphActor;
 };
 
 

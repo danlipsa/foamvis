@@ -111,16 +111,10 @@ void RegularGridAverage::opStep (size_t timeStep, RegularGridAverage::OpType f)
     ImageOpImage (m_sum, regularFoam, f, attribute);
 }
 
-void RegularGridAverage::computeAverage ()
-{
-    ImageOpScalar (m_average, m_sum, GetCurrentTimeWindow (),
-                   std::divides<double> (), GetBodyAttribute ());
-}
-
-vtkSmartPointer<vtkImageData> RegularGridAverage::GetAverage ()
+void RegularGridAverage::ComputeAverage ()
 {
     if (m_average->GetMTime () < m_sum->GetMTime ())
-	computeAverage ();
-    return m_average;
+        ImageOpScalar (m_average, m_sum, GetCurrentTimeWindow (),
+                       std::divides<double> (), GetBodyAttribute ());
 }
 

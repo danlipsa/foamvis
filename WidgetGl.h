@@ -139,11 +139,6 @@ public:
     void ActivateViewShader (ViewNumber::Enum viewNumber,
 			     ViewingVolumeOperation::Enum enclose,
 			     G3D::Rect2D& srcRect) const;
-    float GetBubbleDiameter (ViewNumber::Enum viewNumber) const;
-    float GetBubbleDiameter () const
-    {
-        return GetBubbleDiameter (GetViewNumber ());
-    }
     float GetDeformationSizeInitialRatio (ViewNumber::Enum viewNumber) const;
     float GetVelocitySizeInitialRatio (ViewNumber::Enum viewNumber) const;
     void DisplayT1Quad (ViewNumber::Enum view, 
@@ -260,7 +255,6 @@ public Q_SLOTS:
     void ToggledObjectVelocityShown (bool checked);
     void ToggledDeformationShown (bool checked);
     void ToggledDeformationShownGrid (bool checked);
-    void ToggledVelocityShown (bool checked);
     void ToggledVelocityGridShown (bool checked);
     void ToggledVelocityClampingShown (bool checked);
     void ToggledDeformationGridCellCenterShown (bool checked);

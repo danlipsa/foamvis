@@ -474,19 +474,6 @@ void WidgetGl::Init (
     update ();
 }
 
-float WidgetGl::GetBubbleDiameter (ViewNumber::Enum viewNumber) const
-{    
-    vector<ViewNumber::Enum> vn = 
-	GetSettings ().GetTwoHalvesViewNumbers (viewNumber);
-    float size = GetSimulation (vn[0]).GetBubbleDiameter ();
-    for (size_t i = 1; i < vn.size (); ++i)
-    {
-	float s = GetSimulation (vn[i]).GetBubbleDiameter ();
-	size = min (size, s);
-    }
-    return size;
-}
-
 float WidgetGl::GetDeformationSizeInitialRatio (
     ViewNumber::Enum viewNumber) const
 {
@@ -3136,6 +3123,8 @@ void WidgetGl::saveVelocity (ViewNumber::Enum viewNumber,
 
 void WidgetGl::CacheCalculateStreamline (ViewNumber::Enum viewNumber)
 {
+    if (! IsGlView (viewNumber))
+        return;
     const ViewSettings& vs = GetViewSettings (viewNumber);
     makeCurrent ();
     glMatrixMode (GL_PROJECTION);
@@ -3974,19 +3963,6 @@ void WidgetGl::ToggledDeformationShownGrid (bool checked)
 	ta.SetGridShown (checked);
     }
     update ();
-}
-
-void WidgetGl::ToggledVelocityShown (bool checked)
-{
-    makeCurrent ();
-    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
-    for (size_t i = 0; i < vn.size (); ++i)
-    {
-	ViewNumber::Enum viewNumber = vn[i];
-	ViewSettings& vs = GetViewSettings (viewNumber);
-	vs.SetVelocityShown (checked);
-        CompileUpdate (viewNumber);
-    }
 }
 
 void WidgetGl::ToggledVelocityGridShown (bool checked)
