@@ -341,7 +341,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tabSettings">
         <attribute name="title">
@@ -2152,10 +2152,10 @@
                  <item row="3" column="1">
                   <widget class="QSpinBox" name="spinBoxGlyphSeedsCount">
                    <property name="minimum">
-                    <number>10</number>
+                    <number>1</number>
                    </property>
                    <property name="maximum">
-                    <number>200</number>
+                    <number>500</number>
                    </property>
                   </widget>
                  </item>

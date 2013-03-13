@@ -1188,7 +1188,7 @@ void MainWindow::ToggledVelocityShown (bool shown)
     radioButtonVelocityStreamline->setEnabled (shown);
     radioButtonVelocityPathline->setEnabled (shown);
     widgetGl->CompileUpdateAll ();
-    widgetVtk->FromView ();
+    widgetVtk->UpdateVelocityAverage ();
 }
 
 void MainWindow::ToggledHistogramGridShown (bool checked)

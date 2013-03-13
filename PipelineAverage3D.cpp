@@ -96,8 +96,8 @@ void PipelineAverage3D::createVelocityGlyphActor ()
     VTK_CREATE (vtkPointSource, seed);
     
     VTK_CREATE (vtkProbeFilter, probe);
-    probe->SetSourceConnection (seed->GetOutputPort ());
-    //probe.SetInputData (velocityAverage);
+    probe->SetInputConnection (seed->GetOutputPort ());
+    //probe->SetSourceConnection (seed->GetOutputPort ());
 
     // velocity glyph is a cone
     VTK_CREATE (vtkConeSource, cone);
@@ -113,8 +113,9 @@ void PipelineAverage3D::createVelocityGlyphActor ()
     glyph->SetInputConnection(probe->GetOutputPort());
     glyph->SetSourceConnection(transformF->GetOutputPort());
     glyph->SetVectorModeToUseVector ();
-    glyph->SetScaleModeToScaleByVector ();
-    glyph->SetScaleFactor (2);
+    glyph->SetScaleModeToDataScalingOff ();
+    //glyph->SetScaleModeToScaleByVector ();
+    //glyph->SetScaleFactor (0.05);
 
     // mapper
     VTK_CREATE (vtkPolyDataMapper, mapper);
@@ -151,7 +152,7 @@ void PipelineAverage3D::SetGlyphSeeds (const G3D::AABox& b)
     // update velocity glyphs
     G3D::Vector3 c = b.center ();
     m_glyphSeeds->SetCenter (c.x, c.y, c.z);
-    m_glyphSeeds->SetRadius (b.extent ().max () / 2);
+    m_glyphSeeds->SetRadius (b.extent ().min () / 2);
 }
 
 
@@ -247,7 +248,7 @@ void PipelineAverage3D::UpdateVelocityAverage (
 {
     const ViewSettings& vs = velocityAverage.GetViewSettings ();
     if (vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::GLYPH)
-        m_glyphProbe->SetInputDataObject (
+        m_glyphProbe->SetSourceData (
             const_cast<vtkImageData*>(&velocityAverage.GetAverage ()));
 }
 

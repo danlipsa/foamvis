@@ -211,6 +211,20 @@ void WidgetVtk::UpdateForceAverage ()
     update ();
 }
 
+void WidgetVtk::UpdateVelocityAverage ()
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();    
+    if (! IsVtkView (viewNumber))
+        return;
+    PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
+    pipeline.FromView (viewNumber, *this);    
+    pipeline.UpdateVelocityAverage (
+        m_average[viewNumber]->GetVelocityAverage ());
+    update ();
+}
+
+
+
 void WidgetVtk::AddAverageView (
     ViewNumber::Enum viewNumber,
     const ColorBarModel& colorBarModel, QwtDoubleInterval interval)

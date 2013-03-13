@@ -44,16 +44,16 @@ void AttributeAverages3D::ComputeAverage ()
     {
     case ViewType::AVERAGE:
 	GetScalarAveragePtr ()->ComputeAverage ();
-	if (vs.IsDeformationShown ())
-	    CALL_IF_NOT_NULL(GetDeformationAveragePtr (),ComputeAverage) ();
+        CALL_IF_NOT_NULL(GetVelocityAveragePtr (),ComputeAverage) ();
+        CALL_IF_NOT_NULL(GetDeformationAveragePtr (),ComputeAverage) ();
 	break;
 	
     case ViewType::T1S_KDE:
 	CALL_IF_NOT_NULL(GetT1sKDEPtr (),ComputeAverage) ();
 	break;
+
     default:
 	break;
     }
-    if (vs.IsVelocityShown ())
-        CALL_IF_NOT_NULL(GetVelocityAveragePtr (),ComputeAverage) ();
+
 }
