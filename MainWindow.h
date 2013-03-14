@@ -74,6 +74,7 @@ public Q_SLOTS:
     void ToggledHistogramShown (bool checked);
     void ToggledHistogramColorMapped (bool checked);
     void ToggledHistogramAllTimesteps (bool checked);
+    void ToggledVelocitySameSize (bool checked);
 
     void CellClickedLinkedTimeEvents (int row, int column);
     void ButtonClickedInteractionObject (int id);

@@ -149,49 +149,6 @@ public:
     {
 	m_deformationLineWidth = value;
     }
-    void SetVelocityShown (bool velocityShown)
-    {
-	m_velocityShown = velocityShown;
-    }
-
-    bool IsVelocityShown () const
-    {
-	return m_velocityShown;
-    }
-    
-    void SetVelocityVis (VectorVis::Enum vis)
-    {
-        m_velocityVis = vis;
-    }
-    VectorVis::Enum GetVelocityVis () const
-    {
-        return m_velocityVis;
-    }
-    float GetVelocitySize () const;
-    float GetVelocityLineWidth () const
-    {
-	return m_velocityLineWidth;
-    }
-    void SetVelocityLineWidth (float value)
-    {
-	m_velocityLineWidth = value;
-    }
-    double GetStreamlineLength () const
-    {
-        return m_streamlineLength;
-    }
-    void SetStreamlineLength (double value)
-    {
-        m_streamlineLength = value;
-    }
-    double GetStreamlineStepLength () const
-    {
-        return m_streamlineStepLength;
-    }
-    void SetStreamlineStepLength (double steps)
-    {
-        m_streamlineStepLength = steps;
-    }
     float GetKDEValue () const
     {
         return m_kdeValue;
@@ -324,6 +281,62 @@ public:
     void CalculateCameraDistance (const G3D::AABox& centeredViewingVolume);
 
     void CopyTransformation (const ViewSettings& from);
+    // @}
+
+    /**
+     * @{
+     * @name Velocity
+     */
+    void SetVelocityShown (bool velocityShown)
+    {
+	m_velocityShown = velocityShown;
+    }
+    bool IsVelocityShown () const
+    {
+	return m_velocityShown;
+    }
+    bool IsVelocityGlyphSameSize () const
+    {
+        return m_velocityGlyphSameSize;
+    }
+    void SetVelocityGlyphSameSize (bool same)
+    {
+        m_velocityGlyphSameSize = same;
+    }
+    
+    void SetVelocityVis (VectorVis::Enum vis)
+    {
+        m_velocityVis = vis;
+    }
+    VectorVis::Enum GetVelocityVis () const
+    {
+        return m_velocityVis;
+    }
+    float GetVelocitySize () const;
+    float GetVelocityLineWidth () const
+    {
+	return m_velocityLineWidth;
+    }
+    void SetVelocityLineWidth (float value)
+    {
+	m_velocityLineWidth = value;
+    }
+    double GetStreamlineLength () const
+    {
+        return m_streamlineLength;
+    }
+    void SetStreamlineLength (double value)
+    {
+        m_streamlineLength = value;
+    }
+    double GetStreamlineStepLength () const
+    {
+        return m_streamlineStepLength;
+    }
+    void SetStreamlineStepLength (double steps)
+    {
+        m_streamlineStepLength = steps;
+    }
     // @}
 
     /**
@@ -799,6 +812,7 @@ private:
     boost::array<bool, 3> m_torqueShown;
     bool m_deformationShown;
     bool m_velocityShown;
+    bool m_velocityGlyphSameSize;
     VectorVis::Enum m_velocityVis;
     // Context display
     set<size_t> m_contextBody;

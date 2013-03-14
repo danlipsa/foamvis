@@ -245,8 +245,6 @@ void WidgetVtk::AddAverageView (
     pipeline.UpdateForceAverage (m_average[viewNumber]->GetForceAverage ());
     pipeline.UpdateVelocityAverage (
         m_average[viewNumber]->GetVelocityAverage ());
-    pipeline.SetGlyphSeeds (
-        scalarAverage->GetSimulation ().GetBoundingBox ());
     pipeline.FromView (viewNumber, *this);
     pipeline.UpdateThreshold (interval);
     pipeline.UpdateColorBarModel (colorBarModel, scalarName);

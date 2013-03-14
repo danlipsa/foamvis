@@ -92,7 +92,7 @@ protected:
     virtual void display (boost::shared_ptr<Body> b);
 
 private:
-    float m_bubbleSize;
+    float m_bubbleDiameter;
     float m_velocitySizeInitialRatio;
     float m_onePixelInObjectSpace;
     bool m_sameSize;

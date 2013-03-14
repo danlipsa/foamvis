@@ -49,7 +49,7 @@ void PipelineAverage3D::createScalarAverageActor ()
     averageMapper->SetInputConnection (threshold->GetOutputPort ());
     VTK_CREATE(vtkActor, averageActor);
     averageActor->SetMapper(averageMapper);
-    m_averageActor = averageActor;
+    m_scalarAverageActor = averageActor;
     GetRenderer ()->AddViewProp(averageActor);
 }
 
@@ -113,20 +113,18 @@ void PipelineAverage3D::createVelocityGlyphActor ()
     glyph->SetInputConnection(probe->GetOutputPort());
     glyph->SetSourceConnection(transformF->GetOutputPort());
     glyph->SetVectorModeToUseVector ();
-    glyph->SetScaleModeToDataScalingOff ();
-    //glyph->SetScaleModeToScaleByVector ();
-    //glyph->SetScaleFactor (0.05);
 
     // mapper
     VTK_CREATE (vtkPolyDataMapper, mapper);
     mapper->SetInputConnection (glyph->GetOutputPort ());
     VTK_CREATE (vtkActor, actor);
     actor->SetMapper (mapper);
-    actor->GetProperty ()->SetColor (0, 0, 0);
+    actor->GetProperty ()->SetColor (0, 0.79, 0.34);
     GetRenderer ()->AddViewProp (actor);
 
-    m_glyphSeeds = seed;
-    m_glyphProbe = probe;
+    m_velocityGlyphSeeds = seed;    
+    m_velocityGlyphProbe = probe;
+    m_velocityGlyph = glyph;
     m_velocityGlyphActor = actor;
 }
 
@@ -144,18 +142,6 @@ void PipelineAverage3D::setPolyActors (Iterator begin, Iterator end)
 	*it = actor;
     }
 }
-
-
-
-void PipelineAverage3D::SetGlyphSeeds (const G3D::AABox& b)
-{
-    // update velocity glyphs
-    G3D::Vector3 c = b.center ();
-    m_glyphSeeds->SetCenter (c.x, c.y, c.z);
-    m_glyphSeeds->SetRadius (b.extent ().min () / 2);
-}
-
-
 
 void PipelineAverage3D::UpdateViewTitle (
     bool titleShown, const G3D::Vector2& position,
@@ -186,12 +172,13 @@ void PipelineAverage3D::UpdateThreshold (QwtDoubleInterval interval)
 void PipelineAverage3D::UpdateColorBarModel (
     const ColorBarModel& colorBarModel, const char * name)
 {
-    if (m_averageActor != 0)
+    if (m_scalarAverageActor != 0)
     {
         vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction = 
             colorBarModel.GetColorTransferFunction ();
         PipelineBase::UpdateColorBarModel (colorTransferFunction, name);
-	m_averageActor->GetMapper ()->SetLookupTable (colorTransferFunction);
+	m_scalarAverageActor->GetMapper ()->SetLookupTable (
+            colorTransferFunction);
     }
     for (size_t i = 0; i < m_forceActor.size (); ++i)
         for (size_t j = 0; j < m_forceActor[i].size (); ++j)
@@ -248,7 +235,7 @@ void PipelineAverage3D::UpdateVelocityAverage (
 {
     const ViewSettings& vs = velocityAverage.GetViewSettings ();
     if (vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::GLYPH)
-        m_glyphProbe->SetSourceData (
+        m_velocityGlyphProbe->SetSourceData (
             const_cast<vtkImageData*>(&velocityAverage.GetAverage ()));
 }
 
@@ -292,10 +279,34 @@ void PipelineAverage3D::FromView (ViewNumber::Enum viewNumber, const Base& base)
 
     updateAlpha (vs.GetContextAlpha (), m_constraintSurface);
     updateAlpha (vs.GetObjectAlpha (), m_object);
-    m_averageActor->SetVisibility (vs.IsAverageShown ());    
-    m_glyphSeeds->SetNumberOfPoints (vs.GetGlyphSeedsCount ());
+    m_scalarAverageActor->SetVisibility (vs.IsAverageShown ());    
+    fromViewVelocityGlyph (viewNumber, base);
+}
+
+
+void PipelineAverage3D::fromViewVelocityGlyph (
+    ViewNumber::Enum viewNumber, const Base& base)
+{
+    const ViewSettings& vs = base.GetViewSettings (viewNumber);
+    m_velocityGlyphSeeds->SetNumberOfPoints (vs.GetGlyphSeedsCount ());
+
+    G3D::AABox b = base.GetSimulation (viewNumber).GetBoundingBox ();
+    G3D::Vector3 c = b.center ();
+    m_velocityGlyphSeeds->SetCenter (c.x, c.y, c.z);
+    m_velocityGlyphSeeds->SetRadius (b.extent ().max () / 2);
+
     m_velocityGlyphActor->SetVisibility (
         vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::GLYPH);
+    if (vs.IsVelocityGlyphSameSize ())
+    {
+        m_velocityGlyph->SetScaleModeToDataScalingOff ();        
+        m_velocityGlyph->SetScaleFactor (1);
+    }
+    else
+    {
+        m_velocityGlyph->SetScaleModeToScaleByVector ();
+        m_velocityGlyph->SetScaleFactor (1000);
+    }
 }
 
 void PipelineAverage3D::updateAlpha (

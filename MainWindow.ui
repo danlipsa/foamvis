@@ -341,7 +341,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="tabSettings">
         <attribute name="title">
@@ -2689,7 +2689,6 @@
     <slot>ValueChangedNoiseStart(int)</slot>
     <slot>ValueChangedNoiseAmplitude(int)</slot>
     <slot>ValueChangedNoiseFrequency(int)</slot>
-    <slot>ToggledVelocitySameSize(bool)</slot>
     <slot>ToggledVelocityColorMapped(bool)</slot>
     <slot>ToggledTorquePressureShown(bool)</slot>
     <slot>ToggledTorqueNetworkShown(bool)</slot>
@@ -3444,8 +3443,8 @@
    <slot>CurrentIndexChangedSelectedLight(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>824</x>
-     <y>263</y>
+     <x>842</x>
+     <y>295</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3460,8 +3459,8 @@
    <slot>CurrentIndexChangedSelectedLight(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>824</x>
-     <y>263</y>
+     <x>842</x>
+     <y>295</y>
     </hint>
     <hint type="destinationlabel">
      <x>879</x>
@@ -3492,8 +3491,8 @@
    <slot>ValueChangedLightAmbientRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>833</x>
-     <y>280</y>
+     <x>851</x>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3508,8 +3507,8 @@
    <slot>ValueChangedLightAmbientBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>833</x>
-     <y>292</y>
+     <x>851</x>
+     <y>322</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3524,8 +3523,8 @@
    <slot>ValueChangedLightDiffuseRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>833</x>
-     <y>280</y>
+     <x>851</x>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3540,8 +3539,8 @@
    <slot>ValueChangedLightAmbientGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>833</x>
-     <y>286</y>
+     <x>851</x>
+     <y>316</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3556,8 +3555,8 @@
    <slot>ValueChangedLightDiffuseGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>833</x>
-     <y>286</y>
+     <x>851</x>
+     <y>316</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3572,8 +3571,8 @@
    <slot>ValueChangedLightDiffuseBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>833</x>
-     <y>292</y>
+     <x>851</x>
+     <y>322</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3588,8 +3587,8 @@
    <slot>ValueChangedLightSpecularRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>833</x>
-     <y>280</y>
+     <x>851</x>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
      <x>486</x>
@@ -3604,8 +3603,8 @@
    <slot>ValueChangedLightSpecularGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>833</x>
-     <y>286</y>
+     <x>851</x>
+     <y>316</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3620,8 +3619,8 @@
    <slot>ValueChangedLightSpecularBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>833</x>
-     <y>292</y>
+     <x>851</x>
+     <y>322</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -4084,8 +4083,8 @@
    <slot>ToggledBubblePathsBodyShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>804</x>
-     <y>283</y>
+     <x>842</x>
+     <y>520</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -4100,8 +4099,8 @@
    <slot>CurrentIndexChangedFaceColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>815</x>
-     <y>279</y>
+     <x>1020</x>
+     <y>525</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -4116,8 +4115,8 @@
    <slot>ToggledEdgesShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>771</x>
-     <y>280</y>
+     <x>850</x>
+     <y>552</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -4133,7 +4132,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>842</x>
-     <y>289</y>
+     <y>520</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -4149,7 +4148,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>842</x>
-     <y>286</y>
+     <y>520</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -4165,7 +4164,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>842</x>
-     <y>295</y>
+     <y>520</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -4181,7 +4180,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>842</x>
-     <y>295</y>
+     <y>520</y>
     </hint>
     <hint type="destinationlabel">
      <x>874</x>
@@ -4197,7 +4196,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>842</x>
-     <y>283</y>
+     <y>520</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -4212,8 +4211,8 @@
    <slot>ToggledPartialPathHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>804</x>
-     <y>286</y>
+     <x>842</x>
+     <y>520</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -4228,8 +4227,8 @@
    <slot>ToggledT1sKernelTextureShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>833</x>
-     <y>286</y>
+     <x>842</x>
+     <y>520</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -4244,8 +4243,8 @@
    <slot>ValueChangedAverageTimeWindow(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>824</x>
-     <y>265</y>
+     <x>1029</x>
+     <y>462</y>
     </hint>
     <hint type="destinationlabel">
      <x>1040</x>
@@ -4261,7 +4260,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>842</x>
-     <y>283</y>
+     <y>520</y>
     </hint>
     <hint type="destinationlabel">
      <x>1017</x>
@@ -4277,7 +4276,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>842</x>
-     <y>292</y>
+     <y>520</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -4293,7 +4292,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>842</x>
-     <y>298</y>
+     <y>520</y>
     </hint>
     <hint type="destinationlabel">
      <x>622</x>
@@ -4308,8 +4307,8 @@
    <slot>ValueChangedT1sKernelSigma(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>833</x>
-     <y>295</y>
+     <x>842</x>
+     <y>520</y>
     </hint>
     <hint type="destinationlabel">
      <x>1016</x>
@@ -4324,8 +4323,8 @@
    <slot>ValueChangedT1sKernelSigma(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>833</x>
-     <y>295</y>
+     <x>842</x>
+     <y>520</y>
     </hint>
     <hint type="destinationlabel">
      <x>636</x>
@@ -4356,8 +4355,8 @@
    <slot>ValueChangedForceLineWidth(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>826</x>
-     <y>294</y>
+     <x>844</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -4389,7 +4388,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>842</x>
-     <y>283</y>
+     <y>520</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -4410,6 +4409,22 @@
     <hint type="destinationlabel">
      <x>720</x>
      <y>517</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxVelocityGlyphSameSize</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledVelocitySameSize(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>800</x>
+     <y>442</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>717</x>
+     <y>454</y>
     </hint>
    </hints>
   </connection>
@@ -4454,6 +4469,7 @@
   <slot>ToggledAverageShown(bool)</slot>
   <slot>ValueChangedGlyphSeedsCount(int)</slot>
   <slot>EditingFinishedGlyphSeedsCount()</slot>
+  <slot>ToggledVelocitySameSize(bool)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupVelocityVis"/>

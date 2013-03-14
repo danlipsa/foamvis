@@ -1191,6 +1191,20 @@ void MainWindow::ToggledVelocityShown (bool shown)
     widgetVtk->UpdateVelocityAverage ();
 }
 
+void MainWindow::ToggledVelocitySameSize (bool checked)
+{
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+        ViewSettings& vs = GetViewSettings (viewNumber);
+        vs.SetVelocityGlyphSameSize (checked);
+    }
+    widgetGl->ToggledVelocitySameSize (checked);
+    widgetVtk->FromView ();
+}
+
+
 void MainWindow::ToggledHistogramGridShown (bool checked)
 {
     widgetHistogram->SetGridShown (checked);

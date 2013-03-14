@@ -4024,6 +4024,8 @@ void WidgetGl::ToggledVelocityGridCellCenterShown (bool checked)
 
 void WidgetGl::ToggledVelocitySameSize (bool checked)
 {
+    if (! IsGlView ())
+        return;
     makeCurrent ();
     vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)

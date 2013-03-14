@@ -180,7 +180,7 @@ DisplayBodyVelocity::DisplayBodyVelocity (
     DisplayBodyBase<> (
 	settings, bodySelector,
 	SetterTextureCoordinate(settings, viewNumber, is2D), useZPos, zPos),
-    m_bubbleSize (bubbleSize),
+    m_bubbleDiameter (bubbleSize),
     m_velocitySizeInitialRatio (velocitySizeInitialRatio),
     m_onePixelInObjectSpace (onePixelInObjectSpace),
     m_sameSize (sameSize),
@@ -200,12 +200,12 @@ void DisplayBodyVelocity::display (boost::shared_ptr<Body> body)
     {
 	clamped = true;
 	displayVelocity = velocity;
-	displayVelocity *= m_bubbleSize / displayVelocity.length ();
+	displayVelocity *= m_bubbleDiameter / displayVelocity.length ();
     }
     else
     {
 	float size = m_velocitySizeInitialRatio * vs.GetVelocitySize ();
-	displayVelocity = clamp (velocity * size, m_bubbleSize, &clamped);
+	displayVelocity = clamp (velocity * size, m_bubbleDiameter, &clamped);
     }
     if (GetFocusContext (body) == FOCUS)
     {

@@ -32,7 +32,6 @@ public:
     void UpdateViewTitle (
         bool titleShown, const G3D::Vector2& postion,
         const string& simulationName, const string& viewTitle);
-    void SetGlyphSeeds (const G3D::AABox& simulationBox);
     virtual void FromView (ViewNumber::Enum viewNumber, const Base& base);
 
 private:
@@ -48,17 +47,23 @@ private:
     void setPolyActors (Iterator begin, Iterator end);
     void updateForce (size_t objectIndex, ForceType::Enum forceType,
                       G3D::Vector3 force, G3D::Vector3 position, bool shown);
+    void fromViewVelocityGlyph (ViewNumber::Enum viewNumber, const Base& base);
+
     
 private:
-    vtkSmartPointer<vtkActor> m_averageActor;
+    // scalar average
+    vtkSmartPointer<vtkActor> m_scalarAverageActor;
     vtkSmartPointer<vtkThreshold> m_threshold;
+    // constraint surfaces
     vector<vtkSmartPointer<vtkActor> > m_constraintSurface;
+    // objects
     vector<vtkSmartPointer<vtkActor> > m_object;
     // for each object, 3 forces acting on it
     vector<boost::array<vtkSmartPointer<vtkActor>, 3> > m_forceActor;
     // velocity glyphs
-    vtkSmartPointer<vtkPointSource> m_glyphSeeds;
-    vtkSmartPointer<vtkProbeFilter> m_glyphProbe;
+    vtkSmartPointer<vtkPointSource> m_velocityGlyphSeeds;
+    vtkSmartPointer<vtkProbeFilter> m_velocityGlyphProbe;
+    vtkSmartPointer<vtkGlyph3D> m_velocityGlyph;
     vtkSmartPointer<vtkActor> m_velocityGlyphActor;
 };
 

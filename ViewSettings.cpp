@@ -71,6 +71,7 @@ ViewSettings::ViewSettings () :
     m_contextView (false),
     m_deformationShown (false),
     m_velocityShown (false),
+    m_velocityGlyphSameSize (false),
     m_velocityVis (VectorVis::GLYPH),
     m_bodySelector (AllBodySelector::Get ()),
     m_selectionContextShown (true),
