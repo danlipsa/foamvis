@@ -99,27 +99,18 @@ void PipelineAverage3D::createVelocityGlyphActor ()
     probe->SetInputConnection (seed->GetOutputPort ());
     //probe->SetSourceConnection (seed->GetOutputPort ());
 
-    // velocity glyph is a cone
-    VTK_CREATE (vtkConeSource, cone);
-    cone->SetResolution (6);
-    VTK_CREATE (vtkTransform, transform);
-    transform->Translate (0.5, 0.0, 0.0);
-    VTK_CREATE (vtkTransformPolyDataFilter, transformF);
-    transformF->SetInputConnection (cone->GetOutputPort());
-    transformF->SetTransform (transform);
+    VTK_CREATE (vtkArrowSource, arrow);
 
     // oriented and scaled glyph geometry at every point
     VTK_CREATE (vtkGlyph3D, glyph);
+    glyph->SetSourceConnection(arrow->GetOutputPort());
     glyph->SetInputConnection(probe->GetOutputPort());
-    glyph->SetSourceConnection(transformF->GetOutputPort());
-    glyph->SetVectorModeToUseVector ();
 
     // mapper
     VTK_CREATE (vtkPolyDataMapper, mapper);
     mapper->SetInputConnection (glyph->GetOutputPort ());
     VTK_CREATE (vtkActor, actor);
     actor->SetMapper (mapper);
-    actor->GetProperty ()->SetColor (0, 0.79, 0.34);
     GetRenderer ()->AddViewProp (actor);
 
     m_velocityGlyphSeeds = seed;    
@@ -299,13 +290,13 @@ void PipelineAverage3D::fromViewVelocityGlyph (
         vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::GLYPH);
     if (vs.IsVelocityGlyphSameSize ())
     {
-        m_velocityGlyph->SetScaleModeToDataScalingOff ();        
-        m_velocityGlyph->SetScaleFactor (1);
+        m_velocityGlyph->SetScaleModeToScaleByScalar ();
+        m_velocityGlyph->SetScaleFactor (base.GetBubbleDiameter (viewNumber));
     }
     else
     {
         m_velocityGlyph->SetScaleModeToScaleByVector ();
-        m_velocityGlyph->SetScaleFactor (1000);
+        m_velocityGlyph->SetScaleFactor (500);
     }
 }
 

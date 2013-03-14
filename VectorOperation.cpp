@@ -65,8 +65,7 @@ bool isDataValid (size_t i, VectorOperation::ValidData left,
         char c (0);
         left.m_valid->SetTupleValue (i, &c);
         boost::array<float, BodyAttribute::MAX_NUMBER_OF_COMPONENTS> leftData;
-        fill (leftData.begin (), leftData.end (), 
-              -numeric_limits<float>::max ());
+        fill (leftData.begin (), leftData.end (), 0);
         left.m_data->SetTupleValue (i, &leftData[0]);
         return false;
     }
