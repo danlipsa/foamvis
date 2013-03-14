@@ -5,6 +5,7 @@ Release log
         - set scalar values for invalid regular grid points to - MAX_FLOAT. As 
           a result, images in average view are always trimed of the "empty" 
           space.
+        - 
         
 0.8.2740
         - update to vtk-6.0-20130125.tgz
