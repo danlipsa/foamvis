@@ -37,6 +37,7 @@ RegularGridAverage::RegularGridAverage (
 
 void RegularGridAverage::AverageInit ()
 {
+    __ENABLE_LOGGING__;
     Average::AverageInit ();
     const Simulation& simulation = GetSimulation ();
     size_t regularGridResolution = simulation.GetRegularGridResolution ();
@@ -49,6 +50,15 @@ void RegularGridAverage::AverageInit ()
     m_average = CreateEmptyRegularGrid (
 	GetBodyAttribute (), extent, simulation.GetBoundingBox ());
     AddValidPointMask (m_average);
+    if (GetBodyAttribute () == BodyAttribute::VELOCITY)
+        m_average->GetPointData ()->SetActiveScalars (
+            VectorOperation::VALID_NAME);
+    __LOG__ (
+        int index;
+        m_average->GetPointData ()->GetArray (
+            VectorOperation::VALID_NAME, index);
+        cdbg << "attribute: " << GetBodyAttribute () 
+        << " VALID index: " << index << endl;);
 }
 
 void RegularGridAverage::AverageRelease ()

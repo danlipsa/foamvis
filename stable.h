@@ -126,6 +126,7 @@
 #include <vtkCleanPolyData.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkConeSource.h>
+#include <vtkCompositeDataGeometryFilter.h>
 #include <vtkCommand.h>
 #include <vtkDataSetMapper.h>
 #include <vtkEventQtSlotConnect.h>
@@ -161,7 +162,9 @@
 #include <vtkTextMapper.h>
 #include <vtkTextProperty.h>
 #include <vtkTetra.h>
+#include <vtkMultiThreshold.h>
 #include <vtkThreshold.h>
+#include <vtkThresholdPoints.h>
 #include <vtkTransform.h>
 #include <vtkTransformPolyDataFilter.h>
 #include <vtkTriangle.h>

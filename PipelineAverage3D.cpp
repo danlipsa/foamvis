@@ -16,6 +16,7 @@
 #include "RegularGridAverage.h"
 #include "Simulation.h"
 #include "Utils.h"
+#include "VectorOperation.h"
 #include "ViewSettings.h"
 
 
@@ -39,18 +40,30 @@ void PipelineAverage3D::createScalarAverageActor ()
     // vtkImageData->vtkThreshold->vtkDatasetMapper->vtkActor->vtkRenderer
     //                                               vtkScalarBarActor
 
-    // threshold
-    VTK_CREATE (vtkThreshold, threshold);
-    threshold->AllScalarsOn ();
-    m_threshold = threshold;
+    // threshold scalar value
+    VTK_CREATE (vtkThreshold, thresholdScalar);
+    thresholdScalar->AllScalarsOn ();
+    //thresholdScalar->SetInputDataObject ();
+
+    /*
+    // threshold invalid value
+    VTK_CREATE (vtkThreshold, thresholdInvalid);
+    thresholdInvalid->SetInputConnection (thresholdScalar->GetOutputPort ());
+    thresholdInvalid->AllScalarsOff ();
+    thresholdInvalid->ThresholdByUpper (0.9);
+    // use scalar at index 1:  VectorOperation::VALID_NAME
+    thresholdInvalid->SetSelectedComponent (1);
+    */
 
     // scalar average mapper and actor
     VTK_CREATE (vtkDataSetMapper, averageMapper);
-    averageMapper->SetInputConnection (threshold->GetOutputPort ());
+    averageMapper->SetInputConnection (thresholdScalar->GetOutputPort ());
     VTK_CREATE(vtkActor, averageActor);
     averageActor->SetMapper(averageMapper);
-    m_scalarAverageActor = averageActor;
     GetRenderer ()->AddViewProp(averageActor);
+
+    m_threshold = thresholdScalar;
+    m_scalarAverageActor = averageActor;
 }
 
 void PipelineAverage3D::createObjectActor (size_t objectCount)
@@ -99,12 +112,18 @@ void PipelineAverage3D::createVelocityGlyphActor ()
     probe->SetInputConnection (seed->GetOutputPort ());
     //probe->SetSourceConnection (seed->GetOutputPort ());
 
+    // remove invalid points
+    VTK_CREATE (vtkThresholdPoints, thresholdPoints);
+    thresholdPoints->SetInputConnection (probe->GetOutputPort ());
+    thresholdPoints->ThresholdByUpper (0.9);
+
     VTK_CREATE (vtkArrowSource, arrow);
 
     // oriented and scaled glyph geometry at every point
     VTK_CREATE (vtkGlyph3D, glyph);
     glyph->SetSourceConnection(arrow->GetOutputPort());
-    glyph->SetInputConnection(probe->GetOutputPort());
+    glyph->SetInputConnection(thresholdPoints->GetOutputPort());
+    glyph->SetColorModeToColorByVector ();
 
     // mapper
     VTK_CREATE (vtkPolyDataMapper, mapper);
@@ -153,7 +172,7 @@ void PipelineAverage3D::UpdateThreshold (QwtDoubleInterval interval)
 {
     if (m_threshold != 0)
     {
-        //__ENABLE_LOGGING__;
+        //__ENABLE_LOGGING__;        
 	m_threshold->ThresholdBetween (
 	    interval.minValue (), interval.maxValue ());
         __LOG__ (cdbg << interval << endl;);
@@ -226,8 +245,10 @@ void PipelineAverage3D::UpdateVelocityAverage (
 {
     const ViewSettings& vs = velocityAverage.GetViewSettings ();
     if (vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::GLYPH)
+    {
         m_velocityGlyphProbe->SetSourceData (
             const_cast<vtkImageData*>(&velocityAverage.GetAverage ()));
+    }
 }
 
 
@@ -290,7 +311,7 @@ void PipelineAverage3D::fromViewVelocityGlyph (
         vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::GLYPH);
     if (vs.IsVelocityGlyphSameSize ())
     {
-        m_velocityGlyph->SetScaleModeToScaleByScalar ();
+        m_velocityGlyph->SetScaleModeToDataScalingOff ();
         m_velocityGlyph->SetScaleFactor (base.GetBubbleDiameter (viewNumber));
     }
     else
