@@ -2667,7 +2667,7 @@ void WidgetGl::displayOverlayBar (
     const ColorBarModel& barModel = *vs.GetOverlayBarModel ();
     displayBarClampLevels (barModel, barRect);
     glPopAttrib ();
-    displayBarLabels (viewNumber, barModel, barRect);
+    displayBarLabels (viewNumber, barModel, br);
 }
 
 

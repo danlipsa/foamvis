@@ -1674,7 +1674,7 @@ void MainWindow::ShowOverlayMapEdit ()
 	ColorBarType::PROPERTY, BodyScalar::VELOCITY_MAGNITUDE);
     ViewNumber::Enum viewNumber = GetViewNumber ();
     size_t simulationIndex = 
-	widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
+	GetViewSettings (viewNumber).GetSimulationIndex ();
     boost::shared_ptr<ColorBarModel> colorBarModel = 
 	m_colorBarModelVelocity[simulationIndex][viewNumber];
     m_editColorMap->SetData (p.first, p.second, 
@@ -1689,7 +1689,13 @@ void MainWindow::ShowOverlayMapEdit ()
 
 void MainWindow::OverlayBarCopyVelocityMagnitude ()
 {
-    GetViewSettings ().ColorBarToOverlayBarPaletteClamping ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    size_t simulationIndex = vs.GetSimulationIndex ();
+    boost::shared_ptr<ColorBarModel> colorBarModel = 
+	m_colorBarModelVelocity[simulationIndex][viewNumber];
+    vs.OverlayBarCopyVelocityMagnitude ();
+    Q_EMIT OverlayBarModelChanged (GetViewNumber (), colorBarModel);
 }
 
 void MainWindow::ShowColorMapEdit ()
