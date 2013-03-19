@@ -11,13 +11,13 @@
 #include "Enums.h"
 #include "Foam.h"
 #include "Base.h"
+#include "Base.h"
 
 class ProcessBodyTorus;
 class QTimer;
 class Settings;
 class SimulationGroup;
 class AverageCache;
-class WidgetGl;
 
 /**
  * Class that stores the OpenGL, Vtk, Histogram and  UI widgets.
@@ -113,9 +113,13 @@ public Q_SLOTS:
     void CurrentIndexChangedViewCount (int index);
     void CurrentIndexChangedViewLayout (int index);
     void CurrentIndexChangedWindowLayout (int index);
-
-    void ShowEditColorMap ();
-    void ShowEditOverlayMap ();
+    
+    void ShowColorMapEdit ();
+    void ColorMapClampClear ();
+    void ColorMapCopy (int viewNumber);
+    void ShowOverlayMapEdit ();
+    void OverlayMapClampClear ();
+    void OverlayBarCopyVelocityMagnitude ();
     void RotateShown ();
     void ScaleShown ();
     void TranslateShown ();    
@@ -225,9 +229,11 @@ private:
     void createActions ();
     HistogramInfo getHistogramInfo (
 	ColorBarType::Enum colorBarType, size_t bodyOrFaceScalar) const;
-    boost::shared_ptr<ColorBarModel> getColorBarModel () const;
-    boost::shared_ptr<ColorBarModel> getColorBarModel (
+    boost::shared_ptr<ColorBarModel> getScalarColorBarModel () const;
+    boost::shared_ptr<ColorBarModel> getScalarColorBarModel (
 	ViewNumber::Enum viewNumber) const;
+    boost::shared_ptr<ColorBarModel> getColorBarModel (
+        ViewNumber::Enum viewNumber, size_t bodyAttribute) const;
     boost::shared_ptr<ColorBarModel> getColorBarModel (
 	size_t simulationIndex,
 	ViewNumber::Enum viewNumber,
@@ -281,7 +287,7 @@ private:
     // index order: simulation index, view number
     vector <
 	boost::array<boost::shared_ptr<ColorBarModel>, 
-		     ViewNumber::COUNT> > m_overlayBarModelVelocityVector;
+		     ViewNumber::COUNT> > m_colorBarModelVelocity;
     // index order: simulation index, view number
     vector <
 	boost::array<boost::shared_ptr<ColorBarModel>,

@@ -54,6 +54,7 @@ void ColorBarModel::setupPaletteRainbow ()
 
 void ColorBarModel::setupPaletteRainbowExtended ()
 {
+    m_ctf->RemoveAllPoints ();
     m_ctf->SetColorSpaceToLab();
     m_ctf->AddRGBPoint(0.0, 1, 0, 1);   // magenta
     m_ctf->AddRGBPoint(0.2, 0, 0, 1);   // blue
@@ -247,15 +248,22 @@ void ColorBarModel::setup ()
 void ColorBarModel::adjustColorTransferFunction ()
 {
     // [0,1] -> m_clampInterval 
+    m_colorTransferFunction->RemoveAllPoints ();
     m_colorTransferFunction->SetColorSpace (m_ctf->GetColorSpace ());
+    double leftColor[3], rightColor[3];
+    m_ctf->GetColor (0, leftColor);
+    m_colorTransferFunction->AddRGBPoint (
+        m_interval.minValue (), leftColor[0], leftColor[1], leftColor[2]);
+    m_ctf->GetColor (1, rightColor);
+    m_colorTransferFunction->AddRGBPoint (
+        m_interval.maxValue (), rightColor[0], rightColor[1], rightColor[2]);
     for (int i = 0; i < m_ctf->GetSize (); ++i)
     {
 	double v[6];
 	m_ctf->GetNodeValue (i, v);
 	v[0] = m_clampInterval.minValue () +
 	    v[0] * (m_clampInterval.maxValue () - m_clampInterval.minValue ());
-	m_colorTransferFunction->AddRGBPoint (
-	    v[0], v[1], v[2], v[3], v[4], v[5]);
+	m_colorTransferFunction->AddRGBPoint (v[0], v[1], v[2], v[3]);
     }
 }
 
@@ -342,7 +350,7 @@ bool ColorBarModel::IsClampedMax () const
     return m_clampInterval.maxValue () < m_interval.maxValue ();
 }
 
-void ColorBarModel::CopyPaletteClamping (const ColorBarModel& other)
+void ColorBarModel::ColorMapCopy (const ColorBarModel& other)
 {
     m_palette = other.m_palette;
     QwtDoubleInterval interval = GetInterval ();

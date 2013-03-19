@@ -274,14 +274,14 @@ bool ViewSettings::IsContextDisplayBody (size_t bodyId) const
     return m_contextBody.find (bodyId) != m_contextBody.end ();
 }
 
-void ViewSettings::CopyPaletteClamping (const ViewSettings& from)
+void ViewSettings::ColorMapCopy (const ViewSettings& from)
 {
-    m_colorBarModel->CopyPaletteClamping (*from.m_colorBarModel);
+    m_colorBarModel->ColorMapCopy (*from.m_colorBarModel);
 }
 
 void ViewSettings::ColorBarToOverlayBarPaletteClamping ()
 {
-    m_velocityOverlayBarModel->CopyPaletteClamping (*m_colorBarModel);
+    m_velocityOverlayBarModel->ColorMapCopy (*m_colorBarModel);
 }
 
 void ViewSettings::SetColorBarModel (
@@ -701,12 +701,17 @@ ColorBarType::Enum ViewSettings::GetColorBarType (
     {
     case ViewType::T1S_KDE:
 	return ColorBarType::T1S_KDE;
+
     case ViewType::AVERAGE:
 	if (statisticsType == StatisticsType::COUNT)
 	    return ColorBarType::STATISTICS_COUNT;
+        return ColorBarType::PROPERTY;
+
     case ViewType::FACES:
 	if (property == FaceScalar::DMP_COLOR)
 	    return ColorBarType::NONE;
+        return ColorBarType::PROPERTY;
+
     case ViewType::CENTER_PATHS:
 	return ColorBarType::PROPERTY;
     default:

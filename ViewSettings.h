@@ -193,7 +193,7 @@ public:
     {
 	m_colorBarModel.reset ();
     }
-    void CopyPaletteClamping (const ViewSettings& from);
+    void ColorMapCopy (const ViewSettings& from);
     void ColorBarToOverlayBarPaletteClamping ();
     // @}
 

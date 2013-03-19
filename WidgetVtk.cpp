@@ -227,7 +227,8 @@ void WidgetVtk::UpdateVelocityAverage ()
 
 void WidgetVtk::AddAverageView (
     ViewNumber::Enum viewNumber,
-    const ColorBarModel& colorBarModel, QwtDoubleInterval interval)
+    const ColorBarModel& scalarColorBarModel, QwtDoubleInterval interval,
+    const ColorBarModel& velocityColorBarModel)
 {
     vtkSmartPointer<vtkRenderWindow> renderWindow = GetRenderWindow ();
     boost::shared_ptr<RegularGridAverage> scalarAverage = 
@@ -247,7 +248,8 @@ void WidgetVtk::AddAverageView (
         m_average[viewNumber]->GetVelocityAverage ());
     pipeline.FromView (viewNumber, *this);
     pipeline.UpdateThreshold (interval);
-    pipeline.UpdateColorBarModel (colorBarModel, scalarName);
+    pipeline.UpdateScalarColorBarModel (scalarColorBarModel, scalarName);
+    pipeline.UpdateVelocityColorBarModel (velocityColorBarModel);
     pipeline.UpdateFocus (GetViewNumber () == viewNumber);
     pipeline.FromViewTransform (viewNumber, *this);
 
@@ -288,34 +290,6 @@ G3D::Rect2D WidgetVtk::GetNormalizedViewRect (ViewNumber::Enum viewNumber) const
     return viewRect;
 }
 
-void WidgetVtk::CopyTransformationFrom (int fromViewNumber)
-{
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    GetViewSettings (viewNumber).CopyTransformation (
-	GetViewSettings (ViewNumber::Enum (fromViewNumber)));
-    FromViewTransform (viewNumber);
-}
-
-void WidgetVtk::CopySelectionFrom (int fromViewNumber)
-{
-    ViewNumber::Enum toViewNumber = GetViewNumber ();
-    GetViewSettings (toViewNumber).CopySelection (
-	GetViewSettings (ViewNumber::Enum (fromViewNumber)));
-    update ();
-}
-
-void WidgetVtk::ResetTransformAll ()
-{
-    ResetTransformFocus ();
-}
-
-void WidgetVtk::ResetTransformFocus ()
-{
-    WidgetBase::ResetTransformFocus ();
-    FromViewTransform ();
-}
-
-
 void WidgetVtk::ForAllViews (
     PipelineType::Enum type, boost::function <void (ViewNumber::Enum)> f)
 {
@@ -345,22 +319,25 @@ void WidgetVtk::mousePressEvent (QMouseEvent *event)
     setView (p);
 }
 
-void WidgetVtk::contextMenuEvent (QContextMenuEvent *event)
+void WidgetVtk::contextMenuEventView (QMenu* menu) const
 {
-    QVTKWidget::contextMenuEvent (event);
-    QMenu menu (this);
     {
-        QMenu* menuCopy = menu.addMenu ("Copy");
+        QMenu* menuCopy = menu->addMenu ("Copy");
         addCopyMenu (menuCopy, "Transformation", &m_actionCopyTransformation[0]);
         addCopyCompatibleMenu (menuCopy, "Selection", &m_actionCopySelection[0], 
                                &WidgetBase::IsSelectionCopyCompatible);
     }
     {
-	QMenu* menuReset = menu.addMenu ("Reset transform");
+	QMenu* menuReset = menu->addMenu ("Reset transform");
 	menuReset->addAction (m_actionResetTransformAll.get ());
 	menuReset->addAction (m_actionResetTransformFocus.get ());
     }
-    menu.exec (event->globalPos());
+}
+
+void WidgetVtk::contextMenuEvent (QContextMenuEvent *event)
+{
+    QVTKWidget::contextMenuEvent (event);
+    WidgetBase::contextMenuEvent (event);
 }
 
 void WidgetVtk::resizeEvent (QResizeEvent * event)
@@ -381,5 +358,39 @@ void WidgetVtk::resizeViewEvent (ViewNumber::Enum viewNumber)
         viewColorBarRect.height () / viewRect.height ());	
     m_pipeline[viewNumber]->PositionScalarBar (position);
     m_pipeline[viewNumber]->GetRenderer ()->ResetCamera ();
+}
+
+
+// slots
+// ===========================================================================
+void WidgetVtk::CopySelectionFrom (int fromViewNumber)
+{
+    ViewNumber::Enum toViewNumber = GetViewNumber ();
+    GetViewSettings (toViewNumber).CopySelection (
+	GetViewSettings (ViewNumber::Enum (fromViewNumber)));
+    update ();
+}
+
+void WidgetVtk::ResetTransformAll ()
+{
+    ResetTransformFocus ();
+}
+
+void WidgetVtk::ResetTransformFocus ()
+{
+    WidgetBase::ResetTransformFocus ();
+    FromViewTransform ();
+}
+
+void WidgetVtk::CopyTransformationFrom (int fromViewNumber)
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    GetViewSettings (viewNumber).CopyTransformation (
+	GetViewSettings (ViewNumber::Enum (fromViewNumber)));
+    FromViewTransform (viewNumber);
+}
+
+void WidgetVtk::OverlayBarCopyVelocityMagnitude ()
+{
 }
 

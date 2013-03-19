@@ -179,14 +179,14 @@ void PipelineAverage3D::UpdateThreshold (QwtDoubleInterval interval)
     }
 }
 
-void PipelineAverage3D::UpdateColorBarModel (
+void PipelineAverage3D::UpdateScalarColorBarModel (
     const ColorBarModel& colorBarModel, const char * name)
 {
     if (m_scalarAverageActor != 0)
     {
         vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction = 
             colorBarModel.GetColorTransferFunction ();
-        PipelineBase::UpdateColorBarModel (colorTransferFunction, name);
+        PipelineBase::UpdateScalarColorBarModel (colorTransferFunction, name);
 	m_scalarAverageActor->GetMapper ()->SetLookupTable (
             colorTransferFunction);
     }
@@ -198,6 +198,15 @@ void PipelineAverage3D::UpdateColorBarModel (
             m_forceActor[i][j]->GetProperty ()->SetColor (
                 color.redF (), color.greenF (), color.blueF ());
         }
+}
+
+void PipelineAverage3D::UpdateVelocityColorBarModel (
+    const ColorBarModel& colorBarModel)
+{
+    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction = 
+        colorBarModel.GetColorTransferFunction ();
+    m_velocityGlyphActor->GetMapper ()->SetLookupTable (
+        colorTransferFunction);
 }
 
 void PipelineAverage3D::UpdateForceAverage (

@@ -105,7 +105,7 @@ public:
     float GetClampMinRatio () const;
     float GetClampMaxRatio () const;
     string ToString () const;
-    void CopyPaletteClamping (const ColorBarModel& other);
+    void ColorMapCopy (const ColorBarModel& other);
 
     static const size_t COLORS;
 
@@ -133,6 +133,7 @@ private:
     QImage m_image;
     QwtDoubleInterval m_interval;
     QwtDoubleInterval m_clampInterval;
+    // maps [0, 1] to a range of colors
     vtkSmartPointer<vtkColorTransferFunction> m_ctf;
     vtkSmartPointer<vtkColorTransferFunction> m_colorTransferFunction;
     QString m_title;

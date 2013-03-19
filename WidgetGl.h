@@ -99,14 +99,6 @@ public:
     {
 	return m_actionResetTransformAll;
     }
-    boost::shared_ptr<QAction> GetActionEditColorMap () const
-    {
-	return m_actionEditColorMap;
-    }
-    boost::shared_ptr<QAction> GetActionEditOverlayMap () const
-    {
-	return m_actionEditOverlayMap;
-    }
 
     /**
      * Setup the viewing volume first centered around origin and then 
@@ -212,12 +204,6 @@ public:
     
 Q_SIGNALS:
     void PaintEnd ();
-    void ColorBarModelChanged (
-	ViewNumber::Enum viewNumber,
-	boost::shared_ptr<ColorBarModel> colorBarModel);
-    void OverlayBarModelChanged (
-	ViewNumber::Enum viewNumber,
-	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 public Q_SLOTS:
     void ToggledVelocityFieldSaved (bool saved);
@@ -341,13 +327,11 @@ public Q_SLOTS:
     void ShowDeformation ();
     void ShowVelocity ();
     void ShowReset ();
-    // Actions color bar
-    void ColorBarClampClear ();
-    void OverlayBarClampClear ();
+
     void CopyTransformationFrom (int viewNumber);
     void CopySelectionFrom (int viewNumber);
-    void CopyPaletteClamping (int viewNumber);
-    void OverlayBarCopyVelocityMagnitude ();
+
+
 
 public:
     const static  size_t DISPLAY_ALL;
@@ -431,8 +415,6 @@ private:
     void valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber);
     bool linkedTimesValid (size_t timeBegin, size_t timeEnd);
     bool linkedTimesValid ();
-    void contextMenuEventColorBar (QMenu* menu) const;
-    void contextMenuEventOverlayBar (QMenu* menu) const;
     void contextMenuEventView (QMenu* menu) const;
     void activateViewShader (
 	ViewNumber::Enum viewNumber, 
@@ -721,15 +703,6 @@ private:
     boost::shared_ptr<QAction> m_actionShowVelocity;
     boost::shared_ptr<QAction> m_actionShowReset;
 
-    boost::shared_ptr<QAction> m_actionEditColorMap;
-    boost::shared_ptr<QAction> m_actionColorBarClampClear;
-    boost::shared_ptr<QAction> m_actionEditOverlayMap;
-    boost::shared_ptr<QAction> m_actionOverlayBarClampClear;
-    boost::shared_ptr<QAction> m_actionOverlayBarCopyVelocityMagnitude;
-    boost::shared_ptr<QAction> m_actionOverlayBarClampHighMinimum;
-    boost::array<boost::shared_ptr<QAction>, 
-		 ViewNumber::COUNT> m_actionCopyPaletteClamping;
-    boost::shared_ptr<QSignalMapper> m_signalMapperCopyPaletteClamping;
     boost::shared_ptr<SelectBodiesById> m_selectBodiesByIdList;
     QLabel *m_labelStatusBar;
     bool m_t1sShown;

@@ -400,45 +400,8 @@ void WidgetGl::createActions ()
     connect(m_actionShowReset.get (), SIGNAL(triggered()),
 	    this, SLOT(ShowReset ()));
 
-    // actions for the color bar
-    m_actionEditOverlayMap.reset (
-	new QAction (tr("&Edit overlay map"), this));
-    m_actionEditOverlayMap->setStatusTip(
-	tr("Edit overlay map"));
-    // connected in MainWindow
-
-    // actions for the color bar
-    m_actionEditColorMap.reset (
-	new QAction (tr("&Edit color map"), this));
-    m_actionEditColorMap->setStatusTip(tr("Edit color map"));
-    // connected in MainWindow
-
-    m_actionColorBarClampClear.reset (
-	new QAction (tr("&Clamp clear"), this));
-    m_actionColorBarClampClear->setStatusTip(tr("Clamp clear"));
-    connect(m_actionColorBarClampClear.get (), SIGNAL(triggered()),
-	    this, SLOT(ColorBarClampClear ()));
-
-    m_actionOverlayBarClampClear.reset (
-	new QAction (tr("&Clamp clear"), this));
-    m_actionOverlayBarClampClear->setStatusTip(tr("Clamp clear"));
-    connect(m_actionOverlayBarClampClear.get (), SIGNAL(triggered()),
-	    this, SLOT(OverlayBarClampClear ()));
-
-    m_actionOverlayBarCopyVelocityMagnitude.reset (
-	new QAction (tr("&Copy velocity magnitude"), this));
-    m_actionOverlayBarCopyVelocityMagnitude->setStatusTip(
-        tr("Copy velocity magnitude"));
-    connect(m_actionOverlayBarCopyVelocityMagnitude.get (), SIGNAL(triggered()),
-	    this, SLOT(OverlayBarCopyVelocityMagnitude ()));
-
+    // actions for the color and overlay bar
     MAKE_COMMON_CONNECTIONS;
-    
-    initCopy (m_actionCopyPaletteClamping, m_signalMapperCopyPaletteClamping);
-    connect (m_signalMapperCopyPaletteClamping.get (),
-	     SIGNAL (mapped (int)),
-	     this,
-	     SLOT (CopyPaletteClamping (int)));
 }
 
 void WidgetGl::initDisplayView ()
@@ -2453,23 +2416,6 @@ void WidgetGl::quadricErrorCallback (GLenum errorCode)
     cdbg << "Quadric error:" << message << endl;
 }
 
-void WidgetGl::contextMenuEventOverlayBar (QMenu* menu) const
-{
-    menu->addAction (m_actionOverlayBarClampClear.get ());
-    if (GetViewSettings ().GetBodyOrFaceScalar () == 
-        BodyScalar::VELOCITY_MAGNITUDE)
-        menu->addAction (m_actionOverlayBarCopyVelocityMagnitude.get ());
-    menu->addAction (m_actionEditOverlayMap.get ());
-}
-
-void WidgetGl::contextMenuEventColorBar (QMenu* menu) const
-{
-    menu->addAction (m_actionColorBarClampClear.get ());
-    addCopyCompatibleMenu (menu, "Copy", &m_actionCopyPaletteClamping[0], 
-                           &WidgetBase::IsColorBarCopyCompatible);
-    menu->addAction (m_actionEditColorMap.get ());
-}
-
 void WidgetGl::contextMenuEventView (QMenu* menu) const
 {
     ViewSettings& vs = GetViewSettings ();
@@ -2542,21 +2488,7 @@ void WidgetGl::contextMenuEvent (QContextMenuEvent *event)
     makeCurrent ();
     m_contextMenuPosWindow = event->pos ();
     m_contextMenuPosObject = toObjectTransform (m_contextMenuPosWindow);
-    QMenu menu (this);
-    G3D::Rect2D barRect = 
-        GetSettings ().GetViewColorBarRect (GetViewRect ());
-    float xTranslateBar = GetSettings ().GetBarLabelsSize ().x;
-    G3D::Rect2D overlayBarRect = 
-	GetSettings ().GetViewOverlayBarRect (GetViewRect ()) + 
-        G3D::Vector2 (xTranslateBar, 0);
-    if (barRect.contains (QtToOpenGl (m_contextMenuPosWindow, height ())))
-	contextMenuEventColorBar (&menu);
-    else if (overlayBarRect.contains (
-		 QtToOpenGl (m_contextMenuPosWindow, height ())))
-	contextMenuEventOverlayBar (&menu);
-    else
-	contextMenuEventView (&menu);
-    menu.exec (event->globalPos());
+    WidgetBase::contextMenuEvent (event);
 }
 
 
@@ -2716,6 +2648,29 @@ void WidgetGl::displayTextureColorBar (
     displayBarLabels (viewNumber, barModel, br);
 }
 
+void WidgetGl::displayOverlayBar (
+    ViewNumber::Enum viewNumber, const G3D::Rect2D& br)
+{
+    G3D::Vector2 s = GetSettings ().GetBarLabelsSize (viewNumber);
+    G3D::Rect2D barRect = G3D::Rect2D::xywh (
+        br.x0 (), br.y0 () + s.y, 
+        br.width (), br.height () - s.y);
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    glPushAttrib (GL_POLYGON_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
+    glDisable (GL_DEPTH_TEST);
+    glColor (Qt::white);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    DisplayBox (barRect);
+    glColor (Qt::black);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);    
+    DisplayBox (barRect);
+    const ColorBarModel& barModel = *vs.GetOverlayBarModel ();
+    displayBarClampLevels (barModel, barRect);
+    glPopAttrib ();
+    displayBarLabels (viewNumber, barModel, barRect);
+}
+
+
 void WidgetGl::displayBarLabels (
     ViewNumber::Enum viewNumber,
     const ColorBarModel& cbm, const G3D::Rect2D& barRect)
@@ -2772,25 +2727,6 @@ void WidgetGl::displayBarClampLevels (const ColorBarModel& barModel,
     ::glVertex (G3D::Vector2 (barRect.x1 (), yMin));
     glEnd ();
     glPopAttrib ();
-}
-
-
-void WidgetGl::displayOverlayBar (
-    ViewNumber::Enum viewNumber, const G3D::Rect2D& barRect)
-{
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    glPushAttrib (GL_POLYGON_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
-    glDisable (GL_DEPTH_TEST);
-    glColor (Qt::white);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-    DisplayBox (barRect);
-    glColor (Qt::black);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);    
-    DisplayBox (barRect);
-    const ColorBarModel& barModel = *vs.GetOverlayBarModel ();
-    displayBarClampLevels (barModel, barRect);
-    glPopAttrib ();
-    displayBarLabels (viewNumber, barModel, barRect);
 }
 
 
@@ -3862,43 +3798,6 @@ void WidgetGl::CopySelectionFrom (int fromViewNumber)
 	GetViewSettings (ViewNumber::Enum (fromViewNumber)));
     CompileUpdate (toViewNumber);
 }
-
-void WidgetGl::CopyPaletteClamping (int other)
-{
-    makeCurrent ();
-    ViewSettings& otherVs = GetViewSettings (ViewNumber::Enum (other));
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings ();
-    vs.CopyPaletteClamping (otherVs);
-    Q_EMIT ColorBarModelChanged (viewNumber, vs.GetColorBarModel ());
-}
-
-void WidgetGl::OverlayBarCopyVelocityMagnitude ()
-{
-    GetViewSettings ().ColorBarToOverlayBarPaletteClamping ();
-}
-
-
-void WidgetGl::ColorBarClampClear ()
-{
-    makeCurrent ();
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    boost::shared_ptr<ColorBarModel> colorBarModel = vs.GetColorBarModel ();
-    colorBarModel->SetClampClear ();
-    Q_EMIT ColorBarModelChanged (viewNumber, colorBarModel);
-}
-
-void WidgetGl::OverlayBarClampClear ()
-{
-    makeCurrent ();
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    boost::shared_ptr<ColorBarModel> colorBarModel = vs.GetOverlayBarModel ();
-    colorBarModel->SetClampClear ();
-    Q_EMIT OverlayBarModelChanged (viewNumber, colorBarModel);
-}
-
 
 void WidgetGl::ToggledVelocityFieldSaved (bool saved)
 {

@@ -28,7 +28,8 @@ class WidgetBase : public Base
 public:
     typedef boost::array<boost::shared_ptr<AverageCache>, 
                          ViewNumber::COUNT> AverageCaches;
-
+    typedef boost::shared_ptr<QAction> (WidgetBase::*GetActionType) () const;
+        
 public:
     WidgetBase (QWidget* widget,
 		IsViewType isView,
@@ -75,11 +76,43 @@ public:
         return GetFoam (GetViewNumber ());
     }
 
-    bool IsColorBarCopyCompatible (
-        ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
     bool IsSelectionCopyCompatible (
         ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
     void ResetTransformFocus ();
+
+    void contextMenuEvent (QContextMenuEvent *event);
+
+    /**
+     * @{
+     * @name Color and Overlay Maps
+     */
+    bool IsColorBarCopyCompatible (
+        ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
+    boost::shared_ptr<QAction> GetActionColorMapEdit () const
+    {
+	return m_actionColorMapEdit;
+    }
+    boost::shared_ptr<QAction> GetActionColorMapClampClear () const
+    {
+	return m_actionColorMapClampClear;
+    }
+    boost::shared_ptr<QAction> GetActionOverlayMapEdit () const
+    {
+	return m_actionOverlayMapEdit;
+    }
+    boost::shared_ptr<QAction> GetActionOverlayMapClampClear () const
+    {
+	return m_actionOverlayMapClampClear;
+    }
+    boost::shared_ptr<QSignalMapper> GetSignalMapperColorMapCopy () const
+    {
+	return m_signalMapperColorMapCopy;
+    }
+    boost::shared_ptr<QAction> GetActionOverlayMapCopyVelocityMagnitude () const
+    {
+	return m_actionOverlayMapCopyVelocityMagnitude;
+    }
+    // @}
 
 protected:
     typedef bool (WidgetBase::*IsCopyCompatibleType) (
@@ -100,7 +133,10 @@ protected:
 	boost::array<boost::shared_ptr<QAction>, 
 	ViewNumber::COUNT>& actionCopyTransformation,
 	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation);
-
+    virtual void contextMenuEventView (QMenu* menu) const
+    {(void)menu;}
+    virtual void contextMenuEventColorMap (QMenu* menu) const;
+    virtual void contextMenuEventOverlayMap (QMenu* menu) const;
 
 protected:
     boost::array<boost::shared_ptr<QAction>, 
@@ -113,6 +149,17 @@ protected:
 
     boost::shared_ptr<QAction> m_actionResetTransformAll;
     boost::shared_ptr<QAction> m_actionResetTransformFocus;
+
+    // color bars
+    boost::shared_ptr<QAction> m_actionColorMapEdit;
+    boost::shared_ptr<QAction> m_actionColorMapClampClear;
+    boost::array<boost::shared_ptr<QAction>, 
+		 ViewNumber::COUNT> m_actionColorMapCopy;
+    boost::shared_ptr<QSignalMapper> m_signalMapperColorMapCopy;
+    // overlay bar
+    boost::shared_ptr<QAction> m_actionOverlayMapEdit;
+    boost::shared_ptr<QAction> m_actionOverlayMapClampClear;
+    boost::shared_ptr<QAction> m_actionOverlayMapCopyVelocityMagnitude;
 
 private:
     AverageCaches* m_averageCache;
@@ -132,12 +179,8 @@ private:
 	     SLOT (CopyTransformationFrom (int)));\
     connect (m_actionResetTransformAll.get (), SIGNAL(triggered()),\
              this, SLOT(ResetTransformAll ()));\
-    connect(m_actionResetTransformFocus.get (), SIGNAL(triggered()),\
-	    this, SLOT(ResetTransformFocus ()))
-
-
-
-
+    connect (m_actionResetTransformFocus.get (), SIGNAL(triggered()),\
+	    this, SLOT(ResetTransformFocus ()));
 
 #endif //__WIDGET_BASE_H__
 

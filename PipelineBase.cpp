@@ -118,13 +118,12 @@ void PipelineBase::UpdateViewTitle (
         position.x, position.y);
 }
 
-void PipelineBase::UpdateColorBarModel (
+void PipelineBase::UpdateScalarColorBarModel (
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction, 
     const char * name)
 {
     m_scalarBar->SetLookupTable (colorTransferFunction);
-    (void)name;
-    //m_scalarBar->SetTitle (name);
+    m_scalarBar->SetTitle (name);
 }
 
 void PipelineBase::PositionScalarBar (G3D::Rect2D position)

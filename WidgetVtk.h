@@ -76,8 +76,8 @@ public:
      */
     void UpdateScalarThreshold (QwtDoubleInterval interval);
     void AddAverageView (
-	ViewNumber::Enum viewNumber, const ColorBarModel& colorBarModel,	
-	QwtDoubleInterval interval);
+	ViewNumber::Enum viewNumber, const ColorBarModel& scalarColorBarModel,	
+	QwtDoubleInterval interval, const ColorBarModel& velocityColorBarModel);
     void FromView ();
     void UpdateAverage (ViewNumber::Enum viewNumber, int direction);
     void UpdateForceAverage ();
@@ -95,12 +95,16 @@ public Q_SLOTS:
     void CopyTransformationFrom (int fromViewNumber);
     void ResetTransformAll ();
     void ResetTransformFocus ();    
+    // slots for color bar and overlay bar
+    void OverlayBarCopyVelocityMagnitude ();
+
 
 
 protected:
     virtual void resizeEvent (QResizeEvent * event);
     virtual void mousePressEvent (QMouseEvent *event);
     virtual void contextMenuEvent (QContextMenuEvent *);
+    virtual void contextMenuEventView (QMenu* menu) const;
 
 private:
     void updateViewTitle (ViewNumber::Enum viewNumber);

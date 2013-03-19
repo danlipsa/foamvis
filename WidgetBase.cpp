@@ -39,6 +39,26 @@ WidgetBase::WidgetBase (QWidget* widget,
 	tr("&Focus"), m_widget);
     m_actionResetTransformFocus->setStatusTip(tr("Reset transform focus"));
     
+    m_actionColorMapEdit.reset (
+	new QAction (tr("&Edit color map"), m_widget));
+    m_actionColorMapEdit->setStatusTip(tr("Edit color map"));
+    m_actionColorMapClampClear.reset (
+	new QAction (tr("&Clamp clear"), m_widget));
+    m_actionColorMapClampClear->setStatusTip(tr("Clamp clear"));
+    initCopy (m_actionColorMapCopy, m_signalMapperColorMapCopy);
+
+    m_actionOverlayMapEdit.reset (
+	new QAction (tr("&Edit overlay map"), m_widget));
+    m_actionOverlayMapEdit->setStatusTip(tr("Edit overlay map"));
+   
+    m_actionOverlayMapClampClear.reset (
+	new QAction (tr("&Clamp clear"), m_widget));
+    m_actionOverlayMapClampClear->setStatusTip(tr("Clamp clear"));
+
+    m_actionOverlayMapCopyVelocityMagnitude.reset (
+	new QAction (tr("&Copy velocity magnitude"), m_widget));
+    m_actionOverlayMapCopyVelocityMagnitude->setStatusTip(
+        tr("Copy velocity magnitude"));
 }
 
 
@@ -102,6 +122,44 @@ G3D::Rect2D WidgetBase::GetViewRect (ViewNumber::Enum viewNumber) const
 	m_widget->width (), m_widget->height (), mapping[viewNumber], viewCount);
 }
 
+void WidgetBase::contextMenuEventColorMap (QMenu* menu) const
+{
+    menu->addAction (m_actionColorMapClampClear.get ());
+    addCopyCompatibleMenu (menu, "Copy", &m_actionColorMapCopy[0], 
+                           &WidgetBase::IsColorBarCopyCompatible);
+    menu->addAction (m_actionColorMapEdit.get ());
+}
+
+void WidgetBase::contextMenuEventOverlayMap (QMenu* menu) const
+{
+    menu->addAction (m_actionOverlayMapClampClear.get ());
+    if (GetViewSettings ().GetBodyOrFaceScalar () == 
+        BodyScalar::VELOCITY_MAGNITUDE)
+        menu->addAction (m_actionOverlayMapCopyVelocityMagnitude.get ());
+    menu->addAction (m_actionOverlayMapEdit.get ());
+}
+
+
+void WidgetBase::contextMenuEvent (QContextMenuEvent *event)
+{
+    QMenu menu (m_widget);
+    QPoint contextMenuPosWindow = event->pos ();
+    G3D::Rect2D barRect = 
+        GetSettings ().GetViewColorBarRect (GetViewRect ());
+    float xTranslateBar = GetSettings ().GetBarLabelsSize ().x;
+    G3D::Rect2D overlayBarRect = 
+	GetSettings ().GetViewOverlayBarRect (GetViewRect ()) + 
+        G3D::Vector2 (xTranslateBar, 0);
+    if (barRect.contains (
+            QtToOpenGl (contextMenuPosWindow, m_widget->height ())))
+	contextMenuEventColorMap (&menu);
+    else if (overlayBarRect.contains (
+		 QtToOpenGl (contextMenuPosWindow, m_widget->height ())))
+	contextMenuEventOverlayMap (&menu);
+    else
+	contextMenuEventView (&menu);
+    menu.exec (event->globalPos());
+}
 
 void WidgetBase::setView (const G3D::Vector2& clickedPoint)
 {
