@@ -86,6 +86,6 @@ void AttributeHistogram::SetColorTransferFunction (
     boost::shared_ptr<ColorBarModel> colorBarModel)
 {
     Histogram::SetColorTransferFunction (
-	colorBarModel->GetInterval (), colorBarModel->GetColorMap ());
+	colorBarModel->GetInterval (), colorBarModel->GetQwtColorMap ());
     replot ();
 }

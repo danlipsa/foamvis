@@ -4,7 +4,6 @@ Release log
         - add Reset transform/All and Focus to the VTK view (3D average)
         - color and overlay bars work in VTK view
         
-        
 0.8.2740
         - update to vtk-6.0-20130125.tgz
         - remove folders inside .foamvis to regenerate regular grid data for 3D

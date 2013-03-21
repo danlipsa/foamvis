@@ -114,12 +114,13 @@ public Q_SLOTS:
     void CurrentIndexChangedViewLayout (int index);
     void CurrentIndexChangedWindowLayout (int index);
     
-    void ShowColorMapEdit ();
+    void ColorMapEdit ();
     void ColorMapClampClear ();
     void ColorMapCopy (int viewNumber);
-    void ShowOverlayMapEdit ();
+    void OverlayMapEdit ();
     void OverlayMapClampClear ();
-    void OverlayBarCopyVelocityMagnitude ();
+    void OverlayMapCopyVelocityMagnitude ();
+
     void RotateShown ();
     void ScaleShown ();
     void TranslateShown ();    

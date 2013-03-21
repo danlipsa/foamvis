@@ -15,13 +15,13 @@ class ColorBarModel
 {
 public:
     ColorBarModel ();
-    const QwtLinearColorMap& GetColorMap () const
+    const QwtLinearColorMap& GetQwtColorMap () const
     {
-	return m_colorMap;
+	return m_qwtColorMap;
     }
-    vtkSmartPointer<vtkColorTransferFunction> GetColorTransferFunction () const
+    vtkSmartPointer<vtkColorTransferFunction> GetVtkColorMap () const
     {
-	return m_colorTransferFunction;
+	return m_vtkColorMap;
     }
     const QImage& GetImage () const
     {
@@ -129,13 +129,13 @@ private:
 
 private:
     Palette m_palette;
-    QwtLinearColorMap m_colorMap;
+    QwtLinearColorMap m_qwtColorMap;
     QImage m_image;
     QwtDoubleInterval m_interval;
     QwtDoubleInterval m_clampInterval;
     // maps [0, 1] to a range of colors
     vtkSmartPointer<vtkColorTransferFunction> m_ctf;
-    vtkSmartPointer<vtkColorTransferFunction> m_colorTransferFunction;
+    vtkSmartPointer<vtkColorTransferFunction> m_vtkColorMap;
     QString m_title;
     boost::array<QColor,HighlightNumber::COUNT> m_highlightColor;
     bool m_log10;

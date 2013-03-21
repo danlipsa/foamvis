@@ -19,6 +19,7 @@ PipelineBase::PipelineBase (size_t fontSize, PipelineType::Enum type) :
 {
     createRenderer ();
     createScalarBarActor ();
+    createVectorBarActor ();
     createViewTitleActor (fontSize);
     createFocusRectActor ();
 }
@@ -37,9 +38,34 @@ void PipelineBase::createScalarBarActor ()
     VTK_CREATE (vtkScalarBarActor, scalarBar);
     scalarBar->SetOrientationToVertical ();
     scalarBar->SetNumberOfLabels (2);
-    m_scalarBar = scalarBar;
+    m_scalarBarActor = scalarBar;
     m_renderer->AddViewProp (scalarBar);
 }
+
+void PipelineBase::createVectorBarActor ()
+{
+    VTK_CREATE (vtkScalarBarActor, scalarBar);
+    scalarBar->SetOrientationToVertical ();
+    scalarBar->SetNumberOfLabels (2);
+    m_vectorBarActor = scalarBar;
+    m_renderer->AddViewProp (scalarBar);
+}
+
+
+void PipelineBase::PositionScalarBar (G3D::Rect2D position)
+{
+    m_scalarBarActor->SetHeight (position.height ());
+    m_scalarBarActor->SetWidth (position.width ());
+    m_scalarBarActor->SetPosition (position.x0 (), position.y0 ());
+}
+
+void PipelineBase::PositionVectorBar (G3D::Rect2D position)
+{
+    m_vectorBarActor->SetHeight (position.height ());
+    m_vectorBarActor->SetWidth (position.width ());
+    m_vectorBarActor->SetPosition (position.x0 (), position.y0 ());
+}
+
 
 void PipelineBase::createViewTitleActor (size_t fontSize)
 {
@@ -118,19 +144,20 @@ void PipelineBase::UpdateViewTitle (
         position.x, position.y);
 }
 
-void PipelineBase::UpdateScalarColorBarModel (
+void PipelineBase::UpdateColorMap (
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction, 
     const char * name)
 {
-    m_scalarBar->SetLookupTable (colorTransferFunction);
-    m_scalarBar->SetTitle (name);
+    m_scalarBarActor->SetLookupTable (colorTransferFunction);
+    m_scalarBarActor->SetTitle (name);
 }
 
-void PipelineBase::PositionScalarBar (G3D::Rect2D position)
+void PipelineBase::UpdateOverlayMap (
+    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction, 
+    const char * name)
 {
-    m_scalarBar->SetHeight (position.height ());
-    m_scalarBar->SetWidth (position.width ());
-    m_scalarBar->SetPosition (position.x0 (), position.y0 ());
+    m_vectorBarActor->SetLookupTable (colorTransferFunction);
+    m_vectorBarActor->SetTitle (name);
 }
 
 void PipelineBase::UpdateFocus (bool focus)
@@ -174,7 +201,8 @@ void PipelineBase::FromViewTransform (
     GetRenderer ()->ResetCamera ();
 }
 
-void PipelineBase::ToViewTransform (ViewNumber::Enum viewNumber, Base* base) const
+void PipelineBase::ToViewTransform (
+    ViewNumber::Enum viewNumber, Base* base) const
 {
     ViewSettings& vs = base->GetViewSettings (viewNumber);
     const Foam& foam = base->GetFoam (viewNumber);
@@ -203,4 +231,12 @@ void PipelineBase::ToViewTransform (ViewNumber::Enum viewNumber, Base* base) con
         vs.SetRotationCenterType (ViewSettings::ROTATION_CENTER_FOAM);
         vs.SetRotationCenter (G3D::Vector3 (center[0], center[1], center[2]));
     }
+}
+
+void PipelineBase::FromView (ViewNumber::Enum viewNumber, const Base& base)
+{
+    const ViewSettings& vs = base.GetViewSettings (viewNumber);
+    m_scalarBarActor->SetVisibility (vs.IsAverageShown ());
+    m_vectorBarActor->SetVisibility (
+        vs.IsVelocityShown ());
 }

@@ -194,7 +194,7 @@ public:
 	m_colorBarModel.reset ();
     }
     void ColorMapCopy (const ViewSettings& from);
-    void OverlayBarCopyVelocityMagnitude ();
+    void OverlayMapCopyVelocityMagnitude ();
     // @}
 
     /**

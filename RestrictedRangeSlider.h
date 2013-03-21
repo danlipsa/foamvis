@@ -103,7 +103,7 @@ private:
 
     vector<int> m_toOriginalRange;
     State m_state;
-    boost::shared_ptr<QwtLinearColorMap> m_colorMap;
+    boost::shared_ptr<QwtLinearColorMap> m_qwtColorMap;
 };
 
 

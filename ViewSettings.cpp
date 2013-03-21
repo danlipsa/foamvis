@@ -279,7 +279,7 @@ void ViewSettings::ColorMapCopy (const ViewSettings& from)
     m_colorBarModel->ColorMapCopy (*from.m_colorBarModel);
 }
 
-void ViewSettings::OverlayBarCopyVelocityMagnitude ()
+void ViewSettings::OverlayMapCopyVelocityMagnitude ()
 {
     m_velocityOverlayBarModel->ColorMapCopy (*m_colorBarModel);
 }

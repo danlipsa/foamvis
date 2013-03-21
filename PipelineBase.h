@@ -26,10 +26,14 @@ public:
     {
         return m_renderer;
     }
-    virtual void UpdateScalarColorBarModel (
-        vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction, 
+    virtual void UpdateColorMap (
+        vtkSmartPointer<vtkColorTransferFunction> vtkColorMap, 
+        const char * name);
+    virtual void UpdateOverlayMap (
+        vtkSmartPointer<vtkColorTransferFunction> vtkColorMap, 
         const char * name);
     void PositionScalarBar (G3D::Rect2D position);
+    void PositionVectorBar (G3D::Rect2D position);
     void UpdateViewTitle (
         const char* title, const G3D::Vector2& position);
     void UpdateFocus (bool focus);
@@ -39,17 +43,19 @@ public:
     {
         return m_type;
     }
-
+    virtual void FromView (ViewNumber::Enum viewNumber, const Base& base);    
 
 protected:
     void createRenderer ();
     void createScalarBarActor ();
+    void createVectorBarActor ();
     void createViewTitleActor (size_t fontSize);
     void createFocusRectActor ();
 
 private:
     vtkSmartPointer<vtkRenderer> m_renderer;
-    vtkSmartPointer<vtkScalarBarActor> m_scalarBar;
+    vtkSmartPointer<vtkScalarBarActor> m_scalarBarActor;
+    vtkSmartPointer<vtkScalarBarActor> m_vectorBarActor;
     vtkSmartPointer<vtkActor2D> m_viewTitleActor;
     vtkSmartPointer<vtkActor2D> m_focusRectActor;
     PipelineType::Enum m_type;

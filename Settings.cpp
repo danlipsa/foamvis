@@ -97,7 +97,9 @@ private:
 // ======================================================================
 const size_t Settings::QUADRIC_SLICES = 8;
 const size_t Settings::QUADRIC_STACKS = 1;
-
+const size_t Settings::BAR_MARGIN_DISTANCE = 15;
+const size_t Settings::BAR_WIDTH = 10;
+const size_t Settings::BAR_IN_BETWEEN_DISTANCE = 5;
 
 Settings::Settings (
     boost::shared_ptr<const SimulationGroup> simulationGroup, float w, float h) :
@@ -466,27 +468,34 @@ G3D::Rect2D Settings::GetViewRect (
 
 
 
-G3D::Rect2D Settings::GetViewColorBarRect (const G3D::Rect2D& viewRect) const
+G3D::Rect2D Settings::GetColorBarRect (ViewNumber::Enum viewNumber, 
+                                       const G3D::Rect2D& viewRect) const
 {
-    const float d = 15.0;
+    (void)viewNumber;
     float barHeight = 
-        m_barLarge ? (viewRect.height () - 2 * d) : 
+        m_barLarge ? (viewRect.height () - 2 * BAR_MARGIN_DISTANCE) : 
         max (viewRect.height () / 4, 50.0f);
-    return G3D::Rect2D::xywh (viewRect.x0 () + d, viewRect.y0 () + d,
-                              10, barHeight);
+    return G3D::Rect2D::xywh (viewRect.x0 () + BAR_MARGIN_DISTANCE, 
+                              viewRect.y0 () + BAR_MARGIN_DISTANCE,
+                              BAR_WIDTH, barHeight);
 }
 
-G3D::Rect2D Settings::GetViewOverlayBarRect (const G3D::Rect2D& viewRect) const
+G3D::Rect2D Settings::GetOverlayBarRect (ViewNumber::Enum viewNumber, 
+                                         const G3D::Rect2D& viewRect) const
 {
-    const float d = 15.0;
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    float colorBarWidth = 0;
+    if (vs.IsAverageShown ())
+        colorBarWidth = BAR_WIDTH + BAR_IN_BETWEEN_DISTANCE;
     float barHeight = 
-        m_barLarge ? (viewRect.height () - 2 * d): 
+        m_barLarge ? (viewRect.height () - 2 * BAR_MARGIN_DISTANCE): 
         max (viewRect.height () / 4, 50.0f);
-    return G3D::Rect2D::xywh (viewRect.x0 () + d + 10 + 5, viewRect.y0 () + d,
-                              10, barHeight);
+    return G3D::Rect2D::xywh (
+        viewRect.x0 () + BAR_MARGIN_DISTANCE + colorBarWidth, 
+        viewRect.y0 () + BAR_MARGIN_DISTANCE, BAR_WIDTH, barHeight);
 }
 
-G3D::Vector2 Settings::GetBarLabelsSize (ViewNumber::Enum viewNumber) const
+G3D::Vector2 Settings::GetBarLabelSize (ViewNumber::Enum viewNumber) const
 {
     const ColorBarModel& cbm = *GetViewSettings (viewNumber).GetColorBarModel ();
     //__ENABLE_LOGGING__;
@@ -517,14 +526,36 @@ G3D::Vector2 Settings::GetBarLabelsSize (ViewNumber::Enum viewNumber) const
 }
 
 
-G3D::Rect2D Settings::GetViewColorBarRectWithLabels (
+G3D::Rect2D Settings::GetColorBarRectWithLabels (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const
 {
-    G3D::Rect2D rect = GetViewColorBarRect (viewRect);
-    G3D::Vector2 s = GetBarLabelsSize (viewNumber);
+    return getBarRectWithLabels (&Settings::GetColorBarRect,
+                                 viewNumber, viewRect);
+}
+
+G3D::Rect2D Settings::GetOverlayBarRectWithLabels (
+    ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const
+{
+    float labelWidth = 0;
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    if (vs.IsAverageShown ())
+        labelWidth = GetBarLabelSize (viewNumber).x;
+    return getBarRectWithLabels (
+        &Settings::GetOverlayBarRect, viewNumber, viewRect) + 
+        G3D::Vector2 (labelWidth, 0);
+}
+
+
+G3D::Rect2D Settings::getBarRectWithLabels (
+    GetBarRectType getBarRect,
+    ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const
+{
+    G3D::Rect2D rect = CALL_MEMBER (*this, getBarRect) (viewNumber, viewRect);
+    G3D::Vector2 s = GetBarLabelSize (viewNumber);
     return G3D::Rect2D::xywh (rect.x0 (), rect.y0 () + s.y, 
                               rect.width () + s.x, rect.height () + s.y);
 }
+
 
 vector<ViewNumber::Enum> Settings::GetTwoHalvesViewNumbers (
     ViewNumber::Enum viewNumber) const

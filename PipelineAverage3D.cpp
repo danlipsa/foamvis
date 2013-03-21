@@ -179,16 +179,16 @@ void PipelineAverage3D::UpdateThreshold (QwtDoubleInterval interval)
     }
 }
 
-void PipelineAverage3D::UpdateScalarColorBarModel (
+void PipelineAverage3D::UpdateColorMap (
     const ColorBarModel& colorBarModel, const char * name)
 {
     if (m_scalarAverageActor != 0)
     {
-        vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction = 
-            colorBarModel.GetColorTransferFunction ();
-        PipelineBase::UpdateScalarColorBarModel (colorTransferFunction, name);
+        vtkSmartPointer<vtkColorTransferFunction> vtkColorMap = 
+            colorBarModel.GetVtkColorMap ();
+        PipelineBase::UpdateColorMap (vtkColorMap, name);
 	m_scalarAverageActor->GetMapper ()->SetLookupTable (
-            colorTransferFunction);
+            vtkColorMap);
     }
     for (size_t i = 0; i < m_forceActor.size (); ++i)
         for (size_t j = 0; j < m_forceActor[i].size (); ++j)
@@ -200,13 +200,13 @@ void PipelineAverage3D::UpdateScalarColorBarModel (
         }
 }
 
-void PipelineAverage3D::UpdateVelocityColorBarModel (
-    const ColorBarModel& colorBarModel)
+void PipelineAverage3D::UpdateOverlayMap (
+    const ColorBarModel& colorBarModel, const char* name)
 {
-    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction = 
-        colorBarModel.GetColorTransferFunction ();
-    m_velocityGlyphActor->GetMapper ()->SetLookupTable (
-        colorTransferFunction);
+    vtkSmartPointer<vtkColorTransferFunction> vtkColorMap = 
+        colorBarModel.GetVtkColorMap ();
+    PipelineBase::UpdateOverlayMap (vtkColorMap, name);
+    m_velocityGlyphActor->GetMapper ()->SetLookupTable (vtkColorMap);
 }
 
 void PipelineAverage3D::UpdateForceAverage (
@@ -296,8 +296,8 @@ void PipelineAverage3D::UpdateScalarAverage (const RegularGridAverage& average)
 
 void PipelineAverage3D::FromView (ViewNumber::Enum viewNumber, const Base& base)
 {
+    PipelineBase::FromView (viewNumber, base);
     const ViewSettings& vs = base.GetViewSettings (viewNumber);
-
     updateAlpha (vs.GetContextAlpha (), m_constraintSurface);
     updateAlpha (vs.GetObjectAlpha (), m_object);
     m_scalarAverageActor->SetVisibility (vs.IsAverageShown ());    

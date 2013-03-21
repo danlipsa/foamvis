@@ -2522,17 +2522,17 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
     if (GetSettings ().GetColorBarType (viewNumber) != ColorBarType::NONE)
     {
 	G3D::Rect2D viewColorBarRect = 
-            GetSettings ().GetViewColorBarRect (viewRect);
+            GetSettings ().GetColorBarRect (viewNumber, viewRect);
 	displayTextureColorBar (
 	    m_colorBarTexture[viewNumber], viewNumber, viewColorBarRect);
-        xTranslateBar = GetSettings ().GetBarLabelsSize (viewNumber).x;
+        xTranslateBar = GetSettings ().GetBarLabelSize (viewNumber).x;
     }
     if (vs.IsVelocityShown ())
     {
         const VectorAverage& va = 
             GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
-        G3D::Rect2D barRect = GetSettings ().GetViewOverlayBarRect (viewRect) + 
-            G3D::Vector2 (xTranslateBar, 0);
+        G3D::Rect2D barRect = GetSettings ().GetOverlayBarRect (
+            viewNumber, viewRect) + G3D::Vector2 (xTranslateBar, 0);
         if (va.IsColorMapped ())
             displayTextureColorBar (
                 m_overlayBarTexture[viewNumber], viewNumber, barRect);
@@ -2618,7 +2618,7 @@ void WidgetGl::displayTextureColorBar (
     GLuint texture,
     ViewNumber::Enum viewNumber, const G3D::Rect2D& br)
 {
-    G3D::Vector2 s = GetSettings ().GetBarLabelsSize (viewNumber);
+    G3D::Vector2 s = GetSettings ().GetBarLabelSize (viewNumber);
     G3D::Rect2D barRect = G3D::Rect2D::xywh (
         br.x0 (), br.y0 () + s.y, 
         br.width (), br.height () - s.y);
@@ -2651,7 +2651,7 @@ void WidgetGl::displayTextureColorBar (
 void WidgetGl::displayOverlayBar (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& br)
 {
-    G3D::Vector2 s = GetSettings ().GetBarLabelsSize (viewNumber);
+    G3D::Vector2 s = GetSettings ().GetBarLabelSize (viewNumber);
     G3D::Rect2D barRect = G3D::Rect2D::xywh (
         br.x0 (), br.y0 () + s.y, 
         br.width (), br.height () - s.y);

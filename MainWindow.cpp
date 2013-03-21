@@ -617,17 +617,17 @@ void MainWindow::createActions ()
     addAction (widgetGl->GetActionResetTransformAll ().get ());    
 
     connect (widgetGl->GetActionColorMapEdit ().get (), SIGNAL(triggered()), 
-             this, SLOT(ShowColorMapEdit()));
+             this, SLOT(ColorMapEdit()));
     connect (widgetVtk->GetActionColorMapEdit ().get (), SIGNAL(triggered()), 
-             this, SLOT(ShowColorMapEdit ()));
+             this, SLOT(ColorMapEdit ()));
     connect (widgetGl->GetActionColorMapClampClear ().get (), 
              SIGNAL (triggered ()), this, SLOT (ColorMapClampClear ()));
     connect (widgetVtk->GetActionColorMapClampClear ().get (), 
              SIGNAL (triggered ()), this, SLOT (ColorMapClampClear ()));
     connect (widgetGl->GetActionOverlayMapEdit ().get (), 
-             SIGNAL (triggered ()), this, SLOT(ShowOverlayMapEdit ()));
+             SIGNAL (triggered ()), this, SLOT(OverlayMapEdit ()));
     connect (widgetVtk->GetActionOverlayMapEdit ().get (), 
-             SIGNAL (triggered ()), this, SLOT(ShowOverlayMapEdit ()));
+             SIGNAL (triggered ()), this, SLOT(OverlayMapEdit ()));
     connect (widgetGl->GetActionOverlayMapClampClear ().get (), 
              SIGNAL (triggered ()), this, SLOT (OverlayMapClampClear ()));
     connect (widgetVtk->GetActionOverlayMapClampClear ().get (), 
@@ -637,9 +637,9 @@ void MainWindow::createActions ()
     connect (widgetVtk->GetSignalMapperColorMapCopy ().get (),
 	     SIGNAL (mapped (int)), this, SLOT (ColorMapCopy (int)));
     connect(widgetGl->GetActionOverlayMapCopyVelocityMagnitude ().get (),
-            SIGNAL(triggered()), this, SLOT(OverlayBarCopyVelocityMagnitude ()));
+            SIGNAL(triggered()), this, SLOT(OverlayMapCopyVelocityMagnitude ()));
     connect(widgetVtk->GetActionOverlayMapCopyVelocityMagnitude ().get (),
-            SIGNAL(triggered()), this, SLOT(OverlayBarCopyVelocityMagnitude ()));
+            SIGNAL(triggered()), this, SLOT(OverlayMapCopyVelocityMagnitude ()));
 
     addAction (sliderTimeSteps->GetActionNextSelectedTimeStep ().get ());
     addAction (sliderTimeSteps->GetActionPreviousSelectedTimeStep ().get ());
@@ -1667,52 +1667,6 @@ void MainWindow::updateSliderTimeSteps (
     
 }
 
-
-void MainWindow::ShowOverlayMapEdit ()
-{
-    HistogramInfo p = getHistogramInfo (
-	ColorBarType::PROPERTY, BodyScalar::VELOCITY_MAGNITUDE);
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    size_t simulationIndex = 
-	GetViewSettings (viewNumber).GetSimulationIndex ();
-    boost::shared_ptr<ColorBarModel> colorBarModel = 
-	m_colorBarModelVelocity[simulationIndex][viewNumber];
-    m_editColorMap->SetData (p.first, p.second, 
-			     *colorBarModel,
-			     checkBoxHistogramGridShown->isChecked ());
-    if (m_editColorMap->exec () == QDialog::Accepted)
-    {
-	*colorBarModel = m_editColorMap->GetColorBarModel ();
-	Q_EMIT OverlayBarModelChanged (GetViewNumber (), colorBarModel);
-    }
-}
-
-void MainWindow::OverlayBarCopyVelocityMagnitude ()
-{
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    size_t simulationIndex = vs.GetSimulationIndex ();
-    boost::shared_ptr<ColorBarModel> colorBarModel = 
-	m_colorBarModelVelocity[simulationIndex][viewNumber];
-    vs.OverlayBarCopyVelocityMagnitude ();
-    Q_EMIT OverlayBarModelChanged (GetViewNumber (), colorBarModel);
-}
-
-void MainWindow::ShowColorMapEdit ()
-{
-    HistogramInfo p = getHistogramInfo (
-	GetSettings ().GetColorBarType (), widgetGl->GetBodyOrFaceScalar ());
-    m_editColorMap->SetData (
-	p.first, p.second, *getScalarColorBarModel (),
-	checkBoxHistogramGridShown->isChecked ());
-    if (m_editColorMap->exec () == QDialog::Accepted)
-    {
-	*getScalarColorBarModel () = m_editColorMap->GetColorBarModel ();
-	Q_EMIT ColorBarModelChanged (GetViewNumber (),
-				     getScalarColorBarModel ());
-    }
-}
-
 void MainWindow::ColorMapClampClear ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
@@ -1740,6 +1694,52 @@ void MainWindow::ColorMapCopy (int other)
     Q_EMIT ColorBarModelChanged (viewNumber, vs.GetColorBarModel ());
 }
 
+void MainWindow::OverlayMapCopyVelocityMagnitude ()
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    size_t simulationIndex = vs.GetSimulationIndex ();
+    boost::shared_ptr<ColorBarModel> colorBarModel = 
+	m_colorBarModelVelocity[simulationIndex][viewNumber];
+    vs.OverlayMapCopyVelocityMagnitude ();
+    Q_EMIT OverlayBarModelChanged (GetViewNumber (), colorBarModel);
+}
+
+
+void MainWindow::OverlayMapEdit ()
+{
+    HistogramInfo p = getHistogramInfo (
+	ColorBarType::PROPERTY, BodyScalar::VELOCITY_MAGNITUDE);
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    size_t simulationIndex = 
+	GetViewSettings (viewNumber).GetSimulationIndex ();
+    boost::shared_ptr<ColorBarModel> colorBarModel = 
+	m_colorBarModelVelocity[simulationIndex][viewNumber];
+    m_editColorMap->SetData (p.first, p.second, 
+			     *colorBarModel,
+			     checkBoxHistogramGridShown->isChecked ());
+    if (m_editColorMap->exec () == QDialog::Accepted)
+    {
+	*colorBarModel = m_editColorMap->GetColorBarModel ();
+	Q_EMIT OverlayBarModelChanged (GetViewNumber (), colorBarModel);
+    }
+}
+
+
+void MainWindow::ColorMapEdit ()
+{
+    HistogramInfo p = getHistogramInfo (
+	GetSettings ().GetColorBarType (), widgetGl->GetBodyOrFaceScalar ());
+    m_editColorMap->SetData (
+	p.first, p.second, *getScalarColorBarModel (),
+	checkBoxHistogramGridShown->isChecked ());
+    if (m_editColorMap->exec () == QDialog::Accepted)
+    {
+	*getScalarColorBarModel () = m_editColorMap->GetColorBarModel ();
+	Q_EMIT ColorBarModelChanged (GetViewNumber (),
+				     getScalarColorBarModel ());
+    }
+}
 
 
 void MainWindow::SetHistogramColorBarModel (

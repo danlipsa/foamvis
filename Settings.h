@@ -24,7 +24,8 @@ public:
 	Vector3int16Hash> EndLocationColor;
     typedef bool (Settings::*IsViewType) (
 	ViewNumber::Enum viewNumber) const;
-
+    typedef G3D::Rect2D (Settings::*GetBarRectType) (
+        ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const;
 
 public:
     Settings (boost::shared_ptr<const SimulationGroup> simulationGroup, 
@@ -190,7 +191,7 @@ public:
 
     /**
      * @{
-     * @name Color Bar
+     * @name Color and overlay bars
      */
     bool IsBarLarge () const
     {
@@ -210,6 +211,19 @@ public:
     }
     ColorBarType::Enum GetColorBarType (ViewNumber::Enum viewNumber) const;
     ColorBarType::Enum GetColorBarType () const;
+    G3D::Rect2D GetColorBarRect (ViewNumber::Enum viewNumber, 
+                                 const G3D::Rect2D& viewRect) const;
+    G3D::Rect2D GetColorBarRectWithLabels (
+        ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const;
+    G3D::Rect2D GetOverlayBarRectWithLabels (
+        ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const;
+    G3D::Rect2D GetOverlayBarRect (ViewNumber::Enum viewNumber, 
+                                   const G3D::Rect2D& viewRect) const;
+    G3D::Vector2 GetBarLabelSize (ViewNumber::Enum viewNumber) const;
+    G3D::Vector2 GetBarLabelSize () const
+    {
+        return GetBarLabelSize (GetViewNumber ());
+    }
     // @}
 
     /**
@@ -383,15 +397,6 @@ public:
     {
 	return GetViewRect (w, h, GetViewNumber ());
     }
-    G3D::Rect2D GetViewColorBarRect (const G3D::Rect2D& viewRect) const;
-    G3D::Rect2D GetViewColorBarRectWithLabels (
-        ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const;
-    G3D::Rect2D GetViewOverlayBarRect (const G3D::Rect2D& viewRect) const;
-    G3D::Vector2 GetBarLabelsSize (ViewNumber::Enum viewNumber) const;
-    G3D::Vector2 GetBarLabelsSize () const
-    {
-        return GetBarLabelsSize (GetViewNumber ());
-    }
     // @}
 
 Q_SIGNALS:
@@ -401,6 +406,9 @@ Q_SIGNALS:
 public:
     const static size_t QUADRIC_SLICES;
     const static size_t QUADRIC_STACKS;
+    const static size_t BAR_MARGIN_DISTANCE;
+    const static size_t BAR_WIDTH;
+    const static size_t BAR_IN_BETWEEN_DISTANCE;
 
 private Q_SLOTS:
     void selectionChanged (int viewNumber);
@@ -425,6 +433,9 @@ private:
      */
     int setCurrentTime (ViewNumber::Enum viewNumber, size_t linkedTime, 
                         bool setLastStep);
+    G3D::Rect2D getBarRectWithLabels (
+        GetBarRectType getBarRect,
+        ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const;
 
 private:
     Q_OBJECT

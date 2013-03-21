@@ -20,7 +20,7 @@ ColorBarModel::ColorBarModel () :
     m_log10 (false)
 {
     m_ctf = vtkColorTransferFunction::New ();
-    m_colorTransferFunction = vtkColorTransferFunction::New ();
+    m_vtkColorMap = vtkColorTransferFunction::New ();
 }
 
 QColor ColorBarModel::GetHighlightColor (HighlightNumber::Enum i) const
@@ -248,14 +248,14 @@ void ColorBarModel::setup ()
 void ColorBarModel::adjustColorTransferFunction ()
 {
     // [0,1] -> m_clampInterval 
-    m_colorTransferFunction->RemoveAllPoints ();
-    m_colorTransferFunction->SetColorSpace (m_ctf->GetColorSpace ());
+    m_vtkColorMap->RemoveAllPoints ();
+    m_vtkColorMap->SetColorSpace (m_ctf->GetColorSpace ());
     double leftColor[3], rightColor[3];
     m_ctf->GetColor (0, leftColor);
-    m_colorTransferFunction->AddRGBPoint (
+    m_vtkColorMap->AddRGBPoint (
         m_interval.minValue (), leftColor[0], leftColor[1], leftColor[2]);
     m_ctf->GetColor (1, rightColor);
-    m_colorTransferFunction->AddRGBPoint (
+    m_vtkColorMap->AddRGBPoint (
         m_interval.maxValue (), rightColor[0], rightColor[1], rightColor[2]);
     for (int i = 0; i < m_ctf->GetSize (); ++i)
     {
@@ -263,30 +263,30 @@ void ColorBarModel::adjustColorTransferFunction ()
 	m_ctf->GetNodeValue (i, v);
 	v[0] = m_clampInterval.minValue () +
 	    v[0] * (m_clampInterval.maxValue () - m_clampInterval.minValue ());
-	m_colorTransferFunction->AddRGBPoint (v[0], v[1], v[2], v[3]);
+	m_vtkColorMap->AddRGBPoint (v[0], v[1], v[2], v[3]);
     }
 }
 
 
 void ColorBarModel::setupColorMap ()
 {
-    m_colorMap.setColorInterval (getColor (0), getColor (1));
+    m_qwtColorMap.setColorInterval (getColor (0), getColor (1));
     double width = m_interval.width ();
     double low = 
         (m_clampInterval.minValue () -  m_interval.minValue ()) / width;
     double high = 
         (m_clampInterval.maxValue () -  m_interval.minValue ()) / width;
     if (low != 0)
-	m_colorMap.addColorStop (low, getColor (0));
+	m_qwtColorMap.addColorStop (low, getColor (0));
     if (high != 1)
-	m_colorMap.addColorStop (high, getColor (1));
-    m_colorMap.setMode (QwtLinearColorMap::FixedColors);
+	m_qwtColorMap.addColorStop (high, getColor (1));
+    m_qwtColorMap.setMode (QwtLinearColorMap::FixedColors);
     size_t colors = COLORS - 1;
     for (size_t i = 1; i < colors; ++i)
     {
 	double value = static_cast<double>(i) / colors;
 	double insideClamp = low + value * (high - low);
-	m_colorMap.addColorStop (insideClamp, getColor (value));
+	m_qwtColorMap.addColorStop (insideClamp, getColor (value));
     }
 }
 

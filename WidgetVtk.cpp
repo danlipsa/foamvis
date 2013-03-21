@@ -45,6 +45,17 @@ void RenderWindowPaintEnd::Execute (
     m_widgetVtk->SendPaintEnd ();
 }
 
+using G3D::Rect2D;
+
+Rect2D toRatio (const Rect2D& barRect, const Rect2D& viewRect)
+{
+    return G3D::Rect2D::xywh (
+        (barRect.x0 () - viewRect.x0 ())/ viewRect.width (),
+        (barRect.y0 () - viewRect.y0 ())/ viewRect.height (),
+        barRect.width () / viewRect.width (),
+        barRect.height () / viewRect.height ());
+}
+
 
 // Methods WidgetVtk
 // ======================================================================
@@ -176,6 +187,7 @@ void WidgetVtk::FromView ()
     if (GetPipelineType (viewNumber) == PipelineType::AVERAGE_3D)
     {
         m_pipelineAverage3d[viewNumber]->FromView (viewNumber, *this);
+        resizeViewEvent (viewNumber);
         update ();
     }
 }
@@ -234,7 +246,8 @@ void WidgetVtk::AddAverageView (
     boost::shared_ptr<RegularGridAverage> scalarAverage = 
         m_average[viewNumber]->GetScalarAveragePtr ();
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    const char* scalarName = FaceScalar::ToString (vs.GetBodyOrFaceScalar ());
+    const char* scalarName = BodyScalar::ToString (
+        BodyScalar::FromSizeT (vs.GetBodyOrFaceScalar ()));
     const Simulation& simulation = scalarAverage->GetSimulation ();
     m_pipeline[viewNumber] = m_pipelineAverage3d[viewNumber];
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
@@ -248,8 +261,10 @@ void WidgetVtk::AddAverageView (
         m_average[viewNumber]->GetVelocityAverage ());
     pipeline.FromView (viewNumber, *this);
     pipeline.UpdateThreshold (interval);
-    pipeline.UpdateScalarColorBarModel (scalarColorBarModel, scalarName);
-    pipeline.UpdateVelocityColorBarModel (velocityColorBarModel);
+    pipeline.UpdateColorMap (scalarColorBarModel, scalarName);
+    pipeline.UpdateOverlayMap (
+        velocityColorBarModel, 
+        BodyAttribute::ToString (BodyAttribute::VELOCITY));
     pipeline.UpdateFocus (GetViewNumber () == viewNumber);
     pipeline.FromViewTransform (viewNumber, *this);
 
@@ -349,14 +364,15 @@ void WidgetVtk::resizeEvent (QResizeEvent * event)
 void WidgetVtk::resizeViewEvent (ViewNumber::Enum viewNumber)
 {
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
-    G3D::Rect2D viewColorBarRect = 
-        GetSettings ().GetViewColorBarRectWithLabels (viewNumber, viewRect);
-    G3D::Rect2D position = G3D::Rect2D::xywh (
-        (viewColorBarRect.x0 () - viewRect.x0 ())/ viewRect.width (),
-        (viewColorBarRect.y0 () - viewRect.y0 ())/ viewRect.height (),
-        viewColorBarRect.width () / viewRect.width (),
-        viewColorBarRect.height () / viewRect.height ());	
-    m_pipeline[viewNumber]->PositionScalarBar (position);
+    const Settings& settings = GetSettings ();
+    G3D::Rect2D scalarBarRect = 
+        settings.GetColorBarRectWithLabels (viewNumber, viewRect);
+    G3D::Rect2D vectorBarRect =
+        settings.GetOverlayBarRectWithLabels (viewNumber, viewRect);
+    m_pipeline[viewNumber]->PositionScalarBar (
+        toRatio (scalarBarRect, viewRect));
+    m_pipeline[viewNumber]->PositionVectorBar (
+        toRatio (vectorBarRect, viewRect));
     m_pipeline[viewNumber]->GetRenderer ()->ResetCamera ();
 }
 
@@ -390,7 +406,4 @@ void WidgetVtk::CopyTransformationFrom (int fromViewNumber)
     FromViewTransform (viewNumber);
 }
 
-void WidgetVtk::OverlayBarCopyVelocityMagnitude ()
-{
-}
 

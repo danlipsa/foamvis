@@ -143,17 +143,20 @@ void WidgetBase::contextMenuEventOverlayMap (QMenu* menu) const
 void WidgetBase::contextMenuEvent (QContextMenuEvent *event)
 {
     QMenu menu (m_widget);
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     QPoint contextMenuPosWindow = event->pos ();
     G3D::Rect2D barRect = 
-        GetSettings ().GetViewColorBarRect (GetViewRect ());
-    float xTranslateBar = GetSettings ().GetBarLabelsSize ().x;
+        GetSettings ().GetColorBarRectWithLabels (
+            viewNumber, GetViewRect ());
     G3D::Rect2D overlayBarRect = 
-	GetSettings ().GetViewOverlayBarRect (GetViewRect ()) + 
-        G3D::Vector2 (xTranslateBar, 0);
-    if (barRect.contains (
+	GetSettings ().GetOverlayBarRectWithLabels (
+            viewNumber, GetViewRect ());
+    if (vs.IsAverageShown () && barRect.contains (
             QtToOpenGl (contextMenuPosWindow, m_widget->height ())))
 	contextMenuEventColorMap (&menu);
-    else if (overlayBarRect.contains (
+    else if (vs.IsVelocityShown () &&
+             overlayBarRect.contains (
 		 QtToOpenGl (contextMenuPosWindow, m_widget->height ())))
 	contextMenuEventOverlayMap (&menu);
     else

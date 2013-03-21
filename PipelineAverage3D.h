@@ -23,10 +23,10 @@ public:
     PipelineAverage3D (
         size_t objects, size_t constraintSurfaces, size_t fontSize);
 
-    virtual void UpdateScalarColorBarModel (
+    virtual void UpdateColorMap (
         const ColorBarModel& colorBarModel, const char* name);
-    virtual void UpdateVelocityColorBarModel (
-        const ColorBarModel& colorBarModel);
+    virtual void UpdateOverlayMap (
+        const ColorBarModel& colorBarModel, const char* name);
     void UpdateThreshold (QwtDoubleInterval interval);
     void UpdateScalarAverage (const RegularGridAverage& average);
     void UpdateForceAverage (const ForceAverage& forceAverage);

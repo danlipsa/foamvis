@@ -95,10 +95,6 @@ public Q_SLOTS:
     void CopyTransformationFrom (int fromViewNumber);
     void ResetTransformAll ();
     void ResetTransformFocus ();    
-    // slots for color bar and overlay bar
-    void OverlayBarCopyVelocityMagnitude ();
-
-
 
 protected:
     virtual void resizeEvent (QResizeEvent * event);
