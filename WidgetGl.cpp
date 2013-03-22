@@ -437,24 +437,6 @@ void WidgetGl::Init (
     update ();
 }
 
-float WidgetGl::GetDeformationSizeInitialRatio (
-    ViewNumber::Enum viewNumber) const
-{
-    const Simulation& simulation = GetSimulation (viewNumber);
-    float gridCellLength = GetBubbleDiameter (viewNumber);
-    return gridCellLength / (2 * simulation.GetMaxDeformationEigenValue ());
-}
-
-float WidgetGl::GetVelocitySizeInitialRatio (
-    ViewNumber::Enum viewNumber) const
-{
-    float gridCellLength = GetBubbleDiameter (viewNumber);
-    float velocityMagnitude = 
-	GetSimulation (viewNumber).GetMax (BodyScalar::VELOCITY_MAGNITUDE);
-    return gridCellLength / velocityMagnitude;
-}
-
-
 QSize WidgetGl::minimumSizeHint()
 {
     return QSize(50, 50);
@@ -4262,7 +4244,7 @@ void WidgetGl::SetColorBarModel (ViewNumber::Enum viewNumber,
     makeCurrent ();
     GetViewSettings (viewNumber).SetColorBarModel (colorBarModel);
     setTexture (colorBarModel, m_colorBarTexture[viewNumber]);
-    CompileUpdate (viewNumber);
+    update ();
 }
 
 void WidgetGl::SetOverlayBarModel (
@@ -4273,7 +4255,7 @@ void WidgetGl::SetOverlayBarModel (
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetOverlayBarModel (overlayBarModel);
     setTexture (overlayBarModel, m_overlayBarTexture[viewNumber]);
-    CompileUpdate ();
+    update ();
 }
 
 void WidgetGl::ValueChangedKDEValue (double value)

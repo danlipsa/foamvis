@@ -79,8 +79,10 @@ public:
     bool IsSelectionCopyCompatible (
         ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
     void ResetTransformFocus ();
-
     void contextMenuEvent (QContextMenuEvent *event);
+    float GetDeformationSizeInitialRatio (ViewNumber::Enum viewNumber) const;
+    // bubbleDiameter / velocityRange
+    float GetVelocitySizeInitialRatio (ViewNumber::Enum viewNumber) const;
 
     /**
      * @{
@@ -150,13 +152,13 @@ protected:
     boost::shared_ptr<QAction> m_actionResetTransformAll;
     boost::shared_ptr<QAction> m_actionResetTransformFocus;
 
-    // color bars
+    // color bars actions
     boost::shared_ptr<QAction> m_actionColorMapEdit;
     boost::shared_ptr<QAction> m_actionColorMapClampClear;
     boost::array<boost::shared_ptr<QAction>, 
 		 ViewNumber::COUNT> m_actionColorMapCopy;
     boost::shared_ptr<QSignalMapper> m_signalMapperColorMapCopy;
-    // overlay bar
+    // overlay bar actions
     boost::shared_ptr<QAction> m_actionOverlayMapEdit;
     boost::shared_ptr<QAction> m_actionOverlayMapClampClear;
     boost::shared_ptr<QAction> m_actionOverlayMapCopyVelocityMagnitude;

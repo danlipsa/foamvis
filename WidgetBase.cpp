@@ -299,3 +299,21 @@ void WidgetBase::ResetTransformFocus ()
 	vs.SetTranslation (G3D::Vector3::zero ());
     }
 }
+
+float WidgetBase::GetDeformationSizeInitialRatio (
+    ViewNumber::Enum viewNumber) const
+{
+    const Simulation& simulation = GetSimulation (viewNumber);
+    float gridCellLength = GetBubbleDiameter (viewNumber);
+    return gridCellLength / (2 * simulation.GetMaxDeformationEigenValue ());
+}
+
+float WidgetBase::GetVelocitySizeInitialRatio (
+    ViewNumber::Enum viewNumber) const
+{
+    float bubbleDiameter = GetBubbleDiameter (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
+    float velocityRange = simulation.GetMax (BodyScalar::VELOCITY_MAGNITUDE);
+    // min velocity is 0.
+    return bubbleDiameter / velocityRange;
+}

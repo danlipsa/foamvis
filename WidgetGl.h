@@ -131,8 +131,6 @@ public:
     void ActivateViewShader (ViewNumber::Enum viewNumber,
 			     ViewingVolumeOperation::Enum enclose,
 			     G3D::Rect2D& srcRect) const;
-    float GetDeformationSizeInitialRatio (ViewNumber::Enum viewNumber) const;
-    float GetVelocitySizeInitialRatio (ViewNumber::Enum viewNumber) const;
     void DisplayT1Quad (ViewNumber::Enum view, 
 			size_t timeStep, size_t t1Index) const;
     pair<float, float> GetRange (ViewNumber::Enum viewNumber) const;
@@ -201,6 +199,8 @@ public:
     void CurrentIndexChangedSimulation (int index);
     void ShowMessageBox (const char* message);
     void ButtonClickedViewType (ViewType::Enum oldViewType);
+    void ToggledVelocitySameSize (bool checked);
+
     
 Q_SIGNALS:
     void PaintEnd ();
@@ -245,7 +245,6 @@ public Q_SLOTS:
     void ToggledVelocityClampingShown (bool checked);
     void ToggledDeformationGridCellCenterShown (bool checked);
     void ToggledVelocityGridCellCenterShown (bool checked);
-    void ToggledVelocitySameSize (bool checked);
     void ToggledVelocityColorMapped (bool checked);
     void ToggledContextBoxShown (bool checked);
     void ToggledT1sKernelTextureShown (bool checked);

@@ -64,18 +64,18 @@ struct FocusColorSegment : public Segment
     QColor m_color;
 };
 
-G3D::Vector2 clamp (G3D::Vector2 v, float maxLength, bool* clamped)
+// returns multiplier for velocity
+float clampMax (float length, float maxLength, bool* clamped)
 {
-    float length = v.length ();
     if (length > maxLength)
     {
 	*clamped = true;
-	return v * (maxLength / length);
+	return maxLength / length;
     }
     else
     {
 	*clamped = false;
-	return v;
+	return 1;
     }
 }
 
@@ -198,14 +198,18 @@ void DisplayBodyVelocity::display (boost::shared_ptr<Body> body)
     G3D::Vector2 velocity = body->GetVelocity ().xy (); 
     if (m_sameSize)
     {
+        // set all velocity magnitudes to be bubbleDiameter
 	clamped = true;
 	displayVelocity = velocity;
 	displayVelocity *= m_bubbleDiameter / displayVelocity.length ();
     }
     else
     {
-	float size = m_velocitySizeInitialRatio * vs.GetVelocitySize ();
-	displayVelocity = clamp (velocity * size, m_bubbleDiameter, &clamped);
+        // bubbleDiameter / (clampInterval.max () - interval.min ())
+	float size = 
+            m_velocitySizeInitialRatio * vs.GetVelocityInverseClampMaxRatio ();
+	displayVelocity = velocity *
+            clampMax (velocity.length () * size, m_bubbleDiameter, &clamped);
     }
     if (GetFocusContext (body) == FOCUS)
     {

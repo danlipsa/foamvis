@@ -40,7 +40,7 @@ VectorAverage::VectorAverage (ViewNumber::Enum viewNumber,
     TensorAverageTemplate<SetterVelocity> (
 	viewNumber, widgetGl, "vector",
 	&WidgetGl::GetVelocitySizeInitialRatio,
-	&ViewSettings::GetVelocitySize,
+	&ViewSettings::GetVelocityInverseClampMaxRatio,
 	&ViewSettings::GetVelocityLineWidth, this->m_fbos, 2)
 {
 }

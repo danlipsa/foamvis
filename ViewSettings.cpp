@@ -119,7 +119,7 @@ QColor ViewSettings::GetBubblePathsContextColor () const
 }
 
 
-float ViewSettings::GetVelocitySize () const
+float ViewSettings::GetVelocityInverseClampMaxRatio () const
 {
     float clampMaxRatio = m_velocityOverlayBarModel->GetClampMaxRatio ();
     if (clampMaxRatio == 0)

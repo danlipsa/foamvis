@@ -1519,9 +1519,9 @@ void MainWindow::ButtonClickedViewType (int vt)
 
 	setStackedWidgetVisualization (viewType);
 	Q_EMIT ColorBarModelChanged (
-	    viewNumber,
-	    getColorBarModel (
-                simulationIndex, viewNumber, viewType, property, statisticsType));
+	    viewNumber, getColorBarModel (
+                simulationIndex, viewNumber, viewType, 
+                property, statisticsType));
 
 	switch (viewType)
 	{

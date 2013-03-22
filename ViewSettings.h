@@ -312,7 +312,8 @@ public:
     {
         return m_velocityVis;
     }
-    float GetVelocitySize () const;
+    // is in between 
+    float GetVelocityInverseClampMaxRatio () const;
     float GetVelocityLineWidth () const
     {
 	return m_velocityLineWidth;

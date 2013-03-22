@@ -308,6 +308,7 @@ void PipelineAverage3D::FromView (ViewNumber::Enum viewNumber, const Base& base)
 void PipelineAverage3D::fromViewVelocityGlyph (
     ViewNumber::Enum viewNumber, const Base& base)
 {
+    __ENABLE_LOGGING__;
     const ViewSettings& vs = base.GetViewSettings (viewNumber);
     m_velocityGlyphSeeds->SetNumberOfPoints (vs.GetGlyphSeedsCount ());
 
@@ -326,7 +327,21 @@ void PipelineAverage3D::fromViewVelocityGlyph (
     else
     {
         m_velocityGlyph->SetScaleModeToScaleByVector ();
-        m_velocityGlyph->SetScaleFactor (500);
+        m_velocityGlyph->SetScaleFactor (base.GetBubbleDiameter (viewNumber));
+        __LOG__ (cdbg << "scale factor: " 
+                 << base.GetBubbleDiameter (viewNumber) << endl;);
+        boost::shared_ptr<ColorBarModel> colorBarModel = 
+            vs.GetOverlayBarModel ();
+        if (colorBarModel != 0)
+        {
+            m_velocityGlyph->ClampingOn ();
+            double range[2];
+            range[0] = colorBarModel->GetClampMin ();
+            range[1] = colorBarModel->GetClampMax ();
+            m_velocityGlyph->SetRange (range);
+            __LOG__ (cdbg << "range : " 
+                     << range[0] << ", " << range[1] << endl;);
+        }
     }
 }
 
