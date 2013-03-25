@@ -287,11 +287,24 @@ void MainWindow::connectSignals ()
 				boost::shared_ptr<ColorBarModel>)));
     connect (
 	this, 
+	SIGNAL (ColorBarModelChanged (ViewNumber::Enum, 
+				      boost::shared_ptr<ColorBarModel>)),
+	widgetVtk, 
+	SLOT (FromView (ViewNumber::Enum)));
+    connect (
+	this, 
 	SIGNAL (OverlayBarModelChanged (ViewNumber::Enum, 
 					boost::shared_ptr<ColorBarModel>)),
 	widgetGl, 
 	SLOT (SetOverlayBarModel (ViewNumber::Enum, 
 					  boost::shared_ptr<ColorBarModel>)));
+    connect (
+	this, 
+	SIGNAL (OverlayBarModelChanged (ViewNumber::Enum, 
+					boost::shared_ptr<ColorBarModel>)),
+	widgetVtk, 
+	SLOT (FromView (ViewNumber::Enum)));
+
         
     connectColorBarHistogram (true);
     
@@ -1156,6 +1169,7 @@ void MainWindow::ToggledAxesShown (bool checked)
 {
     GetSettingsPtr ()->SetAxesShown (checked);
     widgetGl->CompileUpdateAll ();
+    widgetVtk->FromView ();
 }
 
 void MainWindow::ToggledAverageShown (bool checked)

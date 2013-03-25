@@ -14,6 +14,7 @@
 #include "Foam.h"
 #include "ForceAverage.h"
 #include "RegularGridAverage.h"
+#include "Settings.h"
 #include "Simulation.h"
 #include "Utils.h"
 #include "VectorOperation.h"
@@ -33,6 +34,22 @@ PipelineAverage3D::PipelineAverage3D (
     createForceActor (objectCount);
     createConstraintSurfaceActor (constraintSurfaceCount);
     createVelocityGlyphActor ();
+    createOutlineActor ();
+}
+
+void PipelineAverage3D::createOutlineActor ()
+{
+    VTK_CREATE (vtkOutlineFilter, outline);
+    //outline.SetInputConnection(reader.GetOutputPort());
+    VTK_CREATE (vtkPolyDataMapper, mapOutline);
+    mapOutline->SetInputConnection(outline->GetOutputPort());
+    VTK_CREATE (vtkActor, outlineActor);
+    outlineActor->SetMapper(mapOutline);
+    outlineActor->GetProperty()->SetColor(0, 0, 0);
+    GetRenderer ()->AddViewProp(outlineActor);
+
+    m_outline = outline;
+    m_outlineActor = outlineActor;
 }
 
 void PipelineAverage3D::createScalarAverageActor ()
@@ -44,16 +61,6 @@ void PipelineAverage3D::createScalarAverageActor ()
     VTK_CREATE (vtkThreshold, thresholdScalar);
     thresholdScalar->AllScalarsOn ();
     //thresholdScalar->SetInputDataObject ();
-
-    /*
-    // threshold invalid value
-    VTK_CREATE (vtkThreshold, thresholdInvalid);
-    thresholdInvalid->SetInputConnection (thresholdScalar->GetOutputPort ());
-    thresholdInvalid->AllScalarsOff ();
-    thresholdInvalid->ThresholdByUpper (0.9);
-    // use scalar at index 1:  VectorOperation::VALID_NAME
-    thresholdInvalid->SetSelectedComponent (1);
-    */
 
     // scalar average mapper and actor
     VTK_CREATE (vtkDataSetMapper, averageMapper);
@@ -108,14 +115,19 @@ void PipelineAverage3D::createVelocityGlyphActor ()
     //vtkPointSource->vtkProbeFilter->vtkGlyph3D->vtkPolyDataMapper->vtkActor
     VTK_CREATE (vtkPointSource, seed);
     
+    // remove invalid cells from the average
+    VTK_CREATE (vtkThreshold, thresholdCells);
+    thresholdCells->AllScalarsOn ();
+    thresholdCells->ThresholdByUpper (1.0);
+
     VTK_CREATE (vtkProbeFilter, probe);
     probe->SetInputConnection (seed->GetOutputPort ());
-    //probe->SetSourceConnection (seed->GetOutputPort ());
+    probe->SetSourceConnection (thresholdCells->GetOutputPort ());
 
     // remove invalid points
     VTK_CREATE (vtkThresholdPoints, thresholdPoints);
     thresholdPoints->SetInputConnection (probe->GetOutputPort ());
-    thresholdPoints->ThresholdByUpper (0.9);
+    thresholdPoints->ThresholdByUpper (1.0);
 
     VTK_CREATE (vtkArrowSource, arrow);
 
@@ -133,7 +145,7 @@ void PipelineAverage3D::createVelocityGlyphActor ()
     GetRenderer ()->AddViewProp (actor);
 
     m_velocityGlyphSeeds = seed;    
-    m_velocityGlyphProbe = probe;
+    m_velocityGlyphThreshold = thresholdCells;
     m_velocityGlyph = glyph;
     m_velocityGlyphActor = actor;
 }
@@ -255,8 +267,9 @@ void PipelineAverage3D::UpdateVelocityAverage (
     const ViewSettings& vs = velocityAverage.GetViewSettings ();
     if (vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::GLYPH)
     {
-        m_velocityGlyphProbe->SetSourceData (
-            const_cast<vtkImageData*>(&velocityAverage.GetAverage ()));
+        vtkImageData* imageData = const_cast<vtkImageData*>(
+            &velocityAverage.GetAverage ());
+        m_velocityGlyphThreshold->SetInputDataObject (imageData);
     }
 }
 
@@ -265,11 +278,14 @@ void PipelineAverage3D::UpdateScalarAverage (const RegularGridAverage& average)
 {
     const Foam& foam = average.GetFoam ();
     const ViewSettings& vs = average.GetViewSettings ();
+    vtkImageData* imageData = const_cast<vtkImageData*> (&average.GetAverage ());
+
+    // update outline
+    m_outline->SetInputDataObject (imageData);
+
     // update scalar
-    m_threshold->SetInputDataObject (
-        const_cast<vtkImageData*> (&average.GetAverage ()));
-
-
+    m_threshold->SetInputDataObject (imageData);
+    
     // update objects
     const Foam::Bodies& objects = foam.GetObjects ();
     for (size_t i = 0; i < objects.size (); ++i)
@@ -298,9 +314,11 @@ void PipelineAverage3D::FromView (ViewNumber::Enum viewNumber, const Base& base)
 {
     PipelineBase::FromView (viewNumber, base);
     const ViewSettings& vs = base.GetViewSettings (viewNumber);
+    const Settings& settings = base.GetSettings ();
     updateAlpha (vs.GetContextAlpha (), m_constraintSurface);
     updateAlpha (vs.GetObjectAlpha (), m_object);
-    m_scalarAverageActor->SetVisibility (vs.IsAverageShown ());    
+    m_scalarAverageActor->SetVisibility (vs.IsAverageShown ());
+    m_outlineActor->SetVisibility (settings.AxesShown ());
     fromViewVelocityGlyph (viewNumber, base);
 }
 
@@ -308,7 +326,6 @@ void PipelineAverage3D::FromView (ViewNumber::Enum viewNumber, const Base& base)
 void PipelineAverage3D::fromViewVelocityGlyph (
     ViewNumber::Enum viewNumber, const Base& base)
 {
-    __ENABLE_LOGGING__;
     const ViewSettings& vs = base.GetViewSettings (viewNumber);
     m_velocityGlyphSeeds->SetNumberOfPoints (vs.GetGlyphSeedsCount ());
 

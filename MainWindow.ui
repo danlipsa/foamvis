@@ -341,7 +341,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tabSettings">
         <attribute name="title">
@@ -1553,7 +1553,7 @@
          <item>
           <widget class="QStackedWidget" name="stackedWidgetVisualization">
            <property name="currentIndex">
-            <number>1</number>
+            <number>3</number>
            </property>
            <widget class="QWidget" name="pageEmpty"/>
            <widget class="QWidget" name="pageFacesNormal">
@@ -2155,7 +2155,7 @@
                     <number>1</number>
                    </property>
                    <property name="maximum">
-                    <number>500</number>
+                    <number>5000</number>
                    </property>
                   </widget>
                  </item>

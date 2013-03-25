@@ -181,9 +181,8 @@ void WidgetVtk::UpdateScalarThreshold (QwtDoubleInterval interval)
 }
 
 
-void WidgetVtk::FromView ()
+void WidgetVtk::FromView (ViewNumber::Enum viewNumber)
 {
-    ViewNumber::Enum viewNumber = GetViewNumber ();
     if (GetPipelineType (viewNumber) == PipelineType::AVERAGE_3D)
     {
         m_pipelineAverage3d[viewNumber]->FromView (viewNumber, *this);
@@ -279,6 +278,7 @@ void WidgetVtk::AddAverageView (
         position, simulation.GetName (), vs.GetTitle (viewNumber));
     resizeViewEvent (viewNumber);
     setVisible (true);
+    m_pipeline[viewNumber]->GetRenderer ()->ResetCamera ();
 }
 
 void WidgetVtk::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
@@ -373,7 +373,6 @@ void WidgetVtk::resizeViewEvent (ViewNumber::Enum viewNumber)
         toRatio (scalarBarRect, viewRect));
     m_pipeline[viewNumber]->PositionVectorBar (
         toRatio (vectorBarRect, viewRect));
-    m_pipeline[viewNumber]->GetRenderer ()->ResetCamera ();
 }
 
 

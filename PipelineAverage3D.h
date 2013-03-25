@@ -42,6 +42,7 @@ private:
     void createForceActor (size_t objectCount);
     void createConstraintSurfaceActor (size_t constraintSurfaceCount);
     void createVelocityGlyphActor ();
+    void createOutlineActor ();
 
     void updateAlpha (
         float alpha, vector<vtkSmartPointer<vtkActor> >& actors);
@@ -64,9 +65,12 @@ private:
     vector<boost::array<vtkSmartPointer<vtkActor>, 3> > m_forceActor;
     // velocity glyphs
     vtkSmartPointer<vtkPointSource> m_velocityGlyphSeeds;
-    vtkSmartPointer<vtkProbeFilter> m_velocityGlyphProbe;
+    vtkSmartPointer<vtkThreshold> m_velocityGlyphThreshold;
     vtkSmartPointer<vtkGlyph3D> m_velocityGlyph;
     vtkSmartPointer<vtkActor> m_velocityGlyphActor;
+    // axes
+    vtkSmartPointer<vtkOutlineFilter> m_outline;
+    vtkSmartPointer<vtkActor> m_outlineActor;
 };
 
 

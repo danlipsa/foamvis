@@ -74,11 +74,14 @@ public:
      * @{
      * @name PipelineAverage3D
      */
+    void FromView ()
+    {
+        FromView (GetViewNumber ());
+    }
     void UpdateScalarThreshold (QwtDoubleInterval interval);
     void AddAverageView (
 	ViewNumber::Enum viewNumber, const ColorBarModel& scalarColorBarModel,	
 	QwtDoubleInterval interval, const ColorBarModel& velocityColorBarModel);
-    void FromView ();
     void UpdateAverage (ViewNumber::Enum viewNumber, int direction);
     void UpdateForceAverage ();
     void UpdateVelocityAverage ();
@@ -94,7 +97,8 @@ public Q_SLOTS:
     void CopySelectionFrom (int fromViewNumber);
     void CopyTransformationFrom (int fromViewNumber);
     void ResetTransformAll ();
-    void ResetTransformFocus ();    
+    void ResetTransformFocus ();
+    void FromView (ViewNumber::Enum viewNumber);
 
 protected:
     virtual void resizeEvent (QResizeEvent * event);
