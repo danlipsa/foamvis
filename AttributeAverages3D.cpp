@@ -28,10 +28,12 @@ AttributeAverages3D::AttributeAverages3D (
     velocityAverage->SetBodyAttribute (BodyAttribute::VELOCITY);
     m_velocityAverage = velocityAverage;
 
+/*
     boost::shared_ptr<RegularGridAverage> deformationAverage (
         new RegularGridAverage (viewNumber, settings, simulationGroup));
     deformationAverage->SetBodyAttribute (BodyAttribute::DEFORMATION);
     m_deformationAverage = deformationAverage;
+*/
 
     m_forceAverage.reset (
         new ForceAverage (viewNumber, settings, simulationGroup));

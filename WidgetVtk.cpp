@@ -183,6 +183,8 @@ void WidgetVtk::UpdateScalarThreshold (QwtDoubleInterval interval)
 
 void WidgetVtk::FromView (ViewNumber::Enum viewNumber)
 {
+    if (! IsVtkView (viewNumber))
+        return;
     if (GetPipelineType (viewNumber) == PipelineType::AVERAGE_3D)
     {
         m_pipelineAverage3d[viewNumber]->FromView (viewNumber, *this);
