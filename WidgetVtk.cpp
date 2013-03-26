@@ -175,7 +175,9 @@ void WidgetVtk::UpdateScalarThreshold (QwtDoubleInterval interval)
     ViewNumber::Enum viewNumber = GetViewNumber ();
     if (GetPipelineType (viewNumber) == PipelineType::AVERAGE_3D)
     {
-        m_pipelineAverage3d[viewNumber]->UpdateThreshold (interval);
+        const ViewSettings& vs = GetViewSettings (viewNumber);
+        m_pipelineAverage3d[viewNumber]->UpdateScalarThreshold (
+            interval, BodyScalar::FromSizeT (vs.GetBodyOrFaceScalar ()));
         update ();
     }
 }
@@ -261,7 +263,9 @@ void WidgetVtk::AddAverageView (
     pipeline.UpdateVelocityAverage (
         m_average[viewNumber]->GetVelocityAverage ());
     pipeline.FromView (viewNumber, *this);
-    pipeline.UpdateThreshold (interval);
+    pipeline.UpdateScalarThreshold (
+        interval, 
+        BodyScalar::FromSizeT (vs.GetBodyOrFaceScalar ()));
     pipeline.UpdateColorMap (scalarColorBarModel, scalarName);
     pipeline.UpdateOverlayMap (
         velocityColorBarModel, 

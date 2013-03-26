@@ -172,6 +172,7 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLImageDataWriter.h>
 #include <vtkXMLImageDataReader.h>
+#include <vtkVectorNorm.h>
 #include <vtkVertexGlyphFilter.h>
 
 

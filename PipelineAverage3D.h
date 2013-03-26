@@ -27,7 +27,8 @@ public:
         const ColorBarModel& colorBarModel, const char* name);
     virtual void UpdateOverlayMap (
         const ColorBarModel& colorBarModel, const char* name);
-    void UpdateThreshold (QwtDoubleInterval interval);
+    void UpdateScalarThreshold (QwtDoubleInterval interval, 
+                                BodyScalar::Enum scalar);
     void UpdateScalarAverage (const RegularGridAverage& average);
     void UpdateForceAverage (const ForceAverage& forceAverage);
     void UpdateVelocityAverage (const RegularGridAverage& velocity);
@@ -56,7 +57,7 @@ private:
 private:
     // scalar average
     vtkSmartPointer<vtkActor> m_scalarAverageActor;
-    vtkSmartPointer<vtkThreshold> m_threshold;
+    vtkSmartPointer<vtkThreshold> m_scalarThreshold;
     // constraint surfaces
     vector<vtkSmartPointer<vtkActor> > m_constraintSurface;
     // objects
@@ -65,7 +66,8 @@ private:
     vector<boost::array<vtkSmartPointer<vtkActor>, 3> > m_forceActor;
     // velocity glyphs
     vtkSmartPointer<vtkPointSource> m_velocityGlyphSeeds;
-    vtkSmartPointer<vtkThreshold> m_velocityGlyphThreshold;
+    vtkSmartPointer<vtkThreshold> m_velocityGlyphThresholdOutsideCylinder;
+    vtkSmartPointer<vtkThresholdPoints> m_velocityGlyphThresholdNorm;
     vtkSmartPointer<vtkGlyph3D> m_velocityGlyph;
     vtkSmartPointer<vtkActor> m_velocityGlyphActor;
     // axes

@@ -69,7 +69,7 @@ void PipelineAverage3D::createScalarAverageActor ()
     averageActor->SetMapper(averageMapper);
     GetRenderer ()->AddViewProp(averageActor);
 
-    m_threshold = thresholdScalar;
+    m_scalarThreshold = thresholdScalar;
     m_scalarAverageActor = averageActor;
 }
 
@@ -112,29 +112,44 @@ void PipelineAverage3D::createConstraintSurfaceActor (
 void PipelineAverage3D::createVelocityGlyphActor ()
 {
     // (velocity glyphs)  
-    //vtkPointSource->vtkProbeFilter->vtkGlyph3D->vtkPolyDataMapper->vtkActor
+    //vtkPointSource          ->vtkProbeFilter->vtkThresholdPoints->vtkGlyph3D->
+    //                              vtkPolyDataMapper->vtkActor
+    //imageData->vtkThreshold->
     VTK_CREATE (vtkPointSource, seed);
     
     // remove invalid cells from the average
-    VTK_CREATE (vtkThreshold, thresholdCells);
-    thresholdCells->AllScalarsOn ();
-    thresholdCells->ThresholdByUpper (1.0);
+    // for the sphereall dataset, remove the voxels in the bounding box but 
+    // outside the cilinder
+    VTK_CREATE (vtkThreshold, thresholdOutsideCylinder);
+    thresholdOutsideCylinder->AllScalarsOn ();
+    thresholdOutsideCylinder->ThresholdByUpper (1.0);
+    //thresholdOutsideCylinder->SetInputDataObject (imageData);
 
     VTK_CREATE (vtkProbeFilter, probe);
     probe->SetInputConnection (seed->GetOutputPort ());
-    probe->SetSourceConnection (thresholdCells->GetOutputPort ());
+    probe->SetSourceConnection (thresholdOutsideCylinder->GetOutputPort ());
 
     // remove invalid points
-    VTK_CREATE (vtkThresholdPoints, thresholdPoints);
-    thresholdPoints->SetInputConnection (probe->GetOutputPort ());
-    thresholdPoints->ThresholdByUpper (1.0);
+    // for the sphereall dataset, remove points outside the bounding box
+    VTK_CREATE (vtkThresholdPoints, thresholdOutsideBB);
+    thresholdOutsideBB->SetInputConnection (probe->GetOutputPort ());
+    thresholdOutsideBB->ThresholdByUpper (1.0);
 
+    // compute the velocity magnitude ...
+    VTK_CREATE (vtkVectorNorm, norm);
+    norm->SetInputConnection (thresholdOutsideBB->GetOutputPort());
+    // and then select only points with with certain velocity magnitude
+    VTK_CREATE (vtkThresholdPoints, thresholdNorm);
+    thresholdNorm->SetInputConnection (norm->GetOutputPort ());
+    //thresholdNorm->ThresholdByUpper (...);
+
+    // the glyph
     VTK_CREATE (vtkArrowSource, arrow);
 
     // oriented and scaled glyph geometry at every point
     VTK_CREATE (vtkGlyph3D, glyph);
     glyph->SetSourceConnection(arrow->GetOutputPort());
-    glyph->SetInputConnection(thresholdPoints->GetOutputPort());
+    glyph->SetInputConnection(thresholdNorm->GetOutputPort());
     glyph->SetColorModeToColorByVector ();
 
     // mapper
@@ -145,7 +160,8 @@ void PipelineAverage3D::createVelocityGlyphActor ()
     GetRenderer ()->AddViewProp (actor);
 
     m_velocityGlyphSeeds = seed;    
-    m_velocityGlyphThreshold = thresholdCells;
+    m_velocityGlyphThresholdOutsideCylinder = thresholdOutsideCylinder;
+    m_velocityGlyphThresholdNorm = thresholdNorm;
     m_velocityGlyph = glyph;
     m_velocityGlyphActor = actor;
 }
@@ -180,13 +196,17 @@ void PipelineAverage3D::UpdateViewTitle (
 }
 
 
-void PipelineAverage3D::UpdateThreshold (QwtDoubleInterval interval)
+void PipelineAverage3D::UpdateScalarThreshold (
+    QwtDoubleInterval interval, BodyScalar::Enum scalar)
 {
-    if (m_threshold != 0)
+    if (m_scalarThreshold != 0)
     {
         //__ENABLE_LOGGING__;        
-	m_threshold->ThresholdBetween (
+	m_scalarThreshold->ThresholdBetween (
 	    interval.minValue (), interval.maxValue ());
+        if (scalar == BodyScalar::VELOCITY_MAGNITUDE)
+            m_velocityGlyphThresholdNorm->ThresholdBetween (
+                interval.minValue (), interval.maxValue ());
         __LOG__ (cdbg << interval << endl;);
     }
 }
@@ -269,7 +289,7 @@ void PipelineAverage3D::UpdateVelocityAverage (
     {
         vtkImageData* imageData = const_cast<vtkImageData*>(
             &velocityAverage.GetAverage ());
-        m_velocityGlyphThreshold->SetInputDataObject (imageData);
+        m_velocityGlyphThresholdOutsideCylinder->SetInputDataObject (imageData);
     }
 }
 
@@ -284,7 +304,7 @@ void PipelineAverage3D::UpdateScalarAverage (const RegularGridAverage& average)
     m_outline->SetInputDataObject (imageData);
 
     // update scalar
-    m_threshold->SetInputDataObject (imageData);
+    m_scalarThreshold->SetInputDataObject (imageData);
     
     // update objects
     const Foam::Bodies& objects = foam.GetObjects ();
