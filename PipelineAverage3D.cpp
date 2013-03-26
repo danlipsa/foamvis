@@ -115,7 +115,7 @@ void PipelineAverage3D::createVelocityGlyphActor ()
     //vtkPointSource          ->vtkProbeFilter->vtkThresholdPoints->vtkGlyph3D->
     //                              vtkPolyDataMapper->vtkActor
     //imageData->vtkThreshold->
-    VTK_CREATE (vtkPointSource, seed);
+     VTK_CREATE (vtkPointSource, seed);
     
     // remove invalid cells from the average
     // for the sphereall dataset, remove the voxels in the bounding box but 
