@@ -29,9 +29,9 @@ public:
 	return *boost::static_pointer_cast<ScalarAverage> (m_scalarAverage);
     }
     
-    T1sKDE& GetT1sKDE () const
+    T1sKDE& GetTopologicalChangeKDE () const
     {
-	return *boost::static_pointer_cast<T1sKDE> (m_t1sKDE);
+	return *boost::static_pointer_cast<T1sKDE> (m_topologicalChangeKDE);
     }
 
     TensorAverage& GetDeformationAverage () const

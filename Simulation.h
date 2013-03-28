@@ -170,32 +170,35 @@ public:
     }
     bool IsTorqueAvailable () const;
 
-    bool T1sAvailable () const;
-    int GetT1sShift () const
+    bool IsTopologicalChangeAvailable () const;
+    int GetTopologicalChangeShift () const
     {
-	return m_t1sShift;
+	return m_topologicalChangeShift;
     }
-    bool GetT1sShiftLower () const
+    bool GetTopologicalChangeShiftLower () const
     {
-	return m_t1sShift == 1;
+	return m_topologicalChangeShift == 1;
     }
-    const vector<G3D::Vector3>& GetT1s (size_t timeStep, int t1sShift) const;
-    size_t GetT1sSize () const;
-    size_t GetT1sTimeSteps () const;
+    const vector<TopologicalChange>& GetTopologicalChange (
+        size_t timeStep, int t1sShift) const;
+    size_t GetTopologicalChangeSize () const;
+    size_t GetTopologicalChangeTimeSteps () const;
 
     bool OriginalUsed () const
     {
 	return m_useOriginal;
     }
     /**
-     * Parse T1s from the file.
-     * in the file: first time step is 1 and T1s occur before timeStep
-     * in memory: first time step is 0 and T1s occur after timeStep
+     * Parse topological changes from the file.
+     * in the file: first time step is 1 and topological changes occur 
+     * before timeStep
+     * in memory: first time step is 0 and topological changes occur 
+     * after timeStep
      *
      */
-    void ParseT1s (
+    void ParseTopologicalChanges (
 	const string& fileName, size_t ticksForTimeStep, bool t1sShiftLower);
-    void ParseT1s (const char* arrayName, const char* countName);
+    void ParseTopologicalChanges (const char* arrayName, const char* countName);
     void ParseDMPs (const vector<string>& fileNames,
 		    bool useOriginal,
 		    const DmpObjectInfo& dmpObjectInfo,
@@ -272,8 +275,8 @@ private:
     string m_name;
     vector<HistogramStatistics> m_histogram;
     bool m_pressureAdjusted;
-    vector< vector<G3D::Vector3> > m_t1s;
-    int m_t1sShift;
+    vector< vector<TopologicalChange> > m_topologicalChange;
+    int m_topologicalChangeShift;
     DmpObjectInfo m_dmpObjectInfo;
     vector<ForceNamesOneObject> m_forceNames;
     bool m_useOriginal;
@@ -323,13 +326,13 @@ private:
 class AverageCache
 {
 public:
-    void SetT1sKDE (vtkSmartPointer<vtkImageData> average)
+    void SetTopologicalChangeKDE (vtkSmartPointer<vtkImageData> average)
     {
-        m_t1sKDE = average;
+        m_topologicalChangeKDE = average;
     }
-    vtkSmartPointer<vtkImageData> GetT1sKDE () const
+    vtkSmartPointer<vtkImageData> GetTopologicalChangeKDE () const
     {
-        return m_t1sKDE;
+        return m_topologicalChangeKDE;
     }
 
     void SetVelocity (vtkSmartPointer<vtkImageData> average)
@@ -343,7 +346,7 @@ public:
     }
     
 private:
-    vtkSmartPointer<vtkImageData> m_t1sKDE;
+    vtkSmartPointer<vtkImageData> m_topologicalChangeKDE;
     vtkSmartPointer<vtkImageData> m_velocityAverage;
 };
 

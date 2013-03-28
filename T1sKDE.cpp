@@ -185,7 +185,7 @@ void T1sKDE::DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep,
 size_t T1sKDE::getStepSize (size_t timeStep) const
 {
     ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
-    return GetSimulation ().GetT1s (timeStep, 
+    return GetSimulation ().GetTopologicalChange (timeStep, 
 				    vs.T1sShiftLower ()).size ();
 }
 
@@ -197,5 +197,5 @@ float T1sKDE::GetMax () const
 void T1sKDE::CacheData (boost::shared_ptr<AverageCache> averageCache) const
 {
     vtkSmartPointer<vtkImageData> data = getData (GetId ());
-    averageCache->SetT1sKDE (data);
+    averageCache->SetTopologicalChangeKDE (data);
 }

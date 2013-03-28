@@ -169,12 +169,12 @@ private:
     void forceViewToUI ();
     void t1sKDEViewToUI (ViewNumber::Enum viewNumber);
     void bubblePathsViewToUI ();
+    void lightViewToUI (
+	const ViewSettings& vs, LightNumber::Enum lightNumber);
     HistogramInfo createHistogramInfo (
 	pair<float, float> minMax, size_t count) const;    
     void setStackedWidgetVisualization (ViewType::Enum viewType);
     void setStackedWidgetVelocity (VectorVis::Enum vis);
-    void updateLightControls (
-	const ViewSettings& vs, LightNumber::Enum lightNumber);
     void connectSignals ();
     void connectColorBarHistogram (bool connected);
     /**

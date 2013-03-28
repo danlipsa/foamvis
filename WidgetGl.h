@@ -457,7 +457,7 @@ private:
         float cellLength);
     void displayViewDecorations (ViewNumber::Enum viewNumber);
     void displayViewFocus (ViewNumber::Enum viewNumber);
-    void displayTextureColorBar (GLuint texture,
+    void displayColorBar (GLuint texture,
 				 ViewNumber::Enum viewNumber, 
 				 const G3D::Rect2D& barRect);
     void displayBarLabels (
@@ -481,7 +481,7 @@ private:
     void displayLightDirection (ViewNumber::Enum viewNumber) const;
     G3D::Vector3 calculateViewingVolumeScaledExtent (
 	ViewNumber::Enum viewNumber) const;
-    void initQuadrics ();
+    void initQuadric ();
     void initStreamlines ();
     void calculateCameraDistance (ViewNumber::Enum viewNumber);
     /**
@@ -533,9 +533,14 @@ private:
     void displayBodyVelocity (ViewNumber::Enum viewNumber) const;
     void displayDeformation (ViewNumber::Enum viewNumber) const;
     void displayVelocityGlyphs (ViewNumber::Enum viewNumber) const;
-    void displayT1sAllTimesteps (ViewNumber::Enum view) const;
-    void displayT1s (ViewNumber::Enum view) const;
-    void displayT1sTimestep (ViewNumber::Enum view, size_t timeStep) const;    
+    void displayTopologicalChange (ViewNumber::Enum view) const;
+    void displayTopologicalChangeAllTimesteps (ViewNumber::Enum view) const;
+    void displayTopologicalChangeTimestep (
+        ViewNumber::Enum view, size_t timeStep) const;    
+    void displayTopologicalChangeTimestep2D (
+        ViewNumber::Enum view, size_t timeStep) const;    
+    void displayTopologicalChangeTimestep3D (
+        ViewNumber::Enum view, size_t timeStep) const;
     void displayBubblePaths (ViewNumber::Enum view) const;
     void compileBubblePaths (ViewNumber::Enum view) const;
 

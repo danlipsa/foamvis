@@ -101,7 +101,6 @@ void DisplaySegmentQuadric::operator() (
 {
     G3D::Matrix3 rotation = edgeRotation (begin, end);
     G3D::CoordinateFrame frame (rotation, begin);
-    gluQuadricOrientation (m_quadric, GLU_OUTSIDE);
     glPushMatrix ();
     {
 	glMultMatrix (frame);

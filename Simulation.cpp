@@ -115,7 +115,7 @@ private:
     const bool m_debugScanning;
 };
 
-const vector<G3D::Vector3> NO_T1S;
+const vector<TopologicalChange> NO_T1S;
 const char* CACHE_DIR_NAME = ".foamvis";
 
 // Members: Simulation
@@ -125,7 +125,7 @@ Simulation::Simulation () :
     m_histogram (
         BodyScalar::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
     m_pressureAdjusted (false),
-    m_t1sShift (0),
+    m_topologicalChangeShift (0),
     m_useOriginal (false),
     m_rotation2D (0),
     m_reflectAxis (numeric_limits<size_t>::max ()),
@@ -194,7 +194,7 @@ void Simulation::Preprocess ()
 {
     cdbg << "Preprocess temporal foam data ..." << endl;
     fixConstraintPoints ();
-    ParseT1s ("t1positions", "num_pops_step");
+    ParseTopologicalChanges ("t1positions", "num_pops_step");
     boost::array<FoamParamMethod, 9> methods = {{
 	    boost::bind (&Foam::CreateObjectBody, _1, 
 			 GetDmpObjectInfo ().m_constraintIndex),
@@ -499,91 +499,115 @@ size_t Simulation::GetMaxCountPerBinIndividual (
     return max;
 }
 
-bool Simulation::T1sAvailable () const
+bool Simulation::IsTopologicalChangeAvailable () const
 {
-    BOOST_FOREACH (const vector<G3D::Vector3> timeStepT1s, m_t1s)
-	if (timeStepT1s.size () != 0)
+    BOOST_FOREACH (const vector<TopologicalChange> tc, m_topologicalChange)
+	if (tc.size () != 0)
 	    return true;
     return false;
 }
 
-size_t Simulation::GetT1sTimeSteps () const
+size_t Simulation::GetTopologicalChangeTimeSteps () const
 {
-    return m_t1s.size ();
+    return m_topologicalChange.size ();
 }
 
-size_t Simulation::GetT1sSize () const
+size_t Simulation::GetTopologicalChangeSize () const
 {
     size_t size = 0;
-    BOOST_FOREACH (const vector<G3D::Vector3>& t1sTimeStep, m_t1s)
+    BOOST_FOREACH (const vector<TopologicalChange>& tc, m_topologicalChange)
     {
-	size += t1sTimeStep.size ();
+	size += tc.size ();
     }
     return size;
 }
 
-void Simulation::ParseT1s (const char* arrayName, const char* countName)
+void Simulation::ParseTopologicalChanges (
+    const char* arrayName, const char* countName)
 {
-    if (! m_t1s.empty ())
+    if (! m_topologicalChange.empty ())
         return;
+    cdbg << "Parsing topological changes...";
     Foams& foams = GetFoams ();
-    m_t1s.resize (foams.size () - 1);
+    m_topologicalChange.resize (foams.size () - 1);
     for (size_t i = 1; i < foams.size (); ++i)
     {
         boost::shared_ptr<Foam> foam = foams[i];
         // in the file: first time step is 1 and T1s occur before timeStep
         // in memory: first time step is 0 and T1s occur after timeStep
-        if (! foam->GetParsingData ().GetT1s (
-                arrayName, countName, &m_t1s[i - 1], foams[0]->Is2D ()))
+        if (! foam->GetParsingData ().GetTopologicalChange (
+                arrayName, countName, &m_topologicalChange[i - 1], 
+                foams[0]->Is2D ()))
         {
-            m_t1s.resize (0);
+            m_topologicalChange.resize (0);
             RuntimeAssert (
-                i == 1, "ParseT1s: T1s variables not set at index ", i);
+                i == 1, 
+                "ParseTopologicalChanges: T1s variables not set at index ", i);
             return;
         }
     }
 }
 
-void Simulation::ParseT1s (
+void Simulation::ParseTopologicalChanges (
     const string& fileName, size_t ticksForTimeStep, bool t1sShiftLower)
 {
-    cdbg << "Parsing T1s file...";
+    cdbg << "Parsing topological changes ... ";
     const size_t LINE_LENGTH = 256;
     ifstream in;
     in.open (fileName.c_str ());
     if (! in)
 	ThrowException ("Cannot open \"" + fileName + "\"");
-    in.exceptions (ios::failbit | ios::badbit);
+    in.exceptions (ios::badbit);
     size_t timeStep;
-    float x, y;
+    float x, y, z;
+    size_t type;
     while (! in.eof ())
     {
+        char line[LINE_LENGTH + 1];
 	if (in.peek () == '#')
 	{
 	    in.ignore (LINE_LENGTH, '\n');
 	    continue;
 	}
-	in >> timeStep >> x >> y >> ws;
+        in.getline (line, sizeof (line));
+        if (in.fail ())
+            // empty line
+            continue;
+        istringstream inLine;
+        inLine.str (line);
+        inLine >> ws;
+        if (inLine.eof ())
+            // ignore empty lines
+            continue;
+	inLine >> timeStep >> x >> y;
+        RuntimeAssert (! inLine.fail (), "Invalid topological changes file");
+        inLine >> z >> type;
+        TopologicalChange tc;
+        if (inLine.fail ())
+            tc = TopologicalChange (
+                G3D::Vector3 (x, y, Foam::Z_COORDINATE_2D), 1);
+        else
+            tc = TopologicalChange (G3D::Vector3 (x, y, z), type);
 	timeStep /= ticksForTimeStep;
 	// in the file: first time step is 1 and T1s occur before timeStep
 	// in memory: first time step is 0 and T1s occur after timeStep
 	timeStep -= 1;
-	if (timeStep >= m_t1s.size ())
-	    m_t1s.resize (timeStep + 1);
-	m_t1s[timeStep].push_back (G3D::Vector3 (x, y, Foam::Z_COORDINATE_2D));
+	if (timeStep >= m_topologicalChange.size ())
+	    m_topologicalChange.resize (timeStep + 1);
+	m_topologicalChange[timeStep].push_back (tc);
     }
-    m_t1sShift = (t1sShiftLower ? 1 : 0);
-    cdbg << "last T1s'  timestep: " << timeStep << endl;
+    m_topologicalChangeShift = (t1sShiftLower ? 1 : 0);
+    cdbg << "last topological change timestep: " << timeStep << endl;
 }
 
-const vector<G3D::Vector3>& Simulation::GetT1s (size_t timeStep,
-						int t1sShift) const
+const vector<TopologicalChange>& Simulation::GetTopologicalChange (
+    size_t timeStep, int t1sShift) const
 {
     int t = int(timeStep) + t1sShift;
-    if (t < 0 || size_t (t) >= m_t1s.size ())
+    if (t < 0 || size_t (t) >= m_topologicalChange.size ())
 	return NO_T1S;
     else
-	return m_t1s[t];
+	return m_topologicalChange[t];
 }
 
 void Simulation::ParseDMPs (

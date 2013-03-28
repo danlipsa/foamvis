@@ -284,9 +284,9 @@ string ParsingData::ToString () const
     return ostr.str ();
 }
 
-bool ParsingData::GetT1s (
+bool ParsingData::GetTopologicalChange (
     const char* arrayName, const char* countName, 
-    vector<G3D::Vector3>* t1s, bool is2D) const
+    vector<TopologicalChange>* t1s, bool is2D) const
 {
     ParsingData::ArrayIt it = GetArrayIt (arrayName);
     if (it == GetArrayItEnd ())
@@ -299,6 +299,7 @@ bool ParsingData::GetT1s (
     vector<size_t> index (2);
     for (size_t i = 0; i < count; ++i)
     {
+        size_t type;
         index[1] = i;
         index[0] = 0;
         float x = GetArrayValue (it, index);
@@ -309,8 +310,11 @@ bool ParsingData::GetT1s (
         {
             index[0] = 2;
             z = GetArrayValue (it, index);
+            type = 0;
         }
-        (*t1s)[i] = G3D::Vector3 (x, y, z);
+        else
+            type = 1;
+        (*t1s)[i] = TopologicalChange (G3D::Vector3 (x, y, z), type);
     }
     return true;
 }

@@ -82,7 +82,7 @@ ViewSettings::ViewSettings () :
     m_time (0),
     m_timeSteps (0),
     m_timeWindow (0),
-    m_t1sShiftLower (false),
+    m_topologicalChangeShiftLower (false),
     m_deformationSize (1),
     m_deformationLineWidth (1),
     m_velocityLineWidth (1),
@@ -143,7 +143,7 @@ void ViewSettings::setInitialLightParameters ()
 	    // default (1, 1, 1, 1) diffuse
 	    {{1.0, 1.0, 1.0, 1.0}},
 	    // default (1, 1, 1, 1) specular
-	    {{0.0, 0.0, 0.0, 1.0}}
+	    {{0, 0, 0, 1.0}}
 	}};
     for(size_t i = 0; i < LightNumber::COUNT; ++i)
 	for (size_t j = 0; j < LightType::COUNT; ++j)
@@ -619,7 +619,7 @@ void ViewSettings::SetSimulation (int i, const Simulation& simulation,
 		    ((reflexionAxis == 1) ? 
 		     AxesOrder::TWO_D_ROTATE_RIGHT90_REFLECTION :
 		     AxesOrder::TWO_D_ROTATE_RIGHT90))): AxesOrder::THREE_D);
-    SetT1sShiftLower (simulation.GetT1sShiftLower ());
+    SetT1sShiftLower (simulation.GetTopologicalChangeShiftLower ());
     SetScaleCenter (viewingVolumeCenter.xy ());
     SetRotationCenter (viewingVolumeCenter);
     setTimeSteps (simulation.GetTimeSteps ());

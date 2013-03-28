@@ -51,7 +51,7 @@ void AttributeAverages3D::ComputeAverage ()
 	break;
 	
     case ViewType::T1S_KDE:
-	CALL_IF_NOT_NULL(GetT1sKDEPtr (),ComputeAverage) ();
+	CALL_IF_NOT_NULL(GetTopologicalChangeKDEPtr (),ComputeAverage) ();
 	break;
 
     default:

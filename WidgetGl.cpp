@@ -121,7 +121,7 @@ void sendQuad (const G3D::Rect2D& srcRect, const G3D::Rect2D& srcTexRect)
 
 const size_t WidgetGl::DISPLAY_ALL(numeric_limits<size_t>::max());
 
-const pair<float,float> WidgetGl::T1S_SIZE (1, 32);
+const pair<float,float> WidgetGl::T1S_SIZE (0.2, 1);
 const pair<float,float> WidgetGl::TENSOR_SIZE_EXP2 (0, 10);
 const pair<float,float> WidgetGl::TORQUE_SIZE_EXP2 (-4, 4);
 const GLfloat WidgetGl::HIGHLIGHT_LINE_WIDTH = 2.0;
@@ -145,7 +145,7 @@ WidgetGl::WidgetGl(QWidget *parent)
       m_selectBodiesByIdList (new SelectBodiesById (this)),
       m_t1sShown (false),
       m_t1sAllTimesteps (false),
-      m_t1sSize (1.0),
+      m_t1sSize (T1S_SIZE.first),
       m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
       m_averageAroundMarked (true),
       m_contextBoxShown (true),
@@ -155,7 +155,7 @@ WidgetGl::WidgetGl(QWidget *parent)
     fill (m_duplicateDomain.begin (), m_duplicateDomain.end (), false);
     initList ();
     initTexture ();
-    initQuadrics ();
+    initQuadric ();
     initDisplayView ();
     initStreamlines ();
     createActions ();
@@ -221,7 +221,7 @@ void WidgetGl::initList ()
 
 
 
-void WidgetGl::initQuadrics ()
+void WidgetGl::initQuadric ()
 {
     m_quadric = gluNewQuadric ();
     gluQuadricCallback (m_quadric, GLU_ERROR,
@@ -1778,40 +1778,76 @@ void WidgetGl::displayBodiesNeighbors () const
     }
 }
 
-void WidgetGl::displayT1s (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayTopologicalChange (ViewNumber::Enum viewNumber) const
 {
     if (m_t1sShown)
     {
         if (m_t1sAllTimesteps)
-            displayT1sAllTimesteps (viewNumber);
+            displayTopologicalChangeAllTimesteps (viewNumber);
         else
-            displayT1sTimestep (viewNumber, GetTime (viewNumber));    
+            displayTopologicalChangeTimestep (
+                viewNumber, GetTime (viewNumber));    
     }
 }
 
-void WidgetGl::displayT1sAllTimesteps (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayTopologicalChangeAllTimesteps (
+    ViewNumber::Enum viewNumber) const
 {
-    for (size_t i = 0; i < GetSimulation (viewNumber).GetT1sTimeSteps (); ++i)
-	displayT1sTimestep (viewNumber, i);
+    for (size_t i = 0; 
+         i < GetSimulation (viewNumber).GetTopologicalChangeTimeSteps (); ++i)
+	displayTopologicalChangeTimestep (viewNumber, i);
 }
 
-void WidgetGl::displayT1sTimestep (
+void WidgetGl::displayTopologicalChangeTimestep2D (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
-    ViewSettings& vs = GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
     glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | 
 		  GL_CURRENT_BIT | GL_POLYGON_BIT);
     glDisable (GL_DEPTH_TEST);
-    glPointSize (m_t1sSize);
+    glPointSize (GetBubbleDiameter (viewNumber) * m_t1sSize / 
+                 GetOnePixelInObjectSpace (true));
     glColor (GetSettings ().GetHighlightColor (viewNumber, 
-                                                HighlightNumber::H1));
+                                               HighlightNumber::H0));
     glBegin (GL_POINTS);
-    BOOST_FOREACH (const G3D::Vector3 t1Pos, 
-		   GetSimulation (viewNumber).GetT1s (timeStep, 
-						      vs.T1sShiftLower ()))
-	::glVertex (t1Pos);
+    BOOST_FOREACH (
+        const TopologicalChange tc, 
+        simulation.GetTopologicalChange (timeStep, vs.T1sShiftLower ()))
+	::glVertex (tc.m_position);
     glEnd ();
     glPopAttrib ();
+}
+
+void WidgetGl::displayTopologicalChangeTimestep3D (
+    ViewNumber::Enum viewNumber, size_t timeStep) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
+    glPushAttrib (GL_CURRENT_BIT);
+    BOOST_FOREACH (
+        const TopologicalChange tc, 
+        simulation.GetTopologicalChange (timeStep, vs.T1sShiftLower ()))
+    {
+        glColor (GetSettings ().GetHighlightColor (
+                     viewNumber, HighlightNumber::Enum (tc.m_type - 1)));
+        glPushMatrix ();
+        glTranslate (tc.m_position);
+        gluSphere (GetQuadricObject (), 
+                   GetBubbleDiameter (viewNumber) * m_t1sSize / 2, 16, 16);
+        glPopMatrix ();
+    }
+    glPopAttrib ();
+}
+
+void WidgetGl::displayTopologicalChangeTimestep (
+    ViewNumber::Enum viewNumber, size_t timeStep) const
+{
+    const Simulation& simulation = GetSimulation (viewNumber);
+    if (simulation.Is2D ())
+        displayTopologicalChangeTimestep2D (viewNumber, timeStep);
+    else
+        displayTopologicalChangeTimestep3D (viewNumber, timeStep);
 }
 
 void WidgetGl::DisplayT1Quad (
@@ -1819,14 +1855,15 @@ void WidgetGl::DisplayT1Quad (
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
-    T1sKDE& t1sKDE = GetAttributeAverages2D (viewNumber).GetT1sKDE ();
+    T1sKDE& t1sKDE = 
+        GetAttributeAverages2D (viewNumber).GetTopologicalChangeKDE ();
     float rectSize = t1sKDE.GetKernelTextureSize () * 
 	GetOnePixelInObjectSpace (simulation.Is2D ());
     float half = rectSize / 2;
     G3D::Rect2D srcTexRect = G3D::Rect2D::xyxy (0., 0., 1., 1.);
     const G3D::Vector3 t1Pos = 
-	GetSimulation (viewNumber).GetT1s (
-	    timeStep, vs.T1sShiftLower ())[t1Index];
+	GetSimulation (viewNumber).GetTopologicalChange (
+	    timeStep, vs.T1sShiftLower ())[t1Index].m_position;
     G3D::Vector2 v = t1Pos.xy ();
     G3D::Rect2D srcRect = G3D::Rect2D::xyxy (
 	v + G3D::Vector2 (- half, - half),
@@ -1891,7 +1928,7 @@ pair<float, float> WidgetGl::GetRangeCount () const
 pair<float, float> WidgetGl::GetRangeT1sKDE (ViewNumber::Enum viewNumber) const
 {
     return pair<float, float> (
-        0.0, GetAttributeAverages2D (viewNumber).GetT1sKDE ().GetMax ());
+        0.0, GetAttributeAverages2D (viewNumber).GetTopologicalChangeKDE ().GetMax ());
 }
 
 void WidgetGl::displayEdgesTorus (ViewNumber::Enum viewNumber) const
@@ -2045,7 +2082,7 @@ void WidgetGl::compileFacesNormal (ViewNumber::Enum viewNumber) const
     displayStandaloneFaces (viewNumber);    
     displayDeformation (viewNumber);
     displayVelocityGlyphs (viewNumber);
-    displayT1s (viewNumber);
+    displayTopologicalChange (viewNumber);
     GetAttributeAverages2D (viewNumber).GetForceAverage ().DisplayOneTimeStep ();
     glEndList ();
 }
@@ -2109,15 +2146,15 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     displayVelocityStreamlines (viewNumber);
     displayAverageAroundBodies (viewNumber, isAverageAroundRotationShown);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (foam);
-    displayT1s (viewNumber);
+    displayTopologicalChange (viewNumber);
     displayContextBodies (viewNumber);
     displayContextBox (viewNumber, isAverageAroundRotationShown);
-    T1sKDE& t1sKDE = aa.GetT1sKDE ();
+    T1sKDE& t1sKDE = aa.GetTopologicalChangeKDE ();
     if (vs.GetViewType () == ViewType::T1S_KDE &&
 	t1sKDE.IsKernelTextureShown ())
     {
 	size_t timeStep = GetTime (viewNumber);
-	size_t stepSize = GetSimulation (viewNumber).GetT1s (
+	size_t stepSize = GetSimulation (viewNumber).GetTopologicalChange (
 	    timeStep, vs.T1sShiftLower ()).size ();
 	for (size_t i = 0; i < stepSize; ++i)
 	    t1sKDE.DisplayTextureSize (viewNumber, timeStep, i);
@@ -2295,7 +2332,7 @@ void WidgetGl::displayBubblePathsWithBodies (ViewNumber::Enum viewNumber) const
     if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
     displayBubblePathsBody (viewNumber);
-    displayT1s (viewNumber);
+    displayTopologicalChange (viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (
 	simulation.GetFoam (currentTime), viewNumber, true, 0);
     if (vs.GetTimeDisplacement () != 0)
@@ -2387,7 +2424,7 @@ size_t WidgetGl::GetTimeSteps (ViewNumber::Enum viewNumber) const
     size_t simulationIndex = vs.GetSimulationIndex ();
     const Simulation& simulation = GetSimulation (simulationIndex);
     return (viewType == ViewType::T1S_KDE) ?
-	simulation.GetT1sTimeSteps () :
+	simulation.GetTopologicalChangeTimeSteps () :
 	simulation.GetTimeSteps ();
 }
 
@@ -2505,7 +2542,7 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
     {
 	G3D::Rect2D viewColorBarRect = 
             GetSettings ().GetColorBarRect (viewNumber, viewRect);
-	displayTextureColorBar (
+	displayColorBar (
 	    m_colorBarTexture[viewNumber], viewNumber, viewColorBarRect);
         xTranslateBar = GetSettings ().GetBarLabelSize (viewNumber).x;
     }
@@ -2516,7 +2553,7 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
         G3D::Rect2D barRect = GetSettings ().GetOverlayBarRect (
             viewNumber, viewRect) + G3D::Vector2 (xTranslateBar, 0);
         if (va.IsColorMapped ())
-            displayTextureColorBar (
+            displayColorBar (
                 m_overlayBarTexture[viewNumber], viewNumber, barRect);
         else if (vs.GetVelocityVis () == VectorVis::GLYPH && ! va.IsSameSize ())
             displayOverlayBar (viewNumber, barRect);
@@ -2596,7 +2633,7 @@ void WidgetGl::displayViewFocus (ViewNumber::Enum viewNumber)
     DisplayBox (rect);
 }
 
-void WidgetGl::displayTextureColorBar (
+void WidgetGl::displayColorBar (
     GLuint texture,
     ViewNumber::Enum viewNumber, const G3D::Rect2D& br)
 {
@@ -2793,7 +2830,7 @@ void WidgetGl::ActivateViewShader (
 
 void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
 {
-    T1sKDE& t1sKDE = GetAttributeAverages2D (viewNumber).GetT1sKDE ();
+    T1sKDE& t1sKDE = GetAttributeAverages2D (viewNumber).GetTopologicalChangeKDE ();
     t1sKDE.SetKernelSigmaInBubbleDiameters (
 	static_cast<QDoubleSpinBox*> (sender ())->value ());
     t1sKDE.AverageInitStep (GetViewSettings (viewNumber).GetTimeWindow ());
@@ -2803,7 +2840,7 @@ void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
 void WidgetGl::toggledT1sKernelTextureShown (ViewNumber::Enum viewNumber)
 {
     bool checked = static_cast<QCheckBox*> (sender ())->isChecked ();
-    GetAttributeAverages2D (viewNumber).GetT1sKDE ().SetKernelTextureShown (checked);
+    GetAttributeAverages2D (viewNumber).GetTopologicalChangeKDE ().SetKernelTextureShown (checked);
     CompileUpdate (viewNumber);
 }
 
@@ -2865,8 +2902,8 @@ void WidgetGl::updateKDESeeds (
     vector<double> v(1);
     double p[3] = {cellCenter.x, cellCenter.y, 0};
     double kdeValue = *InterpolateAttribute (
-        GetAverageCache (viewNumber)->GetT1sKDE (),
-        p, GetAttributeAverages2D (viewNumber).GetT1sKDE ().GetId (), &v);
+        GetAverageCache (viewNumber)->GetTopologicalChangeKDE (),
+        p, GetAttributeAverages2D (viewNumber).GetTopologicalChangeKDE ().GetId (), &v);
     if (kdeValue > vs.GetKDEValue ())
     {
         VTK_CREATE (vtkIdList, cell);
@@ -2961,8 +2998,8 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
     if (vs.IsKDESeedEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
     {
         useKDESeeds = true;
-        if (GetAverageCache (viewNumber)->GetT1sKDE () == 0)
-            m_average[viewNumber]->GetT1sKDE ().CacheData (
+        if (GetAverageCache (viewNumber)->GetTopologicalChangeKDE () == 0)
+            m_average[viewNumber]->GetTopologicalChangeKDE ().CacheData (
                 GetAverageCache (viewNumber));
     }
 
@@ -3011,7 +3048,7 @@ void WidgetGl::CacheUpdateSeedsCalculateStreamline (ViewNumber::Enum viewNumber)
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsKDESeedEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
     {
-        m_average[viewNumber]->GetT1sKDE ().CacheData (
+        m_average[viewNumber]->GetTopologicalChangeKDE ().CacheData (
             GetAverageCache (viewNumber));
     }
     updateStreamlineSeeds (viewNumber);

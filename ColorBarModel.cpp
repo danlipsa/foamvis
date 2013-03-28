@@ -47,7 +47,7 @@ void ColorBarModel::setupPaletteRainbow ()
     m_ctf->AddRGBPoint(0.75, 1, 1, 0);   // yellow
     m_ctf->AddRGBPoint(1.0, 1, 0, 0);   // red
     setup ();
-    m_highlightColor[0] = Qt::black;
+    m_highlightColor[0] = Qt::darkBlue;
     m_highlightColor[1] = Qt::yellow;
     m_highlightColor[2] = Qt::white;
 }
@@ -63,7 +63,7 @@ void ColorBarModel::setupPaletteRainbowExtended ()
     m_ctf->AddRGBPoint(0.8, 1, 1, 0);   // yellow
     m_ctf->AddRGBPoint(1.0, 1, 0, 0);   // red
     setup ();    
-    m_highlightColor[0] = Qt::black;
+    m_highlightColor[0] = Qt::darkBlue;
     m_highlightColor[1] = Qt::yellow;
     m_highlightColor[2] = Qt::white;
 }
@@ -147,7 +147,7 @@ void ColorBarModel::setupPaletteSequentialBrewerBlues9 ()
     m_ctf->AddRGBPoint(0.87500, 0.031373, 0.317647, 0.611765);
     m_ctf->AddRGBPoint(1.00000, 0.031373, 0.188235, 0.419608);
     setup ();
-    m_highlightColor[0] = Qt::black;
+    m_highlightColor[0] = Qt::darkBlue;
     m_highlightColor[1] = Qt::red;
     m_highlightColor[2] = Qt::green;
 }
@@ -166,7 +166,7 @@ void ColorBarModel::setupPaletteSequentialBrewerYlOrRd9 ()
     m_ctf->AddRGBPoint(0.87500, 0.74118, 0.00000, 0.14902);
     m_ctf->AddRGBPoint(1.00000, 0.50196, 0.00000, 0.14902);
     setup ();
-    m_highlightColor[0] = Qt::black;
+    m_highlightColor[0] = Qt::darkBlue;
     m_highlightColor[1] = Qt::blue;
     m_highlightColor[2] = Qt::green;
 }
@@ -199,31 +199,31 @@ void ColorBarModel::setupPaletteDiverging (size_t c)
 	    /* blue red*/
 	    {{0.230, 0.299, 0.754},
 	     {0.706, 0.016, 0.150},
-	     {0, 0, 0}, {0, 1, 1}, {0, 1, 0} // black, cyan, green
+	     {0, 0, 0.5}, {0, 1, 1}, {0, 1, 0} // darkBlue, cyan, green
 	    },
 
 	    /* blue to tan */
 	    {{0.217, 0.525, 0.910},
 	     {0.677, 0.492, 0.093},
-	     {0, 0, 0}, {1, 0, 0}, {0, 1, 0}
+	     {0, 0, 0.5}, {1, 0, 0}, {0, 1, 0}
 	    },
 
 	    /* purple to orange */
 	    {{0.436, 0.308, 0.631},
 	     {0.759, 0.334, 0.046},
-	     {0, 0, 0}, {0, 1, 0}, {0, 0, 1}
+	     {0, 0, 0.5}, {0, 1, 0}, {0, 0, 1}
 	    },
 
 	    /* green to purple */
 	    {{0.085, 0.532, 0.201},
 	     {0.436, 0.308, 0.631},
-	     {0, 0, 0}, {1, 1, 0}, {1, 0, 0}
+	     {0, 0, 0.5}, {1, 1, 0}, {1, 0, 0}
 	    },
 
 	    /* green to red */
 	    {{0.085, 0.532, 0.201},
 	     {0.758, 0.214, 0.233},
-	     {0, 0, 0}, {1, 1, 0}, {0, 0, 1}
+	     {0, 0, 0.5}, {1, 1, 0}, {0, 0, 1}
 	    }
 	};    
     m_ctf->RemoveAllPoints ();

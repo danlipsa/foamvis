@@ -60,12 +60,12 @@ public:
             m_deformationAverage);
     }
 
-    boost::shared_ptr<RegularGridAverage> GetT1sKDEPtr ()
+    boost::shared_ptr<RegularGridAverage> GetTopologicalChangeKDEPtr ()
     {
 	return boost::static_pointer_cast<RegularGridAverage> (
             m_deformationAverage);
     }
-    const RegularGridAverage& GetT1sKDE () const
+    const RegularGridAverage& GetTopologicalChangeKDE () const
     {
 	return *boost::static_pointer_cast<RegularGridAverage> (
             m_deformationAverage);

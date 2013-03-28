@@ -144,7 +144,6 @@ void MainWindow::configureInterface ()
 {
     horizontalSliderForceSize->setValue (49);
     horizontalSliderTorqueDistance->setValue (49);
-    horizontalSliderT1Size->setValue (10);
     comboBoxColor->setCurrentIndex (BodyScalar::PRESSURE);
     CurrentIndexChangedInteractionMode (InteractionMode::ROTATE);
     CurrentIndexChangedWindowLayout (ViewLayout::HORIZONTAL);
@@ -167,7 +166,7 @@ void MainWindow::configureInterfaceDataDependent (
 {
     const Simulation& simulation = simulationGroup.GetSimulation (0);
     setupSliderData (simulation);
-    if (simulation.T1sAvailable ())
+    if (simulation.IsTopologicalChangeAvailable ())
     {
 	checkBoxT1sShown->setEnabled (true);	
 	radioButtonT1sKDE->setEnabled (true);
@@ -185,6 +184,7 @@ void MainWindow::configureInterfaceDataDependent (
     }
     if (simulation.Is2D ())
     {
+        horizontalSliderT1Size->setValue (49);
 	comboBoxInteractionMode->setCurrentIndex (InteractionMode::SCALE);
 	if (simulation.IsTorus ())
 	{
@@ -696,7 +696,7 @@ MainWindow::HistogramInfo MainWindow::getHistogramInfo (
     
     case ColorBarType::T1S_KDE:
 	return createHistogramInfo (
-	    widgetGl->GetRangeT1sKDE (), simulation.GetT1sSize ());
+	    widgetGl->GetRangeT1sKDE (), simulation.GetTopologicalChangeSize ());
 
     default:
 	ThrowException ("Invalid call to getHistogramInfo");
@@ -823,44 +823,6 @@ void MainWindow::setupColorBarModel (
 }
 
 
-void MainWindow::updateLightControls (
-    const ViewSettings& vs, LightNumber::Enum i)
-{
-    checkBoxLightEnabled->setChecked (vs.IsLightEnabled (i));
-    checkBoxLightPositionShown->setChecked (vs.IsLightPositionShown (i));
-    checkBoxDirectionalLightEnabled->setChecked (
-	vs.IsDirectionalLightEnabled (i));
-    horizontalSliderLightAmbientRed->setValue (
-	floor (vs.GetLight (i, LightType::AMBIENT)[0] * 
-	       horizontalSliderLightAmbientRed->maximum () + 0.5));
-    horizontalSliderLightAmbientGreen->setValue (
-	floor (vs.GetLight (i, LightType::AMBIENT)[1] * 
-	       horizontalSliderLightAmbientGreen->maximum () + 0.5));
-    horizontalSliderLightAmbientBlue->setValue (
-	floor (vs.GetLight (i, LightType::AMBIENT)[2] * 
-	       horizontalSliderLightAmbientBlue->maximum () + 0.5));
-    horizontalSliderLightDiffuseRed->setValue (
-	floor (vs.GetLight (i, LightType::DIFFUSE)[0] * 
-	       horizontalSliderLightDiffuseRed->maximum () + 0.5));
-    horizontalSliderLightDiffuseGreen->setValue (
-	floor (vs.GetLight (i, LightType::DIFFUSE)[1] * 
-	       horizontalSliderLightDiffuseGreen->maximum () + 0.5));
-    horizontalSliderLightDiffuseBlue->setValue (
-	floor (vs.GetLight (i, LightType::DIFFUSE)[2] * 
-	       horizontalSliderLightDiffuseBlue->maximum () + 0.5));
-    horizontalSliderLightSpecularRed->setValue (
-	floor (vs.GetLight (
-		   i, LightType::SPECULAR)[0] * 
-	       horizontalSliderLightSpecularRed->maximum () + 0.5));
-    horizontalSliderLightSpecularGreen->setValue (
-	floor (vs.GetLight (
-		   i, LightType::SPECULAR)[1] * 
-	       horizontalSliderLightSpecularGreen->maximum () + 0.5));
-    horizontalSliderLightSpecularBlue->setValue (
-	floor (vs.GetLight (
-		   i, LightType::SPECULAR)[2] * 
-	    horizontalSliderLightSpecularBlue->maximum () + 0.5));
-}
 
 boost::shared_ptr<ColorBarModel> MainWindow::getScalarColorBarModel () const
 {
@@ -887,8 +849,6 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
 			     viewNumber, viewType, bodyAttribute, statisticsType);
 }
 
-
-
 boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
     size_t simulationIndex,
     ViewNumber::Enum viewNumber,
@@ -912,7 +872,6 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
 	return m_colorBarModelT1sKDE[simulationIndex][viewNumber];
 
     default:
-        RuntimeAssert (false, "Invalid color bar type: ", colorBarType);
 	return boost::shared_ptr<ColorBarModel> ();
     }
 }
@@ -1553,7 +1512,8 @@ void MainWindow::ButtonClickedViewType (int vt)
 	    break;
 
 	case ViewType::T1S_KDE:
-	    sliderTimeSteps->setMaximum (simulation.GetT1sTimeSteps () - 1);
+	    sliderTimeSteps->setMaximum (
+                simulation.GetTopologicalChangeTimeSteps () - 1);
 	    break;
 
 	default:
@@ -1599,9 +1559,8 @@ void MainWindow::CurrentIndexChangedSimulation (int simulationIndex)
 
 void MainWindow::CurrentIndexChangedSelectedLight (int i)
 {
-    const ViewSettings& vs = widgetGl->GetViewSettings ();
-    LightNumber::Enum lightNumber = LightNumber::Enum (i);
-    updateLightControls (vs, lightNumber);
+    const ViewSettings& vs = GetViewSettings ();
+    lightViewToUI (vs, LightNumber::Enum (i));
 }
 
 void MainWindow::CurrentIndexChangedFaceColor (int value)
@@ -1809,6 +1768,46 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
 }
 
 
+void MainWindow::lightViewToUI (
+    const ViewSettings& vs, LightNumber::Enum i)
+{
+    checkBoxLightEnabled->setChecked (vs.IsLightEnabled (i));
+    checkBoxLightPositionShown->setChecked (vs.IsLightPositionShown (i));
+    checkBoxDirectionalLightEnabled->setChecked (
+	vs.IsDirectionalLightEnabled (i));
+    horizontalSliderLightAmbientRed->setValue (
+	floor (vs.GetLight (i, LightType::AMBIENT)[0] * 
+	       horizontalSliderLightAmbientRed->maximum () + 0.5));
+    horizontalSliderLightAmbientGreen->setValue (
+	floor (vs.GetLight (i, LightType::AMBIENT)[1] * 
+	       horizontalSliderLightAmbientGreen->maximum () + 0.5));
+    horizontalSliderLightAmbientBlue->setValue (
+	floor (vs.GetLight (i, LightType::AMBIENT)[2] * 
+	       horizontalSliderLightAmbientBlue->maximum () + 0.5));
+    horizontalSliderLightDiffuseRed->setValue (
+	floor (vs.GetLight (i, LightType::DIFFUSE)[0] * 
+	       horizontalSliderLightDiffuseRed->maximum () + 0.5));
+    horizontalSliderLightDiffuseGreen->setValue (
+	floor (vs.GetLight (i, LightType::DIFFUSE)[1] * 
+	       horizontalSliderLightDiffuseGreen->maximum () + 0.5));
+    horizontalSliderLightDiffuseBlue->setValue (
+	floor (vs.GetLight (i, LightType::DIFFUSE)[2] * 
+	       horizontalSliderLightDiffuseBlue->maximum () + 0.5));
+    horizontalSliderLightSpecularRed->setValue (
+	floor (vs.GetLight (
+		   i, LightType::SPECULAR)[0] * 
+	       horizontalSliderLightSpecularRed->maximum () + 0.5));
+    horizontalSliderLightSpecularGreen->setValue (
+	floor (vs.GetLight (
+		   i, LightType::SPECULAR)[1] * 
+	       horizontalSliderLightSpecularGreen->maximum () + 0.5));
+    horizontalSliderLightSpecularBlue->setValue (
+	floor (vs.GetLight (
+		   i, LightType::SPECULAR)[2] * 
+	    horizontalSliderLightSpecularBlue->maximum () + 0.5));
+}
+
+
 void MainWindow::linkedTimeEventsViewToUI (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -1970,13 +1969,15 @@ void MainWindow::t1sKDEViewToUI (ViewNumber::Enum viewNumber)
     {
         bool kernelTextureShown = false;
 	const T1sKDE& kde = 
-            widgetGl->GetAttributeAverages2D (viewNumber).GetT1sKDE ();
+            widgetGl->GetAttributeAverages2D (
+                viewNumber).GetTopologicalChangeKDE ();
 	kernelTextureShown = kde.IsKernelTextureShown ();
         SetCheckedNoSignals (checkBoxTextureShown, kernelTextureShown);
         SetValueNoSignals (
             doubleSpinBoxKernelSigma, kde.GetKernelSigmaInBubbleDiameters ());
         const Simulation& simulation = GetSimulation (viewNumber);
-        radioButtonT1sKDE->setEnabled (simulation.T1sAvailable ());
+        radioButtonT1sKDE->setEnabled (
+            simulation.IsTopologicalChangeAvailable ());
     }
 }
 
@@ -2062,7 +2063,6 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     (void)prevViewNumber;
     ViewNumber::Enum viewNumber = GetViewNumber ();
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     int property = vs.GetBodyOrFaceScalar ();
     size_t simulationIndex = vs.GetSimulationIndex ();
     ViewType::Enum viewType = vs.GetViewType ();
@@ -2102,8 +2102,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     bubblePathsViewToUI ();
     timeViewToUI (viewNumber);
     linkedTimeEventsViewToUI (viewNumber);
-
-    updateLightControls (vs, selectedLight);
+    lightViewToUI (vs, vs.GetSelectedLight ());
     updateButtons ();
 
     const AttributeHistogram& histogram = 

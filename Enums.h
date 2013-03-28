@@ -565,6 +565,25 @@ struct ForceType
 // a region is all bins i such that first <= i < second
 typedef vector<pair<size_t, size_t> > BinRegions;
 
+struct TopologicalChange
+{
+    G3D::Vector3 m_position;
+    /**
+     *
+     * type can be 0 if the type is unknown,
+     * 1 for 2D,
+     * 1, 2, 3 for 3D
+     */
+    size_t m_type;
+    TopologicalChange () : 
+        m_type (0) 
+    {}
+    TopologicalChange (G3D::Vector3 position, size_t type) :
+        m_position (position), m_type (type)
+    {}
+};
+
+
 #endif //__ENUMS_H__
 
 // Local Variables:

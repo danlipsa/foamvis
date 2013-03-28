@@ -78,7 +78,7 @@ void parseOptions (
 	if (co[i]->m_vm.count (Option::m_name[Option::RESOLUTION]))
 	    simulation.SetRegularGridResolution (co[i]->m_resolution);
 	if (co[i]->m_vm.count (Option::m_name[Option::T1S]))
-	    simulation.ParseT1s (
+	    simulation.ParseTopologicalChanges (
 		co[i]->m_t1sFile, co[i]->m_ticksForTimeStep,
 		co[i]->m_vm.count (Option::m_name[Option::T1S_LOWER]));
 	simulation.ParseDMPs (

@@ -50,7 +50,7 @@ protected:
     boost::shared_ptr<ForceAverage> m_forceAverage;
     boost::shared_ptr<Average> m_velocityAverage;
     boost::shared_ptr<Average> m_deformationAverage;
-    boost::shared_ptr<Average> m_t1sKDE;
+    boost::shared_ptr<Average> m_topologicalChangeKDE;
 };
 
 #endif //__ATTRIBUTE_AVERAGES_H__

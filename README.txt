@@ -3,6 +3,7 @@ Release log
 0.8.
         - add Reset transform/All and Focus to the VTK view (3D average)
         - color and overlay bars work in VTK view
+        - Add velocity glyph visualization in the average view.
         
 0.8.2740
         - update to vtk-6.0-20130125.tgz
