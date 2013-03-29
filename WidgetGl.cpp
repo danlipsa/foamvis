@@ -4292,7 +4292,8 @@ void WidgetGl::SetOverlayBarModel (
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetOverlayBarModel (overlayBarModel);
     setTexture (overlayBarModel, m_overlayBarTexture[viewNumber]);
-    update ();
+    // you need to resize the vectors
+    CompileUpdate ();
 }
 
 void WidgetGl::ValueChangedKDEValue (double value)

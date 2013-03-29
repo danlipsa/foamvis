@@ -70,12 +70,12 @@ float clampMax (float length, float maxLength, bool* clamped)
     if (length > maxLength)
     {
 	*clamped = true;
-	return maxLength / length;
+	return maxLength;
     }
     else
     {
 	*clamped = false;
-	return 1;
+	return length;
     }
 }
 
@@ -205,11 +205,13 @@ void DisplayBodyVelocity::display (boost::shared_ptr<Body> body)
     }
     else
     {
-        // bubbleDiameter / (clampInterval.max () - interval.min ())
+        // size = bubbleDiameter / (clampInterval.max () - interval.min ())
 	float size = 
             m_velocitySizeInitialRatio * vs.GetVelocityInverseClampMaxRatio ();
-	displayVelocity = velocity *
-            clampMax (velocity.length () * size, m_bubbleDiameter, &clamped);
+        float velocityLength = velocity.length ();
+	displayVelocity = velocity * 
+            (clampMax (velocityLength * size, m_bubbleDiameter, &clamped) / 
+             velocityLength);
     }
     if (GetFocusContext (body) == FOCUS)
     {
