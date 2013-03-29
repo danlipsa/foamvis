@@ -1131,9 +1131,9 @@ void MainWindow::ToggledAxesShown (bool checked)
     widgetVtk->FromView ();
 }
 
-void MainWindow::ToggledAverageShown (bool checked)
+void MainWindow::ToggledScalarShown (bool checked)
 {
-    GetViewSettings ().SetAverageShown (checked);
+    GetViewSettings ().SetScalarShown (checked);
     widgetVtk->FromView ();
 }
 

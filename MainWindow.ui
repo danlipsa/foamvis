@@ -341,7 +341,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tabSettings">
         <attribute name="title">
@@ -363,7 +363,7 @@
             <bool>true</bool>
            </property>
            <property name="currentIndex">
-            <number>5</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tabFirst">
             <attribute name="title">
@@ -519,6 +519,16 @@
                </property>
               </widget>
              </item>
+             <item row="10" column="1">
+              <widget class="QCheckBox" name="checkBoxSelectionContextShown">
+               <property name="text">
+                <string>Context shown</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
            <widget class="QWidget" name="tabSecond">
@@ -652,43 +662,13 @@
                </property>
               </widget>
              </item>
-             <item row="6" column="1">
-              <widget class="QCheckBox" name="checkBoxStandaloneElementsShown">
-               <property name="text">
-                <string>Standalone</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="0">
-              <widget class="QCheckBox" name="checkBoxSelectionContextShown">
-               <property name="text">
-                <string>Selection context</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="1">
+             <item row="9" column="1">
               <widget class="QCheckBox" name="checkBoxEdgesTessellation">
                <property name="text">
                 <string>Tessellation edges</string>
                </property>
                <property name="checked">
                 <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="0">
-              <widget class="QCheckBox" name="checkBoxTitleShown">
-               <property name="text">
-                <string>Title</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -703,6 +683,36 @@
               <widget class="QSlider" name="horizontalSliderObjectAlpha">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="0">
+              <widget class="QCheckBox" name="checkBoxTitleShown">
+               <property name="text">
+                <string>Title</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="0">
+              <widget class="QCheckBox" name="checkBoxStandaloneElementsShown">
+               <property name="text">
+                <string>Standalone</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="1">
+              <widget class="QCheckBox" name="checkBoxScalarShown">
+               <property name="text">
+                <string>Scalar shown</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -1845,28 +1855,28 @@
              <property name="bottomMargin">
               <number>9</number>
              </property>
-             <item row="1" column="0">
+             <item row="0" column="0">
               <widget class="QLabel" name="label_7">
                <property name="text">
                 <string>Colored by</string>
                </property>
               </widget>
              </item>
-             <item row="1" column="1">
+             <item row="0" column="1">
               <widget class="QLabel" name="labelAverageColor">
                <property name="text">
                 <string/>
                </property>
               </widget>
              </item>
-             <item row="2" column="0">
+             <item row="1" column="0">
               <widget class="QLabel" name="label_22">
                <property name="text">
                 <string>Computation Type</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="1">
+             <item row="1" column="1">
               <widget class="QComboBox" name="comboBoxStatisticsType">
                <item>
                 <property name="text">
@@ -1888,16 +1898,6 @@
                  <string>Count</string>
                 </property>
                </item>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QCheckBox" name="checkBoxAverageShown">
-               <property name="text">
-                <string>Shown</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
               </widget>
              </item>
             </layout>
@@ -1960,7 +1960,7 @@
          <item>
           <widget class="QTabWidget" name="tabWidgetShow">
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="tabT1">
             <attribute name="title">
@@ -4381,10 +4381,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxAverageShown</sender>
+   <sender>checkBoxScalarShown</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>ToggledAverageShown(bool)</slot>
+   <slot>ToggledScalarShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>842</x>
@@ -4466,7 +4466,7 @@
   <slot>ValueChangedObjectAlpha(int)</slot>
   <slot>ValueChangedForceSize(int)</slot>
   <slot>ValueChangedForceLineWidth(int)</slot>
-  <slot>ToggledAverageShown(bool)</slot>
+  <slot>ToggledScalarShown(bool)</slot>
   <slot>ValueChangedGlyphSeedsCount(int)</slot>
   <slot>EditingFinishedGlyphSeedsCount()</slot>
   <slot>ToggledVelocitySameSize(bool)</slot>

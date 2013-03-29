@@ -112,8 +112,9 @@ void PipelineAverage3D::createConstraintSurfaceActor (
 void PipelineAverage3D::createVelocityGlyphActor ()
 {
     // (velocity glyphs)  
-    //vtkPointSource          ->vtkProbeFilter->vtkThresholdPoints->vtkGlyph3D->
-    //                              vtkPolyDataMapper->vtkActor
+    //vtkPointSource          ->vtkProbeFilter->vtkThresholdPoints->
+    //                              vtkVectorNorm->vtkThresholdPoints->
+    //                              vtkGlyph3D->vtkPolyDataMapper->vtkActor
     //imageData->vtkThreshold->
      VTK_CREATE (vtkPointSource, seed);
     
@@ -135,6 +136,7 @@ void PipelineAverage3D::createVelocityGlyphActor ()
     thresholdOutsideBB->SetInputConnection (probe->GetOutputPort ());
     thresholdOutsideBB->ThresholdByUpper (1.0);
 
+    // ======================================================================
     // compute the velocity magnitude ...
     VTK_CREATE (vtkVectorNorm, norm);
     norm->SetInputConnection (thresholdOutsideBB->GetOutputPort());
@@ -142,6 +144,7 @@ void PipelineAverage3D::createVelocityGlyphActor ()
     VTK_CREATE (vtkThresholdPoints, thresholdNorm);
     thresholdNorm->SetInputConnection (norm->GetOutputPort ());
     //thresholdNorm->ThresholdByUpper (...);
+    // ======================================================================
 
     // the glyph
     VTK_CREATE (vtkArrowSource, arrow);
@@ -161,7 +164,8 @@ void PipelineAverage3D::createVelocityGlyphActor ()
 
     m_velocityGlyphSeeds = seed;    
     m_velocityGlyphThresholdOutsideCylinder = thresholdOutsideCylinder;
-    m_velocityGlyphThresholdNorm = thresholdNorm;
+    m_velocityGlyphThresholdOutsideBB = thresholdOutsideBB;
+    m_velocityGlyphThresholdNorm = thresholdNorm;    
     m_velocityGlyph = glyph;
     m_velocityGlyphActor = actor;
 }
@@ -205,8 +209,17 @@ void PipelineAverage3D::UpdateScalarThreshold (
 	m_scalarThreshold->ThresholdBetween (
 	    interval.minValue (), interval.maxValue ());
         if (scalar == BodyScalar::VELOCITY_MAGNITUDE)
+        {
+            m_velocityGlyph->SetInputConnection(
+                m_velocityGlyphThresholdNorm->GetOutputPort());
             m_velocityGlyphThresholdNorm->ThresholdBetween (
                 interval.minValue (), interval.maxValue ());
+        }
+        else
+        {
+            m_velocityGlyph->SetInputConnection(
+                m_velocityGlyphThresholdOutsideBB->GetOutputPort());
+        }
         __LOG__ (cdbg << interval << endl;);
     }
 }
@@ -337,7 +350,7 @@ void PipelineAverage3D::FromView (ViewNumber::Enum viewNumber, const Base& base)
     const Settings& settings = base.GetSettings ();
     updateAlpha (vs.GetContextAlpha (), m_constraintSurface);
     updateAlpha (vs.GetObjectAlpha (), m_object);
-    m_scalarAverageActor->SetVisibility (vs.IsAverageShown ());
+    m_scalarAverageActor->SetVisibility (vs.IsScalarShown ());
     m_outlineActor->SetVisibility (settings.AxesShown ());
     fromViewVelocityGlyph (viewNumber, base);
 }

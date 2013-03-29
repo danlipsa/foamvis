@@ -236,7 +236,7 @@ void PipelineBase::ToViewTransform (
 void PipelineBase::FromView (ViewNumber::Enum viewNumber, const Base& base)
 {
     const ViewSettings& vs = base.GetViewSettings (viewNumber);
-    m_scalarBarActor->SetVisibility (vs.IsAverageShown ());
+    m_scalarBarActor->SetVisibility (vs.IsScalarShown ());
     m_vectorBarActor->SetVisibility (
         vs.IsVelocityShown ());
 }

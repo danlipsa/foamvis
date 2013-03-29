@@ -60,7 +60,7 @@ public Q_SLOTS:
     void SelectionChangedSettings (ViewNumber::Enum viewNumber);
     void ToggledBarLarge (bool large);
     void ToggledAxesShown (bool checked);
-    void ToggledAverageShown (bool shown);
+    void ToggledScalarShown (bool shown);
     void ToggledViewFocusShown (bool checked);
     void ToggledTitleShown (bool checked);
     void ToggledBubblePathsLineUsed (bool checked);

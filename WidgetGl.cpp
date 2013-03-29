@@ -1657,14 +1657,13 @@ void WidgetGl::displayDeformation (ViewNumber::Enum viewNumber) const
 
 void WidgetGl::displayVelocityGlyphs (ViewNumber::Enum viewNumber) const
 {
-    const Foam& foam = 
-	GetSimulation (viewNumber).GetFoam (GetTime (viewNumber));
     const ViewSettings& vs = GetViewSettings (viewNumber);
+    if ( ! vs.IsVelocityShown ())
+	return;
     const Simulation& simulation = GetSimulation (viewNumber);
+    const Foam& foam = simulation.GetFoam (GetTime (viewNumber));
     const VectorAverage& va = 
         GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
-    if (! foam.Is2D () || ! vs.IsVelocityShown ())
-	return;
     Foam::Bodies bodies = foam.GetBodies ();
     glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
     glDisable (GL_DEPTH_TEST);
@@ -2707,7 +2706,7 @@ void WidgetGl::displayBarLabels (
     G3D::Vector2 maxPos = barRect.x1y1 () + G3D::Vector2 (distance, 0);
         
     QwtDoubleInterval interval = cbm.GetInterval ();
-    glColor (cbm.GetHighlightColor (HighlightNumber::H0));
+    glColor (Qt::black);
     ostr.str ("");
     ostr  << interval.minValue ();
     renderText (minPos.x, minPos.y, 0, ostr.str ().c_str ());

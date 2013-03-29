@@ -64,7 +64,7 @@ ViewSettings::ViewSettings () :
     m_angleOfView (0),
     m_axesOrder (AxesOrder::COUNT),
     m_cameraDistance (0),
-    m_averageShown (true),
+    m_scalarShown (true),
     m_averageAround (false),
     m_averageAroundRotationShown (false),
     m_differenceBodyId (INVALID_INDEX),

@@ -489,13 +489,13 @@ public:
      * @{
      * @name Average
      */
-    bool IsAverageShown () const
+    bool IsScalarShown () const
     {
-        return m_averageShown;
+        return m_scalarShown;
     }
-    void SetAverageShown (bool averageShown)
+    void SetScalarShown (bool scalarShown)
     {
-        m_averageShown = averageShown;
+        m_scalarShown = scalarShown;
     }
     bool IsAverageAround () const
     {
@@ -801,7 +801,7 @@ private:
     float m_cameraDistance;
 
     //Stationary
-    bool m_averageShown;
+    bool m_scalarShown;
     bool m_averageAround;
     boost::array<size_t, 2> m_averageAroundBodyId;
     bool m_averageAroundRotationShown;

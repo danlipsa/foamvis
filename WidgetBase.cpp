@@ -152,7 +152,7 @@ void WidgetBase::contextMenuEvent (QContextMenuEvent *event)
     G3D::Rect2D overlayBarRect = 
 	GetSettings ().GetOverlayBarRectWithLabels (
             viewNumber, GetViewRect ());
-    if (vs.IsAverageShown () && barRect.contains (
+    if (vs.IsScalarShown () && barRect.contains (
             QtToOpenGl (contextMenuPosWindow, m_widget->height ())))
 	contextMenuEventColorMap (&menu);
     else if (vs.IsVelocityShown () &&

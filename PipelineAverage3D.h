@@ -67,6 +67,7 @@ private:
     // velocity glyphs
     vtkSmartPointer<vtkPointSource> m_velocityGlyphSeeds;
     vtkSmartPointer<vtkThreshold> m_velocityGlyphThresholdOutsideCylinder;
+    vtkSmartPointer<vtkThresholdPoints> m_velocityGlyphThresholdOutsideBB;
     vtkSmartPointer<vtkThresholdPoints> m_velocityGlyphThresholdNorm;
     vtkSmartPointer<vtkGlyph3D> m_velocityGlyph;
     vtkSmartPointer<vtkActor> m_velocityGlyphActor;
