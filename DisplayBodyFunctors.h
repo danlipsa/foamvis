@@ -12,7 +12,7 @@
 #include "DisplayElement.h"
 #include "Enums.h"
 
-class DisplaySegment;
+class DisplaySegmentLine;
 class Body;
 class BodyAlongTime;
 class BodySelector;
@@ -84,8 +84,8 @@ public:
     DisplayBodyVelocity (
 	const Settings& settings, ViewNumber::Enum viewNumber, bool is2D,
 	const BodySelector& bodySelector, float bubbleSize, 
-	float velocitySizeInitialRatio, float onePixelInObjectSpace,
-	bool sameSize, bool clampingShown,
+	float velocitySizeInitialRatio, float onePixelInObjectSpace, 
+        GLUquadricObj* quadric, bool sameSize, bool clampingShown,
 	bool useZPos = false, double zPos = 0);
 
 protected:
@@ -93,10 +93,12 @@ protected:
 
 private:
     float m_bubbleDiameter;
-    float m_velocitySizeInitialRatio;
     float m_onePixelInObjectSpace;
+    float m_velocitySizeInitialRatio;
     bool m_sameSize;
     bool m_clampingShown;
+    bool m_is2D;
+    GLUquadricObj* m_quadric;
 };
 
 /**
@@ -157,7 +159,7 @@ private:
  * StripIterator functions
  */
 template<typename PropertySetter = SetterTextureCoordinate,
-	 typename DisplayEdge = DisplaySegment>
+	 typename DisplayEdge = DisplaySegmentLine>
 class DisplayBubblePaths : public DisplayBodyBase<PropertySetter>
 {
 public:

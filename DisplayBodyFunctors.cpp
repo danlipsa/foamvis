@@ -174,6 +174,7 @@ DisplayBodyVelocity::DisplayBodyVelocity (
     const Settings& settings, ViewNumber::Enum viewNumber, bool is2D,
     const BodySelector& bodySelector, float bubbleSize, 
     float velocitySizeInitialRatio, float onePixelInObjectSpace,
+    GLUquadricObj* quadric,
     bool sameSize, bool clampingShown,
     bool useZPos, double zPos):
     
@@ -181,10 +182,12 @@ DisplayBodyVelocity::DisplayBodyVelocity (
 	settings, bodySelector,
 	SetterTextureCoordinate(settings, viewNumber, is2D), useZPos, zPos),
     m_bubbleDiameter (bubbleSize),
-    m_velocitySizeInitialRatio (velocitySizeInitialRatio),
     m_onePixelInObjectSpace (onePixelInObjectSpace),
+    m_velocitySizeInitialRatio (velocitySizeInitialRatio),
     m_sameSize (sameSize),
-    m_clampingShown (clampingShown)
+    m_clampingShown (clampingShown),
+    m_is2D (is2D),
+    m_quadric (quadric)
 {}
 
 void DisplayBodyVelocity::display (boost::shared_ptr<Body> body)
@@ -194,8 +197,9 @@ void DisplayBodyVelocity::display (boost::shared_ptr<Body> body)
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = m_settings.GetViewSettings (viewNumber);
     bool clamped = false;
-    G3D::Vector2 displayVelocity;
-    G3D::Vector2 velocity = body->GetVelocity ().xy (); 
+    G3D::Vector3 displayVelocity;
+    G3D::Vector3 velocity = body->GetVelocity (); 
+    float velocityLength = velocity.length ();
     if (m_sameSize)
     {
         // set all velocity magnitudes to be bubbleDiameter
@@ -208,25 +212,28 @@ void DisplayBodyVelocity::display (boost::shared_ptr<Body> body)
         // size = bubbleDiameter / (clampInterval.max () - interval.min ())
 	float size = 
             m_velocitySizeInitialRatio * vs.GetVelocityInverseClampMaxRatio ();
-        float velocityLength = velocity.length ();
 	displayVelocity = velocity * 
             (clampMax (velocityLength * size, m_bubbleDiameter, &clamped) / 
              velocityLength);
     }
     if (GetFocusContext (body) == FOCUS)
     {
-	double value = velocity.length ();
-	float texCoord = vs.GetOverlayBarModel ()->TexCoord (value);
+	float texCoord = vs.GetOverlayBarModel ()->TexCoord (velocityLength);
 	glTexCoord1f (texCoord); 
 	glColor (
 	    m_settings.GetHighlightColor (viewNumber, HighlightNumber::H0));
     }
     else
 	glColor (QColor::fromRgbF (0, 0, 0, vs.GetContextAlpha ()));
-    DisplaySegmentArrow (
-	body->GetCenter ().xy () - displayVelocity / 2, displayVelocity, 
-	vs.GetVelocityLineWidth (), m_onePixelInObjectSpace, 
-	clamped && m_clampingShown);
+    if (m_is2D)
+        DisplaySegmentArrow2D (
+            body->GetCenter ().xy () - displayVelocity.xy () / 2, 
+            displayVelocity.xy (), vs.GetVelocityLineWidth (), 
+            m_onePixelInObjectSpace, clamped && m_clampingShown);
+    else
+    {
+        DisplayVtkArrow (m_quadric);
+    }
 }
 
 // DisplayBodyCenter
@@ -590,4 +597,4 @@ template class DisplayBody<DisplayFaceBodyScalarColor<SetterDeformation>, Setter
 template class DisplayBubblePaths<SetterTextureCoordinate, DisplaySegmentTube>;
 template class DisplayBubblePaths<SetterTextureCoordinate, 
                                   DisplaySegmentQuadric>;
-template class DisplayBubblePaths<SetterTextureCoordinate, DisplaySegment>;
+template class DisplayBubblePaths<SetterTextureCoordinate, DisplaySegmentLine>;

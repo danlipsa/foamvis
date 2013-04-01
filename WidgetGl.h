@@ -79,7 +79,7 @@ public:
 
     bool IsMissingPropertyShown (BodyScalar::Enum bodyProperty) const;    
 
-    GLUquadricObj* GetQuadricObject () const 
+    GLUquadricObj* GetQuadric () const 
     {
 	return m_quadric;
     }

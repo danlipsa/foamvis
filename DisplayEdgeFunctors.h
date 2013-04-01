@@ -55,16 +55,16 @@ void DisplayEdgeVerticesNoEnds (const Edge& edge);
 void  DisplayOrientedEdgeVertices (const boost::shared_ptr<OrientedEdge> oe);
 
 
-class DisplaySegment
+class DisplaySegmentLine
 {
 public:
-    DisplaySegment () :
+    DisplaySegmentLine () :
 	m_quadric (0), m_radius (1.0), m_contextRadius (1.0)
     {
     }
     
 
-    DisplaySegment (GLUquadricObj* quadric, double edgeRadius, 
+    DisplaySegmentLine (GLUquadricObj* quadric, double edgeRadius, 
                     double contextEdgeRadius = 2.0) :
 	
 	m_quadric (quadric), m_radius (edgeRadius), 
@@ -86,16 +86,16 @@ protected:
     double m_contextRadius;
 };
 
-class DisplaySegmentQuadric : public DisplaySegment
+class DisplaySegmentQuadric : public DisplaySegmentLine
 {
 public:
-    DisplaySegmentQuadric () : DisplaySegment ()
+    DisplaySegmentQuadric () : DisplaySegmentLine ()
     {
     }
 
     DisplaySegmentQuadric (
 	GLUquadricObj* quadric, double edgeRadius, double contextRadius = 2.0) :
-	DisplaySegment (quadric, edgeRadius, contextRadius)
+	DisplaySegmentLine (quadric, edgeRadius, contextRadius)
     {
     }
     
@@ -106,16 +106,16 @@ public:
     }
 };
 
-class DisplaySegmentTube : public DisplaySegment
+class DisplaySegmentTube : public DisplaySegmentLine
 {
 public:
-    DisplaySegmentTube () : DisplaySegment ()
+    DisplaySegmentTube () : DisplaySegmentLine ()
     {
     }
 
     DisplaySegmentTube (GLUquadricObj* quadric, double edgeRadius, 
 		     double contextRadius = 2.0) :
-	DisplaySegment (quadric, edgeRadius, contextRadius)
+	DisplaySegmentLine (quadric, edgeRadius, contextRadius)
     {
     }
     
@@ -130,14 +130,14 @@ private:
 	const G3D::Vector3& afterP, const G3D::Vector3& origin) const;
 };
 
-void DisplaySegmentArrow (G3D::Vector2 v, G3D::Vector2 center,
-			  float lineWidth, 
-			  float onePixelInObjectSpace, bool clamped);
+void DisplaySegmentArrow2D (G3D::Vector2 v, G3D::Vector2 center,
+                            float lineWidth, 
+                            float onePixelInObjectSpace, bool clamped);
 
 class DisplaySegmentArrow1
 {
 public:
-    enum Position
+    enum ArrowHeadPosition
     {
 	BASE_MIDDLE,
 	TOP_END
@@ -147,7 +147,7 @@ public:
     DisplaySegmentArrow1 (
 	GLUquadricObj* quadric = 0,
 	double baseRadius = 0, double topRadius = 0, double height = 0,
-	Position position = BASE_MIDDLE) :
+	ArrowHeadPosition position = BASE_MIDDLE) :
 	m_quadric (quadric),
 	m_baseRadius (baseRadius),
 	m_topRadius(topRadius),
@@ -162,16 +162,16 @@ protected:
     double m_baseRadius;
     double m_topRadius;
     double m_height;
-    Position m_position;
+    ArrowHeadPosition m_position;
 };
 
-class DisplaySegmentArrowQuadric : public DisplaySegmentArrow1
+class DisplayArrowHeadQuadric : public DisplaySegmentArrow1
 {
 public:
-    DisplaySegmentArrowQuadric (
+    DisplayArrowHeadQuadric (
 	GLUquadricObj* quadric,
 	double baseRadius, double topRadius, double height, 
-	Position position = BASE_MIDDLE) :
+	ArrowHeadPosition position = TOP_END) :
 	DisplaySegmentArrow1 (quadric, baseRadius, topRadius, height, position)
     {
     }
@@ -179,31 +179,34 @@ public:
     void operator () (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
-class DisplayOrientedSegment : public DisplaySegmentArrow1
+class DisplayOrientedSegmentLine : public DisplaySegmentArrow1
 {
 public:
-    DisplayOrientedSegment (
+    DisplayOrientedSegmentLine (
 	GLUquadricObj* quadric = 0,
 	double baseRadius = 0, double topRadius = 1.0, double height = 0,
-	Position position = BASE_MIDDLE) :
+	ArrowHeadPosition position = BASE_MIDDLE) :
 	DisplaySegmentArrow1 (quadric, baseRadius, topRadius, height, position)
     {
     }
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
-class DisplayOrientedSegmentQuadric : public DisplaySegmentArrow1
+class DisplayArrowQuadric : public DisplaySegmentArrow1
 {
 public:
-    DisplayOrientedSegmentQuadric (
+    DisplayArrowQuadric (
 	GLUquadricObj* quadric = 0,
 	double baseRadius = 0, double topRadius = 0, double height = 0,
-	Position position = BASE_MIDDLE) :
+	ArrowHeadPosition position = BASE_MIDDLE) :
 	DisplaySegmentArrow1 (quadric, baseRadius, topRadius, height, position)
     {
     }
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
+
+void DisplayVtkArrow (GLUquadricObj* quadric);
+
 
 // Display one edge
 // ======================================================================

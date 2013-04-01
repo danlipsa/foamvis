@@ -79,10 +79,9 @@ void angledEnd (const G3D::Vector3& before,
     perpendicularEnd (normal, twelveOclock, threeOclock);
 }
 
-// DisplaySegment
+// DisplaySegmentLine
 // ======================================================================
-
-void DisplaySegment::operator() (
+void DisplaySegmentLine::operator() (
     const G3D::Vector3& begin, const G3D::Vector3& end, bool context)
 {
     glLineWidth (context ? m_contextRadius : m_radius);
@@ -114,8 +113,6 @@ void DisplaySegmentQuadric::operator() (
 
 // DisplaySegmentTube
 // ======================================================================
-
-
 Disk DisplaySegmentTube::perpendicularDisk (
     const G3D::Vector3& beginEdge, const G3D::Vector3& endEdge, 
     const G3D::Vector3& origin) const
@@ -184,7 +181,7 @@ void DisplaySegmentTube::operator() (const Segment& segment)
 
 void displayNormal (const Disk& disk, size_t i)
 {
-    DisplayOrientedSegment () (
+    DisplayOrientedSegmentLine () (
 	disk.GetCenter (),
 	disk.GetCenter () + disk.GetVertexNormal (i) * disk.GetRadius () *
 	(1 + 2*static_cast<double>((i + 1)) / disk.size ()));    
@@ -224,7 +221,7 @@ void DisplaySegmentArrow1::operator () (
 }
 
 
-void DisplaySegmentArrow (G3D::Vector2 where, G3D::Vector2 v, 
+void DisplaySegmentArrow2D (G3D::Vector2 where, G3D::Vector2 v, 
 			  float lineWidth, 
 			  float onePixelInObjectSpace, bool clamped)
 {
@@ -260,10 +257,10 @@ void DisplaySegmentArrow (G3D::Vector2 where, G3D::Vector2 v,
     glLineWidth (1.0);
 }
 
-// DisplaySegmentArrowQuadric
+// DisplayArrowHeadQuadric
 // ======================================================================
 
-void DisplaySegmentArrowQuadric::operator () (
+void DisplayArrowHeadQuadric::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
     G3D::Vector3 translation;
@@ -286,31 +283,38 @@ void DisplaySegmentArrowQuadric::operator () (
 }
 
 
-// DisplayOrientedSegment
+// DisplayOrientedSegmentLine
 // ======================================================================
 
-void DisplayOrientedSegment::operator () (
+void DisplayOrientedSegmentLine::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
-    DisplaySegment displayEdge (m_quadric, m_topRadius);
-    DisplaySegmentArrow1 displayArrow (
+    DisplaySegmentLine displayEdge (m_quadric, m_topRadius);
+    DisplaySegmentArrow1 displayThickHalf (
 	m_quadric, m_baseRadius, m_topRadius, m_height, m_position);
     displayEdge (begin, end);
-    displayArrow (begin, end);
+    displayThickHalf (begin, end);
 }
 
-// DisplayOrientedSegmentQuadric
+// DisplayArrowQuadric
 // ======================================================================
 
-void DisplayOrientedSegmentQuadric::operator () (
+void DisplayArrowQuadric::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
     DisplaySegmentQuadric displayEdge (m_quadric, m_topRadius);
-    DisplaySegmentArrowQuadric displayArrow (
+    DisplayArrowHeadQuadric displayArrowHead (
 	m_quadric, m_baseRadius, m_topRadius, m_height, m_position);
     displayEdge (begin, end);
-    displayArrow (begin, end);
+    displayArrowHead (begin, end);
 }
+
+void DisplayVtkArrow (GLUquadricObj* quadric)
+{
+    DisplayArrowQuadric (quadric, 0.1, 0.03, 0.35)
+        (G3D::Vector3::zero (), G3D::Vector3 (1.0, 0, 0));
+}
+
 
 // DisplayEdgeTorus
 // ======================================================================
@@ -473,10 +477,10 @@ void DisplayEdge::operator() (const boost::shared_ptr<OrientedEdge> oe) const
 // DisplayEdgeTorus
 // ======================================================================
 
-template class DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, false>;
-template class DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, true>;
-template class DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow1, false>;
-template class DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow1, true>;
+template class DisplayEdgeTorus<DisplaySegmentQuadric, DisplayArrowHeadQuadric, false>;
+template class DisplayEdgeTorus<DisplaySegmentQuadric, DisplayArrowHeadQuadric, true>;
+template class DisplayEdgeTorus<DisplaySegmentLine, DisplaySegmentArrow1, false>;
+template class DisplayEdgeTorus<DisplaySegmentLine, DisplaySegmentArrow1, true>;
 
 
 // DisplayEdgePropertyColor

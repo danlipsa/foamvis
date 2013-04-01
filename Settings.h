@@ -251,41 +251,25 @@ public:
 
     /**
      * @{
-     * @name Various
+     * @name Arrow display
      */
+    void SetEdgeArrow (float onePixelInObjectSpace);
     float GetEdgeRadius () const 
     {
 	return m_edgeRadius;
-    }
-    void SetEdgeRadius (float edgeRadius)
-    {
-	m_edgeRadius = edgeRadius;
     }
     float GetEdgeWidth () const 
     {
 	return m_edgeWidth;
     }
-    void SetEdgeWidth (float edgeWidth)
-    {
-	m_edgeWidth = edgeWidth;
-    }
     float GetArrowBaseRadius () const 
     {
 	return m_arrowBaseRadius;
-    }
-    void SetArrowBaseRadius (float arrowBaseRadius)
-    {
-	m_arrowBaseRadius = arrowBaseRadius;
     }
     float GetArrowHeight () const 
     {
 	return m_arrowHeight;
     }
-    void SetArrowHeight (float arrowHeight)
-    {
-	m_arrowHeight = arrowHeight;
-    }
-    void SetEdgeArrow (float onePixelInObjectSpace);
     float GetEdgeRadiusRatio () const
     {
 	return m_edgeRadiusRatio;
@@ -294,6 +278,13 @@ public:
     {
 	m_edgeRadiusRatio = edgeRadiusRatio;
     }
+    // @}
+
+
+    /**
+     * @{
+     * @name Various
+     */
     const QColor& GetEndTranslationColor (const G3D::Vector3int16& di) const;
     bool EdgesTessellationShown () const
     {
@@ -436,6 +427,23 @@ private:
     G3D::Rect2D getBarRectWithLabels (
         GetBarRectType getBarRect,
         ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const;
+    void setEdgeRadius (float edgeRadius)
+    {
+	m_edgeRadius = edgeRadius;
+    }
+    void setEdgeWidth (float edgeWidth)
+    {
+	m_edgeWidth = edgeWidth;
+    }
+    void setArrowBaseRadius (float arrowBaseRadius)
+    {
+	m_arrowBaseRadius = arrowBaseRadius;
+    }
+    void setArrowHeight (float arrowHeight)
+    {
+	m_arrowHeight = arrowHeight;
+    }
+
 
 private:
     Q_OBJECT

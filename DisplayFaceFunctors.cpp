@@ -393,12 +393,12 @@ template class DisplayFaceHighlightColor<(HighlightNumber::Enum)0,
 
 template class DisplayFaceHighlightColor<HighlightNumber::H0,
     DisplayFaceEdges<
-	DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, true> >, 
+	DisplayEdgeTorus<DisplaySegmentQuadric, DisplayArrowHeadQuadric, true> >, 
     SetterTextureCoordinate>;
 
 template class DisplayFaceHighlightColor<HighlightNumber::H0,
     DisplayFaceEdges<
-	DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow1, true> >, SetterTextureCoordinate>;
+	DisplayEdgeTorus<DisplaySegmentLine, DisplaySegmentArrow1, true> >, SetterTextureCoordinate>;
 
 template class DisplayFaceHighlightColor<(HighlightNumber::Enum)0, DisplayFaceEdges<DisplayEdge>, SetterTextureCoordinate>;
 
@@ -431,9 +431,9 @@ template class DisplayFaceDmpColor<0xff000000, SetterTextureCoordinate>;
 // ======================================================================
 
 template class DisplayFaceEdges<
-    DisplayEdgeTorus <DisplaySegment, DisplaySegmentArrow1, true> >;
+    DisplayEdgeTorus <DisplaySegmentLine, DisplaySegmentArrow1, true> >;
 template class DisplayFaceEdges<
-    DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, true> >;
+    DisplayEdgeTorus<DisplaySegmentQuadric, DisplayArrowHeadQuadric, true> >;
 template class DisplayFaceEdges<
     DisplayEdgePropertyColor<DisplayElement::DISPLAY_TESSELLATION_EDGES> >;
 template class DisplayFaceEdges<

@@ -473,7 +473,7 @@ void WidgetGl::displayLightDirection (
 	::glColor (QColor (vs.IsLightEnabled (i) ? Qt::red : Qt::gray));
 	if (vs.IsLightingEnabled ())
 	    glDisable (GL_LIGHTING);
-	DisplayOrientedSegment () (lp, G3D::Vector3::zero ());
+	DisplayOrientedSegmentLine () (lp, G3D::Vector3::zero ());
 
 	glPointSize (8.0);
 	glBegin (GL_POINTS);
@@ -746,8 +746,9 @@ void WidgetGl::resizeGL(int w, int h)
 }
 void WidgetGl::averageInitStep (ViewNumber::Enum viewNumber)
 {
-    GetAttributeAverages2D (viewNumber).AverageInitStep (
-        GetViewSettings (viewNumber).GetTimeWindow ());
+    if (GetSimulation (viewNumber).Is2D ())
+        GetAttributeAverages2D (viewNumber).AverageInitStep (
+            GetViewSettings (viewNumber).GetTimeWindow ());
 }
 
 void WidgetGl::SetViewTypeAndCameraDistance (ViewNumber::Enum viewNumber)
@@ -1434,8 +1435,7 @@ void WidgetGl::mouseMoveTranslate (QMouseEvent *event,
     {
     case InteractionObject::FOCUS:
 	translate (viewNumber, event->pos (), event->modifiers ());
-	GetAttributeAverages2D (viewNumber).AverageInitStep (
-            GetViewSettings (viewNumber).GetTimeWindow ());
+        averageInitStep (viewNumber);
         CacheUpdateSeedsCalculateStreamline (viewNumber);
 	break;
     case InteractionObject::LIGHT:
@@ -1457,8 +1457,7 @@ void WidgetGl::mouseMoveScale (QMouseEvent *event, ViewNumber::Enum viewNumber)
     {
     case InteractionObject::FOCUS:
 	scale (viewNumber, event->pos ());
-	GetAttributeAverages2D (viewNumber).AverageInitStep (
-            GetViewSettings (viewNumber).GetTimeWindow ());
+        averageInitStep (viewNumber);
         CacheUpdateSeedsCalculateStreamline (viewNumber);
 	break;
     case InteractionObject::CONTEXT:
@@ -1532,11 +1531,11 @@ void WidgetGl::displayAxes (ViewNumber::Enum viewNumber)
     if (GetSettings ().AxesShown ())
     {
 	glPushAttrib (GL_CURRENT_BIT);
-	DisplayOrientedSegmentQuadric displayOrientedEdge (
-	    GetQuadricObject (), 
+	DisplayArrowQuadric displayArrow (
+	    GetQuadric (), 
 	    GetSettings ().GetArrowBaseRadius (), 
 	    GetSettings ().GetEdgeRadius (), GetSettings ().GetArrowHeight (),
-	    DisplaySegmentArrow1::TOP_END);
+            DisplaySegmentArrow1::TOP_END);
 
 	const Simulation& simulation = GetSimulation (viewNumber);
 	QFont font;
@@ -1554,7 +1553,7 @@ void WidgetGl::displayAxes (ViewNumber::Enum viewNumber)
 
         // Display the X axis
 	glColor (Qt::red);
-	displayOrientedEdge (origin, first);
+	displayArrow (origin, first);
 	glColor (Qt::black);
 	ostr.str ("");
 	ostr  << first.x;
@@ -1564,7 +1563,7 @@ void WidgetGl::displayAxes (ViewNumber::Enum viewNumber)
 
 	// Display the Y axis
         glColor (Qt::green);
-	displayOrientedEdge (origin, second);
+	displayArrow (origin, second);
 	glColor (Qt::black);
 	ostr.str ("");ostr << second.y;
 	renderText (second.x, second.y + a, second.z - a, ostr.str ().c_str ());
@@ -1575,7 +1574,7 @@ void WidgetGl::displayAxes (ViewNumber::Enum viewNumber)
 	{
             // Display the Z axis
 	    glColor (Qt::blue);
-	    displayOrientedEdge (origin, third);
+	    displayArrow (origin, third);
 	    glColor (Qt::black);
 	    ostr.str ("");ostr << third.z;
 	    renderText (third.x - a, third.y, third.z + a, ostr.str ().c_str ());
@@ -1680,7 +1679,7 @@ void WidgetGl::displayVelocityGlyphs (ViewNumber::Enum viewNumber) const
 	    GetSettings (), viewNumber, simulation.Is2D (),
 	    vs.GetBodySelector (), GetBubbleDiameter (viewNumber), 
 	    GetVelocitySizeInitialRatio (viewNumber),
-	    GetOnePixelInObjectSpace (simulation.Is2D ()), 
+	    GetOnePixelInObjectSpace (simulation.Is2D ()), GetQuadric (),
 	    va.IsSameSize (), va.IsClampingShown ()));
     glPopAttrib ();    
 }
@@ -1730,7 +1729,8 @@ void WidgetGl::displayBodyVelocity (
 	    vs.GetBodySelector (), 
 	    GetBubbleDiameter (viewNumber), 
 	    GetVelocitySizeInitialRatio (viewNumber),
-	    GetOnePixelInObjectSpace (simulation.Is2D ()), va.IsSameSize (), 
+	    GetOnePixelInObjectSpace (simulation.Is2D ()), GetQuadric (),
+            va.IsSameSize (), 
 	    va.IsClampingShown ()) (*foam.FindBody (m_showBodyId));
 	glPopAttrib ();
     }
@@ -1832,7 +1832,7 @@ void WidgetGl::displayTopologicalChangeTimestep3D (
                      viewNumber, HighlightNumber::Enum (tc.m_type - 1)));
         glPushMatrix ();
         glTranslate (tc.m_position);
-        gluSphere (GetQuadricObject (), 
+        gluSphere (GetQuadric (), 
                    GetBubbleDiameter (viewNumber) * m_t1sSize / 2, 16, 16);
         glPopMatrix ();
     }
@@ -1927,7 +1927,8 @@ pair<float, float> WidgetGl::GetRangeCount () const
 pair<float, float> WidgetGl::GetRangeT1sKDE (ViewNumber::Enum viewNumber) const
 {
     return pair<float, float> (
-        0.0, GetAttributeAverages2D (viewNumber).GetTopologicalChangeKDE ().GetMax ());
+        0.0, GetAttributeAverages2D (
+            viewNumber).GetTopologicalChangeKDE ().GetMax ());
 }
 
 void WidgetGl::displayEdgesTorus (ViewNumber::Enum viewNumber) const
@@ -1959,10 +1960,10 @@ void WidgetGl::displayEdgesTorusTubes (ViewNumber::Enum viewNumber) const
     for_each (
 	edgeSet.begin (), edgeSet.end (),
 	DisplayEdgeTorus<DisplaySegmentQuadric, 
-	DisplaySegmentArrowQuadric, false>(
+	DisplayArrowHeadQuadric, false>(
 	    GetSettings (), viewNumber, simulation.Is2D (),
             DisplayElement::FOCUS, 
-	    false, 0.0, GetQuadricObject ()));
+	    false, 0.0, GetQuadric ()));
     glPopAttrib ();
 }
 
@@ -1973,10 +1974,10 @@ void WidgetGl::displayEdgesTorusLines (ViewNumber::Enum viewNumber) const
     const Simulation& simulation = GetSimulation (viewNumber);
     simulation.GetFoam (0).GetEdgeSet (&edgeSet);
     for_each (edgeSet.begin (), edgeSet.end (),
-	      DisplayEdgeTorus<DisplaySegment, 
+	      DisplayEdgeTorus<DisplaySegmentLine, 
 	      DisplaySegmentArrow1, false> (
 		  GetSettings (), viewNumber, simulation.Is2D (),
-                  DisplayElement::FOCUS, false, 0.0, GetQuadricObject ()));
+                  DisplayElement::FOCUS, false, 0.0, GetQuadric ()));
     glPopAttrib ();
 }
 
@@ -2068,13 +2069,17 @@ void WidgetGl::displayFacesNormal (ViewNumber::Enum viewNumber) const
 void WidgetGl::compileFacesNormal (ViewNumber::Enum viewNumber) const
 {
     const Foam& foam = GetFoam (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     const Foam::Bodies& bodies = foam.GetBodies ();
 
     glNewList (m_listFacesNormal[viewNumber], GL_COMPILE);
-    if (EdgesShown ())
-	displayFacesContour (bodies, viewNumber);
-    displayFacesInterior (bodies, viewNumber);
-    displayStandaloneEdges< DisplayEdgePropertyColor<> > (foam);
+    if (vs.IsScalarShown ())
+    {
+        if (EdgesShown ())
+            displayFacesContour (bodies, viewNumber);
+        displayFacesInterior (bodies, viewNumber);
+        displayStandaloneEdges< DisplayEdgePropertyColor<> > (foam);
+    }
     displayAverageAroundBodies (viewNumber);
     displayContextBodies (viewNumber);
     displayContextBox (viewNumber);
@@ -2277,7 +2282,7 @@ void WidgetGl::displayFacesTorusTubes (ViewNumber::Enum viewNumber) const
 	DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceEdges<
 	DisplayEdgeTorus<
 	DisplaySegmentQuadric, 
-	DisplaySegmentArrowQuadric, true> > > (
+	DisplayArrowHeadQuadric, true> > > (
             GetSettings (), simulation.Is2D ()));
     glPopAttrib ();
 }
@@ -2292,8 +2297,9 @@ void WidgetGl::displayFacesTorusLines () const
     for_each (faceSet.begin (), faceSet.end (),
 	      DisplayFaceHighlightColor<HighlightNumber::H0,
 	      DisplayFaceEdges<
-	      DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow1, true> > > (
-		  GetSettings (), DisplayElement::FOCUS) );
+	      DisplayEdgeTorus<DisplaySegmentLine, 
+              DisplaySegmentArrow1, true> > > (
+                  GetSettings (), DisplayElement::FOCUS) );
     glPopAttrib ();
 }
 
@@ -2377,7 +2383,7 @@ void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
 		DisplayBubblePaths<
 		SetterTextureCoordinate, DisplaySegmentTube> (
 		    GetSettings (), GetViewNumber (), simulation.Is2D (),
-                    bodySelector, GetQuadricObject (),
+                    bodySelector, GetQuadric (),
 		    GetSimulation (viewNumber),
                     vs.GetBubblePathsTimeBegin (), vs.GetBubblePathsTimeEnd (),
 		    vs.IsTimeDisplacementUsed (), vs.GetTimeDisplacement ()));
@@ -2387,7 +2393,7 @@ void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
 		DisplayBubblePaths<
 		SetterTextureCoordinate, DisplaySegmentQuadric> (
 		    GetSettings (), GetViewNumber (), simulation.Is2D (),
-                    bodySelector, GetQuadricObject (),
+                    bodySelector, GetQuadric (),
 		    GetSimulation (viewNumber),
                     vs.GetBubblePathsTimeBegin (), vs.GetBubblePathsTimeEnd (),
 		    vs.IsTimeDisplacementUsed (), vs.GetTimeDisplacement ()));
@@ -2395,9 +2401,9 @@ void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
     else
 	for_each (bats.begin (), bats.end (),
 		  DisplayBubblePaths<SetterTextureCoordinate, 
-		  DisplaySegment> (
+		  DisplaySegmentLine> (
 		      GetSettings (), GetViewNumber (), simulation.Is2D (),
-                      bodySelector, GetQuadricObject (),
+                      bodySelector, GetQuadric (),
 		      GetSimulation (viewNumber),
                       vs.GetBubblePathsTimeBegin (), vs.GetBubblePathsTimeEnd (),
 		      vs.IsTimeDisplacementUsed (), vs.GetTimeDisplacement ()));
@@ -2829,7 +2835,8 @@ void WidgetGl::ActivateViewShader (
 
 void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
 {
-    T1sKDE& t1sKDE = GetAttributeAverages2D (viewNumber).GetTopologicalChangeKDE ();
+    T1sKDE& t1sKDE = GetAttributeAverages2D (
+        viewNumber).GetTopologicalChangeKDE ();
     t1sKDE.SetKernelSigmaInBubbleDiameters (
 	static_cast<QDoubleSpinBox*> (sender ())->value ());
     t1sKDE.AverageInitStep (GetViewSettings (viewNumber).GetTimeWindow ());
@@ -2902,7 +2909,8 @@ void WidgetGl::updateKDESeeds (
     double p[3] = {cellCenter.x, cellCenter.y, 0};
     double kdeValue = *InterpolateAttribute (
         GetAverageCache (viewNumber)->GetTopologicalChangeKDE (),
-        p, GetAttributeAverages2D (viewNumber).GetTopologicalChangeKDE ().GetId (), &v);
+        p, GetAttributeAverages2D (
+            viewNumber).GetTopologicalChangeKDE ().GetId (), &v);
     if (kdeValue > vs.GetKDEValue ())
     {
         VTK_CREATE (vtkIdList, cell);
@@ -3034,6 +3042,8 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
 
 void WidgetGl::CacheUpdateSeedsCalculateStreamline (ViewNumber::Enum viewNumber)
 {
+    if (! GetSimulation (viewNumber).Is2D ())
+        return;
     makeCurrent ();
     glMatrixMode (GL_PROJECTION);
     glPushMatrix ();
@@ -3715,13 +3725,11 @@ void WidgetGl::ResetTransformFocus ()
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
-	ViewSettings& vs = GetViewSettings (viewNumber);
 	glMatrixMode (GL_PROJECTION);
 	ProjectionTransform (viewNumber);
 	glMatrixMode (GL_MODELVIEW);
 	glLoadIdentity ();
-	GetAttributeAverages2D (viewNumber).AverageInitStep (
-            vs.GetTimeWindow ());
+        averageInitStep (viewNumber);
     }
     update ();
 }
@@ -4225,8 +4233,7 @@ void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
 		if (oldViewType == newViewType)
 		    continue;
 		GetAttributeAverages2D (viewNumber).AverageRelease ();
-		GetAttributeAverages2D (viewNumber).AverageInitStep (
-                    vs.GetTimeWindow ());
+                averageInitStep (viewNumber);
 		CompileUpdate (viewNumber);
 	    }
 	}

@@ -214,7 +214,7 @@ void ForceAverage::displayForce (
     ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
     const Simulation& simulation = GetSimulation ();
     glColor (color);
-    DisplaySegmentArrow (
+    DisplaySegmentArrow2D (
 	center, force, vs.GetForceLineWidth (),
 	GetOnePixelInObjectSpace (simulation.Is2D ()), false);
 }

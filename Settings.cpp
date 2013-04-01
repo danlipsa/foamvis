@@ -143,10 +143,10 @@ void Settings::SetEdgeArrow (float onePixelInObjectSpace)
     float r = onePixelInObjectSpace;
     float R = maxRadiusMultiplier * r;
 
-    SetEdgeRadius ((R - r) * GetEdgeRadiusRatio () + r);
-    SetEdgeWidth ((maxRadiusMultiplier - 1) * GetEdgeRadiusRatio () + 1);
-    SetArrowBaseRadius (4 * GetEdgeRadius ());
-    SetArrowHeight (11 * GetEdgeRadius ());
+    setEdgeRadius ((R - r) * GetEdgeRadiusRatio () + r);
+    setEdgeWidth ((maxRadiusMultiplier - 1) * GetEdgeRadiusRatio () + 1);
+    setArrowBaseRadius (4 * GetEdgeRadius ());
+    setArrowHeight (11 * GetEdgeRadius ());
 }
 
 const QColor& Settings::GetEndTranslationColor (

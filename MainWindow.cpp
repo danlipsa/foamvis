@@ -1134,6 +1134,7 @@ void MainWindow::ToggledAxesShown (bool checked)
 void MainWindow::ToggledScalarShown (bool checked)
 {
     GetViewSettings ().SetScalarShown (checked);
+    widgetGl->CompileUpdate ();
     widgetVtk->FromView ();
 }
 
