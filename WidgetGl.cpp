@@ -1670,9 +1670,13 @@ void WidgetGl::displayVelocityGlyphs (ViewNumber::Enum viewNumber) const
     {
 	glEnable(GL_TEXTURE_1D);
 	glBindTexture (GL_TEXTURE_1D, m_overlayBarTexture[viewNumber]);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, 
+                  simulation.Is2D () ? GL_REPLACE : GL_MODULATE);
+        glColor (Qt::white);
     }
-    glColor (Qt::black);
+    else
+	glColor (
+	    GetSettings ().GetHighlightColor (viewNumber, HighlightNumber::H0));
     for_each (
 	bodies.begin (), bodies.end (),
 	DisplayBodyVelocity (
@@ -2663,8 +2667,6 @@ void WidgetGl::displayColorBar (
     glEnd ();
     glDisable (GL_TEXTURE_1D);
 
-    glColor (
-        GetSettings ().GetHighlightColor (viewNumber, HighlightNumber::H0));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glColor (Qt::black);
     DisplayBox (barRect);

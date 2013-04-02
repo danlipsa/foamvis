@@ -220,8 +220,6 @@ void DisplayBodyVelocity::display (boost::shared_ptr<Body> body)
     {
 	float texCoord = vs.GetOverlayBarModel ()->TexCoord (velocityLength);
 	glTexCoord1f (texCoord); 
-	glColor (
-	    m_settings.GetHighlightColor (viewNumber, HighlightNumber::H0));
     }
     else
 	glColor (QColor::fromRgbF (0, 0, 0, vs.GetContextAlpha ()));
