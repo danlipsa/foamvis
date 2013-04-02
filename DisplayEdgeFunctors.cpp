@@ -39,19 +39,6 @@ void DisplayEdgeVerticesNoEnds (const Edge& edge)
 	::glVertex (edge.GetPoint (i));
 }
 
-
-G3D::Matrix3 edgeRotation (const G3D::Vector3& begin, const G3D::Vector3& end)
-{
-    G3D::Vector3 newZ = end - begin;
-    if (IsFuzzyZero (newZ))
-	return G3D::Matrix3::identity ();
-    newZ = newZ.unit ();
-    G3D::Vector3 newX, newY;
-    newZ.getTangents (newX, newY);
-    G3D::Matrix3 rotation = MatrixFromColumns (newX, newY, newZ);
-    return rotation;
-}
-
 void perpendicularEnd (const G3D::Vector3& normal,
 		       G3D::Vector3* twelveOclock, G3D::Vector3* threeOclock)
 {
@@ -79,6 +66,53 @@ void angledEnd (const G3D::Vector3& before,
     perpendicularEnd (normal, twelveOclock, threeOclock);
 }
 
+// DisplaySegmentArrow2D
+// ======================================================================
+void DisplaySegmentArrow2D (G3D::Vector2 where, G3D::Vector2 v, 
+			  float lineWidth, 
+			  float onePixelInObjectSpace, bool clamped)
+{
+    const float arrowDegrees = 15.0;
+    const float arrowLengthInPixels = 10;
+    G3D::Vector2 center = where + v / 2;
+    float arrowLength = min (
+	v.length (), arrowLengthInPixels * onePixelInObjectSpace);
+    G3D::Vector2 arrow = v.direction () * arrowLength;
+    glPushMatrix ();
+    glLineWidth (lineWidth);
+    glTranslate (center);
+    glBegin (GL_LINES);
+    ::glVertex (- v / 2);
+    ::glVertex (v / 2);
+    glEnd ();
+    glTranslate (v / 2);
+    glBegin (GL_TRIANGLES);
+    ::glVertex (- rotateDegrees (arrow, arrowDegrees));
+    ::glVertex (G3D::Vector2::zero ());
+    ::glVertex (- rotateDegrees (arrow, -arrowDegrees));
+    glEnd ();
+    if (clamped)
+    {
+	glTranslate (- v / 2);
+	arrow = G3D::Vector2 (- arrow.y, arrow.x) /2;
+	glBegin (GL_LINES);
+	::glVertex (- arrow);
+	::glVertex (arrow);
+	glEnd ();
+    }
+    glPopMatrix ();
+    glLineWidth (1.0);
+}
+
+// DisplayVtkArrow
+// ======================================================================
+void DisplayVtkArrow (GLUquadricObj* quadric)
+{
+    DisplayArrowQuadric (quadric, 0.1, 0.03, 0.35)
+        (G3D::Vector3::zero (), G3D::Vector3 (1.0, 0, 0));
+}
+
+
 // DisplaySegmentLine
 // ======================================================================
 void DisplaySegmentLine::operator() (
@@ -98,7 +132,7 @@ void DisplaySegmentLine::operator() (
 void DisplaySegmentQuadric::operator() (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
-    G3D::Matrix3 rotation = edgeRotation (begin, end);
+    G3D::Matrix3 rotation = GetAxisRotation (begin, end, G3D::Vector3::Z_AXIS);
     G3D::CoordinateFrame frame (rotation, begin);
     glPushMatrix ();
     {
@@ -209,6 +243,19 @@ void DisplaySegmentTube::displayTube (const Disk& begin, const Disk& end) const
 // DisplaySegmentArrow1
 // ======================================================================
 
+DisplaySegmentArrow1::DisplaySegmentArrow1 (
+    GLUquadricObj* quadric,
+    double baseRadius, double topRadius, double height,
+    ArrowHeadPosition position) :
+
+    m_quadric (quadric),
+    m_baseRadius (baseRadius),
+    m_topRadius(topRadius),
+    m_height (height),
+    m_position (position)
+{
+}
+
 void DisplaySegmentArrow1::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
@@ -220,66 +267,68 @@ void DisplaySegmentArrow1::operator () (
     glLineWidth (1.0);
 }
 
-
-void DisplaySegmentArrow2D (G3D::Vector2 where, G3D::Vector2 v, 
-			  float lineWidth, 
-			  float onePixelInObjectSpace, bool clamped)
-{
-    const float arrowDegrees = 15.0;
-    const float arrowLengthInPixels = 10;
-    G3D::Vector2 center = where + v / 2;
-    float arrowLength = min (
-	v.length (), arrowLengthInPixels * onePixelInObjectSpace);
-    G3D::Vector2 arrow = v.direction () * arrowLength;
-    glPushMatrix ();
-    glLineWidth (lineWidth);
-    glTranslate (center);
-    glBegin (GL_LINES);
-    ::glVertex (- v / 2);
-    ::glVertex (v / 2);
-    glEnd ();
-    glTranslate (v / 2);
-    glBegin (GL_TRIANGLES);
-    ::glVertex (- rotateDegrees (arrow, arrowDegrees));
-    ::glVertex (G3D::Vector2::zero ());
-    ::glVertex (- rotateDegrees (arrow, -arrowDegrees));
-    glEnd ();
-    if (clamped)
-    {
-	glTranslate (- v / 2);
-	arrow = G3D::Vector2 (- arrow.y, arrow.x) /2;
-	glBegin (GL_LINES);
-	::glVertex (- arrow);
-	::glVertex (arrow);
-	glEnd ();
-    }
-    glPopMatrix ();
-    glLineWidth (1.0);
-}
-
 // DisplayArrowHeadQuadric
 // ======================================================================
+
+DisplayArrowHeadQuadric::DisplayArrowHeadQuadric (
+    GLUquadricObj* quadric, 
+    double baseRadius, double topRadius, double height, 
+    ArrowHeadPosition position) :
+
+    DisplaySegmentArrow1 (quadric, baseRadius, topRadius, height, position)
+{
+}
+
+G3D::Vector3 DisplayArrowHeadQuadric::GetBasePosition (
+    const G3D::Vector3& begin, const G3D::Vector3& end)
+{
+    return ((m_position == BASE_MIDDLE) ?
+            (begin + end) / 2 :
+            (end - (end - begin).direction () * m_height));
+}
+
 
 void DisplayArrowHeadQuadric::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
-    G3D::Vector3 translation;
-    translation = ((m_position == BASE_MIDDLE) ?
-		   (begin + end) / 2 :
-		   (end - (end - begin).direction () * m_height));
-    G3D::Matrix3 rotation = edgeRotation (begin, end);
+    G3D::Vector3 translation = GetBasePosition (begin, end);
+    G3D::Matrix3 rotation = GetAxisRotation (begin, end, G3D::Vector3::Z_AXIS);
     G3D::CoordinateFrame objectToWorld (rotation, translation);
     glPushMatrix ();
     {
 	glMultMatrix (objectToWorld);
-	gluCylinder (m_quadric, m_baseRadius, m_topRadius, m_height,
+	gluCylinder (m_quadric, m_baseRadius, 
+                     m_position == BASE_MIDDLE ? m_topRadius : 0, m_height,
 		     Settings::QUADRIC_SLICES, Settings::QUADRIC_STACKS);
 	gluQuadricOrientation (m_quadric, GLU_INSIDE);
 	gluDisk (m_quadric, 0, m_baseRadius, Settings::QUADRIC_SLICES,
 		 Settings::QUADRIC_STACKS);
+        gluQuadricOrientation (m_quadric, GLU_OUTSIDE);
     }
-    gluQuadricOrientation (m_quadric, GLU_OUTSIDE);
     glPopMatrix ();
+}
+
+// DisplayArrowQuadric
+// ======================================================================
+
+DisplayArrowQuadric::DisplayArrowQuadric (
+    GLUquadricObj* quadric,
+    double baseRadius, double topRadius, double height,
+    ArrowHeadPosition position) :
+
+    DisplaySegmentArrow1 (quadric, baseRadius, topRadius, height, position)
+{
+}
+
+void DisplayArrowQuadric::operator () (
+    const G3D::Vector3& begin, const G3D::Vector3& end)
+{
+    DisplaySegmentQuadric displayEdge (m_quadric, m_topRadius);
+    DisplayArrowHeadQuadric displayArrowHead (
+	m_quadric, m_baseRadius, m_topRadius, m_height, m_position);
+    displayEdge (begin, m_position == BASE_MIDDLE ? end : 
+                 displayArrowHead.GetBasePosition (begin, end));
+    displayArrowHead (begin, end);
 }
 
 
@@ -295,26 +344,6 @@ void DisplayOrientedSegmentLine::operator () (
     displayEdge (begin, end);
     displayThickHalf (begin, end);
 }
-
-// DisplayArrowQuadric
-// ======================================================================
-
-void DisplayArrowQuadric::operator () (
-    const G3D::Vector3& begin, const G3D::Vector3& end)
-{
-    DisplaySegmentQuadric displayEdge (m_quadric, m_topRadius);
-    DisplayArrowHeadQuadric displayArrowHead (
-	m_quadric, m_baseRadius, m_topRadius, m_height, m_position);
-    displayEdge (begin, end);
-    displayArrowHead (begin, end);
-}
-
-void DisplayVtkArrow (GLUquadricObj* quadric)
-{
-    DisplayArrowQuadric (quadric, 0.1, 0.03, 0.35)
-        (G3D::Vector3::zero (), G3D::Vector3 (1.0, 0, 0));
-}
-
 
 // DisplayEdgeTorus
 // ======================================================================

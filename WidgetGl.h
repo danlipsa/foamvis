@@ -259,7 +259,7 @@ public Q_SLOTS:
     void SetOverlayBarModel (ViewNumber::Enum viewNumber, 
 			     boost::shared_ptr<ColorBarModel> colorBarModel);
     void CurrentIndexChangedStatisticsType (int index);
-    void CurrentIndexChangedAxesOrder (int index);
+    void CurrentIndexChangedAxisOrder (int index);
     void CurrentIndexChangedSelectedLight (int selectedLight);
 
 
@@ -457,14 +457,14 @@ private:
         float cellLength);
     void displayViewDecorations (ViewNumber::Enum viewNumber);
     void displayViewFocus (ViewNumber::Enum viewNumber);
-    void displayColorBar (GLuint texture,
-				 ViewNumber::Enum viewNumber, 
-				 const G3D::Rect2D& barRect);
+    void displayColorBar (
+        GLuint texture, const ColorBarModel& barModel,
+        ViewNumber::Enum viewNumber, const G3D::Rect2D& barRect);
+    void displayOverlayBar (
+	ViewNumber::Enum viewNumber, const G3D::Rect2D& barRect);
     void displayBarLabels (
         ViewNumber::Enum viewNumber,
         const ColorBarModel& cbm, const G3D::Rect2D& colorBarRect);
-    void displayOverlayBar (
-	ViewNumber::Enum viewNumber, const G3D::Rect2D& barRect);
     void displayBarClampLevels (const ColorBarModel& barModel,
                                 const G3D::Rect2D& barRect) const;
     void displayViewTitle (ViewNumber::Enum viewNumber);

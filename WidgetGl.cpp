@@ -619,13 +619,13 @@ void WidgetGl::modelViewTransform (
 	    viewNumber, vs.GetScaleRatio (), vs.GetTranslation (), false);
     G3D::Vector3 translate = vs.GetRotationCenter () - center;
     if (rotateForAxisOrder == ROTATE_FOR_AXIS_ORDER)
-        translate = GetRotationForAxesOrder (viewNumber, timeStep) * translate;
+        translate = GetRotationForAxisOrder (viewNumber, timeStep) * translate;
     // rotate around the center of rotation
     glTranslate (translate);
     glMultMatrix (vs.GetRotation ());
     glTranslate (- translate);
     if (rotateForAxisOrder == ROTATE_FOR_AXIS_ORDER)
-        glMultMatrix (GetRotationForAxesOrder (viewNumber, timeStep));
+        glMultMatrix (GetRotationForAxisOrder (viewNumber, timeStep));
     glTranslate (- center);
     if (vs.IsAverageAround ())
 	vs.RotateAndTranslateAverageAround (timeStep, 1, 
@@ -1534,8 +1534,7 @@ void WidgetGl::displayAxes (ViewNumber::Enum viewNumber)
 	DisplayArrowQuadric displayArrow (
 	    GetQuadric (), 
 	    GetSettings ().GetArrowBaseRadius (), 
-	    GetSettings ().GetEdgeRadius (), GetSettings ().GetArrowHeight (),
-            DisplaySegmentArrow1::TOP_END);
+	    GetSettings ().GetEdgeRadius (), GetSettings ().GetArrowHeight ());
 
 	const Simulation& simulation = GetSimulation (viewNumber);
 	QFont font;
@@ -1665,7 +1664,8 @@ void WidgetGl::displayVelocityGlyphs (ViewNumber::Enum viewNumber) const
         GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
     Foam::Bodies bodies = foam.GetBodies ();
     glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
-    glDisable (GL_DEPTH_TEST);
+    if (simulation.Is2D ())
+        glDisable (GL_DEPTH_TEST);
     if (va.IsColorMapped ())
     {
 	glEnable(GL_TEXTURE_1D);
@@ -2543,12 +2543,14 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
     glDisable (GL_DEPTH_TEST);
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     float xTranslateBar = 0;
-    if (GetSettings ().GetColorBarType (viewNumber) != ColorBarType::NONE)
+    if (GetSettings ().GetColorBarType (viewNumber) != ColorBarType::NONE &&
+        vs.IsScalarShown ())
     {
 	G3D::Rect2D viewColorBarRect = 
             GetSettings ().GetColorBarRect (viewNumber, viewRect);
 	displayColorBar (
-	    m_colorBarTexture[viewNumber], viewNumber, viewColorBarRect);
+	    m_colorBarTexture[viewNumber], *vs.GetColorBarModel (),
+            viewNumber, viewColorBarRect);
         xTranslateBar = GetSettings ().GetBarLabelSize (viewNumber).x;
     }
     if (vs.IsVelocityShown ())
@@ -2559,7 +2561,8 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
             viewNumber, viewRect) + G3D::Vector2 (xTranslateBar, 0);
         if (va.IsColorMapped ())
             displayColorBar (
-                m_overlayBarTexture[viewNumber], viewNumber, barRect);
+                m_overlayBarTexture[viewNumber], *vs.GetOverlayBarModel (),
+                viewNumber, barRect);
         else if (vs.GetVelocityVis () == VectorVis::GLYPH && ! va.IsSameSize ())
             displayOverlayBar (viewNumber, barRect);
     }
@@ -2639,14 +2642,13 @@ void WidgetGl::displayViewFocus (ViewNumber::Enum viewNumber)
 }
 
 void WidgetGl::displayColorBar (
-    GLuint texture,
+    GLuint texture, const ColorBarModel& barModel,
     ViewNumber::Enum viewNumber, const G3D::Rect2D& br)
 {
     G3D::Vector2 s = GetSettings ().GetBarLabelSize (viewNumber);
     G3D::Rect2D barRect = G3D::Rect2D::xywh (
         br.x0 (), br.y0 () + s.y, 
         br.width (), br.height () - s.y);
-    ViewSettings& vs = GetViewSettings (viewNumber);
     glPushAttrib (GL_POLYGON_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT);
     glDisable (GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_1D);
@@ -2667,7 +2669,6 @@ void WidgetGl::displayColorBar (
     glColor (Qt::black);
     DisplayBox (barRect);
     glPopAttrib ();
-    const ColorBarModel& barModel = *vs.GetColorBarModel ();
     displayBarClampLevels (barModel, barRect);
     displayBarLabels (viewNumber, barModel, br);
 }
@@ -2884,7 +2885,7 @@ void WidgetGl::GetGridParams (
     const Simulation& simulation = GetSimulation (viewNumber);
     G3D::Vector3 center = simulation.GetBoundingBox ().center ();
     rotationCenter -= center;
-    rotationCenter = GetRotationForAxesOrder (viewNumber) * rotationCenter;
+    rotationCenter = GetRotationForAxisOrder (viewNumber) * rotationCenter;
     rotationCenter += center;
 
 
@@ -3157,7 +3158,7 @@ void WidgetGl::rotateAverageAroundStreamlines (
     const Simulation& simulation = GetSimulation (viewNumber);
     G3D::Vector3 center = simulation.GetBoundingBox ().center ();
     glTranslate (center);
-    glMultMatrix (GetRotationForAxesOrder (viewNumber).inverse ());
+    glMultMatrix (GetRotationForAxisOrder (viewNumber).inverse ());
     glTranslate (-center);    
 }
 
@@ -4255,10 +4256,10 @@ void WidgetGl::CurrentIndexChangedStatisticsType (int index)
     CompileUpdate ();
 }
 
-void WidgetGl::CurrentIndexChangedAxesOrder (int index)
+void WidgetGl::CurrentIndexChangedAxisOrder (int index)
 {
     makeCurrent ();
-    GetViewSettings ().SetAxesOrder (AxesOrder::Enum(index));
+    GetViewSettings ().SetAxisOrder (AxisOrderName::Enum(index));
     CompileUpdate ();
 }
 

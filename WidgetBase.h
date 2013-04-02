@@ -59,11 +59,11 @@ public:
         return (*m_averageCache)[viewNumber];
     }
     
-    G3D::Matrix3 GetRotationForAxesOrder (ViewNumber::Enum viewNumber, 
+    G3D::Matrix3 GetRotationForAxisOrder (ViewNumber::Enum viewNumber, 
                                           size_t timeStep) const;
-    G3D::Matrix3 GetRotationForAxesOrder (ViewNumber::Enum viewNumber) const
+    G3D::Matrix3 GetRotationForAxisOrder (ViewNumber::Enum viewNumber) const
     {
-        return GetRotationForAxesOrder (viewNumber, GetTime (viewNumber));
+        return GetRotationForAxisOrder (viewNumber, GetTime (viewNumber));
     }
 
     const Foam& GetFoam (ViewNumber::Enum viewNumber, size_t timeStep) const;

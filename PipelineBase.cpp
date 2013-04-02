@@ -177,7 +177,7 @@ void PipelineBase::FromViewTransform (
     const Foam& foam = base.GetFoam (viewNumber);
     G3D::Vector3 center = simulation.GetBoundingBox ().center ();
     G3D::Matrix3 cameraRotationAxes = 
-        vs.GetRotationForAxesOrder (foam).inverse ();
+        vs.GetRotationForAxisOrder (foam).inverse ();
     G3D::Matrix3 cameraRotation = vs.GetRotation ().inverse ();
 
     G3D::Vector3 rotationCenter = vs.GetRotationCenter ();
@@ -223,7 +223,7 @@ void PipelineBase::ToViewTransform (
     G3D::Matrix3 mInitial = MatrixFromColumns (G3D::Vector3 (0, 1, 0),
                                                G3D::Vector3 (0, 0, 1),
                                                G3D::Vector3 (1, 0, 0));
-    G3D::Matrix3 cRAm = vs.GetRotationForAxesOrder (foam);
+    G3D::Matrix3 cRAm = vs.GetRotationForAxisOrder (foam);
     G3D::Matrix3 rCamera =  cRAm * m * mInitial.inverse ();
     vs.SetRotation (rCamera.inverse ());
     if (vs.GetRotationCenterType () != ViewSettings::ROTATION_CENTER_FOAM)

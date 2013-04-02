@@ -72,10 +72,6 @@ public:
     {
 	m_statisticsType = statisticsType;
     }
-    ColorBarType::Enum GetColorBarType () const;    
-    static ColorBarType::Enum GetColorBarType (
-        ViewType::Enum viewType, size_t property,
-        StatisticsType::Enum statisticsType);
     // @}
 
     /**
@@ -195,6 +191,10 @@ public:
     }
     void ColorMapCopy (const ViewSettings& from);
     void OverlayMapCopyVelocityMagnitude ();
+    ColorBarType::Enum GetColorBarType () const;    
+    static ColorBarType::Enum GetColorBarType (
+        ViewType::Enum viewType, size_t property,
+        StatisticsType::Enum statisticsType);
     // @}
 
     /**
@@ -226,15 +226,15 @@ public:
     {
 	return m_rotationCenterType;
     }
-    void SetAxesOrder (AxesOrder::Enum axesOrder)
+    void SetAxisOrder (AxisOrderName::Enum axesOrder)
     {
 	m_axesOrder = axesOrder;
     }
-    AxesOrder::Enum GetAxesOrder () const
+    AxisOrderName::Enum GetAxisOrder () const
     {
 	return m_axesOrder;
     }
-    G3D::Matrix3 GetRotationForAxesOrder (const Foam& foam) const;
+    G3D::Matrix3 GetRotationForAxisOrder (const Foam& foam) const;
 
     // scale
     float GetScaleRatio () const
@@ -794,7 +794,7 @@ private:
 
     //  requires camera distance
     float m_angleOfView;
-    AxesOrder::Enum m_axesOrder;
+    AxisOrderName::Enum m_axesOrder;
     /**
      * Distance from the camera to the center of the bounding box for the foam.
      */

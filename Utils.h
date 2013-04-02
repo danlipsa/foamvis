@@ -111,6 +111,18 @@ G3D::Rect2D EncloseRotation (const G3D::Rect2D& rect);
 G3D::Vector2 rotateRadians (G3D::Vector2, float radiansCounterClockwise);
 G3D::Vector2 rotateDegrees (G3D::Vector2 v, float degreesCounterClockwise);
 G3D::Rect2D rectInside (const G3D::Rect2D& windowRect);
+/**
+ * Return the matrix that rotates from axis to [begin, end]
+ */
+G3D::Matrix3 GetAxisRotation (
+    const G3D::Vector3& begin, const G3D::Vector3& end, G3D::Vector3::Axis axis);
+G3D::Matrix3 GetAxisRotation (const G3D::Vector3& v, G3D::Vector3::Axis axis);
+typedef boost::array<size_t, 3> AxisOrder;
+/**
+ * Three planes specified by normal, point in the plane.
+ * All values in this 2d array are indexes in m_vector.
+ */
+const boost::array<AxisOrder,3>& GetAxisOrder ();
 // @}
 
 

@@ -12,7 +12,6 @@ class OOBox
 {
 public:
     typedef vector<G3D::Vector3> Intersections;
-    typedef boost::array<size_t, 3> PlaneTranslation;
 
 public:
     OOBox (const G3D::Vector3& x, const G3D::Vector3& y,
@@ -65,11 +64,6 @@ public:
 
 private:
     boost::array<G3D::Vector3, 3> m_vector;
-    /**
-     * Three planes specified by normal, point in the plane.
-     * All values in this 2d array are indexes in m_vector.
-     */
-    static const boost::array<PlaneTranslation,3> PLANES;
 };
 
 

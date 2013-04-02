@@ -198,7 +198,7 @@ void MainWindow::configureInterfaceDataDependent (
     {
 	if (simulation.GetRegularGridResolution () == 0)
 	    radioButtonAverage->setDisabled (true);
-	comboBoxAxesOrder->setCurrentIndex (AxesOrder::THREE_D);
+	comboBoxAxisOrder->setCurrentIndex (AxisOrderName::THREE_D);
 	comboBoxColor->setItemText (
 	    BodyScalar::SIDES_PER_BUBBLE, 
 	    BodyScalar::ToString (BodyScalar::SIDES_PER_BUBBLE));
@@ -2087,7 +2087,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     SetCurrentIndexNoSignals (comboBoxColor, property);
     SetCurrentIndexNoSignals (comboBoxSimulation, simulationIndex);
     SetCurrentIndexNoSignals (comboBoxStatisticsType, vs.GetStatisticsType ());
-    SetCurrentIndexNoSignals (comboBoxAxesOrder, vs.GetAxesOrder ());
+    SetCurrentIndexNoSignals (comboBoxAxisOrder, vs.GetAxisOrder ());
 
     SetCheckedNoSignals (checkBoxSelectionContextShown, 
 			 vs.IsSelectionContextShown ());

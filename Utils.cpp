@@ -427,6 +427,39 @@ G3D::Rect2D rectInside (const G3D::Rect2D& wc)
         floor (wc.x1 ()), floor (wc.y1 ()));
 }
 
+G3D::Matrix3 GetAxisRotation (
+    const G3D::Vector3& begin, const G3D::Vector3& end, G3D::Vector3::Axis axis)
+{
+    AxisOrder ao = GetAxisOrder ()[axis];
+    boost::array<G3D::Vector3, 3> newAxis;
+    newAxis[ao[G3D::Vector3::Z_AXIS]] = end - begin;
+    if (IsFuzzyZero (newAxis[ao[G3D::Vector3::Z_AXIS]]))
+	return G3D::Matrix3::identity ();
+    newAxis[ao[G3D::Vector3::Z_AXIS]] = 
+        newAxis[ao[G3D::Vector3::Z_AXIS]].unit ();
+    newAxis[ao[G3D::Vector3::Z_AXIS]].getTangents (
+        newAxis[ao[G3D::Vector3::X_AXIS]], newAxis[ao[G3D::Vector3::Y_AXIS]]);
+    G3D::Matrix3 rotation = MatrixFromColumns (
+        newAxis[G3D::Vector3::X_AXIS], newAxis[G3D::Vector3::Y_AXIS], 
+        newAxis[G3D::Vector3::Z_AXIS]);
+    return rotation;
+}
+
+G3D::Matrix3 GetAxisRotation (const G3D::Vector3& v, G3D::Vector3::Axis axis)
+{
+    return GetAxisRotation (G3D::Vector3::zero (), v, axis);
+}
+
+
+const boost::array<AxisOrder,3>& GetAxisOrder ()
+{
+    static boost::array<AxisOrder,3> a = {{
+            {{1, 2, 0}},
+            {{2, 0, 1}},
+            {{0, 1, 2}}
+        }};
+    return a;
+}
 
 // Conversions Qt - G3D
 // ======================================================================

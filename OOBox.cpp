@@ -31,12 +31,6 @@ private:
 
 // Static Fields
 // ======================================================================
-const boost::array<OOBox::PlaneTranslation,3> OOBox::PLANES =
-{{
-	{{1, 2, 0}},
-	{{2, 0, 1}},
-	{{0, 1, 2}}
-}};
 
 // Methods
 // ======================================================================
@@ -70,7 +64,7 @@ OOBox::Intersections OOBox::Intersect (
     intersections[size - 1] = end;
     Line line = Line::fromTwoPoints (begin, end);
     size_t index = 1;
-    BOOST_FOREACH (PlaneTranslation pt, OOBox::PLANES)
+    BOOST_FOREACH (AxisOrder pt, GetAxisOrder ())
     {
 	size_t axis = pt[2];
 	if (translation[axis] == 0)
@@ -95,7 +89,7 @@ G3D::Vector3int16 OOBox::GetLocation (const G3D::Vector3& point) const
     Vector3int16 location;
     RuntimeAssert (bm::isfinite (point.x) && bm::isfinite (point.y),
 		   "GetLocation: Infinite or NaN point");
-    BOOST_FOREACH (PlaneTranslation pt, OOBox::PLANES)
+    BOOST_FOREACH (AxisOrder pt, GetAxisOrder ())
     {
 	size_t axis = pt[2];
 	Vector3 planeNormal = (*this)[pt[0]].cross((*this)[pt[1]]);

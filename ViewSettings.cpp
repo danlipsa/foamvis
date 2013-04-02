@@ -62,7 +62,7 @@ ViewSettings::ViewSettings () :
     m_directionalLightEnabled (0),    
     m_lightPositionShown (0),
     m_angleOfView (0),
-    m_axesOrder (AxesOrder::COUNT),
+    m_axesOrder (AxisOrderName::COUNT),
     m_cameraDistance (0),
     m_scalarShown (true),
     m_averageAround (false),
@@ -463,21 +463,21 @@ void ViewSettings::CopySelection (const ViewSettings& other)
 }
 
 
-G3D::Matrix3 ViewSettings::GetRotationForAxesOrder (const Foam& foam) const
+G3D::Matrix3 ViewSettings::GetRotationForAxisOrder (const Foam& foam) const
 {
     switch (m_axesOrder)
     {
-    case AxesOrder::TWO_D:
+    case AxisOrderName::TWO_D:
 	return G3D::Matrix3::identity ();
-    case AxesOrder::TWO_D_TIME_DISPLACEMENT:
+    case AxisOrderName::TWO_D_TIME_DISPLACEMENT:
 	return getRotation2DTimeDisplacement ();
-    case AxesOrder::TWO_D_ROTATE_RIGHT90:
+    case AxisOrderName::TWO_D_ROTATE_RIGHT90:
 	return getRotation2DRight90 ();
-    case AxesOrder::TWO_D_ROTATE_RIGHT90_REFLECTION:
+    case AxisOrderName::TWO_D_ROTATE_RIGHT90_REFLECTION:
 	return getRotation2DRight90Reflection ();
-    case AxesOrder::TWO_D_ROTATE_LEFT90:
+    case AxisOrderName::TWO_D_ROTATE_LEFT90:
 	return getRotation2DLeft90 ();
-    case AxesOrder::THREE_D:
+    case AxisOrderName::THREE_D:
 	return getRotation3D (foam);
     default:
 	ThrowException ("Invalid axes order: ", m_axesOrder);
@@ -489,7 +489,7 @@ float ViewSettings::AngleDisplay (float angle) const
 {
     switch (m_axesOrder)
     {
-    case AxesOrder::TWO_D_ROTATE_RIGHT90:
+    case AxisOrderName::TWO_D_ROTATE_RIGHT90:
 	if (angle != 0)
 	    return - angle;
     default:
@@ -613,12 +613,12 @@ void ViewSettings::SetSimulation (int i, const Simulation& simulation,
     int rotation2D = simulation.GetRotation2D ();
     size_t reflexionAxis = simulation.GetReflectionAxis ();
     setSimulationIndex (i);
-    SetAxesOrder (simulation.Is2D () ? 
-		  (rotation2D == 0 ? AxesOrder::TWO_D :
-		   (rotation2D == 90 ? AxesOrder::TWO_D_ROTATE_LEFT90 : 
+    SetAxisOrder (simulation.Is2D () ? 
+		  (rotation2D == 0 ? AxisOrderName::TWO_D :
+		   (rotation2D == 90 ? AxisOrderName::TWO_D_ROTATE_LEFT90 : 
 		    ((reflexionAxis == 1) ? 
-		     AxesOrder::TWO_D_ROTATE_RIGHT90_REFLECTION :
-		     AxesOrder::TWO_D_ROTATE_RIGHT90))): AxesOrder::THREE_D);
+		     AxisOrderName::TWO_D_ROTATE_RIGHT90_REFLECTION :
+		     AxisOrderName::TWO_D_ROTATE_RIGHT90))): AxisOrderName::THREE_D);
     SetT1sShiftLower (simulation.GetTopologicalChangeShiftLower ());
     SetScaleCenter (viewingVolumeCenter.xy ());
     SetRotationCenter (viewingVolumeCenter);

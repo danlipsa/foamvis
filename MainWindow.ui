@@ -1330,14 +1330,14 @@
               </widget>
              </item>
              <item row="4" column="0">
-              <widget class="QLabel" name="labelAxesOrder">
+              <widget class="QLabel" name="labelAxisOrder">
                <property name="text">
                 <string>Axes order</string>
                </property>
               </widget>
              </item>
              <item row="4" column="1">
-              <widget class="QComboBox" name="comboBoxAxesOrder">
+              <widget class="QComboBox" name="comboBoxAxisOrder">
                <item>
                 <property name="text">
                  <string>2D</string>
@@ -2599,7 +2599,7 @@
     <slot>CurrentIndexChangedProjectionTransformation(int)</slot>
     <slot>CurrentIndexChangedViewportTransformationType(int)</slot>
     <slot>CurrentIndexChangedViewportTransformType(int)</slot>
-    <slot>CurrentIndexChangedAxesOrder(int)</slot>
+    <slot>CurrentIndexChangedAxisOrder(int)</slot>
     <slot>ButtonClickedLightNumber(int)</slot>
     <slot>ToggledBodiesBoundingBoxesShown(bool)</slot>
     <slot>ToggledColorBarShown(bool)</slot>
@@ -3373,10 +3373,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>comboBoxAxesOrder</sender>
+   <sender>comboBoxAxisOrder</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>CurrentIndexChangedAxesOrder(int)</slot>
+   <slot>CurrentIndexChangedAxisOrder(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>824</x>

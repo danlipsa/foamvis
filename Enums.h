@@ -300,7 +300,7 @@ public:
     };
 };
 
-struct AxesOrder
+struct AxisOrderName
 {
     enum Enum
     {
