@@ -14,7 +14,9 @@ const char* BrowseSimulations::LABEL_ALL = "All";
 
 BrowseSimulations::BrowseSimulations (
     const char* imageFolder,
-    const vector<string>& names, const vector<Labels>& labels, QWidget* parent) :
+    const vector<string>& names, const vector<Labels>& labels, 
+    QWidget* parent) :
+
     QDialog (parent), m_imageFolder (imageFolder), 
     m_names (names), m_labels (labels)
 {

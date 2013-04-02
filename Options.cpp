@@ -207,8 +207,9 @@ void getIniOptions (const string& iniFileName,
     po::notify(vm);
 }
 
-void getSelectedIndexesFromDialog (
-    const string& iniFileName, const vector<string>& allNames,
+void getSelectedIndexes (
+    const string& iniFileName, 
+    const vector<string>& allNames,
     const vector<Labels>& labels,
     vector<size_t>* selectedIndexes, string* filter)
 {
@@ -322,7 +323,7 @@ void CommandLineOptions::read (int argc, char *argv[])
 	getIniOptions (m_iniFileName, &m_names, 
 		       &m_labels, &m_parametersArray);	
 	if (m_simulationNames.empty ())
-	    getSelectedIndexesFromDialog (
+	    getSelectedIndexes (
 		m_iniFileName, m_names, m_labels,
 		&m_simulationIndexes, &m_filter);
 	else
