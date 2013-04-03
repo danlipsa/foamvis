@@ -10,6 +10,9 @@
 #include "Options.h"
 #include "BrowseSimulations.h"
 
+// Private Classes/Functions
+// ======================================================================
+
 template<typename Tokenizer, typename TokenizerIterator>
 class ReadStringToken
 {
@@ -63,8 +66,6 @@ void filterAndExpandWildcards (vector<string>* fileNames, string filter)
 	++itDest;
     }
 }
-
-// ======================================================================
 
 void validate(boost::any& v, const std::vector<std::string>& values,
               DmpObjectInfo* ignore1, int ignore2)
@@ -138,8 +139,6 @@ void validate(boost::any& v, const std::vector<std::string>& values,
     v = boost::any(labels);
 }
 
-// ======================================================================
-
 po::options_description getIniOptions (
     vector<string>* names = 0,
     vector<Labels>* labels = 0, 
@@ -167,26 +166,6 @@ po::options_description getIniOptions (
     return iniOptions;
 }
 
-po::options_description getHiddenOptions (vector<string>* fileNames)
-{
-    po::options_description hiddenOptions("Hidden options");
-    hiddenOptions.add_options()
-	(Option::m_name[Option::DMP_FILES], 
-	 po::value< vector<string> >(fileNames), "dmp file");
-    return hiddenOptions;
-}
-
-po::options_description getCommonAndHiddenOptions (
-    vector<string>* fileNames,
-    const po::options_description& commonOptions)
-{
-    po::options_description options;
-    po::options_description hiddenOptions = getHiddenOptions (fileNames);
-    options.add(commonOptions).add(hiddenOptions);
-    return options;
-}
-
-
 void getIniOptions (const string& iniFileName, 
 		    vector<string>* names, 
 		    vector<Labels>* labels, 
@@ -207,17 +186,38 @@ void getIniOptions (const string& iniFileName,
     po::notify(vm);
 }
 
+
+po::options_description getHiddenOptions (vector<string>* fileNames)
+{
+    po::options_description hiddenOptions("Hidden options");
+    hiddenOptions.add_options()
+	(Option::m_name[Option::DMP_FILES], 
+	 po::value< vector<string> >(fileNames), "dmp file");
+    return hiddenOptions;
+}
+
+po::options_description getCommonAndHiddenOptions (
+    vector<string>* fileNames,
+    const po::options_description& commonOptions)
+{
+    po::options_description options;
+    po::options_description hiddenOptions = getHiddenOptions (fileNames);
+    options.add(commonOptions).add(hiddenOptions);
+    return options;
+}
+
 void getSelectedIndexes (
     const string& iniFileName, 
     const vector<string>& allNames,
-    const vector<Labels>& labels,
+    const vector<Labels>& labels, const vector<size_t>& questionMarkCount,
     vector<size_t>* selectedIndexes, string* filter)
 {
     QFileInfo iniFileInfo (iniFileName.c_str ());
     // browse simulations and choose a name.
     BrowseSimulations browseSimulations (
 	(iniFileInfo.absolutePath () + "/" +
-	 iniFileInfo.baseName ()).toAscii (), allNames, labels);
+	 iniFileInfo.baseName ()).toAscii (), 
+        allNames, questionMarkCount, labels);
     if (browseSimulations.exec () == QDialog::Accepted)
     {
 	*selectedIndexes = browseSimulations.GetSelectedIndexes ();
@@ -264,6 +264,25 @@ void printVersion ()
     cout << endl;
 }
 
+
+void questionMarkCount (const vector<string>& parameters, vector<size_t>* c)
+{
+    c->resize (parameters.size (), 0);
+    for (size_t i = 0; i < parameters.size (); ++i)
+    {
+        size_t qIndex = parameters[i].find ('?');
+        if (qIndex == string::npos)
+            ThrowException ("No ? in simulation parameters: ", parameters[i]);
+        do
+        {
+            ++(*c)[i];
+            ++qIndex;
+        }
+        while (qIndex < parameters[i].size () && parameters[i][qIndex] == '?');
+    }
+}
+
+// Option
 // ======================================================================
 
 const char* Option::m_name[] = {
@@ -292,9 +311,9 @@ const char* Option::m_name[] = {
     "version"
 };
 
+
+// CommandLineOptions
 // ======================================================================
-
-
 CommandLineOptions::CommandLineOptions () :
     m_commandLineOptions (
 	getDescription (&m_iniFileName, &m_simulationNames, &m_filter))
@@ -323,9 +342,13 @@ void CommandLineOptions::read (int argc, char *argv[])
 	getIniOptions (m_iniFileName, &m_names, 
 		       &m_labels, &m_parametersArray);	
 	if (m_simulationNames.empty ())
+        {
+            vector<size_t> qmc;
+            questionMarkCount (m_parametersArray, &qmc);
 	    getSelectedIndexes (
-		m_iniFileName, m_names, m_labels,
+		m_iniFileName, m_names, m_labels, qmc,
 		&m_simulationIndexes, &m_filter);
+        }
 	else
 	    getSelectedIndexes (m_simulationNames, m_names, 
 				&m_simulationIndexes);
@@ -371,8 +394,8 @@ po::options_description CommandLineOptions::getDescription (
 }
 
 
+// CommonOptions
 // ======================================================================
-
 CommonOptions::CommonOptions () :
     m_ticksForTimeStep (1),
     m_reflectionAxis (numeric_limits<size_t>::max ()),

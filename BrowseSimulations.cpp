@@ -14,20 +14,21 @@ const char* BrowseSimulations::LABEL_ALL = "All";
 
 BrowseSimulations::BrowseSimulations (
     const char* imageFolder,
-    const vector<string>& names, const vector<Labels>& labels, 
+    const vector<string>& names, const vector<size_t>& questionMarkCount,
+    const vector<Labels>& labels, 
     QWidget* parent) :
 
     QDialog (parent), m_imageFolder (imageFolder), 
-    m_names (names), m_labels (labels)
+    m_names (names), m_questionMarkCount (questionMarkCount), m_labels (labels)
 {
     setupUi (this);
     m_selectedNames = ToQStringList (names);
+    m_selectedQuestionMarkCount = m_questionMarkCount;
     m_model.setStringList (m_selectedNames);
     QModelIndex index = m_model.index (0);
     listViewSimulation->setSelectionMode (QAbstractItemView::ExtendedSelection);
     listViewSimulation->setModel (&m_model);
     listViewSimulation->setCurrentIndex (index);
-    lineEditFilter->setText ("0001");
     comboBoxLabel->addItem (LABEL_ALL);
     set<string> distinctLabels;
     BOOST_FOREACH (Labels labels, m_labels)
@@ -38,6 +39,7 @@ BrowseSimulations::BrowseSimulations (
     BOOST_FOREACH (string label, distinctLabels)
 	comboBoxLabel->addItem (label.c_str ());
 }
+
 
 vector<size_t> BrowseSimulations::GetSelectedIndexes () const
 {
@@ -75,9 +77,19 @@ void BrowseSimulations::CurrentChangedSimulation (int row)
 	labelImage->setText ("Invalid file: " + fileName);
     else
 	labelImage->setPixmap (pixmap);
+    lineEditFilter->setText (
+        getInitialFilter (m_selectedQuestionMarkCount[row]).c_str ());
     update ();
 }
 
+string BrowseSimulations::getInitialFilter (size_t count)
+{
+    ostringstream ostr;
+    for (size_t i = 0; i < count - 1; ++i)
+        ostr << "0";
+    ostr << "1";
+    return ostr.str ();
+}
 
 void BrowseSimulations::CurrentIndexChangedLabel(QString label)
 {
@@ -85,8 +97,12 @@ void BrowseSimulations::CurrentIndexChangedLabel(QString label)
     if (label == LABEL_ALL)
     {
 	m_model.setStringList (ToQStringList (m_names));
-	BOOST_FOREACH (string name, m_names)
-	    m_selectedNames << name.c_str ();
+        m_selectedQuestionMarkCount.resize (m_names.size ());
+        for (size_t i = 0; i < m_names.size (); ++i)
+        {
+	    m_selectedNames << m_names[i].c_str ();
+            m_selectedQuestionMarkCount[i] = m_questionMarkCount[i];
+        }
     }
     else
     {
@@ -95,7 +111,10 @@ void BrowseSimulations::CurrentIndexChangedLabel(QString label)
 	    Labels labels = m_labels[i];
 	    if (std::find (labels.m_values.begin (), labels.m_values.end (), 
 			   label.toStdString ()) != labels.m_values.end ())
+            {
 		m_selectedNames << m_names[i].c_str ();
+                m_selectedQuestionMarkCount.push_back (m_questionMarkCount[i]);
+            }
 	}
 	m_model.setStringList (m_selectedNames);
     }

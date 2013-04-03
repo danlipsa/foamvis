@@ -17,7 +17,8 @@ class BrowseSimulations :
 {
 public:
     BrowseSimulations (
-	const char* imageFolder, const vector<string>& names, 
+	const char* imageFolder, 
+        const vector<string>& names, const vector<size_t>& questionMarkCount,
 	const vector<Labels>& labels, QWidget* parent = 0);
     vector<size_t> GetSelectedIndexes () const;
     string GetFilter () const;
@@ -28,14 +29,19 @@ public Q_SLOTS:
 
 private:
     size_t globalIndex (size_t localIndex) const;
+    string getInitialFilter (size_t count);
+
+private:
     static const char* LABEL_ALL;
 
 private:
     Q_OBJECT
     QStringListModel m_model;    
     QStringList m_selectedNames;
+    vector<size_t> m_selectedQuestionMarkCount;
     string m_imageFolder;
     const vector<string>& m_names;
+    const vector<size_t>& m_questionMarkCount;
     const vector<Labels>& m_labels;
 };
 
