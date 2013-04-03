@@ -513,10 +513,10 @@ gldb-gui
 
 Debug - Parser, Scanner
 =======================
-./foam --debug-parsing
-./foam --debug-scanning
-See Evolver.y, Evolver.l and EvolverData.output for information on the parser or
-scanner
+./foam --debug-parsing 2>error.txt
+./foam --debug-scanning 2>error.txt
+See error.txt, Evolver.y, Evolver.l and EvolverData.output for 
+information on the parser and scanner
 
 Debug - STL error messages
 ==========================

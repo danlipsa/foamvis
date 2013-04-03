@@ -682,13 +682,21 @@ bool Foam::bodyInsideOriginalDomain (
     const boost::shared_ptr<Body>& body,
     VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
 {
-    G3D::Vector3int16 centerLocation =
-	GetTorusDomain ().GetLocation (body->GetCenter ());
-    if (centerLocation == Vector3int16Zero)
-	return true;
-    G3D::Vector3int16 translation = Vector3int16Zero - centerLocation;
-    bodyTranslate (body, translation, vertexSet, edgeSet, faceSet);
-    return false;
+    try
+    {
+        G3D::Vector3int16 centerLocation =
+            GetTorusDomain ().GetLocation (body->GetCenter ());
+        if (centerLocation == Vector3int16Zero)
+            return true;
+        G3D::Vector3int16 translation = Vector3int16Zero - centerLocation;
+        bodyTranslate (body, translation, vertexSet, edgeSet, faceSet);
+        return false;
+    }
+    catch (exception e)
+    {
+        cdbg << e.what () << endl;
+        throw;
+    }
 }
 
 void Foam::bodyTranslate (

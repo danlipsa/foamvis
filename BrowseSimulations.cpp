@@ -30,6 +30,11 @@ BrowseSimulations::BrowseSimulations (
     listViewSimulation->setModel (&m_model);
     listViewSimulation->setCurrentIndex (index);
     comboBoxLabel->addItem (LABEL_ALL);
+    lineEditFilter->setToolTip (
+        "? matches any single character<br>"
+        "[...] matches any character between the brackets<br>"
+        "any other character represents itself<br>"
+        "the number of characters has to stay the same");
     set<string> distinctLabels;
     BOOST_FOREACH (Labels labels, m_labels)
     {

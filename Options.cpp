@@ -531,10 +531,12 @@ po::options_description CommonOptions::getDescription (
 	 "counterclockwise.")
 	(Option::m_name[Option::T1S],
 	 po::value<string>(t1sFile), 
-	 "reads T1 positions.\n"
+	 "reads T1 positions from file.\n"
 	 "arg=<file> where <file> specifies a text file with "
 	 "T1 times and positions. T1s won't be displayed correctly if you "
-	 "skip time steps")
+	 "skip time steps when you load simulation files. "
+         "By default, t1s are read from an array called t1positions in the "
+         "simulation file.")
 	(Option::m_name[Option::T1S_LOWER],
 	 "Shift T1s one time step lower.")
 	(Option::m_name[Option::TICKS_FOR_TIMESTEP],
