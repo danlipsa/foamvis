@@ -23,15 +23,25 @@ public:
 
 
 Q_SIGNALS:
-    void CurrentChanged (int current);
+    void CurrentChanged (int current, int previous);
+    void SelectionChanged (const QItemSelection & selected, 
+                           const QItemSelection & deselected);
 
 protected:
     virtual void currentChanged (const QModelIndex& current, 
 				 const QModelIndex& previous)
     {
 	QListView::currentChanged (current, previous);
-	Q_EMIT CurrentChanged (current.row ());
+	Q_EMIT CurrentChanged (current.row (), previous.row ());
     }
+
+    virtual void selectionChanged (const QItemSelection & selected, 
+                                   const QItemSelection & deselected)
+    {
+        QListView::selectionChanged (selected, deselected);
+        Q_EMIT SelectionChanged (selected, deselected);
+    }
+
 
 private:
     Q_OBJECT

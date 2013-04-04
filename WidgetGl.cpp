@@ -1833,7 +1833,8 @@ void WidgetGl::displayTopologicalChangeTimestep3D (
         simulation.GetTopologicalChange (timeStep, vs.T1sShiftLower ()))
     {
         glColor (GetSettings ().GetHighlightColor (
-                     viewNumber, HighlightNumber::Enum (tc.m_type - 1)));
+                     viewNumber, tc.m_type == 0 ? HighlightNumber::H0 : 
+                     HighlightNumber::Enum (tc.m_type - 1)));
         glPushMatrix ();
         glTranslate (tc.m_position);
         gluSphere (GetQuadric (), 

@@ -97,11 +97,18 @@ Face::Face (const vector<int>& edgeIndexes,
     m_perimeter (0),
     m_area (0)
 {
-    m_adjacentBodies.reserve (2);
-    m_orientedEdges.resize (edgeIndexes.size ());
-    transform (edgeIndexes.begin(), edgeIndexes.end(), m_orientedEdges.begin(), 
-               indexToOrientedEdge(edges));
-    CalculateCentroidAndArea ();
+    try {
+        m_adjacentBodies.reserve (2);
+        m_orientedEdges.resize (edgeIndexes.size ());
+        transform (edgeIndexes.begin(), 
+                   edgeIndexes.end(), m_orientedEdges.begin(), 
+                   indexToOrientedEdge(edges));
+        CalculateCentroidAndArea ();
+    }
+    catch (exception& e)
+    {
+        cdbg << "Exception: " << e.what () << endl;
+    }
 }
 
 Face::Face (const vector<boost::shared_ptr<Edge> >& edges, size_t id) :
@@ -271,6 +278,8 @@ G3D::Plane Face::GetPlane () const
 	else
 	    ThrowException ("Face ", this->GetId (), " has only two edges.");
     }
+    RuntimeAssert (! IsFuzzyZero (two.GetBeginVector () - two.GetEndVector ()),
+                   "Face ", this->GetId (), "has empty edge ", twoIndex);
     return G3D::Plane (one.GetBeginVector (), two.GetBeginVector (), 
 		       two.GetEndVector ());
 }

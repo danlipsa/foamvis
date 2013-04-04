@@ -43,8 +43,9 @@ void filterAndExpandWildcards (vector<string>* fileNames, string filter)
     if (questionMarkIndex == -1)
 	ThrowException ("No ? in simulation parameters: ", 
 			fileName.toStdString ());
-    if (filter.empty ())
-	filter = "0001";
+    QRegExp rx ("?+");
+    
+
     int filterLength = filter.length ();
     for (int i = 0; i < filterLength; ++i)
     {
@@ -53,6 +54,8 @@ void filterAndExpandWildcards (vector<string>* fileNames, string filter)
 	else
 	    break;
     }
+
+
     QDir dir (path, fileName);
     QStringList fns = dir.entryList ();
     fileNames->resize (fns.size ());

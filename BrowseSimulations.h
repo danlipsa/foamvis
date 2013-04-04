@@ -22,14 +22,20 @@ public:
 	const vector<Labels>& labels, QWidget* parent = 0);
     vector<size_t> GetSelectedIndexes () const;
     string GetFilter () const;
+    size_t GetQuestionMarkCount ();
 
 public Q_SLOTS:
-    void CurrentChangedSimulation (int row);
+    void CurrentChangedSimulation (int current, int previous);
+    void SelectionChangedSimulation (const QItemSelection & selected, 
+                                     const QItemSelection & deselected);
     void CurrentIndexChangedLabel(QString);
+    void TextChangedLineEdit (QString);
 
 private:
     size_t globalIndex (size_t localIndex) const;
     string getInitialFilter (size_t count);
+    size_t getQuestionMarkCount (const QModelIndexList& mil);
+    void setLineEditFilter (size_t questionMarkCount);
 
 private:
     static const char* LABEL_ALL;

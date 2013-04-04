@@ -352,6 +352,11 @@ int polyCentroid2D(T x[], T y[], size_t n, T *xCentroid, T *yCentroid, T *area)
 	*yCentroid =	ytmp / (3 * atmp);
 	return 0;
     }
+    if (! bm::isfinite (*xCentroid) || ! bm::isfinite (*yCentroid))
+    {
+        cdbg << "infinite center" << endl;
+        exit (13);
+    }
     return 2;
 }
 

@@ -29,6 +29,7 @@ BrowseSimulations::BrowseSimulations (
     listViewSimulation->setSelectionMode (QAbstractItemView::ExtendedSelection);
     listViewSimulation->setModel (&m_model);
     listViewSimulation->setCurrentIndex (index);
+    setLineEditFilter (m_selectedQuestionMarkCount [0]);
     comboBoxLabel->addItem (LABEL_ALL);
     lineEditFilter->setToolTip (
         "? matches any single character<br>"
@@ -43,6 +44,12 @@ BrowseSimulations::BrowseSimulations (
     }
     BOOST_FOREACH (string label, distinctLabels)
 	comboBoxLabel->addItem (label.c_str ());
+    connect (listViewSimulation,
+             SIGNAL (SelectionChanged (const QItemSelection &, 
+                                       const QItemSelection &)),
+             this,
+             SLOT (SelectionChangedSimulation (const QItemSelection &, 
+                                               const QItemSelection &)));
 }
 
 
@@ -70,23 +77,6 @@ string BrowseSimulations::GetFilter () const
     return string (lineEditFilter->text ().toAscii ().constData ());
 }
 
-// Slots
-// ======================================================================
-
-void BrowseSimulations::CurrentChangedSimulation (int row)
-{
-    QString fileName = 
-	QString (m_imageFolder.c_str ()) + "/" + m_selectedNames[row] + ".jpg";
-    QPixmap pixmap (fileName);
-    if (pixmap.isNull ())
-	labelImage->setText ("Invalid file: " + fileName);
-    else
-	labelImage->setPixmap (pixmap);
-    lineEditFilter->setText (
-        getInitialFilter (m_selectedQuestionMarkCount[row]).c_str ());
-    update ();
-}
-
 string BrowseSimulations::getInitialFilter (size_t count)
 {
     ostringstream ostr;
@@ -95,6 +85,72 @@ string BrowseSimulations::getInitialFilter (size_t count)
     ostr << "1";
     return ostr.str ();
 }
+
+size_t BrowseSimulations::GetQuestionMarkCount ()
+{
+    return getQuestionMarkCount (listViewSimulation->selectedIndexes ());
+}
+
+size_t BrowseSimulations::getQuestionMarkCount (const QModelIndexList& mil)
+{
+    size_t questionMarkCount = 0;
+    Q_FOREACH (QModelIndex mi, mil)
+        questionMarkCount = max (m_selectedQuestionMarkCount [mi.row ()], 
+                                 questionMarkCount);
+    return questionMarkCount;
+}
+
+void BrowseSimulations::setLineEditFilter (size_t questionMarkCount)
+{
+    // set lineEditFilter
+    ostringstream ostr;
+    ostr << "^([0-9]|\\?|(\\[[0-9]*\\])){" << questionMarkCount << "}$";
+    QRegExp rx (ostr.str ().c_str ());
+    lineEditFilter->setValidator (new QRegExpValidator (rx, this));
+    lineEditFilter->setText (
+        getInitialFilter (questionMarkCount).c_str ());
+}
+
+
+
+// Slots
+// ======================================================================
+void BrowseSimulations::TextChangedLineEdit (QString)
+{
+    buttonBox->button (QDialogButtonBox::Ok)->setEnabled (
+        lineEditFilter->hasAcceptableInput ());
+}
+
+void BrowseSimulations::CurrentChangedSimulation (int current, int)
+{
+    // set labelImage
+    QString fileName = 
+	QString (m_imageFolder.c_str ()) + "/" + 
+        m_selectedNames[current] + ".jpg";
+    QPixmap pixmap (fileName);
+    if (pixmap.isNull ())
+	labelImage->setText ("Invalid file: " + fileName);
+    else
+	labelImage->setPixmap (pixmap);
+    update ();
+}
+
+void BrowseSimulations::SelectionChangedSimulation (
+    const QItemSelection & selected, 
+    const QItemSelection & deselected)
+{
+    //__ENABLE_LOGGING__;
+    QModelIndexList overallSelected = listViewSimulation->selectedIndexes ();
+    __LOG__ (cdbg << overallSelected.size () 
+             << ", " << selected.indexes ().size ()
+             << ", " << deselected.indexes ().size () << endl;);
+    buttonBox->button (QDialogButtonBox::Ok)->setEnabled (
+        overallSelected.size () != 0);
+    if (overallSelected.size () != 0)        
+        setLineEditFilter (getQuestionMarkCount (overallSelected));
+}
+
+
 
 void BrowseSimulations::CurrentIndexChangedLabel(QString label)
 {
@@ -126,6 +182,6 @@ void BrowseSimulations::CurrentIndexChangedLabel(QString label)
     update ();
     listViewSimulation->selectionModel ()->select (
 	m_model.index (0), QItemSelectionModel::Select);
-    CurrentChangedSimulation (0);
+    listViewSimulation->setCurrentIndex(m_model.index (0));
     listViewSimulation->setFocus (Qt::OtherFocusReason);
 }

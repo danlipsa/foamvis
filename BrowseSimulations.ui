@@ -137,7 +137,7 @@
    <extends>QListView</extends>
    <header>ListViewChange.h</header>
    <slots>
-    <signal>CurrentChanged(int)</signal>
+    <signal>CurrentChanged(int, int)</signal>
    </slots>
   </customwidget>
  </customwidgets>
@@ -156,8 +156,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>257</x>
-     <y>281</y>
+     <x>266</x>
+     <y>357</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -172,8 +172,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>325</x>
-     <y>299</y>
+     <x>334</x>
+     <y>357</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -183,9 +183,9 @@
   </connection>
   <connection>
    <sender>listViewSimulation</sender>
-   <signal>CurrentChanged(int)</signal>
+   <signal>CurrentChanged(int, int)</signal>
    <receiver>BrowseSimulations</receiver>
-   <slot>CurrentChangedSimulation(int)</slot>
+   <slot>CurrentChangedSimulation(int, int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>106</x>
@@ -213,9 +213,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>lineEditFilter</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>BrowseSimulations</receiver>
+   <slot>TextChangedLineEdit(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>295</x>
+     <y>311</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>719</x>
+     <y>290</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
-  <slot>CurrentChangedSimulation(int)</slot>
+  <slot>CurrentChangedSimulation(int, int)</slot>
   <slot>CurrentIndexChangedLabel(QString)</slot>
+  <slot>TextChangedLineEdit(QString)</slot>
  </slots>
 </ui>
