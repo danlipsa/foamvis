@@ -51,7 +51,7 @@ void readOptions (int argc, char *argv[],
 		(*co)[i].reset (new CommonOptions ());
 		(*co)[i]->read (
 		    clo->m_parametersArray[clo->m_simulationIndexes[i]],
-		    clo->m_filter);
+		    clo->m_filter[i]);
 	    }
 	}
     }

@@ -21,8 +21,8 @@ public:
         const vector<string>& names, const vector<size_t>& questionMarkCount,
 	const vector<Labels>& labels, QWidget* parent = 0);
     vector<size_t> GetSelectedIndexes () const;
-    string GetFilter () const;
-    size_t GetQuestionMarkCount ();
+    vector<string> GetFilter () const;
+    vector<size_t> GetQuestionMarkCount ();
 
 public Q_SLOTS:
     void CurrentChangedSimulation (int current, int previous);
@@ -33,9 +33,9 @@ public Q_SLOTS:
 
 private:
     size_t globalIndex (size_t localIndex) const;
-    string getInitialFilter (size_t count);
-    size_t getQuestionMarkCount (const QModelIndexList& mil);
-    void setLineEditFilter (size_t questionMarkCount);
+    string getInitialFilter (const vector<size_t>& count);
+    vector<size_t> getQuestionMarkCount (const QModelIndexList& mil);
+    void setLineEditFilter (const vector<size_t>& questionMarkCount);
 
 private:
     static const char* LABEL_ALL;

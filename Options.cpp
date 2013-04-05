@@ -39,23 +39,12 @@ void filterAndExpandWildcards (vector<string>* fileNames, string filter)
     QFileInfo fileInfo (QString::fromStdString ((*fileNames)[0]));
     QString path = fileInfo.path ();
     QString fileName = fileInfo.fileName ();
-    int questionMarkIndex = fileName.lastIndexOf ('?');
+    int questionMarkIndex = fileName.indexOf ('?');
     if (questionMarkIndex == -1)
 	ThrowException ("No ? in simulation parameters: ", 
-			fileName.toStdString ());
-    QRegExp rx ("?+");
-    
-
-    int filterLength = filter.length ();
-    for (int i = 0; i < filterLength; ++i)
-    {
-	if (fileName[questionMarkIndex - i] == '?')
-	    fileName[questionMarkIndex - i] = filter[filterLength - 1 - i];
-	else
-	    break;
-    }
-
-
+                        fileName.toStdString ());
+    QRegExp rx("\\?+");
+    fileName.replace (rx, QString (filter.c_str ()));
     QDir dir (path, fileName);
     QStringList fns = dir.entryList ();
     fileNames->resize (fns.size ());
@@ -213,7 +202,7 @@ void getSelectedIndexes (
     const string& iniFileName, 
     const vector<string>& allNames,
     const vector<Labels>& labels, const vector<size_t>& questionMarkCount,
-    vector<size_t>* selectedIndexes, string* filter)
+    vector<size_t>* selectedIndexes, vector<string>* filter)
 {
     QFileInfo iniFileInfo (iniFileName.c_str ());
     // browse simulations and choose a name.
@@ -361,7 +350,7 @@ void CommandLineOptions::read (int argc, char *argv[])
 
 po::options_description CommandLineOptions::getDescription (
     string* iniFileName,
-    vector<string>* simulationName, string* iniFilter)
+    vector<string>* simulationName, vector<string>* iniFilter)
 {
     po::options_description commandLineOptions (
 	"COMMAND_LINE_OPTIONS");
@@ -371,7 +360,7 @@ po::options_description CommandLineOptions::getDescription (
 	(Option::m_name[Option::DEBUG_SCANNING], 
 	 "produces output that helps debugging the scanner")
 	(Option::m_name[Option::FILTER], 
-	 po::value<string>(iniFilter), 
+	 po::value< vector<string> >(iniFilter), 
 	 "Filter simulation DMPs. Default value is '0001'.\n"
 	 "arg=<filter> where <filter> characters replace the question marks "
 	 "in the patern specified in the ini file staring with the least "

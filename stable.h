@@ -69,7 +69,6 @@
 #include <boost/tokenizer.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 
-
 // required by GLG3D
 #include <GLG3D/GL/glew.h>
 

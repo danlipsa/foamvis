@@ -29,7 +29,7 @@ BrowseSimulations::BrowseSimulations (
     listViewSimulation->setSelectionMode (QAbstractItemView::ExtendedSelection);
     listViewSimulation->setModel (&m_model);
     listViewSimulation->setCurrentIndex (index);
-    setLineEditFilter (m_selectedQuestionMarkCount [0]);
+    setLineEditFilter (vector<size_t> (1, m_selectedQuestionMarkCount [0]));
     comboBoxLabel->addItem (LABEL_ALL);
     lineEditFilter->setToolTip (
         "? matches any single character<br>"
@@ -72,39 +72,62 @@ size_t BrowseSimulations::globalIndex (size_t localIndex) const
     return it - m_names.begin ();
 }
 
-string BrowseSimulations::GetFilter () const
+vector<string> BrowseSimulations::GetFilter () const
 {
-    return string (lineEditFilter->text ().toAscii ().constData ());
+    vector<string> f;
+    istringstream istr (lineEditFilter->text ().toAscii ().constData ());
+    while (! istr.eof ())
+    {
+        string filter;
+        istr >> filter;
+        f.push_back (filter);
+    }
+    return f;
 }
 
-string BrowseSimulations::getInitialFilter (size_t count)
+string BrowseSimulations::getInitialFilter (const vector<size_t>& count)
 {
     ostringstream ostr;
-    for (size_t i = 0; i < count - 1; ++i)
-        ostr << "0";
-    ostr << "1";
+    for (size_t s = 0; s < count.size (); ++s)
+    {
+        for (size_t i = 0; i < count[s] - 1; ++i)
+            ostr << "0";
+        ostr << "1";
+        if (s < count.size () - 1)
+            ostr << " ";
+    }
     return ostr.str ();
 }
 
-size_t BrowseSimulations::GetQuestionMarkCount ()
+vector<size_t> BrowseSimulations::GetQuestionMarkCount ()
 {
     return getQuestionMarkCount (listViewSimulation->selectedIndexes ());
 }
 
-size_t BrowseSimulations::getQuestionMarkCount (const QModelIndexList& mil)
+vector<size_t> BrowseSimulations::getQuestionMarkCount (
+    const QModelIndexList& mil)
 {
-    size_t questionMarkCount = 0;
+    vector<size_t> questionMarkCount;
     Q_FOREACH (QModelIndex mi, mil)
-        questionMarkCount = max (m_selectedQuestionMarkCount [mi.row ()], 
-                                 questionMarkCount);
+        questionMarkCount.push_back (m_selectedQuestionMarkCount [mi.row ()]);
     return questionMarkCount;
 }
 
-void BrowseSimulations::setLineEditFilter (size_t questionMarkCount)
+void BrowseSimulations::setLineEditFilter (
+    const vector<size_t>& questionMarkCount)
 {
+    const char* oneChr = "([0-9]|\\?|(\\[[0-9]*\\]))";
+
     // set lineEditFilter
     ostringstream ostr;
-    ostr << "^([0-9]|\\?|(\\[[0-9]*\\])){" << questionMarkCount << "}$";
+    ostr << "^";
+    for (size_t i = 0; i < questionMarkCount.size (); ++i)
+    {
+        ostr << oneChr << "{" << questionMarkCount[i] << "}";
+        if (i < questionMarkCount.size () - 1)
+            ostr << " ";
+    }
+    ostr << "$";
     QRegExp rx (ostr.str ().c_str ());
     lineEditFilter->setValidator (new QRegExpValidator (rx, this));
     lineEditFilter->setText (

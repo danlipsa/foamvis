@@ -56,7 +56,8 @@ public:
     }
 
     static po::options_description getDescription (
-	string* iniFileName, vector<string>* simulationName, string* iniFilter);
+	string* iniFileName, vector<string>* simulationName, 
+        vector<string>* iniFilter);
 
 public:    
     string m_iniFileName;
@@ -65,7 +66,7 @@ public:
     vector<string> m_parametersArray;
     vector<string> m_simulationNames;
     vector<size_t> m_simulationIndexes;
-    string m_filter;
+    vector<string> m_filter;
     po::variables_map m_vm;
 
 private:
