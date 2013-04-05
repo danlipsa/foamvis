@@ -826,7 +826,6 @@ void WidgetGl::displayView (ViewNumber::Enum viewNumber)
     displayFocusBox (viewNumber);
     displayLightDirection (viewNumber);
     displayBodyCenters (viewNumber);
-    displayRotationCenter (viewNumber);
     displayFaceCenters (viewNumber);
     ViewNumber::Enum currentView = GetViewNumber ();
     if (currentView == viewNumber)
@@ -1496,9 +1495,7 @@ void WidgetGl::displayFocusBox (ViewNumber::Enum viewNumber) const
 			    - vs.GetContextScaleRatio () * 
 			    vs.GetTranslation (), true);
 	glScale (vs.GetContextScaleRatio ());
-	DisplayBox (focusBox, GetSettings ().GetHighlightColor (
-			viewNumber, HighlightNumber::H0), 
-		    GetHighlightLineWidth ());
+	DisplayBox (focusBox, Qt::black, GetHighlightLineWidth ());
 	glPopMatrix ();
     }
 }
@@ -1670,6 +1667,8 @@ void WidgetGl::displayVelocityGlyphs (ViewNumber::Enum viewNumber) const
     {
 	glEnable(GL_TEXTURE_1D);
 	glBindTexture (GL_TEXTURE_1D, m_overlayBarTexture[viewNumber]);
+        //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
+        //texture mapping?
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, 
                   simulation.Is2D () ? GL_REPLACE : GL_MODULATE);
         glColor (Qt::white);
@@ -2079,10 +2078,11 @@ void WidgetGl::compileFacesNormal (ViewNumber::Enum viewNumber) const
     glNewList (m_listFacesNormal[viewNumber], GL_COMPILE);
     if (vs.IsScalarShown ())
     {
-        if (EdgesShown ())
+        if (EdgesShown () && ! vs.IsScalarContext ())
             displayFacesContour (bodies, viewNumber);
         displayFacesInterior (bodies, viewNumber);
-        displayStandaloneEdges< DisplayEdgePropertyColor<> > (foam);
+        if (! vs.IsScalarContext ())
+            displayStandaloneEdges< DisplayEdgePropertyColor<> > (foam);
     }
     displayAverageAroundBodies (viewNumber);
     displayContextBodies (viewNumber);
@@ -2219,12 +2219,7 @@ void WidgetGl::displayFacesInterior (
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
-    Foam::Bodies bodies = b;
     const BodySelector& bodySelector = vs.GetBodySelector ();
-    // partition: opaque bodies first, then transparent bodies
-    Foam::Bodies::const_iterator contextBodiesBegin = 
-	partition (bodies.begin (), bodies.end (), 
-		   BodySelectorPredicate (bodySelector));
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT | 
 		  GL_TEXTURE_BIT);
     glEnable (GL_POLYGON_OFFSET_FILL);
@@ -2245,11 +2240,36 @@ void WidgetGl::displayFacesInterior (
     // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
     // Antialiasing, Fog and Polygon Offset page 293
 
+    if (vs.IsScalarContext ())
+    {
+        displayFacesInteriorFocusContext (b, b.begin (), viewNumber);
+    }
+    else
+    {
+        Foam::Bodies bodies = b;
+        // partition: opaque bodies first, then transparent bodies
+        Foam::Bodies::const_iterator contextBodiesBegin = 
+            partition (bodies.begin (), bodies.end (), 
+                       BodySelectorPredicate (bodySelector));
+        displayFacesInteriorFocusContext (
+            bodies, contextBodiesBegin, viewNumber);
+    }
+    glPopAttrib ();
+}
+
+void WidgetGl::displayFacesInteriorFocusContext (
+    const Foam::Bodies& b, 
+    Foam::Bodies::const_iterator contextBodiesBegin,
+    ViewNumber::Enum viewNumber) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
+    const BodySelector& bodySelector = vs.GetBodySelector ();
     boost::array<FocusContextInfo, 2> beginEnd =
-    {{
-	    {bodies.begin (), contextBodiesBegin, false},
-	    {contextBodiesBegin, bodies.end (), true}
-	}};
+        {{
+                {b.begin (), contextBodiesBegin, false},
+                {contextBodiesBegin, b.end (), true}
+            }};
     for (size_t i = 0; i < beginEnd.size (); ++i)
     {
 	if (beginEnd[i].m_isContext)
@@ -2261,7 +2281,6 @@ void WidgetGl::displayFacesInterior (
 	if (beginEnd[i].m_isContext)
 	    DisplayBodyBase<>::EndContext ();
     }
-    glPopAttrib ();
 }
 
 
@@ -2548,7 +2567,7 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     float xTranslateBar = 0;
     if (GetSettings ().GetColorBarType (viewNumber) != ColorBarType::NONE &&
-        vs.IsScalarShown ())
+        vs.IsScalarShown () && ! vs.IsScalarContext ())
     {
 	G3D::Rect2D viewColorBarRect = 
             GetSettings ().GetColorBarRect (viewNumber, viewRect);
@@ -2621,7 +2640,7 @@ void WidgetGl::displayViewText (
 	viewRect.x0 () + (float (viewRect.width ()) - fm.width (text)) / 2;
     const int textY = OpenGlToQt (
 	viewRect.y1 () - fm.lineSpacing () * (row + 1), height ());
-    glColor (GetSettings ().GetHighlightColor (viewNumber, HighlightNumber::H0));
+    glColor (Qt::black);
     renderText (textX, textY, text, font);    
 }
 
@@ -2639,8 +2658,7 @@ void WidgetGl::displayViewFocus (ViewNumber::Enum viewNumber)
     G3D::Vector2 margin (1, 1);
     G3D::Rect2D rect = G3D::Rect2D::xyxy(
 	viewRect.x0y0 () + margin, viewRect.x1y1 () - margin);
-    glColor (
-        GetSettings ().GetHighlightColor (viewNumber, HighlightNumber::H0));
+    glColor (Qt::black);
     glPolygonMode (GL_FRONT, GL_LINE);
     DisplayBox (rect);
 }

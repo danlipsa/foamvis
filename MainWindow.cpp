@@ -1138,6 +1138,13 @@ void MainWindow::ToggledScalarShown (bool checked)
     widgetVtk->FromView ();
 }
 
+void MainWindow::ToggledScalarContext (bool context)
+{
+    GetViewSettings ().SetScalarContext (context);
+    widgetGl->CompileUpdate ();
+    widgetVtk->FromView ();
+}
+
 
 void MainWindow::ToggledViewFocusShown (bool checked)
 {

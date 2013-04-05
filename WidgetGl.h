@@ -574,6 +574,11 @@ private:
     void displayFacesInterior (
 	const vector<boost::shared_ptr<Body> >& bodies, 
 	ViewNumber::Enum view) const;
+    void displayFacesInteriorFocusContext (
+        const vector<boost::shared_ptr<Body> >& b, 
+        vector<boost::shared_ptr<Body> >::const_iterator contextBodiesBegin,
+        ViewNumber::Enum viewNumber) const;
+
     void displayFacesInterior (
 	const vector<boost::shared_ptr<Face> >& faces) const;
 

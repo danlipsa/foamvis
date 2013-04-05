@@ -37,7 +37,7 @@ boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
 // ======================================================================
 const double ViewSettings::STREAMLINE_LENGTH (0.2);
 const double ViewSettings::STREAMLINE_STEP_LENGTH (0.005);
-const pair<float,float> ViewSettings::ALPHA_RANGE (0.05, 0.5);
+const pair<float,float> ViewSettings::ALPHA_RANGE (0.01, 0.2);
 const pair<float,float> ViewSettings::TENSOR_LINE_WIDTH_EXP2 (0, 3);
 const pair<float,float> ViewSettings::FORCE_SIZE_EXP2 (-2, 2);
 
@@ -65,6 +65,7 @@ ViewSettings::ViewSettings () :
     m_axesOrder (AxisOrderName::COUNT),
     m_cameraDistance (0),
     m_scalarShown (true),
+    m_scalarContext (false),
     m_averageAround (false),
     m_averageAroundRotationShown (false),
     m_differenceBodyId (INVALID_INDEX),

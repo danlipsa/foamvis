@@ -78,6 +78,22 @@ public:
      * @{
      * @name Attributes
      */
+    bool IsScalarShown () const
+    {
+        return m_scalarShown;
+    }
+    void SetScalarShown (bool scalarShown)
+    {
+        m_scalarShown = scalarShown;
+    }
+    bool IsScalarContext () const
+    {
+        return m_scalarContext;
+    }
+    void SetScalarContext (bool context)
+    {
+        m_scalarContext = context;
+    }
     void SetForceShown (ForceType::Enum type, bool value)
     {
 	m_forceShown[type] = value;
@@ -489,14 +505,6 @@ public:
      * @{
      * @name Average
      */
-    bool IsScalarShown () const
-    {
-        return m_scalarShown;
-    }
-    void SetScalarShown (bool scalarShown)
-    {
-        m_scalarShown = scalarShown;
-    }
     bool IsAverageAround () const
     {
 	return m_averageAround;
@@ -802,6 +810,7 @@ private:
 
     //Stationary
     bool m_scalarShown;
+    bool m_scalarContext;
     bool m_averageAround;
     boost::array<size_t, 2> m_averageAroundBodyId;
     bool m_averageAroundRotationShown;

@@ -316,6 +316,8 @@ display (boost::shared_ptr<Body> b)
 	  ! vs.IsSelectionContextShown ()))
 	)
 	return;
+    if (vs.IsScalarContext ())
+        bodyFc = DisplayElement::CONTEXT;
     vector<boost::shared_ptr<OrientedFace> > v = b->GetOrientedFaces ();
     for_each (
 	v.begin (), v.end (),

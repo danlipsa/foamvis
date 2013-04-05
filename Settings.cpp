@@ -485,7 +485,7 @@ G3D::Rect2D Settings::GetOverlayBarRect (ViewNumber::Enum viewNumber,
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     float colorBarWidth = 0;
-    if (vs.IsScalarShown ())
+    if (vs.IsScalarShown () && ! vs.IsScalarContext ())
         colorBarWidth = BAR_WIDTH + BAR_IN_BETWEEN_DISTANCE;
     float barHeight = 
         m_barLarge ? (viewRect.height () - 2 * BAR_MARGIN_DISTANCE): 
@@ -538,7 +538,7 @@ G3D::Rect2D Settings::GetOverlayBarRectWithLabels (
 {
     float labelWidth = 0;
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    if (vs.IsScalarShown ())
+    if (vs.IsScalarShown () && ! vs.IsScalarContext ())
         labelWidth = GetBarLabelSize (viewNumber).x;
     return getBarRectWithLabels (
         &Settings::GetOverlayBarRect, viewNumber, viewRect) + 
