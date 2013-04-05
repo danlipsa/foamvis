@@ -34,7 +34,8 @@ public Q_SLOTS:
 private:
     size_t globalIndex (size_t localIndex) const;
     string getInitialFilter (const vector<size_t>& count);
-    vector<size_t> getQuestionMarkCount (const QModelIndexList& mil);
+    vector<size_t> getQuestionMarkCount (const vector<size_t>& indexesSelected);
+    vector<size_t> indexesSelected (const QModelIndexList& mil);
     void setLineEditFilter (const vector<size_t>& questionMarkCount);
 
 private:

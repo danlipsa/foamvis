@@ -101,16 +101,27 @@ string BrowseSimulations::getInitialFilter (const vector<size_t>& count)
 
 vector<size_t> BrowseSimulations::GetQuestionMarkCount ()
 {
-    return getQuestionMarkCount (listViewSimulation->selectedIndexes ());
+    return getQuestionMarkCount (
+        indexesSelected (listViewSimulation->selectedIndexes ()));
 }
 
 vector<size_t> BrowseSimulations::getQuestionMarkCount (
+    const vector<size_t>& indexesSelected)
+{
+    vector<size_t> questionMarkCount(indexesSelected.size ());
+    for (size_t i = 0; i < indexesSelected.size (); ++i)
+        questionMarkCount[i] = m_selectedQuestionMarkCount [indexesSelected[i]];
+    return questionMarkCount;
+}
+
+vector<size_t> BrowseSimulations::indexesSelected (
     const QModelIndexList& mil)
 {
-    vector<size_t> questionMarkCount;
+    vector<size_t> is;
     Q_FOREACH (QModelIndex mi, mil)
-        questionMarkCount.push_back (m_selectedQuestionMarkCount [mi.row ()]);
-    return questionMarkCount;
+        is.push_back (mi.row ());
+    sort (is.begin (), is.end ());
+    return is;
 }
 
 void BrowseSimulations::setLineEditFilter (
@@ -170,7 +181,8 @@ void BrowseSimulations::SelectionChangedSimulation (
     buttonBox->button (QDialogButtonBox::Ok)->setEnabled (
         overallSelected.size () != 0);
     if (overallSelected.size () != 0)        
-        setLineEditFilter (getQuestionMarkCount (overallSelected));
+        setLineEditFilter (
+            getQuestionMarkCount (indexesSelected (overallSelected)));
 }
 
 

@@ -1,12 +1,12 @@
 Release log
 ===========
 0.8.
-        - Reset transform/All and Focus to the VTK view (3D average)
+        - add Reset transform/All and Focus to the VTK view (3D average)
         - color and overlay bars work in VTK view
-        - Velocity glyph visualization in the average view.
+        - velocity glyph visualization in the average view.
         - 3D T1s vis.
         - Velocity glyph visualization in the time step view.
-        
+        - you can specify ? and [0-9] filter.
 0.8.2740
         - update to vtk-6.0-20130125.tgz
         - remove folders inside .foamvis to regenerate regular grid data for 3D
