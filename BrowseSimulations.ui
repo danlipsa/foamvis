@@ -44,7 +44,7 @@
           </widget>
          </item>
          <item>
-          <widget class="ListViewChange" name="listViewSimulation"/>
+          <widget class="ListViewSignal" name="listViewSimulation"/>
          </item>
          <item>
           <widget class="QLabel" name="label_2">
@@ -133,9 +133,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ListViewChange</class>
+   <class>ListViewSignal</class>
    <extends>QListView</extends>
-   <header>ListViewChange.h</header>
+   <header>ListViewSignal.h</header>
    <slots>
     <signal>CurrentChanged(int, int)</signal>
    </slots>

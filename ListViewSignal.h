@@ -1,18 +1,18 @@
 /**
- * @file   ListViewChange.h
+ * @file   ListViewSignal.h
  * @author Dan R. Lipsa
  * @date 20 August 2010
  *
- * Declaration of the ListViewChange class
+ * Declaration of the ListViewSignal class
  */
 
 #ifndef __LIST_VIEW_CHANGE_H__
 #define __LIST_VIEW_CHANGE_H__
 
-class ListViewChange : public QListView
+class ListViewSignal : public QListView
 {
 public:
-    ListViewChange (QWidget* parent = 0) :
+    ListViewSignal (QWidget* parent = 0) :
 	QListView (parent)
     {
     }

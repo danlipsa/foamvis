@@ -16,7 +16,7 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	DataProperties.h Face.h ForceOneObject.h\
 	WidgetBase.h WidgetGl.h WidgetHistogram.h WidgetVtk.h \
 	Hashes.h Histogram.h HistogramItem.h HistogramSettings.h\
-	HistogramStatistics.h Labels.h ListViewChange.h\
+	HistogramStatistics.h Labels.h ListViewSignal.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
 	OOBox.h Info.h ObjectPosition.h OpenGLUtils.h OrientedElement.h\
 	OrientedEdge.h OrientedFace.h Options.h \
