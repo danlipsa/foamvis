@@ -190,6 +190,7 @@ void BrowseSimulations::SelectionChangedSimulation (
 void BrowseSimulations::CurrentIndexChangedLabel(QString label)
 {
     m_selectedNames.clear ();
+    m_selectedQuestionMarkCount.clear ();
     if (label == LABEL_ALL)
     {
 	m_model.setStringList (ToQStringList (m_names));
@@ -205,8 +206,9 @@ void BrowseSimulations::CurrentIndexChangedLabel(QString label)
 	for (size_t i = 0; i < m_names.size (); ++i)
 	{
 	    Labels labels = m_labels[i];
-	    if (std::find (labels.m_values.begin (), labels.m_values.end (), 
-			   label.toStdString ()) != labels.m_values.end ())
+	    if (std::find (
+                    labels.m_values.begin (), labels.m_values.end (), 
+                    label.toStdString ()) != labels.m_values.end ())
             {
 		m_selectedNames << m_names[i].c_str ();
                 m_selectedQuestionMarkCount.push_back (m_questionMarkCount[i]);

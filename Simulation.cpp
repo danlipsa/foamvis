@@ -558,7 +558,7 @@ void Simulation::ParseTopologicalChanges (
     if (! in)
 	ThrowException ("Cannot open \"" + fileName + "\"");
     in.exceptions (ios::badbit);
-    size_t timeStep;
+    float timeStep;
     float x, y, z;
     size_t type;
     while (! in.eof ())
