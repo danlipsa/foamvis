@@ -92,36 +92,8 @@ public:
      * @return a string pointer which is stored in ParsingData object
      */
     const char* CreateIdentifier(const char* id);
-    /**
-     * Returns the binary function with the name supplied by the parameter
-     * @param name name of the function to be retrieved
-     * @return a binary function
-     */
 
-    BinaryFunction GetBinaryFunction (const char* name) const;
-    BinaryFunction GetBinaryFunction (const string& name) const
-    {
-	return GetBinaryFunction (name.c_str ());
-    }
-    BinaryFunctionIt GetBinaryFunctionIt (const char* name) const;
-    BinaryFunctionIt GetBinaryFunctionIt (const string& name) const
-    {
-        return GetBinaryFunctionIt (name.c_str ());
-    }
-    BinaryFunctionIt GetBinaryFunctionItEnd () const
-    {
-        return m_binaryFunctions.end ();
-    }
-    BinaryFunction GetBinaryFunction (BinaryFunctionIt it) const;
 
-    bool IsOperator (const char* name) const
-    {
-	return OPERATORS.find (name) != OPERATORS.end ();
-    }
-    bool IsOperator (const string& name) const
-    {
-	return IsOperator (name.c_str ());
-    }
     /**
      * Gets all faces from this Foam
      */
@@ -141,9 +113,8 @@ public:
     
     /**
      * @{
-     * @ Entities (variables, array elements, unary functions, binary functions)
+     * @name Variables
      */
-    double GetVariableValue (const char* name) const;
     VariableIt GetVariableIt (const char* name) const;
     VariableIt GetVariableIt (const string& name) const
     {
@@ -153,6 +124,7 @@ public:
     {
         return m_variables.end ();
     }
+    double GetVariableValue (const char* name) const;
     double GetVariableValue (VariableIt it) const;
     double GetVariableValue (const string& name) const
     {
@@ -167,7 +139,10 @@ public:
 
 
 
-    double GetArrayValue (const char* name,   const vector<size_t>& index) const;
+    /**
+     * @{
+     * @name Arrays
+     */
     ArrayIt GetArrayIt (const char* name) const;
     ArrayIt GetArrayIt (const string& name) const
     {
@@ -177,17 +152,17 @@ public:
     {
         return m_arrays.end ();
     }
-    
+    double GetArrayValue (const char* name, const vector<size_t>& index) const;
     double GetArrayValue (const string& name, const vector<size_t>& index) const
     {
         return GetArrayValue (name.c_str (), index);
     }
     double GetArrayValue (ArrayIt, const vector<size_t>& index) const;
+    // @}
 
     /**
-     * Returns the unary function with the name supplied by the parameter
-     * @param name name of the function to be retrieved
-     * @return a unary function
+     * @{
+     * @name UnaryFunction
      */
     UnaryFunction GetUnaryFunction (const char* name) const;
     UnaryFunction GetUnaryFunction (const string& name) const
@@ -204,6 +179,38 @@ public:
         return m_unaryFunctions.end ();
     }
     UnaryFunction GetUnaryFunction (UnaryFunctionIt it) const;
+    //@
+
+    /**
+     * @{
+     * @name BinaryFunction
+     */
+    BinaryFunction GetBinaryFunction (const char* name) const;
+    BinaryFunction GetBinaryFunction (const string& name) const
+    {
+	return GetBinaryFunction (name.c_str ());
+    }
+    BinaryFunction GetBinaryFunction (BinaryFunctionIt it) const;
+
+    BinaryFunctionIt GetBinaryFunctionIt (const char* name) const;
+    BinaryFunctionIt GetBinaryFunctionIt (const string& name) const
+    {
+        return GetBinaryFunctionIt (name.c_str ());
+    }
+    BinaryFunctionIt GetBinaryFunctionItEnd () const
+    {
+        return m_binaryFunctions.end ();
+    }
+    bool IsOperator (const char* name) const
+    {
+	return OPERATORS.find (name) != OPERATORS.end ();
+    }
+    bool IsOperator (const string& name) const
+    {
+	return IsOperator (name.c_str ());
+    }
+    // @}
+
     
     /**
      * Gets the vector of vertices

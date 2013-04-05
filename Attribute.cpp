@@ -66,10 +66,17 @@ ostream& AttributeArrayAttribute::Print (ostream& ostr) const
     return ostr;
 }
 
-void AttributeArrayAttribute::CheckDimensions (vector<size_t>* dimensions)
+void AttributeArrayAttribute::CheckDimensions (
+    const vector<size_t>* dimensions) const
 {
     checkDimensions (dimensions, 0);
 }
+
+void AttributeArrayAttribute::GetDimensions (vector<size_t>* dimensions) const
+{
+    getDimensions (dimensions, 0);
+}
+
 
 AttributeArrayAttribute* AttributeArrayAttribute::NewArray (
     vector<size_t>* dimensions)
@@ -78,8 +85,8 @@ AttributeArrayAttribute* AttributeArrayAttribute::NewArray (
 }
 
 
-void AttributeArrayAttribute::checkDimensions (vector<size_t>* dimensions,
-					       size_t currentDimensionIndex)
+void AttributeArrayAttribute::checkDimensions (
+    const vector<size_t>* dimensions, size_t currentDimensionIndex) const
 {
     size_t dimensionsSize = dimensions->size ();
     if (currentDimensionIndex >= dimensionsSize)
@@ -100,6 +107,23 @@ void AttributeArrayAttribute::checkDimensions (vector<size_t>* dimensions,
     }
 }
 
+void AttributeArrayAttribute::getDimensions (
+    vector<size_t>* dimensions, size_t currentDimensionIndex) const
+{
+    size_t dimensionsSize = dimensions->size ();
+    if (currentDimensionIndex >= dimensionsSize)
+        dimensions->resize (currentDimensionIndex + 1);
+    size_t dimension = m_values->size ();
+    (*dimensions)[currentDimensionIndex] = dimension;
+    if ((*m_values)[0]->GetType () == REAL)
+        return;
+    // assume dimensions for all other indexes are the same
+    boost::static_pointer_cast<AttributeArrayAttribute> ((*m_values)[0])->
+        getDimensions (dimensions, currentDimensionIndex + 1);
+}
+
+
+
 AttributeArrayAttribute* AttributeArrayAttribute::newArray (
     vector<size_t>* dimensions, size_t currentDimensionIndex)
 {
@@ -110,7 +134,7 @@ AttributeArrayAttribute* AttributeArrayAttribute::newArray (
     
     if (currentDimensionIndex == dimensionsSize - 1)
 	return new AttributeArrayAttribute (
-	    (*dimensions)[currentDimensionIndex], 0);
+	    (*dimensions)[currentDimensionIndex], 0.0);
     else
     {
 	AttributeArrayAttribute* array = 
@@ -125,13 +149,14 @@ AttributeArrayAttribute* AttributeArrayAttribute::newArray (
 double AttributeArrayAttribute::Get (const vector<size_t>& index) const
 {
     const AttributeArrayAttribute* current = this;
-    size_t i = 0;
-    for (; i < index.size () - 1; ++i)
-	current = boost::static_pointer_cast<AttributeArrayAttribute> (
-	    current->getElement (index[i])).get ();
+    boost::shared_ptr<Attribute> p;
+    for (size_t i = 0; i < index.size (); ++i)
+    {
+        p = current->getElement (index[i]);
+	current = boost::static_pointer_cast<AttributeArrayAttribute> (p).get ();
+    }
     return static_cast<double> (
-	(*boost::static_pointer_cast<RealAttribute> (
-	    current->getElement (index[i]))));
+	(*boost::static_pointer_cast<RealAttribute> (p)));
 }
 
 ostream& operator<< (ostream& ostr, const Attribute& attribute)

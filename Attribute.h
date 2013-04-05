@@ -15,6 +15,18 @@
 class Attribute
 {
 public:
+    enum Type
+    {
+        INTEGER,
+        REAL,
+        COLOR,
+        INTEGER_ARRAY,
+        REAL_ARRAY,
+        ATTRIBUTE_ARRAY,
+        COUNT
+    };
+
+public:
     /**
      * Virtual destructor for attributes (so that everything gets deleted from
      * derived classes)
@@ -28,6 +40,10 @@ public:
     virtual ostream& Print(ostream& ostr) const 
     {
 	return ostr << "Attribute placeholder" << endl;
+    }
+    virtual Type GetType () const
+    {
+        return COUNT;
     }
 };
 /**
@@ -48,6 +64,10 @@ public:
     virtual ostream& Print (ostream& ostr) const
     {
         return ostr << m_value;
+    }
+    virtual Type GetType () const
+    {
+        return INTEGER;
     }
     operator int()
     {
@@ -81,7 +101,14 @@ public:
      * @return stream where we printed
      */
     virtual ostream& Print (ostream& ostr) const
-    {return ostr << m_value;}
+    {
+        return ostr << m_value;
+    }
+    virtual Type GetType () const
+    {
+        return REAL;
+    }
+
     operator double ()
     {
 	return m_value;
@@ -118,6 +145,10 @@ public:
     virtual ostream& Print (ostream& ostr) const
     {
 	return ostr << m_color;
+    }
+    virtual Type GetType () const
+    {
+        return COLOR;
     }
     /**
      * Get the color of the attribute
@@ -168,6 +199,11 @@ public:
      * @return where to print the next item
      */
     virtual ostream& Print (ostream& ostr) const;
+    virtual Type GetType () const
+    {
+        return INTEGER_ARRAY;
+    }
+
     operator const vector<int> ()
     {
 	return *m_values;
@@ -201,13 +237,18 @@ public:
      * @return where we printed
      */
     virtual ostream& Print (ostream& ostr) const;
+    virtual Type GetType () const
+    {
+        return REAL_ARRAY;
+    }
+
 private:
     boost::shared_ptr< vector<double> > m_values;
 };
 
 /**
  * An attribute that stores an array of attributes (used for
- * multidimensional arrays)
+ * multidimensional arrays). The last level stores RealAttributes
  */
 class AttributeArrayAttribute : public Attribute
 {
@@ -221,7 +262,8 @@ public:
     AttributeArrayAttribute (size_t n, double value);
     AttributeArrayAttribute (size_t n);
     
-    void CheckDimensions (vector<size_t>* dimensions);
+    void CheckDimensions (const vector<size_t>* dimensions) const;
+    void GetDimensions (vector<size_t>* dimensions) const;
     static AttributeArrayAttribute* NewArray (vector<size_t>* dimensions);
     double Get (const vector<size_t>& index) const;
     void AddElement (Attribute* element)
@@ -235,6 +277,11 @@ public:
      * @return where we printed
      */
     virtual ostream& Print (ostream& ostr) const;
+    virtual Type GetType () const
+    {
+        return ATTRIBUTE_ARRAY;
+    }
+
     size_t size ()
     {
 	return m_values->size ();
@@ -249,13 +296,16 @@ private:
     {
 	return (*m_values)[i];
     }
-    void checkDimensions (vector<size_t>* dimensions,
-			  size_t currentDimensionIndex);
+    void checkDimensions (const vector<size_t>* dimensions,
+			  size_t currentDimensionIndex) const;
+    void getDimensions (vector<size_t>* dimensions,
+                        size_t currentDimensionIndex) const;
+
     static AttributeArrayAttribute* newArray (vector<size_t>* dimensions,
 					      size_t currentDimensionIndex);
 private:
     /**
-     * Pointer to a vector of reals
+     * Pointer to a vector of attributes which are either values or vectors
      */
     boost::shared_ptr< vector<boost::shared_ptr<Attribute> > > m_values;
 };

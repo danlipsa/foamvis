@@ -295,8 +295,10 @@ bool ParsingData::GetTopologicalChange (
     if (cIt == GetVariableItEnd ())
         return false;
     size_t count = GetVariableValue (cIt);
-    t1s->resize (count);
+    t1s->resize (count);    
     vector<size_t> index (2);
+    vector<size_t> dimensions;
+    it->second->GetDimensions (&dimensions);
     for (size_t i = 0; i < count; ++i)
     {
         size_t type;
@@ -310,7 +312,13 @@ bool ParsingData::GetTopologicalChange (
         {
             index[0] = 2;
             z = GetArrayValue (it, index);
-            type = 0;
+            if (dimensions[0] == 4)
+            {
+                index[0] = 3;
+                type = GetArrayValue (it, index);
+            }
+            else
+                type = 0;
         }
         else
             type = 1;
