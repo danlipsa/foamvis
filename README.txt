@@ -8,7 +8,8 @@ Release log
         - Velocity glyph visualization in the time step view.
         - you can specify ? and [0-9] filter.
         - add title to color bar in GL view.
-        
+        - moved T1s inside the original domain
+
 0.8.2740
         - update to vtk-6.0-20130125.tgz
         - remove folders inside .foamvis to regenerate regular grid data for 3D

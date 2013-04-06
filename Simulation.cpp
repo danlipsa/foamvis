@@ -747,10 +747,13 @@ const Simulation& SimulationGroup::GetSimulation(const Settings& settings) const
     return GetSimulation (settings, settings.GetViewNumber ());
 }
 
-size_t SimulationGroup::GetIndex3DSimulation () const
+size_t SimulationGroup::getIndexSimulation (size_t spaceDimension) const
 {
+    typedef bool (Simulation::*SpaceDimension) () const;
+    SpaceDimension sp = 
+        (spaceDimension == 2) ? &Simulation::Is2D : &Simulation::Is3D;
     for (size_t i = 0; i < size (); ++i)
-        if (m_simulation[i].Is3D ())
+        if (CALL_MEMBER (m_simulation[i], sp) ())
             return i;
     return INVALID_INDEX;
 }

@@ -714,11 +714,14 @@ void WidgetGl::initializeGL()
         glEnable (GL_LINE_SMOOTH);
         glEnable (GL_POINT_SMOOTH);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	cdbg << "Compiling shaders..." << endl;
-	ScalarAverage::InitShaders ();
-	TensorAverage::InitShaders ();
-	VectorAverage::InitShaders ();
-	T1sKDE::InitShaders ();
+        if (GetSimulationGroup ().GetIndex2DSimulation () != INVALID_INDEX)
+        {
+            cdbg << "Compiling shaders..." << endl;
+            ScalarAverage::InitShaders ();
+            TensorAverage::InitShaders ();
+            VectorAverage::InitShaders ();
+            T1sKDE::InitShaders ();
+        }
 	initializeLighting ();
 	GetSettingsPtr ()->SetViewNumber (ViewNumber::VIEW0);
 	WarnOnOpenGLError ("initializeGL");
