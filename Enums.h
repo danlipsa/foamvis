@@ -567,20 +567,28 @@ typedef vector<pair<size_t, size_t> > BinRegions;
 
 struct TopologicalChange
 {
-    G3D::Vector3 m_position;
-    /**
-     *
-     * type can be 0 if the type is unknown,
-     * 1 for 2D,
-     * 1, 2, 3 for 3D
-     */
-    size_t m_type;
+public:
     TopologicalChange () : 
         m_type (0) 
     {}
     TopologicalChange (G3D::Vector3 position, size_t type) :
         m_position (position), m_type (type)
     {}
+
+public:
+    G3D::Vector3 m_position;
+    /**
+     *
+     * type is 0 if unknown,
+     * 2D: 1
+     * 3D:
+     *   1: quad_to_quad
+     *   2: tri_to_Edge
+     *   3: edge_to_tri
+     *   4: pop edge
+     *   5: pop vertex
+     */
+    size_t m_type;
 };
 
 

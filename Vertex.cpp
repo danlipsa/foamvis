@@ -142,17 +142,17 @@ boost::shared_ptr<Vertex> Vertex::createDuplicate (
 }
 
 boost::shared_ptr<Vertex> Vertex::GetDuplicate (
-    const OOBox& periods,
+    const OOBox& originalDomain,
     const G3D::Vector3int16& translation,
     VertexSet* vertexSet) const
 {
     boost::shared_ptr<Vertex> searchDummy = boost::make_shared<Vertex>(
-	periods.TorusTranslate (GetVector (), translation), GetId ());
+	originalDomain.TorusTranslate (GetVector (), translation), GetId ());
     VertexSet::iterator it = vertexSet->find (searchDummy);
     if (it != vertexSet->end ())
 	return *it;
     boost::shared_ptr<Vertex> duplicate = this->createDuplicate (
-	periods, translation);
+	originalDomain, translation);
     vertexSet->insert (duplicate);
     return duplicate;
 }

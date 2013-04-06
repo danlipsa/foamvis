@@ -46,17 +46,24 @@ public:
     {
 	return m_vector[i];
     }
+
+    /**
+     * @{
+     * @name Torus domain
+     */
     G3D::Vector3 TorusTranslate (
 	const G3D::Vector3& v, const G3D::Vector3int16& translation) const;
     Intersections Intersect (
 	const G3D::Vector3& begin, const G3D::Vector3& end,
 	const G3D::Vector3int16& beginLocation,
 	const G3D::Vector3int16& endLocation) const;
-    G3D::Vector3int16 GetLocation (const G3D::Vector3& point) const;
+    G3D::Vector3int16 GetTranslationFromOriginalDomain (
+        const G3D::Vector3& point) const;
     G3D::Vector3int16 GetTranslation (
 	const G3D::Vector3& source, const G3D::Vector3& destination) const;
     bool IsWrap (const G3D::Vector3& begin, const G3D::Vector3& end,
 		 G3D::Vector3int16* translation = 0) const;
+    // @}
 
 public:
     friend ostream& operator<< (ostream& ostr, const OOBox& box);

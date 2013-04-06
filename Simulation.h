@@ -16,6 +16,7 @@
 #include "Utils.h"
 
 class Foam;
+class OOBox;
 class Settings;
 
 /**
@@ -256,6 +257,8 @@ private:
     template <typename Accumulator, typename GetBodyScalar>
     void forAllBodiesAccumulate (
 	Accumulator* acc, GetBodyScalar getBodyScalar);
+    void moveInsideOriginalDomain (
+        TopologicalChange* tc, const OOBox& originalDomain);
 
 private:
     /**

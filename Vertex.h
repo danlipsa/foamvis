@@ -54,7 +54,7 @@ public:
 
     string ToString (const AttributesInfo* ai = 0) const;
     boost::shared_ptr<Vertex> GetDuplicate (
-	const OOBox& periods,
+	const OOBox& originalDomain,
 	const G3D::Vector3int16& translation,
 	VertexSet* vertexSet) const;
     bool fuzzyEq (const Vertex& other) const;

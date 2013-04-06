@@ -308,8 +308,7 @@ void Foam::Preprocess ()
     VertexSet vertexSet;
     EdgeSet edgeSet;
     FaceSet faceSet;
-    const DmpObjectInfo& dmpObjectInfo = 
-	GetParsingData ().GetDmpObjectInfo ();
+    const DmpObjectInfo& dmpObjectInfo = GetParsingData ().GetDmpObjectInfo ();
     if (dmpObjectInfo.RotationUsed ())
 	SetDmpObjectPosition (dmpObjectInfo);
     compact ();
@@ -325,9 +324,7 @@ void Foam::Preprocess ()
     }
     calculateBodiesCenters ();
     if (IsTorus ())
-    {
 	bodiesInsideOriginalDomain (&vertexSet, &edgeSet, &faceSet);
-    }
     sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);
     setMissingPressureZero ();
     setMissingVolume ();
@@ -663,32 +660,18 @@ void Foam::bodiesInsideOriginalDomain (
 			   _1, vertexSet, edgeSet, faceSet));
 }
 
-Foam::Bodies::iterator Foam::BodyInsideOriginalDomainStep (
-    Foam::Bodies::iterator begin,
-    VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
-{
-    Bodies::iterator it = begin;
-    while (it != m_bodies.end () &&
-	   bodyInsideOriginalDomain (*it, vertexSet, edgeSet, faceSet))
-	++it;
-    if (it == m_bodies.end ())
-	return it;
-    else
-	return ++it;
-}
-
-
 bool Foam::bodyInsideOriginalDomain (
     const boost::shared_ptr<Body>& body,
     VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
 {
     try
     {
-        G3D::Vector3int16 centerLocation =
-            GetTorusDomain ().GetLocation (body->GetCenter ());
-        if (centerLocation == Vector3int16Zero)
+        G3D::Vector3int16 centerDomain =
+            GetTorusDomain ().GetTranslationFromOriginalDomain (
+                body->GetCenter ());
+        if (centerDomain == Vector3int16Zero)
             return true;
-        G3D::Vector3int16 translation = Vector3int16Zero - centerLocation;
+        G3D::Vector3int16 translation = Vector3int16Zero - centerDomain;
         bodyTranslate (body, translation, vertexSet, edgeSet, faceSet);
         return false;
     }
@@ -711,6 +694,21 @@ void Foam::bodyTranslate (
 	of->SetFace (duplicate);
     }
     body->CalculateCenter (Is2D ());
+}
+
+
+Foam::Bodies::iterator Foam::BodyInsideOriginalDomainStep (
+    Foam::Bodies::iterator begin,
+    VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
+{
+    Bodies::iterator it = begin;
+    while (it != m_bodies.end () &&
+	   bodyInsideOriginalDomain (*it, vertexSet, edgeSet, faceSet))
+	++it;
+    if (it == m_bodies.end ())
+	return it;
+    else
+	return ++it;
 }
 
 void Foam::GetVertexSet (VertexSet* vertexSet) const

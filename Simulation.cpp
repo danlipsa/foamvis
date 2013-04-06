@@ -225,6 +225,27 @@ void Simulation::Preprocess ()
     if (m_pressureAdjusted && ! GetFoam (0).HasFreeFace ())
         adjustPressureAlignMedians ();
     calculateStatistics ();
+    if (IsTorus ())
+    {
+        for (size_t i = 0; i < m_topologicalChange.size (); ++i)
+        {
+            const OOBox& originalDomain = m_foams[i]->GetTorusDomain ();
+            for (size_t j = 0; j < m_topologicalChange[i].size (); ++j)
+                moveInsideOriginalDomain (
+                    &m_topologicalChange[i][j], originalDomain);
+        }
+    }
+}
+
+void Simulation::moveInsideOriginalDomain (
+    TopologicalChange* tc, const OOBox& originalDomain)
+{
+    G3D::Vector3int16 translation = 
+        originalDomain.GetTranslationFromOriginalDomain (tc->m_position);
+    if (translation == Vector3int16Zero)
+        return;
+    tc->m_position = originalDomain.TorusTranslate (
+        tc->m_position, Vector3int16Zero - translation);
 }
 
 
@@ -527,7 +548,7 @@ void Simulation::ParseTopologicalChanges (
 {
     if (! m_topologicalChange.empty ())
         return;
-    cdbg << "Parsing topological changes...";
+    cdbg << "Parsing topological changes..." << endl;
     Foams& foams = GetFoams ();
     m_topologicalChange.resize (foams.size () - 1);
     for (size_t i = 1; i < foams.size (); ++i)
