@@ -2205,7 +2205,7 @@ void WidgetGl::displayFacesContour (
 	      DisplayBody<
 	      DisplayFaceHighlightColor<HighlightNumber::H0,
 	      DisplayFaceEdges<DisplayEdge> > > (
-                  GetSettings (), simulation.Is2D (), bodySelector, 
+                  GetSettings (), simulation.Is2D (), bodySelector, false, 
                   DisplayElement::USER_DEFINED_CONTEXT, viewNumber));
     glPopAttrib ();
 }
@@ -2277,7 +2277,8 @@ void WidgetGl::displayFacesInteriorFocusContext (
 	for_each (beginEnd[i].m_begin, beginEnd[i].m_end,
 		  DisplayBody<DisplayFaceBodyScalarColor<> > (
 		      GetSettings (), simulation.Is2D (), bodySelector, 
-		      DisplayElement::USER_DEFINED_CONTEXT, viewNumber));
+		      beginEnd[i].m_isContext, 
+                      DisplayElement::USER_DEFINED_CONTEXT, viewNumber));
 	if (beginEnd[i].m_isContext)
 	    DisplayBodyBase<>::EndContext ();
     }
@@ -2342,7 +2343,7 @@ void WidgetGl::displayBubblePathsBody (ViewNumber::Enum viewNumber) const
 	    DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H0,
 	    DisplayFaceEdges<DisplayEdgePropertyColor<
 	    DisplayElement::DONT_DISPLAY_TESSELLATION_EDGES> > > > (
-		GetSettings (), simulation.Is2D (), bodySelector, 
+		GetSettings (), simulation.Is2D (), bodySelector, false,
                 DisplayElement::USER_DEFINED_CONTEXT,
 		viewNumber, vs.IsTimeDisplacementUsed (), zPos));
     }
@@ -2574,7 +2575,7 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
 	displayColorBar (
 	    m_colorBarTexture[viewNumber], *vs.GetColorBarModel (),
             viewNumber, viewColorBarRect);
-        xTranslateBar = GetSettings ().GetBarLabelSize (viewNumber).x;
+        xTranslateBar = GetSettings ().GetColorBarLabelSize (viewNumber).x;
     }
     if (vs.IsVelocityShown ())
     {
@@ -2667,7 +2668,7 @@ void WidgetGl::displayColorBar (
     GLuint texture, const ColorBarModel& barModel,
     ViewNumber::Enum viewNumber, const G3D::Rect2D& br)
 {
-    G3D::Vector2 s = GetSettings ().GetBarLabelSize (viewNumber);
+    G3D::Vector2 s = barModel.GetBarLabelSize ();
     G3D::Rect2D barRect = G3D::Rect2D::xywh (
         br.x0 (), br.y0 () + s.y, 
         br.width (), br.height () - s.y);
@@ -2696,11 +2697,12 @@ void WidgetGl::displayColorBar (
 void WidgetGl::displayOverlayBar (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& br)
 {
-    G3D::Vector2 s = GetSettings ().GetBarLabelSize (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    const ColorBarModel& barModel = *vs.GetOverlayBarModel ();
+    G3D::Vector2 s = barModel.GetBarLabelSize ();
     G3D::Rect2D barRect = G3D::Rect2D::xywh (
         br.x0 (), br.y0 () + s.y, 
         br.width (), br.height () - s.y);
-    ViewSettings& vs = GetViewSettings (viewNumber);
     glPushAttrib (GL_POLYGON_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
     glDisable (GL_DEPTH_TEST);
     glColor (Qt::white);
@@ -2709,7 +2711,6 @@ void WidgetGl::displayOverlayBar (
     glColor (Qt::black);
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);    
     DisplayBox (barRect);
-    const ColorBarModel& barModel = *vs.GetOverlayBarModel ();
     displayBarClampLevels (barModel, barRect);
     glPopAttrib ();
     displayBarLabels (viewNumber, barModel, br);
@@ -2725,29 +2726,34 @@ void WidgetGl::displayBarLabels (
     const Simulation& simulation = GetSimulation (viewNumber);
     float onePixelInObjectSpace = GetOnePixelInObjectSpace (simulation.Is2D ());
     QFont font;
-    float distance = 5 * onePixelInObjectSpace;
+    float distance = Settings::BAR_IN_BETWEEN_DISTANCE * onePixelInObjectSpace;
     QFontMetrics fm (font);
     ostringstream ostr;
     ostr << scientific << setprecision (1);
-    G3D::Vector2 minPos = barRect.x1y0 () + G3D::Vector2 (distance, 0);
-    G3D::Vector2 maxPos = barRect.x1y1 () + G3D::Vector2 (distance, 0);
-        
-    QwtDoubleInterval interval = cbm.GetInterval ();
     glColor (Qt::black);
-    ostr.str ("");
-    ostr  << interval.minValue ();
+    // title
+    ostr.str ("");ostr  << cbm.GetTitle ();
+    G3D::Vector2 titlePos = barRect.x0y1 () + G3D::Vector2 (0, distance);
+    renderText (titlePos.x, titlePos.y, 0, ostr.str ().c_str ());
+    // bottom label
+    G3D::Vector2 minPos = barRect.x1y0 () + G3D::Vector2 (distance, 0);
+    QwtDoubleInterval interval = cbm.GetInterval ();
+    ostr.str ("");ostr  << interval.minValue ();
     renderText (minPos.x, minPos.y, 0, ostr.str ().c_str ());
+    // top label
     ostr.str ("");ostr  << interval.maxValue ();
-
     QRect br = fm.tightBoundingRect (ostr.str ().c_str ());
+    G3D::Vector2 maxPos = barRect.x1y1 () + G3D::Vector2 (distance, 0);
     maxPos -= G3D::Vector2 (0, br.height () * onePixelInObjectSpace);
     renderText (maxPos.x, maxPos.y, 0, ostr.str ().c_str ());
+    // bottom clamp label
     if (cbm.IsClampedMin ())
     {
         ostr.str ("");ostr << cbm.GetClampMin ();
         minPos += G3D::Vector2 (0, fm.height () * onePixelInObjectSpace);
         renderText (minPos.x, minPos.y, 0, ostr.str ().c_str ());
     }
+    // top clamp label
     if (cbm.IsClampedMax ())
     {
         ostr.str ("");ostr << cbm.GetClampMax ();

@@ -27,10 +27,15 @@ public:
     {
 	return m_image;
     }    
-    const QString& GetTitle () const
+    const string& GetTitle () const
     {
 	return m_title;
     }
+    void SetTitle (const char* title)
+    {
+	m_title = title;
+    }
+
     Palette GetPalette () const
     {
 	return m_palette;
@@ -81,13 +86,7 @@ public:
 	m_clampInterval.setMinValue (m_interval.minValue ());
 	m_clampInterval.setMaxValue (m_interval.minValue ());
 	SetupPalette (GetPalette ());
-    }
-
-    void SetTitle (const char* title)
-    {
-	m_title = title;
-    }
-    
+    }    
     void SetupPalette (Palette palette);
     QColor GetHighlightColor (HighlightNumber::Enum i) const;
     void SetHighlightColor (HighlightNumber::Enum i, const QColor& color)
@@ -106,6 +105,8 @@ public:
     float GetClampMaxRatio () const;
     string ToString () const;
     void ColorMapCopy (const ColorBarModel& other);
+    G3D::Vector2 GetBarLabelSize () const;
+
 
     static const size_t COLORS;
 
@@ -136,7 +137,7 @@ private:
     // maps [0, 1] to a range of colors
     vtkSmartPointer<vtkColorTransferFunction> m_ctf;
     vtkSmartPointer<vtkColorTransferFunction> m_vtkColorMap;
-    QString m_title;
+    string m_title;
     boost::array<QColor,HighlightNumber::COUNT> m_highlightColor;
     bool m_log10;
 };

@@ -738,9 +738,9 @@ void MainWindow::setupColorBarModels (size_t simulationIndex,
     for (size_t i = 0; i < BodyScalar::COUNT; ++i)
     {
 	BodyScalar::Enum property = BodyScalar::FromSizeT (i);
-	setupColorBarModelBodyScalar (simulationIndex, viewNumber, property);
+	setupColorBarModelScalar (simulationIndex, viewNumber, property);
     }
-    setupColorBarModelVelocityVector (simulationIndex, viewNumber);
+    setupColorBarModelVelocity (simulationIndex, viewNumber);
     setupColorBarModelDomainHistogram (simulationIndex, viewNumber);
     setupColorBarModelT1sKDE (simulationIndex, viewNumber);
 }
@@ -790,16 +790,16 @@ void MainWindow::setupColorBarModelDomainHistogram (
 }
 
 
-void MainWindow::setupColorBarModelBodyScalar (size_t simulationIndex,
-						 ViewNumber::Enum viewNumber,
-						 BodyScalar::Enum property)
+void MainWindow::setupColorBarModelScalar (size_t simulationIndex,
+                                           ViewNumber::Enum viewNumber,
+                                           BodyScalar::Enum property)
 {
     boost::shared_ptr<ColorBarModel>& colorBarModel = 
 	m_colorBarModelBodyScalar[simulationIndex][viewNumber][property];
     setupColorBarModel (colorBarModel, property, simulationIndex);
 }
 
-void MainWindow::setupColorBarModelVelocityVector (
+void MainWindow::setupColorBarModelVelocity (
     size_t simulationIndex,
     ViewNumber::Enum viewNumber)
 {
@@ -807,7 +807,8 @@ void MainWindow::setupColorBarModelVelocityVector (
 	m_colorBarModelVelocity[simulationIndex][viewNumber];
     BodyScalar::Enum property = BodyScalar::VELOCITY_MAGNITUDE;
     setupColorBarModel (colorBarModel, property, simulationIndex);
-    colorBarModel->SetTitle ("Velocity overlay");
+    colorBarModel->SetTitle (
+        BodyAttribute::ToString (BodyAttribute::VELOCITY));
 }
 
 void MainWindow::setupColorBarModel (

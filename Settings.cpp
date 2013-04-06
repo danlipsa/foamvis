@@ -61,38 +61,6 @@ G3D::AABox ExtendAlongZFor3D (
 	return b;
 }
 
-class StringsRect
-{
-public:
-    StringsRect (const QFontMetrics& fm) :
-        m_fm (fm), m_width (0)
-    {
-    }
-    
-    void StoreMax (const string& s)
-    {
-        QRect br = m_fm.tightBoundingRect (s.c_str ());
-        if (m_width < br.width ())
-            m_width = br.width ();
-        if (m_height < br.height ())
-            m_height = br.height ();
-    }
-    float GetMaxWidth () const
-    {
-        return m_width;
-    }
-    float GetMaxHeight () const
-    {
-        return m_height;
-    }
-
-private:
-    const QFontMetrics& m_fm;
-    float m_width;
-    float m_height;
-};
-
-
 // Methods
 // ======================================================================
 const size_t Settings::QUADRIC_SLICES = 8;
@@ -495,42 +463,27 @@ G3D::Rect2D Settings::GetOverlayBarRect (ViewNumber::Enum viewNumber,
         viewRect.y0 () + BAR_MARGIN_DISTANCE, BAR_WIDTH, barHeight);
 }
 
-G3D::Vector2 Settings::GetBarLabelSize (ViewNumber::Enum viewNumber) const
+G3D::Vector2 Settings::GetColorBarLabelSize (ViewNumber::Enum viewNumber) const
 {
-    const ColorBarModel& cbm = *GetViewSettings (viewNumber).GetColorBarModel ();
-    //__ENABLE_LOGGING__;
     if (! BarLabelsShown ())
         return G3D::Vector2 (0, 0);
-    QFont font;
-    QFontMetrics fm (font);
-    StringsRect sr(fm);
-    const float distancePixels = 10;
-    ostringstream ostr;
-    QwtDoubleInterval interval = cbm.GetInterval ();
-    ostr << scientific << setprecision (1);
-    ostr << interval.minValue ();
-    sr.StoreMax (ostr.str ());
-    ostr.str ("");ostr << interval.maxValue ();
-    sr.StoreMax (ostr.str ());
-    if (cbm.IsClampedMin ())
-    {
-        ostr.str ("");ostr << cbm.GetClampMin ();
-        sr.StoreMax (ostr.str ());
-    }
-    if (cbm.IsClampedMax ())
-    {
-        ostr.str ("");ostr << cbm.GetClampMax ();
-        sr.StoreMax (ostr.str ());
-    }
-    return G3D::Vector2 (sr.GetMaxWidth () + distancePixels, sr.GetMaxHeight ());
+    return GetViewSettings (viewNumber).GetColorBarModel ()->GetBarLabelSize ();
+}
+
+G3D::Vector2 Settings::GetOverlayBarLabelSize (ViewNumber::Enum viewNumber) const
+{
+    if (! BarLabelsShown ())
+        return G3D::Vector2 (0, 0);
+    return GetViewSettings (
+        viewNumber).GetOverlayBarModel ()->GetBarLabelSize ();
 }
 
 
 G3D::Rect2D Settings::GetColorBarRectWithLabels (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const
 {
-    return getBarRectWithLabels (&Settings::GetColorBarRect,
-                                 viewNumber, viewRect);
+    return getBarRectWithLabels (GetColorBarRect (viewNumber, viewRect),
+                                 GetColorBarLabelSize (viewNumber));
 }
 
 G3D::Rect2D Settings::GetOverlayBarRectWithLabels (
@@ -539,21 +492,19 @@ G3D::Rect2D Settings::GetOverlayBarRectWithLabels (
     float labelWidth = 0;
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsScalarShown () && ! vs.IsScalarContext ())
-        labelWidth = GetBarLabelSize (viewNumber).x;
+        labelWidth = GetColorBarLabelSize (viewNumber).x;
     return getBarRectWithLabels (
-        &Settings::GetOverlayBarRect, viewNumber, viewRect) + 
-        G3D::Vector2 (labelWidth, 0);
+        GetOverlayBarRect (viewNumber, viewRect), 
+        GetOverlayBarLabelSize (viewNumber)) + G3D::Vector2 (labelWidth, 0);
 }
 
 
 G3D::Rect2D Settings::getBarRectWithLabels (
-    GetBarRectType getBarRect,
-    ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const
+    const G3D::Rect2D& barRect, G3D::Vector2 labelSize) const
 {
-    G3D::Rect2D rect = CALL_MEMBER (*this, getBarRect) (viewNumber, viewRect);
-    G3D::Vector2 s = GetBarLabelSize (viewNumber);
-    return G3D::Rect2D::xywh (rect.x0 (), rect.y0 () + s.y, 
-                              rect.width () + s.x, rect.height () + s.y);
+    return G3D::Rect2D::xywh (
+        barRect.x0 (), barRect.y0 () + labelSize.y, 
+        barRect.width () + labelSize.x, barRect.height () + labelSize.y);
 }
 
 

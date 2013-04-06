@@ -36,7 +36,7 @@ public:
      */
     DisplayBodyBase (const Settings& settings, 
 		     const BodySelector& bodySelector, 
-		     PropertySetter propertySetter,
+		     PropertySetter propertySetter, bool forceContext,
 		     bool useZPos = false, double zPos = 0);
 
     static void BeginContext ();
@@ -59,6 +59,7 @@ protected:
 
 private:
     const BodySelector& m_bodySelector;
+    bool m_forceContext;
 };
 
 
@@ -132,6 +133,7 @@ public:
      */
     DisplayBody (
 	const Settings& settings, bool is2D, const BodySelector& bodySelector,
+        bool forceContext = false,
 	typename DisplayElement::ContextType 
 	contextDisplay = DisplayElement::USER_DEFINED_CONTEXT,
 	ViewNumber::Enum viewNumber = ViewNumber::VIEW0,
@@ -140,6 +142,7 @@ public:
     DisplayBody (
 	const Settings& settings, const BodySelector& bodySelector,
 	PropertySetter setter,
+        bool forceContext = false,
 	typename DisplayElement::ContextType 
 	    contextDisplay = DisplayElement::USER_DEFINED_CONTEXT,
 	bool useZPos = false, double zPos = 0);

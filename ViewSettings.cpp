@@ -676,15 +676,10 @@ void ViewSettings::ResetHistogramOption (HistogramType::Option option)
 string ViewSettings::GetTitle (ViewNumber::Enum viewNumber) const
 {
     ostringstream ostr;
-    ostr << "View " << viewNumber << " - "
-	 << ViewType::ToString (GetViewType ()) << " - "
-	 << FaceScalar::ToString (GetBodyOrFaceScalar ()) << " - "
-	 << "Time " << GetTime ();
+    ostr << "View " << viewNumber << " - ";
+    ostr << "Time " << GetTime ();
     return ostr.str ();
 }
-
-
-
 
 ColorBarType::Enum ViewSettings::GetColorBarType () const
 {

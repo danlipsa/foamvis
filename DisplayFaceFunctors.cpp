@@ -185,7 +185,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
     *useColor = true;
     ViewNumber::Enum viewNumber = this->GetViewNumber ();
     ViewSettings& vs = this->m_settings.GetViewSettings (viewNumber);
-    if (this->m_focus == DisplayElement::FOCUS)
+    if (this->m_focus == DisplayElement::FOCUS && ! vs.IsScalarContext ())
     {
 	if (this->m_propertySetter.GetBodyOrFaceScalar () == 
 	    FaceScalar::DMP_COLOR)

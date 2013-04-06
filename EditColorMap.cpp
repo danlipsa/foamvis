@@ -58,7 +58,7 @@ void EditColorMap::SetData (
     setCombos (m_colorBarModel.GetPalette ());
     widgetHistogram->SetDataAllBinsSelected (
 	intervalData, maxValue, 
-	m_colorBarModel.GetTitle ().toStdString ().c_str ());
+	m_colorBarModel.GetTitle ().c_str ());
     widgetHistogram->SetColorTransferFunction (
 	m_colorBarModel.GetInterval (), m_colorBarModel.GetQwtColorMap ());
     widgetHistogram->SetGridEnabled (gridEnabled);

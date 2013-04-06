@@ -86,12 +86,15 @@ float clampMax (float length, float maxLength, bool* clamped)
 
 template <typename PropertySetter>
 DisplayBodyBase<PropertySetter>::
-DisplayBodyBase (const Settings& settings, const BodySelector& bodySelector,
-		 PropertySetter propertySetter, bool useZPos, double zPos) :
+DisplayBodyBase (
+    const Settings& settings, const BodySelector& bodySelector,
+    PropertySetter propertySetter, bool forceContext, 
+    bool useZPos, double zPos) :
 
     DisplayElementProperty<PropertySetter> (
         settings, propertySetter, useZPos, zPos),
-    m_bodySelector (bodySelector)
+    m_bodySelector (bodySelector),
+    m_forceContext (forceContext)
 {
 }
 
@@ -115,7 +118,7 @@ template <typename PropertySetter>
 void DisplayBodyBase<PropertySetter>::
 operator () (boost::shared_ptr<Body> b)
 {
-    bool focus = m_bodySelector (b);
+    bool focus = m_bodySelector (b) && ! m_forceContext;
     if (focus)
 	display (b);
     else
@@ -138,7 +141,8 @@ DisplayBodyDeformation::DisplayBodyDeformation (
     
     DisplayBodyBase<> (
 	settings, bodySelector,
-	SetterTextureCoordinate(settings, viewNumber, is2D), useZPos, zPos),
+	SetterTextureCoordinate(settings, viewNumber, is2D), false,
+        useZPos, zPos),
     m_deformationSizeInitialRatio (deformationSizeInitialRatio)
 {}
 
@@ -175,12 +179,12 @@ DisplayBodyVelocity::DisplayBodyVelocity (
     const BodySelector& bodySelector, float bubbleSize, 
     float velocitySizeInitialRatio, float onePixelInObjectSpace,
     GLUquadricObj* quadric,
-    bool sameSize, bool clampingShown,
-    bool useZPos, double zPos):
+    bool sameSize, bool clampingShown, bool useZPos, double zPos):
     
     DisplayBodyBase<> (
 	settings, bodySelector,
-	SetterTextureCoordinate(settings, viewNumber, is2D), useZPos, zPos),
+	SetterTextureCoordinate(settings, viewNumber, is2D), false, 
+        useZPos, zPos),
     m_bubbleDiameter (bubbleSize),
     m_onePixelInObjectSpace (onePixelInObjectSpace),
     m_velocitySizeInitialRatio (velocitySizeInitialRatio),
@@ -200,6 +204,7 @@ void DisplayBodyVelocity::display (boost::shared_ptr<Body> body)
     G3D::Vector3 displayVelocity;
     G3D::Vector3 velocity = body->GetVelocity (); 
     float velocityLength = velocity.length ();
+    glPushAttrib (GL_CURRENT_BIT);
     if (m_sameSize)
     {
         // set all velocity magnitudes to be bubbleDiameter
@@ -241,6 +246,7 @@ void DisplayBodyVelocity::display (boost::shared_ptr<Body> body)
         glPopMatrix ();
         glPopMatrix ();
     }
+    glPopAttrib ();
 }
 
 // DisplayBodyCenter
@@ -277,12 +283,14 @@ template<typename displayFace, typename PropertySetter>
 DisplayBody<displayFace, PropertySetter>::
 DisplayBody (
     const Settings& settings, bool is2D, const BodySelector& bodySelector,
+    bool forceContext,
     typename DisplayElement::ContextType contextDisplay, 
     ViewNumber::Enum viewNumber, bool useZPos, double zPos) :
 
     DisplayBodyBase<PropertySetter> (
 	settings, bodySelector, 
-        PropertySetter (settings, viewNumber, is2D), useZPos, zPos),
+        PropertySetter (settings, viewNumber, is2D), forceContext, 
+        useZPos, zPos),
     m_contextDisplay (contextDisplay)
 {
 }
@@ -291,13 +299,13 @@ template<typename displayFace, typename PropertySetter>
 DisplayBody<displayFace, PropertySetter>::
 DisplayBody (
     const Settings& settings, 
-    const BodySelector& bodySelector,
-    PropertySetter setter,
+    const BodySelector& bodySelector, 
+    PropertySetter setter, bool forceContext,
     typename DisplayElement::ContextType contextDisplay,
     bool useZPos, double zPos) :
 
     DisplayBodyBase<PropertySetter> (
-        settings, bodySelector, setter, useZPos, zPos),
+        settings, bodySelector, setter, forceContext, useZPos, zPos),
     m_contextDisplay (contextDisplay)
 {
 }

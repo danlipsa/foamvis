@@ -206,12 +206,12 @@ private:
     void configureInterfaceDataDependent (
 	const SimulationGroup& simulationGroup);
     void configureInterface ();
-    void setupColorBarModelBodyScalar (
+    void setupColorBarModelScalar (
 	size_t simulationIndex, 
 	ViewNumber::Enum viewNumber, BodyScalar::Enum property);
     void setupColorBarModelDomainHistogram (
 	size_t simulationIndex, ViewNumber::Enum viewNumber);
-    void setupColorBarModelVelocityVector (
+    void setupColorBarModelVelocity (
 	size_t simulationIndex, ViewNumber::Enum viewNumber);
     void setupColorBarModelT1sKDE (
 	size_t simulationIndex, ViewNumber::Enum viewNumber);

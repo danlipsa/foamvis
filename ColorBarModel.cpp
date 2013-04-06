@@ -8,8 +8,46 @@
 
 #include "ColorBarModel.h"
 #include "Debug.h"
+#include "Settings.h"
 #include "Utils.h"
 
+// Private functions and classes
+// ======================================================================
+
+class StringsRect
+{
+public:
+    StringsRect (const QFontMetrics& fm) :
+        m_fm (fm), m_width (0)
+    {
+    }
+    
+    void StoreMax (const string& s, float lessWidth = 0)
+    {
+        QRect br = m_fm.tightBoundingRect (s.c_str ());
+        float width = br.width () - lessWidth;
+        if (m_width < width)
+            m_width = width;
+        if (m_height < br.height ())
+            m_height = br.height ();
+    }
+    float GetMaxWidth () const
+    {
+        return m_width;
+    }
+    float GetMaxHeight () const
+    {
+        return m_height;
+    }
+
+private:
+    const QFontMetrics& m_fm;
+    float m_width;
+    float m_height;
+};
+
+// Methods
+// ======================================================================
 
 const size_t ColorBarModel::COLORS = 256;
 
@@ -374,4 +412,34 @@ float ColorBarModel::GetClampMaxRatio () const
 {
     return (m_clampInterval.maxValue () - m_interval.minValue ()) / 
         (m_interval.maxValue () - m_interval.minValue ());
+}
+
+G3D::Vector2 ColorBarModel::GetBarLabelSize () const
+{
+    QFont font;
+    QFontMetrics fm (font);
+    StringsRect sr(fm);
+    ostringstream ostr;
+    QwtDoubleInterval interval = GetInterval ();
+    ostr << scientific << setprecision (1);
+
+    ostr.str ("");ostr << GetTitle ();
+    sr.StoreMax (ostr.str (), 
+                 Settings::BAR_WIDTH + Settings::BAR_IN_BETWEEN_DISTANCE);
+    ostr.str ("");ostr << interval.minValue ();
+    sr.StoreMax (ostr.str ());
+    ostr.str ("");ostr << interval.maxValue ();
+    sr.StoreMax (ostr.str ());
+    if (IsClampedMin ())
+    {
+        ostr.str ("");ostr << GetClampMin ();
+        sr.StoreMax (ostr.str ());
+    }
+    if (IsClampedMax ())
+    {
+        ostr.str ("");ostr << GetClampMax ();
+        sr.StoreMax (ostr.str ());
+    }
+    return G3D::Vector2 (sr.GetMaxWidth () + Settings::BAR_IN_BETWEEN_DISTANCE, 
+                         sr.GetMaxHeight ());
 }

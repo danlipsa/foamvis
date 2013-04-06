@@ -219,11 +219,8 @@ public:
         ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const;
     G3D::Rect2D GetOverlayBarRect (ViewNumber::Enum viewNumber, 
                                    const G3D::Rect2D& viewRect) const;
-    G3D::Vector2 GetBarLabelSize (ViewNumber::Enum viewNumber) const;
-    G3D::Vector2 GetBarLabelSize () const
-    {
-        return GetBarLabelSize (GetViewNumber ());
-    }
+    G3D::Vector2 GetColorBarLabelSize (ViewNumber::Enum viewNumber) const;
+    G3D::Vector2 GetOverlayBarLabelSize (ViewNumber::Enum viewNumber) const;
     // @}
 
     /**
@@ -425,8 +422,7 @@ private:
     int setCurrentTime (ViewNumber::Enum viewNumber, size_t linkedTime, 
                         bool setLastStep);
     G3D::Rect2D getBarRectWithLabels (
-        GetBarRectType getBarRect,
-        ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const;
+        const G3D::Rect2D& barRect, G3D::Vector2 labelSize) const;
     void setEdgeRadius (float edgeRadius)
     {
 	m_edgeRadius = edgeRadius;
