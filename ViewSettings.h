@@ -297,6 +297,20 @@ public:
     void CalculateCameraDistance (const G3D::AABox& centeredViewingVolume);
 
     void CopyTransformation (const ViewSettings& from);
+    // pixel in object space
+    void InitializeOnePixelInObjectSpace (float pixel)
+    {
+        if (m_onePixelInObjectSpace == 0)
+            m_onePixelInObjectSpace = pixel;
+    }
+    void SetOnePixelInObjectSpace (float pixel)
+    {
+        m_onePixelInObjectSpace = pixel;
+    }
+    float GetOnePixelInObjectSpace () const
+    {
+        return m_onePixelInObjectSpace;
+    }
     // @}
 
     /**
@@ -558,7 +572,7 @@ public:
     // @}
 
 
-    // ContextDisplay
+    // Context
     void AddContextDisplayBody (size_t bodyId)
     {
 	m_contextBody.insert (bodyId);
@@ -571,6 +585,14 @@ public:
     size_t GetContextDisplayBodySize () const
     {
 	return m_contextBody.size ();
+    }
+    float GetObjectAlpha () const
+    {
+	return m_objectAlpha;
+    }
+    void SetObjectAlpha (float alpha)
+    {
+	m_objectAlpha = alpha;
     }
     // @}
     
@@ -629,6 +651,38 @@ public:
 
     /**
      * @{
+     * @name Bubble path
+     */
+    QColor GetBubblePathsContextColor () const;
+    bool IsPartialPathHidden () const
+    {
+	return m_centerPathHidden;
+    }
+    void SetPartialPathHidden (bool centerPathHidden)
+    {
+	m_centerPathHidden = centerPathHidden;
+    }
+    size_t GetBubblePathsTimeBegin () const
+    {
+        return m_bubblePathsTimeBegin;
+    }
+    void SetBubblePathsTimeBegin (size_t time)
+    {
+        m_bubblePathsTimeBegin = time;
+    }
+    size_t GetBubblePathsTimeEnd () const
+    {
+        return m_bubblePathsTimeEnd;
+    }
+    void SetBubblePathsTimeEnd (size_t time)
+    {
+        m_bubblePathsTimeEnd = time;
+    }
+    // @}
+
+
+    /**
+     * @{
      * @name Time and LinkedTime
      */
     size_t GetTime () const
@@ -671,22 +725,6 @@ public:
     {
         m_timeDisplacement = time;
     }    
-    size_t GetBubblePathsTimeBegin () const
-    {
-        return m_bubblePathsTimeBegin;
-    }
-    void SetBubblePathsTimeBegin (size_t time)
-    {
-        m_bubblePathsTimeBegin = time;
-    }
-    size_t GetBubblePathsTimeEnd () const
-    {
-        return m_bubblePathsTimeEnd;
-    }
-    void SetBubblePathsTimeEnd (size_t time)
-    {
-        m_bubblePathsTimeEnd = time;
-    }
     // @}
 
 
@@ -694,16 +732,6 @@ public:
      * @{
      * @name Various
      */
-    QColor GetBubblePathsContextColor () const;
-    bool IsPartialPathHidden () const
-    {
-	return m_centerPathHidden;
-    }
-    void SetPartialPathHidden (bool centerPathHidden)
-    {
-	m_centerPathHidden = centerPathHidden;
-    }
-
     size_t GetSimulationIndex () const
     {
 	return m_simulationIndex;
@@ -730,14 +758,6 @@ public:
     void SetDomainClipped (bool clipped)
     {
         m_domainClipped = clipped;
-    }
-    float GetObjectAlpha () const
-    {
-	return m_objectAlpha;
-    }
-    void SetObjectAlpha (float alpha)
-    {
-	m_objectAlpha = alpha;
     }
     //@}
 
@@ -859,6 +879,7 @@ private:
     size_t m_bubblePathsTimeEnd;
     float m_kdeValue;
     int m_kdeMultiplier;
+    float m_onePixelInObjectSpace;
 };
 
 

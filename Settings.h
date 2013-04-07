@@ -250,11 +250,16 @@ public:
      * @{
      * @name Arrow display
      */
-    void SetEdgeArrow (float onePixelInObjectSpace);
-    float GetEdgeRadius () const 
-    {
-	return m_edgeRadius;
-    }
+    /**
+     * These afect the bubble paths as well.
+     */
+    void SetArrowParameters (float onePixelInObjectSpace);
+    static void SetArrowParameters (
+        float onePixelInObjectSpace,
+        float* edgeRadius, float* arrowBaseRadius, float* arrowHeight, 
+        float edgeRadiusRatio = 0,
+        float* edgeWidth = 0);
+
     float GetEdgeWidth () const 
     {
 	return m_edgeWidth;
@@ -276,6 +281,41 @@ public:
 	m_edgeRadiusRatio = edgeRadiusRatio;
     }
     // @}
+
+
+    /**
+     * @{
+     * @name Bubble paths
+     */
+    /**
+     * Switches between line and tube/quadric
+     */
+    float GetEdgeRadius () const 
+    {
+	return m_edgeRadius;
+    }
+    bool IsBubblePathsLineUsed () const
+    {
+	return m_centerPathLineUsed;
+    }
+    void SetBubblePathsLineUsed (bool used)
+    {
+	m_centerPathLineUsed = used;
+    }
+    /**
+     * Switches between tube and quadric
+     */
+    bool IsBubblePathsTubeUsed () const
+    {
+	return m_centerPathTubeUsed;
+    }
+    void SetBubblePathsTubeUsed (bool used)
+    {
+	m_centerPathTubeUsed = used;
+    }
+    // @}
+
+
 
 
     /**
@@ -309,22 +349,6 @@ public:
     }
     QColor GetHighlightColor (ViewNumber::Enum viewNumber, 
 			      HighlightNumber::Enum highlight) const;
-    bool IsBubblePathsLineUsed () const
-    {
-	return m_centerPathLineUsed;
-    }
-    bool IsBubblePathsTubeUsed () const
-    {
-	return m_centerPathTubeUsed;
-    }
-    void SetBubblePathsTubeUsed (bool used)
-    {
-	m_centerPathTubeUsed = used;
-    }
-    void SetBubblePathsLineUsed (bool used)
-    {
-	m_centerPathLineUsed = used;
-    }
     bool IsTitleShown () const
     {
 	return m_titleShown;
@@ -397,6 +421,7 @@ public:
     const static size_t BAR_MARGIN_DISTANCE;
     const static size_t BAR_WIDTH;
     const static size_t BAR_IN_BETWEEN_DISTANCE;
+    const static size_t MAX_RADIUS_MULTIPLIER;
 
 private Q_SLOTS:
     void selectionChanged (int viewNumber);
@@ -412,7 +437,7 @@ private:
     size_t initViewSettings (
         ViewNumber::Enum viewNumber,
         const SimulationGroup& simulationGroup, float w, float h);
-    void initAllViewsSettings (
+    void initAllViewSettings (
         const SimulationGroup& simulationGroup, float w, float h);
     void checkLinkedTimesValid () const;
     /**
@@ -423,22 +448,6 @@ private:
                         bool setLastStep);
     G3D::Rect2D getBarRectWithLabels (
         const G3D::Rect2D& barRect, G3D::Vector2 labelSize) const;
-    void setEdgeRadius (float edgeRadius)
-    {
-	m_edgeRadius = edgeRadius;
-    }
-    void setEdgeWidth (float edgeWidth)
-    {
-	m_edgeWidth = edgeWidth;
-    }
-    void setArrowBaseRadius (float arrowBaseRadius)
-    {
-	m_arrowBaseRadius = arrowBaseRadius;
-    }
-    void setArrowHeight (float arrowHeight)
-    {
-	m_arrowHeight = arrowHeight;
-    }
 
 
 private:

@@ -99,7 +99,8 @@ ViewSettings::ViewSettings () :
     m_bubblePathsTimeBegin (0),
     m_bubblePathsTimeEnd (0),
     m_kdeValue (0),
-    m_kdeMultiplier (3)
+    m_kdeMultiplier (3),
+    m_onePixelInObjectSpace (0)
 {
     setInitialLightParameters ();
     for (size_t i = 0; i < m_averageAroundBodyId.size (); ++i)

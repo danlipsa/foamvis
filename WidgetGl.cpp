@@ -818,9 +818,10 @@ void WidgetGl::displayView (ViewNumber::Enum viewNumber)
     const Simulation& simulation = GetSimulation (viewNumber);
     vs.SetGlLightParameters (CalculateCenteredViewingVolume (viewNumber));
     allTransform (viewNumber);
+    vs.InitializeOnePixelInObjectSpace (
+        GetOnePixelInObjectSpace (simulation.Is2D ()));
+    GetSettingsPtr ()->SetArrowParameters (vs.GetOnePixelInObjectSpace ());
     setTorusDomainClipPlanes (viewNumber);
-    GetSettingsPtr ()->SetEdgeArrow (GetOnePixelInObjectSpace
-                                     (simulation.Is2D ()));
     displayAllViewTransforms (viewNumber);
     displayViewDecorations (viewNumber);
     displayAxes (viewNumber);
@@ -1528,15 +1529,19 @@ void WidgetGl::displayBoundingBox (ViewNumber::Enum viewNumber) const
 
 void WidgetGl::displayAxes (ViewNumber::Enum viewNumber)
 {
-    if (GetSettings ().AxesShown ())
+    const Settings& settings = GetSettings ();
+    const Simulation& simulation = GetSimulation (viewNumber);
+    if (settings.AxesShown ())
     {
+        float arrowBaseRadius, edgeRadius, arrowHeight;
+        Settings::SetArrowParameters (
+            GetOnePixelInObjectSpace (simulation.Is2D ()),
+            &edgeRadius, &arrowBaseRadius, &arrowHeight);
 	glPushAttrib (GL_CURRENT_BIT);
 	DisplayArrowQuadric displayArrow (
-	    GetQuadric (), 
-	    GetSettings ().GetArrowBaseRadius (), 
-	    GetSettings ().GetEdgeRadius (), GetSettings ().GetArrowHeight ());
+	    GetQuadric (), arrowBaseRadius, edgeRadius, arrowHeight);
 
-	const Simulation& simulation = GetSimulation (viewNumber);
+
 	QFont font;
 	float a;
 	QFontMetrics fm (font);
@@ -2403,7 +2408,7 @@ void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
 	GetSimulation ().GetBodiesAlongTime ().GetBodyMap ();
     if (GetSettings ().GetEdgeRadiusRatio () > 0 && 
 	! GetSettings ().IsBubblePathsLineUsed ())
-    {
+     {
 	if (GetSettings ().IsBubblePathsTubeUsed ())
 	    for_each (
 		bats.begin (), bats.end (),
@@ -4172,7 +4177,6 @@ void WidgetGl::ToggledEdgesTessellationShown (bool checked)
 
 void WidgetGl::ToggledBubblePathsTubeUsed (bool checked)
 {
-    cdbg << "center path tube used: " << checked << endl;
     makeCurrent ();
     GetSettingsPtr ()->SetBubblePathsTubeUsed (checked);
     CompileUpdateAll ();
@@ -4180,7 +4184,6 @@ void WidgetGl::ToggledBubblePathsTubeUsed (bool checked)
 
 void WidgetGl::ToggledBubblePathsLineUsed (bool checked)
 {
-    cdbg << "center path line used: " << checked << endl;
     makeCurrent ();
     GetSettingsPtr ()->SetBubblePathsLineUsed (checked);
     CompileUpdateAll ();
@@ -4242,6 +4245,8 @@ void WidgetGl::CurrentIndexChangedSimulation (int i)
     G3D::Vector3 center = 
         CalculateViewingVolume (viewNumber, simulation).center ();
     vs.SetSimulation (i, simulation, center);
+    allTransform (viewNumber);
+    vs.SetOnePixelInObjectSpace (GetOnePixelInObjectSpace (simulation.Is2D ()));
     CompileUpdate ();
 }
 
@@ -4531,16 +4536,14 @@ void WidgetGl::ValueChangedHighlightLineWidth (int newWidth)
 
 void WidgetGl::ValueChangedEdgesRadius (int sliderValue)
 {
+    ViewSettings& vs = GetViewSettings ();
     makeCurrent ();
     size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
     GetSettingsPtr ()->SetEdgeRadiusRatio (
         static_cast<double>(sliderValue) / maximum);
-    const Simulation& simulation = GetSimulation ();
-    GetSettingsPtr ()->SetEdgeArrow (
-        GetOnePixelInObjectSpace (simulation.Is2D ()));
+    GetSettingsPtr ()->SetArrowParameters (vs.GetOnePixelInObjectSpace ());
     CompileUpdateAll ();
 }
-
 
 void WidgetGl::ValueChangedLightAmbientRed (int sliderValue)
 {

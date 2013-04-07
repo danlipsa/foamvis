@@ -68,6 +68,7 @@ const size_t Settings::QUADRIC_STACKS = 1;
 const size_t Settings::BAR_MARGIN_DISTANCE = 15;
 const size_t Settings::BAR_WIDTH = 10;
 const size_t Settings::BAR_IN_BETWEEN_DISTANCE = 5;
+const size_t Settings::MAX_RADIUS_MULTIPLIER = 5;
 
 Settings::Settings (
     boost::shared_ptr<const SimulationGroup> simulationGroup, float w, float h) :
@@ -100,22 +101,31 @@ Settings::Settings (
     m_interactionMode (InteractionMode::ROTATE),
     m_interactionObject (InteractionObject::FOCUS)
 {
-    initAllViewsSettings (*simulationGroup, w, h);
+    initAllViewSettings (*simulationGroup, w, h);
     initEndTranslationColor ();
 }
 
-void Settings::SetEdgeArrow (float onePixelInObjectSpace)
+void Settings::SetArrowParameters (float onePixelInObjectSpace)
 {
-    const int maxRadiusMultiplier = 5;
-
-    float r = onePixelInObjectSpace;
-    float R = maxRadiusMultiplier * r;
-
-    setEdgeRadius ((R - r) * GetEdgeRadiusRatio () + r);
-    setEdgeWidth ((maxRadiusMultiplier - 1) * GetEdgeRadiusRatio () + 1);
-    setArrowBaseRadius (4 * GetEdgeRadius ());
-    setArrowHeight (11 * GetEdgeRadius ());
+    SetArrowParameters (
+        onePixelInObjectSpace,
+        &m_edgeRadius, &m_arrowBaseRadius, &m_arrowHeight, GetEdgeRadiusRatio (),
+        &m_edgeWidth);
 }
+
+void Settings::SetArrowParameters (
+    float onePixelInObjectSpace,
+    float* edgeRadius, float* arrowBaseRadius, float* arrowHeight, 
+    float edgeRadiusRatio,float* ew)
+{
+    float edgeWidth = (MAX_RADIUS_MULTIPLIER - 1) * edgeRadiusRatio + 1;
+    if (ew != 0)
+        *ew = edgeWidth;
+    *edgeRadius = onePixelInObjectSpace * edgeWidth;
+    *arrowBaseRadius = 4 * (*edgeRadius);
+    *arrowHeight = 11 * (*edgeRadius);
+}
+
 
 const QColor& Settings::GetEndTranslationColor (
     const G3D::Vector3int16& di) const
@@ -188,7 +198,7 @@ size_t Settings::initViewSettings (ViewNumber::Enum viewNumber,
 
 
 
-void Settings::initAllViewsSettings (
+void Settings::initAllViewSettings (
     const SimulationGroup& simulationGroup, float w, float h)
 {
     m_signalMapperSelectionChanged.reset (new QSignalMapper (this));

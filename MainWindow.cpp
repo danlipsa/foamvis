@@ -205,6 +205,7 @@ void MainWindow::configureInterfaceDataDependent (
 	comboBoxColor->setItemText (
 	    BodyScalar::DEFORMATION_SIMPLE,
 	    BodyScalar::ToString (BodyScalar::DEFORMATION_SIMPLE));
+        horizontalSliderEdgesRadius->setValue (50);
     }
     size_t viewCount = min (simulationGroup.size (), 
 			    size_t (ViewCount::COUNT - 1));
