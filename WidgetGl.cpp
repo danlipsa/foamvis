@@ -2734,9 +2734,17 @@ void WidgetGl::displayT1Legend (const G3D::Rect2D& barRect)
     StringWidth sw;
     for (size_t i = 0; i < T1Type::COUNT; ++i)
         sw.AddString (T1Type::ToString (T1Type::Enum (i)));
+    // display the title
+    QFont font;
+    QFontMetrics fm (font);
+    const char* title = "Topological changes";
+    QRect titleRect = fm.tightBoundingRect (title);
+    glColor (Qt::black);
+    renderText (barRect.x1 () - titleRect.width (), 
+                barRect.y1 () + Settings::BAR_IN_BETWEEN_DISTANCE, 0, 
+                title);
 
-
-
+    // display the legend and the labels
     glPushAttrib (GL_POLYGON_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
     glDisable (GL_DEPTH_TEST);
     float height = (barRect.y1 () - barRect.y0 ()) / T1Type::COUNT;

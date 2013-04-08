@@ -193,6 +193,7 @@ void MainWindow::configureInterfaceDataDependent (
 	    if (extent.x > extent.y && simulation.GetRotation2D () == 0)
 		comboBoxViewLayout->setCurrentIndex (ViewLayout::VERTICAL);
 	}
+        checkBoxVelocityColorMapped->setChecked (false);
     }
     else
     {

@@ -225,7 +225,7 @@ void Simulation::Preprocess ()
     if (m_pressureAdjusted && ! GetFoam (0).HasFreeFace ())
         adjustPressureAlignMedians ();
     calculateStatistics ();
-    if (IsTorus ())
+    if (IsTorus () && Is3D ())
     {
         for (size_t i = 0; i < m_topologicalChange.size (); ++i)
         {

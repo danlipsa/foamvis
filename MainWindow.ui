@@ -341,7 +341,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tabSettings">
         <attribute name="title">
@@ -363,7 +363,7 @@
             <bool>true</bool>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="tabFirst">
             <attribute name="title">
@@ -1924,7 +1924,7 @@
              <item row="1" column="0">
               <widget class="QLabel" name="label_31">
                <property name="text">
-                <string>Sigma</string>
+                <string>Standard deviation</string>
                </property>
               </widget>
              </item>
