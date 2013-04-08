@@ -246,6 +246,31 @@ double* InterpolateAttribute (
     const char* name, vector<double>* attribute);
 
 
+class StringWidth
+{
+public:
+    StringWidth () :
+        m_font(), m_fm (m_font), m_width (0)
+    {
+    }
+    void AddString (const string& s, float lessWidth = 0);
+    float GetMaxWidth () const
+    {
+        return m_width;
+    }
+    float GetHeight () const
+    {
+        return m_fm.height ();
+    }
+
+private:
+    QFont m_font;
+    QFontMetrics m_fm;
+    float m_width;
+};
+
+
+
 /**
  * Fix of G3D version 8.0, 
  * Vector3::isZero () which tests against fuzzyEpsilon instead of 

@@ -816,7 +816,16 @@ double* InterpolateAttribute (
     return &(*attribute)[0];
 }
 
+// StringWidth
+//======================================================================
 
+void StringWidth::AddString (const string& s, float lessWidth)
+{
+    QRect br = m_fm.tightBoundingRect (s.c_str ());
+    float width = br.width () - lessWidth;
+    if (m_width < width)
+        m_width = width;
+}
 
 // Template instantiations
 //======================================================================

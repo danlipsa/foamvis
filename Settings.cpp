@@ -446,17 +446,27 @@ G3D::Rect2D Settings::GetViewRect (
 
 
 
-G3D::Rect2D Settings::GetColorBarRect (ViewNumber::Enum viewNumber, 
-                                       const G3D::Rect2D& viewRect) const
+G3D::Rect2D Settings::GetColorBarRect (const G3D::Rect2D& viewRect) const
 {
-    (void)viewNumber;
     float barHeight = 
-        m_barLarge ? (viewRect.height () - 2 * BAR_MARGIN_DISTANCE) : 
+        m_barLarge ? (viewRect.height () - 3 * BAR_MARGIN_DISTANCE) : 
         max (viewRect.height () / 4, 50.0f);
     return G3D::Rect2D::xywh (viewRect.x0 () + BAR_MARGIN_DISTANCE, 
                               viewRect.y0 () + BAR_MARGIN_DISTANCE,
                               BAR_WIDTH, barHeight);
 }
+
+G3D::Rect2D Settings::GetT1Rect (const G3D::Rect2D& viewRect) const
+{
+    float barHeight = 
+        m_barLarge ? (viewRect.height () - 3 * BAR_MARGIN_DISTANCE) : 
+        max (viewRect.height () / 4, 50.0f);
+    return G3D::Rect2D::xywh (viewRect.x1 () - BAR_MARGIN_DISTANCE - BAR_WIDTH, 
+                              viewRect.y0 () + BAR_MARGIN_DISTANCE,
+                              BAR_WIDTH, barHeight);
+}
+
+
 
 G3D::Rect2D Settings::GetOverlayBarRect (ViewNumber::Enum viewNumber, 
                                          const G3D::Rect2D& viewRect) const
@@ -466,7 +476,7 @@ G3D::Rect2D Settings::GetOverlayBarRect (ViewNumber::Enum viewNumber,
     if (vs.IsScalarShown () && ! vs.IsScalarContext ())
         colorBarWidth = BAR_WIDTH + BAR_IN_BETWEEN_DISTANCE;
     float barHeight = 
-        m_barLarge ? (viewRect.height () - 2 * BAR_MARGIN_DISTANCE): 
+        m_barLarge ? (viewRect.height () - 3 * BAR_MARGIN_DISTANCE): 
         max (viewRect.height () / 4, 50.0f);
     return G3D::Rect2D::xywh (
         viewRect.x0 () + BAR_MARGIN_DISTANCE + colorBarWidth, 
@@ -492,7 +502,7 @@ G3D::Vector2 Settings::GetOverlayBarLabelSize (ViewNumber::Enum viewNumber) cons
 G3D::Rect2D Settings::GetColorBarRectWithLabels (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const
 {
-    return getBarRectWithLabels (GetColorBarRect (viewNumber, viewRect),
+    return getBarRectWithLabels (GetColorBarRect (viewRect),
                                  GetColorBarLabelSize (viewNumber));
 }
 

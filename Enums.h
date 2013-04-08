@@ -565,30 +565,61 @@ struct ForceType
 // a region is all bins i such that first <= i < second
 typedef vector<pair<size_t, size_t> > BinRegions;
 
-struct TopologicalChange
+struct T1Type
+{
+    /**
+     * 2D: POP_VERTEX
+     * 3D: any of these, COUNT means the type is unknown
+     */
+    enum Enum
+    {
+        QUAD_TO_QUAD,
+        TRI_TO_EDGE,
+        EDGE_TO_TRI,
+        POP_EDGE,
+        POP_VERTEX,
+        COUNT
+    };
+    static Enum FromSizeT (size_t i);
+    static QColor ToColor (T1Type::Enum);
+    static const char* ToString (T1Type::Enum type);
+
+private:
+    static boost::array<const char*, COUNT> NAME;
+    static boost::array<QColor, COUNT> COLOR;
+};
+
+
+struct T1
 {
 public:
-    TopologicalChange () : 
-        m_type (0) 
+    T1 () : 
+        m_type (T1Type::COUNT)
     {}
-    TopologicalChange (G3D::Vector3 position, size_t type) :
+    T1 (G3D::Vector3 position, T1Type::Enum type) :
         m_position (position), m_type (type)
     {}
 
-public:
+    void SetPosition (const G3D::Vector3& v)
+    {
+        m_position = v;
+    }
+    const G3D::Vector3& GetPosition () const
+    {
+        return m_position;
+    }
+    void SetType (T1Type::Enum tct)
+    {
+        m_type = tct;
+    }
+    T1Type::Enum GetType () const
+    {
+        return m_type;
+    }
+
+private:
     G3D::Vector3 m_position;
-    /**
-     *
-     * type is 0 if unknown,
-     * 2D: 1
-     * 3D:
-     *   1: quad_to_quad
-     *   2: tri_to_Edge
-     *   3: edge_to_tri
-     *   4: pop edge
-     *   5: pop vertex
-     */
-    size_t m_type;
+    T1Type::Enum m_type;
 };
 
 

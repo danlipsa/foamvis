@@ -29,7 +29,7 @@ public:
 	return *boost::static_pointer_cast<ScalarAverage> (m_scalarAverage);
     }
     
-    T1sKDE& GetTopologicalChangeKDE () const
+    T1sKDE& GetT1KDE () const
     {
 	return *boost::static_pointer_cast<T1sKDE> (m_topologicalChangeKDE);
     }

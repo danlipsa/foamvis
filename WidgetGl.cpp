@@ -1788,27 +1788,27 @@ void WidgetGl::displayBodiesNeighbors () const
     }
 }
 
-void WidgetGl::displayTopologicalChange (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayT1 (ViewNumber::Enum viewNumber) const
 {
     if (m_t1sShown)
     {
         if (m_t1sAllTimesteps)
-            displayTopologicalChangeAllTimesteps (viewNumber);
+            displayT1AllTimesteps (viewNumber);
         else
-            displayTopologicalChangeTimestep (
-                viewNumber, GetTime (viewNumber));    
+            displayT1Timestep (
+                viewNumber, GetTime (viewNumber));
     }
 }
 
-void WidgetGl::displayTopologicalChangeAllTimesteps (
+void WidgetGl::displayT1AllTimesteps (
     ViewNumber::Enum viewNumber) const
 {
     for (size_t i = 0; 
-         i < GetSimulation (viewNumber).GetTopologicalChangeTimeSteps (); ++i)
-	displayTopologicalChangeTimestep (viewNumber, i);
+         i < GetSimulation (viewNumber).GetT1TimeSteps (); ++i)
+	displayT1Timestep (viewNumber, i);
 }
 
-void WidgetGl::displayTopologicalChangeTimestep2D (
+void WidgetGl::displayT1Timestep2D (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -1822,27 +1822,29 @@ void WidgetGl::displayTopologicalChangeTimestep2D (
                                                HighlightNumber::H0));
     glBegin (GL_POINTS);
     BOOST_FOREACH (
-        const TopologicalChange tc, 
-        simulation.GetTopologicalChange (timeStep, vs.T1sShiftLower ()))
-	::glVertex (tc.m_position);
+        const T1 tc, 
+        simulation.GetT1 (timeStep, vs.T1sShiftLower ()))
+	::glVertex (tc.GetPosition ());
     glEnd ();
     glPopAttrib ();
 }
 
-void WidgetGl::displayTopologicalChangeTimestep3D (
+void WidgetGl::displayT1Timestep3D (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
     glPushAttrib (GL_CURRENT_BIT);
     BOOST_FOREACH (
-        const TopologicalChange tc, 
-        simulation.GetTopologicalChange (timeStep, vs.T1sShiftLower ()))
+        const T1 tc, 
+        simulation.GetT1 (timeStep, vs.T1sShiftLower ()))
     {
-        glColor (GetSettings ().GetHighlightColor (
-                     viewNumber, HighlightNumber::H0));
+        glColor (
+            tc.GetType () == T1Type::COUNT ? 
+            GetSettings ().GetHighlightColor (viewNumber, HighlightNumber::H0) :
+            T1Type::ToColor (tc.GetType ()));
         glPushMatrix ();
-        glTranslate (tc.m_position);
+        glTranslate (tc.GetPosition ());
         gluSphere (GetQuadric (), 
                    GetBubbleDiameter (viewNumber) * m_t1sSize / 2, 16, 16);
         glPopMatrix ();
@@ -1850,14 +1852,14 @@ void WidgetGl::displayTopologicalChangeTimestep3D (
     glPopAttrib ();
 }
 
-void WidgetGl::displayTopologicalChangeTimestep (
+void WidgetGl::displayT1Timestep (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
     if (simulation.Is2D ())
-        displayTopologicalChangeTimestep2D (viewNumber, timeStep);
+        displayT1Timestep2D (viewNumber, timeStep);
     else
-        displayTopologicalChangeTimestep3D (viewNumber, timeStep);
+        displayT1Timestep3D (viewNumber, timeStep);
 }
 
 void WidgetGl::DisplayT1Quad (
@@ -1866,14 +1868,14 @@ void WidgetGl::DisplayT1Quad (
     ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
     T1sKDE& t1sKDE = 
-        GetAttributeAverages2D (viewNumber).GetTopologicalChangeKDE ();
+        GetAttributeAverages2D (viewNumber).GetT1KDE ();
     float rectSize = t1sKDE.GetKernelTextureSize () * 
 	GetOnePixelInObjectSpace (simulation.Is2D ());
     float half = rectSize / 2;
     G3D::Rect2D srcTexRect = G3D::Rect2D::xyxy (0., 0., 1., 1.);
     const G3D::Vector3 t1Pos = 
-	GetSimulation (viewNumber).GetTopologicalChange (
-	    timeStep, vs.T1sShiftLower ())[t1Index].m_position;
+	GetSimulation (viewNumber).GetT1 (
+	    timeStep, vs.T1sShiftLower ())[t1Index].GetPosition ();
     G3D::Vector2 v = t1Pos.xy ();
     G3D::Rect2D srcRect = G3D::Rect2D::xyxy (
 	v + G3D::Vector2 (- half, - half),
@@ -1939,7 +1941,7 @@ pair<float, float> WidgetGl::GetRangeT1sKDE (ViewNumber::Enum viewNumber) const
 {
     return pair<float, float> (
         0.0, GetAttributeAverages2D (
-            viewNumber).GetTopologicalChangeKDE ().GetMax ());
+            viewNumber).GetT1KDE ().GetMax ());
 }
 
 void WidgetGl::displayEdgesTorus (ViewNumber::Enum viewNumber) const
@@ -2098,7 +2100,7 @@ void WidgetGl::compileFacesNormal (ViewNumber::Enum viewNumber) const
     displayStandaloneFaces (viewNumber);    
     displayDeformation (viewNumber);
     displayVelocityGlyphs (viewNumber);
-    displayTopologicalChange (viewNumber);
+    displayT1 (viewNumber);
     GetAttributeAverages2D (viewNumber).GetForceAverage ().DisplayOneTimeStep ();
     glEndList ();
 }
@@ -2162,15 +2164,15 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     displayVelocityStreamlines (viewNumber);
     displayAverageAroundBodies (viewNumber, isAverageAroundRotationShown);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (foam);
-    displayTopologicalChange (viewNumber);
+    displayT1 (viewNumber);
     displayContextBodies (viewNumber);
     displayContextBox (viewNumber, isAverageAroundRotationShown);
-    T1sKDE& t1sKDE = aa.GetTopologicalChangeKDE ();
+    T1sKDE& t1sKDE = aa.GetT1KDE ();
     if (vs.GetViewType () == ViewType::T1S_KDE &&
 	t1sKDE.IsKernelTextureShown ())
     {
 	size_t timeStep = GetTime (viewNumber);
-	size_t stepSize = GetSimulation (viewNumber).GetTopologicalChange (
+	size_t stepSize = GetSimulation (viewNumber).GetT1 (
 	    timeStep, vs.T1sShiftLower ()).size ();
 	for (size_t i = 0; i < stepSize; ++i)
 	    t1sKDE.DisplayTextureSize (viewNumber, timeStep, i);
@@ -2369,7 +2371,7 @@ void WidgetGl::displayBubblePathsWithBodies (ViewNumber::Enum viewNumber) const
     if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
     displayBubblePathsBody (viewNumber);
-    displayTopologicalChange (viewNumber);
+    displayT1 (viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (
 	simulation.GetFoam (currentTime), viewNumber, true, 0);
     if (vs.GetTimeDisplacement () != 0)
@@ -2461,7 +2463,7 @@ size_t WidgetGl::GetTimeSteps (ViewNumber::Enum viewNumber) const
     size_t simulationIndex = vs.GetSimulationIndex ();
     const Simulation& simulation = GetSimulation (simulationIndex);
     return (viewType == ViewType::T1S_KDE) ?
-	simulation.GetTopologicalChangeTimeSteps () :
+	simulation.GetT1TimeSteps () :
 	simulation.GetTimeSteps ();
 }
 
@@ -2569,39 +2571,42 @@ void WidgetGl::displayTwoHalvesLine (ViewNumber::Enum viewNumber) const
 void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Settings& settings = GetSettings ();
+    const Simulation& simulation = GetSimulation (viewNumber);
     initTransformViewport ();
     if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
     glDisable (GL_DEPTH_TEST);
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     float xTranslateBar = 0;
-    if (GetSettings ().GetColorBarType (viewNumber) != ColorBarType::NONE &&
+    if (settings.GetColorBarType (viewNumber) != ColorBarType::NONE &&
         vs.IsScalarShown () && ! vs.IsScalarContext ())
     {
-	G3D::Rect2D viewColorBarRect = 
-            GetSettings ().GetColorBarRect (viewNumber, viewRect);
+	G3D::Rect2D viewColorBarRect = settings.GetColorBarRect (viewRect);
 	displayColorBar (
 	    m_colorBarTexture[viewNumber], *vs.GetColorBarModel (),
-            viewNumber, viewColorBarRect);
-        xTranslateBar = GetSettings ().GetColorBarLabelSize (viewNumber).x;
+            viewColorBarRect);
+        xTranslateBar = settings.GetColorBarLabelSize (viewNumber).x;
     }
     if (vs.IsVelocityShown ())
     {
         const VectorAverage& va = 
             GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
-        G3D::Rect2D barRect = GetSettings ().GetOverlayBarRect (
+        G3D::Rect2D barRect = settings.GetOverlayBarRect (
             viewNumber, viewRect) + G3D::Vector2 (xTranslateBar, 0);
         if (va.IsColorMapped ())
             displayColorBar (
                 m_overlayBarTexture[viewNumber], *vs.GetOverlayBarModel (),
-                viewNumber, barRect);
+                barRect);
         else if (vs.GetVelocityVis () == VectorVis::GLYPH && ! va.IsSameSize ())
             displayOverlayBar (viewNumber, barRect);
     }
+    if (m_t1sShown && simulation.Is3D ())
+        displayT1Legend (settings.GetT1Rect (GetViewRect (viewNumber)));
     displayViewTitle (viewNumber);
     if (viewNumber == GetViewNumber () && 
-	GetSettings ().IsViewFocusShown () &&
-	GetSettings ().GetViewCount () != ViewCount::ONE)
+	settings.IsViewFocusShown () &&
+	settings.GetViewCount () != ViewCount::ONE)
 	displayViewFocus (viewNumber);
     displayTwoHalvesLine (viewNumber);
     cleanupTransformViewport ();
@@ -2673,8 +2678,7 @@ void WidgetGl::displayViewFocus (ViewNumber::Enum viewNumber)
 }
 
 void WidgetGl::displayColorBar (
-    GLuint texture, const ColorBarModel& barModel,
-    ViewNumber::Enum viewNumber, const G3D::Rect2D& br)
+    GLuint texture, const ColorBarModel& barModel, const G3D::Rect2D& br)
 {
     G3D::Vector2 s = barModel.GetBarLabelSize ();
     G3D::Rect2D barRect = G3D::Rect2D::xywh (
@@ -2699,7 +2703,7 @@ void WidgetGl::displayColorBar (
     DisplayBox (barRect);
     glPopAttrib ();
     displayBarClampLevels (barModel, barRect);
-    displayBarLabels (viewNumber, barModel, br);
+    displayBarLabels (barModel, br);
 }
 
 void WidgetGl::displayOverlayBar (
@@ -2721,21 +2725,45 @@ void WidgetGl::displayOverlayBar (
     DisplayBox (barRect);
     displayBarClampLevels (barModel, barRect);
     glPopAttrib ();
-    displayBarLabels (viewNumber, barModel, br);
+    displayBarLabels (barModel, br);
 }
 
+void WidgetGl::displayT1Legend (const G3D::Rect2D& barRect)
+{
+    // max width of the labels
+    StringWidth sw;
+    for (size_t i = 0; i < T1Type::COUNT; ++i)
+        sw.AddString (T1Type::ToString (T1Type::Enum (i)));
+
+
+
+    glPushAttrib (GL_POLYGON_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
+    glDisable (GL_DEPTH_TEST);
+    float height = (barRect.y1 () - barRect.y0 ()) / T1Type::COUNT;
+    float beginY = barRect.y0 ();
+    for (size_t i = 0; i < T1Type::COUNT; ++i)
+    {
+        T1Type::Enum t1Type = T1Type::FromSizeT (i);
+        glColor (T1Type::ToColor (t1Type));
+        DisplayBox (G3D::Rect2D::xywh (barRect.x0 (), beginY, 
+                                       barRect.width (), height));
+        glColor (Qt::black);
+        renderText (barRect.x0 () - sw.GetMaxWidth () - 
+                    Settings::BAR_IN_BETWEEN_DISTANCE, 
+                    beginY + height / 2, 0, T1Type::ToString (t1Type));
+        beginY += height;
+    }
+    glPopAttrib ();
+}
 
 void WidgetGl::displayBarLabels (
-    ViewNumber::Enum viewNumber,
     const ColorBarModel& cbm, const G3D::Rect2D& barRect)
 {
     if (! GetSettings ().BarLabelsShown ())
         return;
-    const Simulation& simulation = GetSimulation (viewNumber);
-    float onePixelInObjectSpace = GetOnePixelInObjectSpace (simulation.Is2D ());
     QFont font;
-    float distance = Settings::BAR_IN_BETWEEN_DISTANCE * onePixelInObjectSpace;
     QFontMetrics fm (font);
+    float distance = Settings::BAR_IN_BETWEEN_DISTANCE;
     ostringstream ostr;
     ostr << scientific << setprecision (1);
     glColor (Qt::black);
@@ -2752,20 +2780,20 @@ void WidgetGl::displayBarLabels (
     ostr.str ("");ostr  << interval.maxValue ();
     QRect br = fm.tightBoundingRect (ostr.str ().c_str ());
     G3D::Vector2 maxPos = barRect.x1y1 () + G3D::Vector2 (distance, 0);
-    maxPos -= G3D::Vector2 (0, br.height () * onePixelInObjectSpace);
+    maxPos -= G3D::Vector2 (0, br.height ());
     renderText (maxPos.x, maxPos.y, 0, ostr.str ().c_str ());
     // bottom clamp label
     if (cbm.IsClampedMin ())
     {
         ostr.str ("");ostr << cbm.GetClampMin ();
-        minPos += G3D::Vector2 (0, fm.height () * onePixelInObjectSpace);
+        minPos += G3D::Vector2 (0, fm.height ());
         renderText (minPos.x, minPos.y, 0, ostr.str ().c_str ());
     }
     // top clamp label
     if (cbm.IsClampedMax ())
     {
         ostr.str ("");ostr << cbm.GetClampMax ();
-        maxPos -= G3D::Vector2 (0, fm.height () * onePixelInObjectSpace);
+        maxPos -= G3D::Vector2 (0, fm.height ());
         renderText (maxPos.x, maxPos.y, 0, ostr.str ().c_str ());
     }
 }
@@ -2871,7 +2899,7 @@ void WidgetGl::ActivateViewShader (
 void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
 {
     T1sKDE& t1sKDE = GetAttributeAverages2D (
-        viewNumber).GetTopologicalChangeKDE ();
+        viewNumber).GetT1KDE ();
     t1sKDE.SetKernelSigmaInBubbleDiameters (
 	static_cast<QDoubleSpinBox*> (sender ())->value ());
     t1sKDE.AverageInitStep (GetViewSettings (viewNumber).GetTimeWindow ());
@@ -2881,7 +2909,7 @@ void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
 void WidgetGl::toggledT1sKernelTextureShown (ViewNumber::Enum viewNumber)
 {
     bool checked = static_cast<QCheckBox*> (sender ())->isChecked ();
-    GetAttributeAverages2D (viewNumber).GetTopologicalChangeKDE ().SetKernelTextureShown (checked);
+    GetAttributeAverages2D (viewNumber).GetT1KDE ().SetKernelTextureShown (checked);
     CompileUpdate (viewNumber);
 }
 
@@ -2943,9 +2971,9 @@ void WidgetGl::updateKDESeeds (
     vector<double> v(1);
     double p[3] = {cellCenter.x, cellCenter.y, 0};
     double kdeValue = *InterpolateAttribute (
-        GetAverageCache (viewNumber)->GetTopologicalChangeKDE (),
+        GetAverageCache (viewNumber)->GetT1KDE (),
         p, GetAttributeAverages2D (
-            viewNumber).GetTopologicalChangeKDE ().GetId (), &v);
+            viewNumber).GetT1KDE ().GetId (), &v);
     if (kdeValue > vs.GetKDEValue ())
     {
         VTK_CREATE (vtkIdList, cell);
@@ -3040,8 +3068,8 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
     if (vs.IsKDESeedEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
     {
         useKDESeeds = true;
-        if (GetAverageCache (viewNumber)->GetTopologicalChangeKDE () == 0)
-            m_average[viewNumber]->GetTopologicalChangeKDE ().CacheData (
+        if (GetAverageCache (viewNumber)->GetT1KDE () == 0)
+            m_average[viewNumber]->GetT1KDE ().CacheData (
                 GetAverageCache (viewNumber));
     }
 
@@ -3092,7 +3120,7 @@ void WidgetGl::CacheUpdateSeedsCalculateStreamline (ViewNumber::Enum viewNumber)
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsKDESeedEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
     {
-        m_average[viewNumber]->GetTopologicalChangeKDE ().CacheData (
+        m_average[viewNumber]->GetT1KDE ().CacheData (
             GetAverageCache (viewNumber));
     }
     updateStreamlineSeeds (viewNumber);
@@ -4004,6 +4032,7 @@ void WidgetGl::ToggledVelocityColorMapped (bool checked)
     for (size_t i = 0; i < vn.size (); ++i)
     {
         ViewNumber::Enum viewNumber = vn[i];
+        GetViewSettings (viewNumber).SetVelocityColorMapped (checked);
 	GetAttributeAverages2D (
             viewNumber).GetVelocityAverage ().SetColorMapped (checked);
         CompileUpdate (viewNumber);

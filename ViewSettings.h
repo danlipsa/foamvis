@@ -333,7 +333,14 @@ public:
     {
         m_velocityGlyphSameSize = same;
     }
-    
+    bool IsVelocityColorMapped () const
+    {
+        return m_velocityColorMapped;
+    }
+    void SetVelocityColorMapped (bool colorMapped)
+    {
+        m_velocityColorMapped = colorMapped;
+    }
     void SetVelocityVis (VectorVis::Enum vis)
     {
         m_velocityVis = vis;
@@ -865,6 +872,7 @@ private:
     float m_deformationSize;
     float m_deformationLineWidth;
     float m_velocityLineWidth;
+    bool m_velocityColorMapped;
     float m_forceSize;
     float m_forceLineWidth;
     float m_torqueDistance;

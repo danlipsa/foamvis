@@ -166,7 +166,7 @@ void MainWindow::configureInterfaceDataDependent (
 {
     const Simulation& simulation = simulationGroup.GetSimulation (0);
     setupSliderData (simulation);
-    if (simulation.IsTopologicalChangeAvailable ())
+    if (simulation.IsT1Available ())
     {
 	checkBoxT1sShown->setEnabled (true);	
 	radioButtonT1sKDE->setEnabled (true);
@@ -697,7 +697,7 @@ MainWindow::HistogramInfo MainWindow::getHistogramInfo (
     
     case ColorBarType::T1S_KDE:
 	return createHistogramInfo (
-	    widgetGl->GetRangeT1sKDE (), simulation.GetTopologicalChangeSize ());
+	    widgetGl->GetRangeT1sKDE (), simulation.GetT1Size ());
 
     default:
 	ThrowException ("Invalid call to getHistogramInfo");
@@ -1523,7 +1523,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 
 	case ViewType::T1S_KDE:
 	    sliderTimeSteps->setMaximum (
-                simulation.GetTopologicalChangeTimeSteps () - 1);
+                simulation.GetT1TimeSteps () - 1);
 	    break;
 
 	default:
@@ -1891,8 +1891,6 @@ void MainWindow::velocityViewToUI ()
     bool gridShown = false;
     bool clampingShown = false;
     bool gridCellCenterShown = false;
-    bool sameSize = false;
-    bool colorMapped = false;
     if (simulation.Is2D ())
     {
 	const VectorAverage& va = 
@@ -1900,8 +1898,6 @@ void MainWindow::velocityViewToUI ()
 	gridShown = va.IsGridShown ();
 	clampingShown = va.IsClampingShown ();
 	gridCellCenterShown = va.IsGridCellCenterShown ();
-	sameSize = va.IsSameSize ();
-	colorMapped = va.IsColorMapped ();
     }
 
     SetCheckedNoSignals (checkBoxVelocityShown, vs.IsVelocityShown ());
@@ -1911,8 +1907,10 @@ void MainWindow::velocityViewToUI ()
     SetCheckedNoSignals (checkBoxVelocityGlyphClampingShown, clampingShown);
     SetCheckedNoSignals (checkBoxVelocityGlyphGridCellCenterShown, 
 			 gridCellCenterShown);
-    SetCheckedNoSignals (checkBoxVelocityGlyphSameSize, sameSize);
-    SetCheckedNoSignals (checkBoxVelocityColorMapped, colorMapped);
+    SetCheckedNoSignals (checkBoxVelocityGlyphSameSize, 
+                         vs.IsVelocityGlyphSameSize ());
+    SetCheckedNoSignals (checkBoxVelocityColorMapped, 
+                         vs.IsVelocityColorMapped ());
     SetValueNoSignals (
 	horizontalSliderVelocityGlyphLineWidth, 
 	ValueToExponentIndex (horizontalSliderVelocityGlyphLineWidth,
@@ -1980,14 +1978,14 @@ void MainWindow::t1sKDEViewToUI (ViewNumber::Enum viewNumber)
         bool kernelTextureShown = false;
 	const T1sKDE& kde = 
             widgetGl->GetAttributeAverages2D (
-                viewNumber).GetTopologicalChangeKDE ();
+                viewNumber).GetT1KDE ();
 	kernelTextureShown = kde.IsKernelTextureShown ();
         SetCheckedNoSignals (checkBoxTextureShown, kernelTextureShown);
         SetValueNoSignals (
             doubleSpinBoxKernelSigma, kde.GetKernelSigmaInBubbleDiameters ());
         const Simulation& simulation = GetSimulation (viewNumber);
         radioButtonT1sKDE->setEnabled (
-            simulation.IsTopologicalChangeAvailable ());
+            simulation.IsT1Available ());
     }
 }
 

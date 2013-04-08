@@ -455,3 +455,47 @@ ForceType::Enum ForceType::FromSizeT (size_t i)
 		   "Value outside of ForceType::Enum: ", i);
     return ForceType::Enum (i);
 }
+
+// Methods T1Type
+// ======================================================================
+
+boost::array<const char*, 
+             T1Type::COUNT> T1Type::NAME = {{
+        "quad_to_quad",
+        "tri_to_edge",
+        "edge_to_tri",
+        "pop_edge",
+        "pop_vertex"
+    }};
+
+boost::array<QColor, 
+             T1Type::COUNT> T1Type::COLOR ={{
+        QColor (240, 249, 232),
+        QColor (186, 228, 188),
+        QColor (123, 204, 196),
+        QColor ( 67, 162, 202),
+        QColor (  8, 104, 172)
+    }};
+
+T1Type::Enum T1Type::FromSizeT (size_t i)
+{
+    RuntimeAssert (i <= T1Type::COUNT,
+		   "Value outside of T1Type::Enum: ", i);
+    return T1Type::Enum (i);
+}
+
+const char* T1Type::ToString (
+    T1Type::Enum type)
+{
+    RuntimeAssert (type < static_cast<int> (NAME.size ()), 
+		   "Invalid T1Type: ", type);
+    return NAME[type];
+}
+
+QColor T1Type::ToColor (
+    T1Type::Enum type)
+{
+    RuntimeAssert (type < static_cast<int> (COLOR.size ()), 
+		   "Invalid T1Type: ", type);
+    return COLOR[type];
+}

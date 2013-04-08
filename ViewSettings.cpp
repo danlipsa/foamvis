@@ -87,6 +87,7 @@ ViewSettings::ViewSettings () :
     m_deformationSize (1),
     m_deformationLineWidth (1),
     m_velocityLineWidth (1),
+    m_velocityColorMapped (true),
     m_forceSize (1),
     m_forceLineWidth (1),
     m_torqueDistance (1),
@@ -621,7 +622,7 @@ void ViewSettings::SetSimulation (int i, const Simulation& simulation,
 		    ((reflexionAxis == 1) ? 
 		     AxisOrderName::TWO_D_ROTATE_RIGHT90_REFLECTION :
 		     AxisOrderName::TWO_D_ROTATE_RIGHT90))): AxisOrderName::THREE_D);
-    SetT1sShiftLower (simulation.GetTopologicalChangeShiftLower ());
+    SetT1sShiftLower (simulation.GetT1ShiftLower ());
     SetScaleCenter (viewingVolumeCenter.xy ());
     SetRotationCenter (viewingVolumeCenter);
     setTimeSteps (simulation.GetTimeSteps ());

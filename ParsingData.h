@@ -328,9 +328,9 @@ public:
      * previous one. Returns false if the arrayName and countNames
      * variables are not set, true otherwise.
      */
-    bool GetTopologicalChange (
+    bool GetT1 (
         const char* arrayName, const char* countName, 
-        vector<TopologicalChange>* t1s, bool is2D) const;
+        vector<T1>* t1s, bool is2D) const;
 
     /**
      * @{

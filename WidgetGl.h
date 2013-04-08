@@ -459,11 +459,11 @@ private:
     void displayViewFocus (ViewNumber::Enum viewNumber);
     void displayColorBar (
         GLuint texture, const ColorBarModel& barModel,
-        ViewNumber::Enum viewNumber, const G3D::Rect2D& barRect);
+        const G3D::Rect2D& barRect);    
     void displayOverlayBar (
 	ViewNumber::Enum viewNumber, const G3D::Rect2D& barRect);
+    void displayT1Legend (const G3D::Rect2D& barRect);
     void displayBarLabels (
-        ViewNumber::Enum viewNumber,
         const ColorBarModel& cbm, const G3D::Rect2D& colorBarRect);
     void displayBarClampLevels (const ColorBarModel& barModel,
                                 const G3D::Rect2D& barRect) const;
@@ -533,13 +533,13 @@ private:
     void displayBodyVelocity (ViewNumber::Enum viewNumber) const;
     void displayDeformation (ViewNumber::Enum viewNumber) const;
     void displayVelocityGlyphs (ViewNumber::Enum viewNumber) const;
-    void displayTopologicalChange (ViewNumber::Enum view) const;
-    void displayTopologicalChangeAllTimesteps (ViewNumber::Enum view) const;
-    void displayTopologicalChangeTimestep (
+    void displayT1 (ViewNumber::Enum view) const;
+    void displayT1AllTimesteps (ViewNumber::Enum view) const;
+    void displayT1Timestep (
         ViewNumber::Enum view, size_t timeStep) const;    
-    void displayTopologicalChangeTimestep2D (
+    void displayT1Timestep2D (
         ViewNumber::Enum view, size_t timeStep) const;    
-    void displayTopologicalChangeTimestep3D (
+    void displayT1Timestep3D (
         ViewNumber::Enum view, size_t timeStep) const;
     void displayBubblePaths (ViewNumber::Enum view) const;
     void compileBubblePaths (ViewNumber::Enum view) const;

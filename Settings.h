@@ -211,8 +211,8 @@ public:
     }
     ColorBarType::Enum GetColorBarType (ViewNumber::Enum viewNumber) const;
     ColorBarType::Enum GetColorBarType () const;
-    G3D::Rect2D GetColorBarRect (ViewNumber::Enum viewNumber, 
-                                 const G3D::Rect2D& viewRect) const;
+    G3D::Rect2D GetColorBarRect (const G3D::Rect2D& viewRect) const;
+    G3D::Rect2D GetT1Rect (const G3D::Rect2D& viewRect) const;
     G3D::Rect2D GetColorBarRectWithLabels (
         ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const;
     G3D::Rect2D GetOverlayBarRectWithLabels (

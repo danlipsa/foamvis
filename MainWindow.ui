@@ -341,7 +341,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tabSettings">
         <attribute name="title">
@@ -1570,7 +1570,7 @@
          <item>
           <widget class="QStackedWidget" name="stackedWidgetVisualization">
            <property name="currentIndex">
-            <number>3</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="pageEmpty"/>
            <widget class="QWidget" name="pageFacesNormal">
@@ -2050,6 +2050,9 @@
                  <widget class="QCheckBox" name="checkBoxVelocityColorMapped">
                   <property name="text">
                    <string>Color-mapped</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>

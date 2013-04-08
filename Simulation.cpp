@@ -115,7 +115,7 @@ private:
     const bool m_debugScanning;
 };
 
-const vector<TopologicalChange> NO_T1S;
+const vector<T1> NO_T1S;
 const char* CACHE_DIR_NAME = ".foamvis";
 
 // Members: Simulation
@@ -194,7 +194,7 @@ void Simulation::Preprocess ()
 {
     cdbg << "Preprocess temporal foam data ..." << endl;
     fixConstraintPoints ();
-    ParseTopologicalChanges ("t1positions", "num_pops_step");
+    ParseT1s ("t1positions", "num_pops_step");
     boost::array<FoamParamMethod, 9> methods = {{
 	    boost::bind (&Foam::CreateObjectBody, _1, 
 			 GetDmpObjectInfo ().m_constraintIndex),
@@ -238,14 +238,14 @@ void Simulation::Preprocess ()
 }
 
 void Simulation::moveInsideOriginalDomain (
-    TopologicalChange* tc, const OOBox& originalDomain)
+    T1* tc, const OOBox& originalDomain)
 {
     G3D::Vector3int16 translation = 
-        originalDomain.GetTranslationFromOriginalDomain (tc->m_position);
+        originalDomain.GetTranslationFromOriginalDomain (tc->GetPosition ());
     if (translation == Vector3int16Zero)
         return;
-    tc->m_position = originalDomain.TorusTranslate (
-        tc->m_position, Vector3int16Zero - translation);
+    tc->SetPosition (originalDomain.TorusTranslate (
+                         tc->GetPosition (), Vector3int16Zero - translation));
 }
 
 
@@ -520,30 +520,30 @@ size_t Simulation::GetMaxCountPerBinIndividual (
     return max;
 }
 
-bool Simulation::IsTopologicalChangeAvailable () const
+bool Simulation::IsT1Available () const
 {
-    BOOST_FOREACH (const vector<TopologicalChange> tc, m_topologicalChange)
+    BOOST_FOREACH (const vector<T1> tc, m_topologicalChange)
 	if (tc.size () != 0)
 	    return true;
     return false;
 }
 
-size_t Simulation::GetTopologicalChangeTimeSteps () const
+size_t Simulation::GetT1TimeSteps () const
 {
     return m_topologicalChange.size ();
 }
 
-size_t Simulation::GetTopologicalChangeSize () const
+size_t Simulation::GetT1Size () const
 {
     size_t size = 0;
-    BOOST_FOREACH (const vector<TopologicalChange>& tc, m_topologicalChange)
+    BOOST_FOREACH (const vector<T1>& tc, m_topologicalChange)
     {
 	size += tc.size ();
     }
     return size;
 }
 
-void Simulation::ParseTopologicalChanges (
+void Simulation::ParseT1s (
     const char* arrayName, const char* countName)
 {
     if (! m_topologicalChange.empty ())
@@ -556,20 +556,20 @@ void Simulation::ParseTopologicalChanges (
         boost::shared_ptr<Foam> foam = foams[i];
         // in the file: first time step is 1 and T1s occur before timeStep
         // in memory: first time step is 0 and T1s occur after timeStep
-        if (! foam->GetParsingData ().GetTopologicalChange (
+        if (! foam->GetParsingData ().GetT1 (
                 arrayName, countName, &m_topologicalChange[i - 1], 
                 foams[0]->Is2D ()))
         {
             m_topologicalChange.resize (0);
             RuntimeAssert (
                 i == 1, 
-                "ParseTopologicalChanges: T1s variables not set at index ", i);
+                "ParseT1s: T1s variables not set at index ", i);
             return;
         }
     }
 }
 
-void Simulation::ParseTopologicalChanges (
+void Simulation::ParseT1s (
     const string& fileName, size_t ticksForTimeStep, bool t1sShiftLower)
 {
     cdbg << "Parsing topological changes ... ";
@@ -603,12 +603,14 @@ void Simulation::ParseTopologicalChanges (
 	inLine >> timeStep >> x >> y;
         RuntimeAssert (! inLine.fail (), "Invalid topological changes file");
         inLine >> z >> type;
-        TopologicalChange tc;
+        T1 tc;
         if (inLine.fail ())
-            tc = TopologicalChange (
-                G3D::Vector3 (x, y, Foam::Z_COORDINATE_2D), 1);
+            tc = T1 (
+                G3D::Vector3 (x, y, Foam::Z_COORDINATE_2D), 
+                T1Type::POP_VERTEX);
         else
-            tc = TopologicalChange (G3D::Vector3 (x, y, z), type);
+            tc = T1 (G3D::Vector3 (x, y, z), 
+                                    T1Type::FromSizeT (type - 1));
 	timeStep /= ticksForTimeStep;
 	// in the file: first time step is 1 and T1s occur before timeStep
 	// in memory: first time step is 0 and T1s occur after timeStep
@@ -621,7 +623,7 @@ void Simulation::ParseTopologicalChanges (
     cdbg << "last topological change timestep: " << timeStep << endl;
 }
 
-const vector<TopologicalChange>& Simulation::GetTopologicalChange (
+const vector<T1>& Simulation::GetT1 (
     size_t timeStep, int t1sShift) const
 {
     int t = int(timeStep) + t1sShift;

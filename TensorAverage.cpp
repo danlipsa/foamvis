@@ -140,7 +140,7 @@ TensorAverageTemplate<Setter>::TensorAverageTemplate (
     m_clampingShown (false),
     m_gridCellCenterShown (false),
     m_sameSize (false),
-	m_colorMapped(false),
+    m_colorMapped(true),
     m_glyphShown (true),
     
     /*m_noiseAmplitude (10.0),*/ m_noiseAmplitude (0),

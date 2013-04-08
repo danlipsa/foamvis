@@ -171,19 +171,19 @@ public:
     }
     bool IsTorqueAvailable () const;
 
-    bool IsTopologicalChangeAvailable () const;
-    int GetTopologicalChangeShift () const
+    bool IsT1Available () const;
+    int GetT1Shift () const
     {
 	return m_topologicalChangeShift;
     }
-    bool GetTopologicalChangeShiftLower () const
+    bool GetT1ShiftLower () const
     {
 	return m_topologicalChangeShift == 1;
     }
-    const vector<TopologicalChange>& GetTopologicalChange (
+    const vector<T1>& GetT1 (
         size_t timeStep, int t1sShift) const;
-    size_t GetTopologicalChangeSize () const;
-    size_t GetTopologicalChangeTimeSteps () const;
+    size_t GetT1Size () const;
+    size_t GetT1TimeSteps () const;
 
     bool OriginalUsed () const
     {
@@ -197,9 +197,9 @@ public:
      * after timeStep
      *
      */
-    void ParseTopologicalChanges (
+    void ParseT1s (
 	const string& fileName, size_t ticksForTimeStep, bool t1sShiftLower);
-    void ParseTopologicalChanges (const char* arrayName, const char* countName);
+    void ParseT1s (const char* arrayName, const char* countName);
     void ParseDMPs (const vector<string>& fileNames,
 		    bool useOriginal,
 		    const DmpObjectInfo& dmpObjectInfo,
@@ -258,7 +258,7 @@ private:
     void forAllBodiesAccumulate (
 	Accumulator* acc, GetBodyScalar getBodyScalar);
     void moveInsideOriginalDomain (
-        TopologicalChange* tc, const OOBox& originalDomain);
+        T1* tc, const OOBox& originalDomain);
 
 private:
     /**
@@ -278,7 +278,7 @@ private:
     string m_name;
     vector<HistogramStatistics> m_histogram;
     bool m_pressureAdjusted;
-    vector< vector<TopologicalChange> > m_topologicalChange;
+    vector< vector<T1> > m_topologicalChange;
     int m_topologicalChangeShift;
     DmpObjectInfo m_dmpObjectInfo;
     vector<ForceNamesOneObject> m_forceNames;
@@ -339,11 +339,11 @@ private:
 class AverageCache
 {
 public:
-    void SetTopologicalChangeKDE (vtkSmartPointer<vtkImageData> average)
+    void SetT1KDE (vtkSmartPointer<vtkImageData> average)
     {
         m_topologicalChangeKDE = average;
     }
-    vtkSmartPointer<vtkImageData> GetTopologicalChangeKDE () const
+    vtkSmartPointer<vtkImageData> GetT1KDE () const
     {
         return m_topologicalChangeKDE;
     }
