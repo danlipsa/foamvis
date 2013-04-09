@@ -206,6 +206,7 @@ public:
 	m_colorBarModel.reset ();
     }
     void ColorMapCopy (const ViewSettings& from);
+    void OverlayMapCopy (const ViewSettings& from);
     void OverlayMapCopyVelocityMagnitude ();
     ColorBarType::Enum GetColorBarType () const;    
     static ColorBarType::Enum GetColorBarType (

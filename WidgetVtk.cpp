@@ -371,14 +371,18 @@ void WidgetVtk::resizeViewEvent (ViewNumber::Enum viewNumber)
 {
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     const Settings& settings = GetSettings ();
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::Rect2D scalarBarRect = 
         settings.GetColorBarRectWithLabels (viewNumber, viewRect);
-    G3D::Rect2D vectorBarRect =
-        settings.GetOverlayBarRectWithLabels (viewNumber, viewRect);
     m_pipeline[viewNumber]->PositionScalarBar (
         toRatio (scalarBarRect, viewRect));
-    m_pipeline[viewNumber]->PositionVectorBar (
-        toRatio (vectorBarRect, viewRect));
+    if (vs.IsVelocityShown ())
+    {
+        G3D::Rect2D vectorBarRect =
+            settings.GetOverlayBarRectWithLabels (viewNumber, viewRect);
+        m_pipeline[viewNumber]->PositionVectorBar (
+            toRatio (vectorBarRect, viewRect));
+    }
 }
 
 

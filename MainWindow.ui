@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1050</width>
+    <width>1067</width>
     <height>703</height>
    </rect>
   </property>
@@ -725,54 +725,6 @@
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="tabHistogram">
-            <attribute name="title">
-             <string>Histogram</string>
-            </attribute>
-            <layout class="QFormLayout" name="formLayout_18">
-             <item row="0" column="0">
-              <widget class="QCheckBox" name="checkBoxHistogramShown">
-               <property name="text">
-                <string>Shown</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QCheckBox" name="checkBoxHistogramColorMapped">
-               <property name="text">
-                <string>Color mapped</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QCheckBox" name="checkBoxHistogramGridShown">
-               <property name="text">
-                <string>Grid</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QCheckBox" name="checkBoxHistogramAllTimesteps">
-               <property name="text">
-                <string>All timesteps</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QLabel" name="label_23">
-               <property name="text">
-                <string>Height</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QSpinBox" name="spinBoxHistogramHeight"/>
-             </item>
-            </layout>
-           </widget>
            <widget class="QWidget" name="tabLight">
             <attribute name="title">
              <string>Light</string>
@@ -1456,13 +1408,23 @@
               </attribute>
              </widget>
             </item>
-            <item row="1" column="0">
+            <item row="5" column="0">
              <widget class="QRadioButton" name="radioButtonFacesNormal">
               <property name="text">
                <string>Faces</string>
               </property>
               <property name="checked">
                <bool>true</bool>
+              </property>
+              <attribute name="buttonGroup">
+               <string>buttonGroupViewType</string>
+              </attribute>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QRadioButton" name="radioButtonEdgesTorus">
+              <property name="text">
+               <string>Edges torus</string>
               </property>
               <attribute name="buttonGroup">
                <string>buttonGroupViewType</string>
@@ -1479,33 +1441,14 @@
               </attribute>
              </widget>
             </item>
-            <item row="3" column="0">
-             <widget class="QGroupBox" name="groupBoxTorusModel">
-              <property name="title">
-               <string>Torus model</string>
+            <item row="2" column="0">
+             <widget class="QRadioButton" name="radioButtonFaceEdgesTorus">
+              <property name="text">
+               <string>Faces torus</string>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_2">
-               <item>
-                <widget class="QRadioButton" name="radioButtonEdgesTorus">
-                 <property name="text">
-                  <string>Edges</string>
-                 </property>
-                 <attribute name="buttonGroup">
-                  <string>buttonGroupViewType</string>
-                 </attribute>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="radioButtonFaceEdgesTorus">
-                 <property name="text">
-                  <string>Faces</string>
-                 </property>
-                 <attribute name="buttonGroup">
-                  <string>buttonGroupViewType</string>
-                 </attribute>
-                </widget>
-               </item>
-              </layout>
+              <attribute name="buttonGroup">
+               <string>buttonGroupViewType</string>
+              </attribute>
              </widget>
             </item>
             <item row="2" column="1">
@@ -2528,6 +2471,54 @@
             </layout>
            </widget>
           </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tabHistogram">
+        <attribute name="title">
+         <string>Histogram</string>
+        </attribute>
+        <layout class="QFormLayout" name="formLayout_18">
+         <item row="0" column="0">
+          <widget class="QCheckBox" name="checkBoxHistogramShown">
+           <property name="text">
+            <string>Shown</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QCheckBox" name="checkBoxHistogramColorMapped">
+           <property name="text">
+            <string>Color mapped</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QCheckBox" name="checkBoxHistogramGridShown">
+           <property name="text">
+            <string>Grid</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="checkBoxHistogramAllTimesteps">
+           <property name="text">
+            <string>All timesteps</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_23">
+           <property name="text">
+            <string>Height</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QSpinBox" name="spinBoxHistogramHeight"/>
          </item>
         </layout>
        </widget>

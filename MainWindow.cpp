@@ -651,6 +651,10 @@ void MainWindow::createActions ()
 	     SIGNAL (mapped (int)), this, SLOT (ColorMapCopy (int)));
     connect (widgetVtk->GetSignalMapperColorMapCopy ().get (),
 	     SIGNAL (mapped (int)), this, SLOT (ColorMapCopy (int)));
+    connect (widgetGl->GetSignalMapperOverlayMapCopy ().get (),
+	     SIGNAL (mapped (int)), this, SLOT (OverlayMapCopy (int)));
+    connect (widgetVtk->GetSignalMapperOverlayMapCopy ().get (),
+	     SIGNAL (mapped (int)), this, SLOT (OverlayMapCopy (int)));
     connect(widgetGl->GetActionOverlayMapCopyVelocityMagnitude ().get (),
             SIGNAL(triggered()), this, SLOT(OverlayMapCopyVelocityMagnitude ()));
     connect(widgetVtk->GetActionOverlayMapCopyVelocityMagnitude ().get (),
@@ -725,7 +729,7 @@ void MainWindow::setupColorBarModels ()
 {
     size_t simulationCount = GetSimulationGroup ().size ();
     m_colorBarModelBodyScalar.resize (simulationCount);
-    m_colorBarModelVelocity.resize (simulationCount);
+    m_overlayBarModel.resize (simulationCount);
     m_colorBarModelDomainHistogram.resize (simulationCount);
     m_colorBarModelT1sKDE.resize (simulationCount);
     for (size_t simulationIndex = 0; simulationIndex < simulationCount; 
@@ -806,7 +810,7 @@ void MainWindow::setupColorBarModelVelocity (
     ViewNumber::Enum viewNumber)
 {
     boost::shared_ptr<ColorBarModel>& colorBarModel = 
-	m_colorBarModelVelocity[simulationIndex][viewNumber];
+	m_overlayBarModel[simulationIndex][viewNumber];
     BodyScalar::Enum property = BodyScalar::VELOCITY_MAGNITUDE;
     setupColorBarModel (colorBarModel, property, simulationIndex);
     colorBarModel->SetTitle (
@@ -864,7 +868,7 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
     {
     case ColorBarType::PROPERTY:
         if (property == BodyAttribute::VELOCITY)
-            return m_colorBarModelVelocity[simulationIndex][viewNumber];
+            return m_overlayBarModel[simulationIndex][viewNumber];
         else
             return m_colorBarModelBodyScalar
                 [simulationIndex][viewNumber][property];
@@ -1166,7 +1170,7 @@ void MainWindow::initOverlayBarModel ()
 	const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
 	size_t simulationIndex = vs.GetSimulationIndex ();
 	boost::shared_ptr<ColorBarModel> overlayBarModel = 
-	    m_colorBarModelVelocity[simulationIndex][viewNumber];
+	    m_overlayBarModel[simulationIndex][viewNumber];
 	Q_EMIT OverlayBarModelChanged (viewNumber, overlayBarModel);
     }    
 }
@@ -1678,15 +1682,28 @@ void MainWindow::ColorMapCopy (int other)
     Q_EMIT ColorBarModelChanged (viewNumber, vs.GetColorBarModel ());
 }
 
+void MainWindow::OverlayMapCopy (int other)
+{
+    ViewSettings& otherVs = GetViewSettings (ViewNumber::Enum (other));
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    size_t simulationIndex = vs.GetSimulationIndex ();
+    boost::shared_ptr<ColorBarModel> overlayBarModel = 
+	m_overlayBarModel[simulationIndex][viewNumber];
+    vs.OverlayMapCopy (otherVs);
+    Q_EMIT OverlayBarModelChanged (viewNumber, overlayBarModel);
+}
+
+
 void MainWindow::OverlayMapCopyVelocityMagnitude ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     size_t simulationIndex = vs.GetSimulationIndex ();
-    boost::shared_ptr<ColorBarModel> colorBarModel = 
-	m_colorBarModelVelocity[simulationIndex][viewNumber];
+    boost::shared_ptr<ColorBarModel> overlayBarModel = 
+	m_overlayBarModel[simulationIndex][viewNumber];
     vs.OverlayMapCopyVelocityMagnitude ();
-    Q_EMIT OverlayBarModelChanged (GetViewNumber (), colorBarModel);
+    Q_EMIT OverlayBarModelChanged (GetViewNumber (), overlayBarModel);
 }
 
 
@@ -1698,7 +1715,7 @@ void MainWindow::OverlayMapEdit ()
     size_t simulationIndex = 
 	GetViewSettings (viewNumber).GetSimulationIndex ();
     boost::shared_ptr<ColorBarModel> colorBarModel = 
-	m_colorBarModelVelocity[simulationIndex][viewNumber];
+	m_overlayBarModel[simulationIndex][viewNumber];
     m_editColorMap->SetData (p.first, p.second, 
 			     *colorBarModel,
 			     checkBoxHistogramGridShown->isChecked ());
@@ -1926,6 +1943,7 @@ void MainWindow::velocityViewToUI ()
     SetValueAndMaxNoSignals (doubleSpinBoxStreamlineStepLength,
 			     vs.GetStreamlineStepLength (),
                              ratio * ViewSettings::STREAMLINE_STEP_LENGTH);
+    setStackedWidgetVelocity (vs.GetVelocityVis ());
 }
 
 void MainWindow::forceViewToUI ()
@@ -2057,6 +2075,7 @@ void MainWindow::timeViewToUI (ViewNumber::Enum viewNumber)
 void MainWindow::settingsViewToUI (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
+    SetCheckedNoSignals (checkBoxDomainClipped, vs.DomainClipped ());
     SetValueNoSignals (
         horizontalSliderContextAlpha, 
         ValueToIndex (horizontalSliderContextAlpha, 
@@ -2065,6 +2084,24 @@ void MainWindow::settingsViewToUI (ViewNumber::Enum viewNumber)
         horizontalSliderObjectAlpha, 
         ValueToIndex (horizontalSliderObjectAlpha, 
                       ViewSettings::ALPHA_RANGE, vs.GetObjectAlpha ()));
+    SetCheckedNoSignals (checkBoxScalarShown, vs.IsScalarShown ());
+    SetCheckedNoSignals (checkBoxScalarContext, vs.IsScalarContext ());
+    SetCheckedNoSignals (checkBoxSelectionContextShown, 
+			 vs.IsSelectionContextShown ());
+    SetCurrentIndexNoSignals (comboBoxAxisOrder, vs.GetAxisOrder ());
+}
+
+void MainWindow::histogramViewToUI ()
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    SetCheckedNoSignals (checkBoxHistogramShown, vs.IsHistogramShown ());    
+    SetCheckedNoSignals (
+	checkBoxHistogramColorMapped, 
+	vs.HasHistogramOption(HistogramType::COLOR_MAPPED));
+    SetCheckedNoSignals (
+	checkBoxHistogramAllTimesteps,
+	vs.HasHistogramOption(HistogramType::ALL_TIME_STEPS_SHOWN));
 }
 
 void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
@@ -2082,23 +2119,12 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 
     SetCheckedNoSignals (buttonGroupViewType, viewType, true);    
     setStackedWidgetVisualization (viewType);
-    setStackedWidgetVelocity (vs.GetVelocityVis ());
-    SetCheckedNoSignals (checkBoxHistogramShown, vs.IsHistogramShown ());
-    SetCheckedNoSignals (
-	checkBoxHistogramColorMapped, 
-	vs.HasHistogramOption(HistogramType::COLOR_MAPPED));
-    SetCheckedNoSignals (
-	checkBoxHistogramAllTimesteps,
-	vs.HasHistogramOption(HistogramType::ALL_TIME_STEPS_SHOWN));
-    SetCheckedNoSignals (checkBoxDomainClipped, vs.DomainClipped ());
 
     SetCurrentIndexNoSignals (comboBoxColor, property);
     SetCurrentIndexNoSignals (comboBoxSimulation, simulationIndex);
     SetCurrentIndexNoSignals (comboBoxStatisticsType, vs.GetStatisticsType ());
-    SetCurrentIndexNoSignals (comboBoxAxisOrder, vs.GetAxisOrder ());
 
-    SetCheckedNoSignals (checkBoxSelectionContextShown, 
-			 vs.IsSelectionContextShown ());
+
     SetCheckedNoSignals (checkBoxT1sShiftLower, vs.T1sShiftLower ());
     SetValueNoSignals (horizontalSliderAngleOfView, vs.GetAngleOfView ());
     labelAverageColor->setText (FaceScalar::ToString (property));
@@ -2112,6 +2138,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     timeViewToUI (viewNumber);
     linkedTimeEventsViewToUI (viewNumber);
     lightViewToUI (vs, vs.GetSelectedLight ());
+    histogramViewToUI ();
     updateButtons ();
 
     const AttributeHistogram& histogram = 

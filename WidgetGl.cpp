@@ -2917,7 +2917,8 @@ void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
 void WidgetGl::toggledT1sKernelTextureShown (ViewNumber::Enum viewNumber)
 {
     bool checked = static_cast<QCheckBox*> (sender ())->isChecked ();
-    GetAttributeAverages2D (viewNumber).GetT1KDE ().SetKernelTextureShown (checked);
+    GetAttributeAverages2D (
+        viewNumber).GetT1KDE ().SetKernelTextureShown (checked);
     CompileUpdate (viewNumber);
 }
 

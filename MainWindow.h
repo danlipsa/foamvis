@@ -118,6 +118,7 @@ public Q_SLOTS:
     void ColorMapEdit ();
     void ColorMapClampClear ();
     void ColorMapCopy (int viewNumber);
+    void OverlayMapCopy (int other);
     void OverlayMapEdit ();
     void OverlayMapClampClear ();
     void OverlayMapCopyVelocityMagnitude ();
@@ -172,6 +173,7 @@ private:
     void bubblePathsViewToUI ();
     void lightViewToUI (
 	const ViewSettings& vs, LightNumber::Enum lightNumber);
+    void histogramViewToUI ();
     HistogramInfo createHistogramInfo (
 	pair<float, float> minMax, size_t count) const;    
     void setStackedWidgetVisualization (ViewType::Enum viewType);
@@ -289,7 +291,7 @@ private:
     // index order: simulation index, view number
     vector <
 	boost::array<boost::shared_ptr<ColorBarModel>, 
-		     ViewNumber::COUNT> > m_colorBarModelVelocity;
+		     ViewNumber::COUNT> > m_overlayBarModel;
     // index order: simulation index, view number
     vector <
 	boost::array<boost::shared_ptr<ColorBarModel>,

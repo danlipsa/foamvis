@@ -46,6 +46,7 @@ WidgetBase::WidgetBase (QWidget* widget,
 	new QAction (tr("&Clamp clear"), m_widget));
     m_actionColorMapClampClear->setStatusTip(tr("Clamp clear"));
     initCopy (m_actionColorMapCopy, m_signalMapperColorMapCopy);
+    initCopy (m_actionOverlayMapCopy, m_signalMapperOverlayMapCopy);
 
     m_actionOverlayMapEdit.reset (
 	new QAction (tr("&Edit overlay map"), m_widget));
@@ -126,13 +127,15 @@ void WidgetBase::contextMenuEventColorMap (QMenu* menu) const
 {
     menu->addAction (m_actionColorMapClampClear.get ());
     addCopyCompatibleMenu (menu, "Copy", &m_actionColorMapCopy[0], 
-                           &WidgetBase::IsColorBarCopyCompatible);
+                           &WidgetBase::IsColorMapCopyCompatible);
     menu->addAction (m_actionColorMapEdit.get ());
 }
 
 void WidgetBase::contextMenuEventOverlayMap (QMenu* menu) const
 {
     menu->addAction (m_actionOverlayMapClampClear.get ());
+    addCopyCompatibleMenu (menu, "Copy", &m_actionOverlayMapCopy[0], 
+                           &WidgetBase::IsOverlayMapCopyCompatible);
     if (GetViewSettings ().GetBodyOrFaceScalar () == 
         BodyScalar::VELOCITY_MAGNITUDE)
         menu->addAction (m_actionOverlayMapCopyVelocityMagnitude.get ());
@@ -221,7 +224,14 @@ void WidgetBase::addCopyCompatibleMenu (
 	menuOp->setDisabled (true);    
 }
 
-bool WidgetBase::IsColorBarCopyCompatible (
+bool WidgetBase::IsOverlayMapCopyCompatible (
+    ViewNumber::Enum vn, ViewNumber::Enum otherVn) const
+{
+    return otherVn != vn;
+}
+
+
+bool WidgetBase::IsColorMapCopyCompatible (
     ViewNumber::Enum vn, ViewNumber::Enum otherVn) const
 {
     ColorBarType::Enum currentColorBarType = 

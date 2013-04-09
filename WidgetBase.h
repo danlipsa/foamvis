@@ -88,7 +88,9 @@ public:
      * @{
      * @name Color and Overlay Maps
      */
-    bool IsColorBarCopyCompatible (
+    bool IsColorMapCopyCompatible (
+        ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
+    bool IsOverlayMapCopyCompatible (
         ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
     boost::shared_ptr<QAction> GetActionColorMapEdit () const
     {
@@ -109,6 +111,10 @@ public:
     boost::shared_ptr<QSignalMapper> GetSignalMapperColorMapCopy () const
     {
 	return m_signalMapperColorMapCopy;
+    }
+    boost::shared_ptr<QSignalMapper> GetSignalMapperOverlayMapCopy () const
+    {
+	return m_signalMapperOverlayMapCopy;
     }
     boost::shared_ptr<QAction> GetActionOverlayMapCopyVelocityMagnitude () const
     {
@@ -158,6 +164,9 @@ protected:
     boost::array<boost::shared_ptr<QAction>, 
 		 ViewNumber::COUNT> m_actionColorMapCopy;
     boost::shared_ptr<QSignalMapper> m_signalMapperColorMapCopy;
+    boost::array<boost::shared_ptr<QAction>, 
+		 ViewNumber::COUNT> m_actionOverlayMapCopy;
+    boost::shared_ptr<QSignalMapper> m_signalMapperOverlayMapCopy;
     // overlay bar actions
     boost::shared_ptr<QAction> m_actionOverlayMapEdit;
     boost::shared_ptr<QAction> m_actionOverlayMapClampClear;
