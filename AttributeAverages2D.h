@@ -11,7 +11,7 @@
 #include "AttributeAverages.h"
 
 class ForceAverage;
-class ScalarAverage;
+class ScalarAverage2D;
 class T1sKDE;
 class TensorAverage;
 class WidgetGl;
@@ -24,9 +24,9 @@ public:
     AttributeAverages2D (ViewNumber::Enum viewNumber, 
                          const WidgetGl& widgetGl);
 
-    ScalarAverage& GetScalarAverage () const
+    ScalarAverage2D& GetScalarAverage () const
     {
-	return *boost::static_pointer_cast<ScalarAverage> (m_scalarAverage);
+	return *boost::static_pointer_cast<ScalarAverage2D> (m_scalarAverage);
     }
     
     T1sKDE& GetT1KDE () const

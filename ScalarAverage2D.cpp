@@ -1,9 +1,9 @@
 /**
- * @file   ScalarAverage.h
+ * @file   ScalarAverage2D.h
  * @author Dan R. Lipsa
  * @date  25 Jul. 2011
  *
- * Implementation for the ScalarAverage class 
+ * Implementation for the ScalarAverage2D class 
  *
  */
 
@@ -11,7 +11,7 @@
 #include "Debug.h"
 #include "WidgetGl.h"
 #include "OpenGLUtils.h"
-#include "ScalarAverage.h"
+#include "ScalarAverage2D.h"
 #include "ScalarDisplay.h"
 #include "ShaderProgram.h"
 #include "Simulation.h"
@@ -22,17 +22,17 @@
 // ======================================================================
 
 
-// ScalarAverage Methods
+// ScalarAverage2D Methods
 // ======================================================================
 
 template<typename PropertySetter>
 boost::shared_ptr<ScalarDisplay> 
-ScalarAverageTemplate<PropertySetter>::m_displayShaderProgram;
+ScalarAverage2DTemplate<PropertySetter>::m_displayShaderProgram;
 
 template<typename PropertySetter>
-void ScalarAverageTemplate<PropertySetter>::InitShaders ()
+void ScalarAverage2DTemplate<PropertySetter>::InitShaders ()
 {
-    cdbg << "==== ScalarAverageTemplate ====" << endl;
+    cdbg << "==== ScalarAverage2DTemplate ====" << endl;
     ImageBasedAverage<PropertySetter>::m_initShaderProgram.reset (
 	new ShaderProgram (0, RESOURCE("ScalarInit.frag")));
     ImageBasedAverage<PropertySetter>::m_storeShaderProgram.reset (
@@ -42,12 +42,12 @@ void ScalarAverageTemplate<PropertySetter>::InitShaders ()
 	new AddShaderProgram (RESOURCE("ScalarAdd.frag")));
     ImageBasedAverage<PropertySetter>::m_removeShaderProgram.reset (
 	new AddShaderProgram (RESOURCE("ScalarRemove.frag")));
-    ScalarAverageTemplate<PropertySetter>::m_displayShaderProgram.reset (
+    ScalarAverage2DTemplate<PropertySetter>::m_displayShaderProgram.reset (
 	new ScalarDisplay (RESOURCE("ScalarDisplay.frag")));
 }
 
 template<typename PropertySetter>
-ScalarAverageTemplate<PropertySetter>::ScalarAverageTemplate (
+ScalarAverage2DTemplate<PropertySetter>::ScalarAverage2DTemplate (
     ViewNumber::Enum viewNumber, 
     const WidgetGl& widgetGl, string id, 
     QColor stepClearColor) :
@@ -59,7 +59,7 @@ ScalarAverageTemplate<PropertySetter>::ScalarAverageTemplate (
 
 
 template<typename PropertySetter>
-void ScalarAverageTemplate<PropertySetter>::rotateAndDisplay (
+void ScalarAverage2DTemplate<PropertySetter>::rotateAndDisplay (
     GLfloat minValue, GLfloat maxValue,
     StatisticsType::Enum displayType, 
     typename ImageBasedAverage<PropertySetter>::FbosCountFbos srcFbo,
@@ -80,7 +80,7 @@ void ScalarAverageTemplate<PropertySetter>::rotateAndDisplay (
 }
 
 template<typename PropertySetter>
-vtkSmartPointer<vtkImageData> ScalarAverageTemplate<PropertySetter>::getData (
+vtkSmartPointer<vtkImageData> ScalarAverage2DTemplate<PropertySetter>::getData (
     const char* name) const
 {
     G3D::Rect2D windowCoord = this->GetWindowCoord ();
@@ -120,6 +120,6 @@ vtkSmartPointer<vtkImageData> ScalarAverageTemplate<PropertySetter>::getData (
 // Template instantiations
 //======================================================================
 /// @cond
-template class ScalarAverageTemplate<SetterVertexAttribute>;
-template class ScalarAverageTemplate<SetterNop>;
+template class ScalarAverage2DTemplate<SetterVertexAttribute>;
+template class ScalarAverage2DTemplate<SetterNop>;
 /// @endcond

@@ -10,7 +10,7 @@
 #include "BodySelector.h"
 #include "ColorBarModel.h"
 #include "Debug.h"
-#include "ScalarAverage.h"
+#include "ScalarAverage2D.h"
 #include "ForceAverage.h"
 #include "DisplayBodyFunctors.h"
 #include "DisplayEdgeFunctors.h"
@@ -717,7 +717,7 @@ void WidgetGl::initializeGL()
         if (GetSimulationGroup ().GetIndex2DSimulation () != INVALID_INDEX)
         {
             cdbg << "Compiling shaders..." << endl;
-            ScalarAverage::InitShaders ();
+            ScalarAverage2D::InitShaders ();
             TensorAverage::InitShaders ();
             VectorAverage::InitShaders ();
             T1sKDE::InitShaders ();

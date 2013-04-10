@@ -13,7 +13,7 @@
 #include "PropertySetter.h"
 #include "TensorAverage.h"
 
-class ScalarAverage;
+class ScalarAverage2D;
 class VectorDisplay;
 class AverageCache;
 

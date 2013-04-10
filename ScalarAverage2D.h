@@ -1,13 +1,13 @@
 /**
- * @file   ScalarAverage.h
+ * @file   ScalarAverage2D.h
  * @author Dan R. Lipsa
  * @date  25 Jul 2011
  *
- * Interface for the ScalarAverage class
+ * Interface for the ScalarAverage2D class
  */
 
-#ifndef __SCALAR_AVERAGE_H__
-#define __SCALAR_AVERAGE_H__
+#ifndef __SCALAR_AVERAGE_2D_H__
+#define __SCALAR_AVERAGE_2D_H__
 
 #include "ImageBasedAverage.h"
 #include "PropertySetter.h"
@@ -24,12 +24,12 @@ class AverageCache;
  * value for that pixel.
  */
 template<typename PropertySetter>
-class ScalarAverageTemplate : public ImageBasedAverage<PropertySetter>
+class ScalarAverage2DTemplate : public ImageBasedAverage<PropertySetter>
 {
 public:
     static void InitShaders ();
 
-    ScalarAverageTemplate (ViewNumber::Enum viewNumber, 
+    ScalarAverage2DTemplate (ViewNumber::Enum viewNumber, 
 			   const WidgetGl& widgetGl, string id, 
 			   QColor stepClearColor);
 
@@ -47,17 +47,17 @@ protected:
     vtkSmartPointer<vtkImageData> getData (const char* name) const;
 };
 
-class ScalarAverage : public ScalarAverageTemplate<SetterVertexAttribute>
+class ScalarAverage2D : public ScalarAverage2DTemplate<SetterVertexAttribute>
 {
 public:
-    ScalarAverage (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
-	ScalarAverageTemplate<SetterVertexAttribute> (
+    ScalarAverage2D (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
+	ScalarAverage2DTemplate<SetterVertexAttribute> (
 	    viewNumber, widgetGl, "scalar", QColor (0, 0, 0, 0))
     {
     }
 };
 
-#endif //__SCALAR_AVERAGE_H__
+#endif //__SCALAR_AVERAGE_2D_H__
 
 // Local Variables:
 // mode: c++

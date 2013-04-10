@@ -9,7 +9,7 @@
 #ifndef __T1S_KDE_H__
 #define __T1S_KDE_H__
 
-#include "ScalarAverage.h"
+#include "ScalarAverage2D.h"
 
 class GaussianInitShaderProgram;
 class GaussianStoreShaderProgram;
@@ -25,7 +25,7 @@ class GaussianStoreShaderProgram;
  * Gaussian 2D is a product of 1D Gaussians.
  * g_2D (x,y,s) = 1 / (2 * pi * s^2) * e ^ (0.5 * (x^2 + y^2) / s^2)
  */
-class T1sKDE : public ScalarAverageTemplate<SetterNop>
+class T1sKDE : public ScalarAverage2DTemplate<SetterNop>
 {
 public:
     static void InitShaders ();
