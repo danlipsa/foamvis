@@ -101,6 +101,8 @@ ViewSettings::ViewSettings () :
     m_bubblePathsTimeEnd (0),
     m_kdeValue (0),
     m_kdeMultiplier (3),
+    m_T1KDEKernelBoxShown (false),
+    m_T1KDESigmaInBubbleDiameter (3),
     m_onePixelInObjectSpace (0)
 {
     setInitialLightParameters ();

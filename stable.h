@@ -133,6 +133,7 @@
 #include <vtkGlyph3D.h>
 #include <vtkIdList.h>
 #include <vtkImageData.h>
+#include <vtkImageGaussianSource.h>
 #include <vtkIndent.h>
 #include <vtkInteractorStyle.h>
 #include <vtkInteractorStyleTrackballCamera.h>

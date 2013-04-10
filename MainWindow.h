@@ -59,6 +59,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void SelectionChangedSettings (ViewNumber::Enum viewNumber);
+    void ToggledT1KDEKernelBoxShown (bool checked);
     void ToggledBarLarge (bool large);
     void ToggledAxesShown (bool checked);
     void ToggledScalarShown (bool shown);
@@ -145,7 +146,7 @@ public Q_SLOTS:
     void ValueChangedHistogramHeight (int value);
     void ValueChangedSliderTimeSteps (int value);
     void ValueChangedAverageTimeWindow (int timeSteps);
-    void ValueChangedT1sKernelSigma (double value);
+    void ValueChangedT1KDEKernelSigma (double value);
     void ViewToUI (ViewNumber::Enum prevViewNumber);
     void SetHistogramColorBarModel (
 	ViewNumber::Enum viewNumber,
@@ -247,6 +248,8 @@ private:
     boost::shared_ptr<ColorBarModel> getColorMapVelocity (    
         ViewNumber::Enum viewNumber) const;
     void clickedPlay (PlayType playType);
+    void toggledT1KDEKernelBoxShown (ViewNumber::Enum viewNumber);
+    void valueChangedT1KDEKernelSigma (ViewNumber::Enum viewNumber);
 
 private:
     /**

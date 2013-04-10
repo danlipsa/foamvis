@@ -71,26 +71,26 @@ void RegularGridAverage::AverageRotateAndDisplay (
 void RegularGridAverage::addStep (
     size_t timeStep, size_t subStep)
 {
-    (void)subStep;
-    opStep (timeStep, std::plus<double> ());
+    opStep (timeStep, subStep, std::plus<double> ());
     __LOG__ (cdbg << "addStep" << endl;)
 }
 
 void RegularGridAverage::removeStep (size_t timeStep, size_t subStep)
 {
-    (void)subStep;
-    opStep (timeStep, std::minus<double> ());
+    opStep (timeStep, subStep, std::minus<double> ());
     __LOG__ (cdbg << "removeStep" << endl;)
 }
 
-void RegularGridAverage::opStep (size_t timeStep, RegularGridAverage::OpType f)
+void RegularGridAverage::opStep (
+    size_t timeStep, size_t subStep, RegularGridAverage::OpType f)
 {
     const Foam& foam = GetFoam (timeStep);
     const Simulation& simulation = GetSimulation ();
     const ViewSettings& vs = GetViewSettings ();
     size_t attribute = GetBodyAttribute ();
     vtkSmartPointer<vtkImageData> regularFoam = 
-        (attribute == BodyScalar::T1_KDE) ? simulation.GetT1KDE (timeStep) : 
+        (attribute == BodyScalar::T1_KDE) ? 
+        simulation.GetT1KDE (timeStep, subStep, vs.T1sShiftLower ()) : 
         foam.GetRegularGrid (attribute);
     if (vs.IsAverageAround ())
     {
@@ -123,3 +123,14 @@ void RegularGridAverage::ComputeAverage ()
                        std::divides<double> (), GetBodyAttribute ());
 }
 
+size_t RegularGridAverage::getStepSize (size_t timeStep) const
+{
+    if (GetBodyAttribute () == BodyScalar::T1_KDE)
+    {
+        ViewSettings& vs = GetViewSettings ();
+        return GetSimulation ().GetT1 (timeStep, 
+                                       vs.T1sShiftLower ()).size ();        
+    }
+    else
+        return 1;
+}

@@ -1134,6 +1134,21 @@ void MainWindow::CurrentIndexChangedWindowLayout (int index)
 }
 
 
+void MainWindow::ToggledT1KDEKernelBoxShown (bool checked)
+{
+    (void)checked;
+    GetSettingsPtr ()->SetOneOrTwoViews (
+        this, 
+        &MainWindow::toggledT1KDEKernelBoxShown);
+    widgetGl->update ();
+}
+void MainWindow::toggledT1KDEKernelBoxShown (ViewNumber::Enum viewNumber)
+{
+    bool checked = static_cast<QCheckBox*> (sender ())->isChecked ();
+    GetViewSettings (viewNumber).SetT1KDEKernelBoxShown (checked);
+}
+
+
 void MainWindow::ToggledBarLarge (bool large)
 {
     GetSettingsPtr ()->SetBarLarge (large);
@@ -1382,18 +1397,21 @@ void MainWindow::ValueChangedFontSize (int fontSize)
     m_editColorMap->SetDefaultFont ();
 }
 
-void MainWindow::ValueChangedT1sKernelSigma (double value)
+void MainWindow::ValueChangedT1KDEKernelSigma (double value)
 {
     (void)value;
-    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
-    for (size_t i = 0; i < vn.size (); ++i)
-    {
-	ViewNumber::Enum viewNumber = vn[i];
-	size_t simulationIndex = 
-	    GetViewSettings (viewNumber).GetSimulationIndex ();
-	m_colorMapT1sKDE[simulationIndex][viewNumber]->SetInterval (
-	    toQwtDoubleInterval (widgetGl->GetRangeT1sKDE (viewNumber)));
-    }
+    GetSettingsPtr ()->SetOneOrTwoViews (
+        this, &MainWindow::valueChangedT1KDEKernelSigma);
+    widgetGl->update ();
+}
+void MainWindow::valueChangedT1KDEKernelSigma (ViewNumber::Enum viewNumber)
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    T1KDE2D& t1sKDE = widgetGl->GetAttributeAverages2D (
+        viewNumber).GetT1KDE ();    
+    vs.SetT1KDESigmaInBubbleDiameter (
+	static_cast<QDoubleSpinBox*> (sender ())->value ());
+    t1sKDE.AverageInitStep (GetViewSettings (viewNumber).GetTimeWindow ());
 }
 
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
@@ -2004,14 +2022,12 @@ void MainWindow::t1sKDEViewToUI (ViewNumber::Enum viewNumber)
     const Simulation& simulation = GetSimulation (viewNumber);
     if (simulation.Is2D ())
     {
+        const ViewSettings& vs = GetViewSettings (viewNumber);
         bool kernelTextureShown = false;
-	const T1KDE2D& kde = 
-            widgetGl->GetAttributeAverages2D (
-                viewNumber).GetT1KDE ();
-	kernelTextureShown = kde.IsKernelTextureShown ();
+	kernelTextureShown = vs.IsT1KDEKernelBoxShown ();
         SetCheckedNoSignals (checkBoxTextureShown, kernelTextureShown);
         SetValueNoSignals (
-            doubleSpinBoxKernelSigma, kde.GetKernelSigmaInBubbleDiameters ());
+            doubleSpinBoxKernelSigma, vs.GetT1KDESigmaInBubbleDiameter ());
         const Simulation& simulation = GetSimulation (viewNumber);
         radioButtonT1sKDE->setEnabled (
             simulation.IsT1Available ());

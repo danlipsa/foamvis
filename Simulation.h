@@ -170,36 +170,10 @@ public:
 	return m_forceNames.size ();
     }
     bool IsTorqueAvailable () const;
-
-    bool IsT1Available () const;
-    int GetT1Shift () const
-    {
-	return m_topologicalChangeShift;
-    }
-    bool GetT1ShiftLower () const
-    {
-	return m_topologicalChangeShift == 1;
-    }
-    const vector<T1>& GetT1 (
-        size_t timeStep, int t1sShift) const;
-    size_t GetT1Size () const;
-    size_t GetT1TimeSteps () const;
-
     bool OriginalUsed () const
     {
 	return m_useOriginal;
     }
-    /**
-     * Parse topological changes from the file.
-     * in the file: first time step is 1 and topological changes occur 
-     * before timeStep
-     * in memory: first time step is 0 and topological changes occur 
-     * after timeStep
-     *
-     */
-    void ParseT1s (
-	const string& fileName, size_t ticksForTimeStep, bool t1sShiftLower);
-    void ParseT1s (const char* arrayName, const char* countName);
     void ParseDMPs (const vector<string>& fileNames,
 		    bool useOriginal,
 		    const DmpObjectInfo& dmpObjectInfo,
@@ -233,7 +207,38 @@ public:
     void SetRegularGridResolution (size_t resolution);
     static string GetBaseCacheDir ();
     string GetCacheDir () const;
-    vtkSmartPointer<vtkImageData> GetT1KDE (size_t timeStep) const;
+
+    /**
+     * @{
+     * @name T1
+     */
+    bool IsT1Available () const;
+    int GetT1Shift () const
+    {
+	return m_topologicalChangeShift;
+    }
+    bool GetT1ShiftLower () const
+    {
+	return m_topologicalChangeShift == 1;
+    }
+    const vector<T1>& GetT1 (size_t timeStep, int t1sShift) const;
+    vtkSmartPointer<vtkImageData> GetT1KDE (
+        size_t timeStep, size_t subStep, int t1Shift) const;
+
+    size_t GetT1Size () const;
+    size_t GetT1TimeSteps () const;
+    /**
+     * Parse topological changes from the file.
+     * in the file: first time step is 1 and topological changes occur 
+     * before timeStep
+     * in memory: first time step is 0 and topological changes occur 
+     * after timeStep
+     *
+     */
+    void ParseT1s (
+	const string& fileName, size_t ticksForTimeStep, bool t1sShiftLower);
+    void ParseT1s (const char* arrayName, const char* countName);
+    // @}
 
 private:
     void MapPerFoam (FoamParamMethod* foamMethods, size_t n);

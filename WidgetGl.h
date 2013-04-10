@@ -247,7 +247,6 @@ public Q_SLOTS:
     void ToggledVelocityGridCellCenterShown (bool checked);
     void ToggledVelocityColorMapped (bool checked);
     void ToggledContextBoxShown (bool checked);
-    void ToggledT1sKernelTextureShown (bool checked);
     void ToggledAverageAroundAllowRotation (bool checked);
     void ButtonClickedDuplicateDomain (int id);
     void SetBodyOrFaceScalar (
@@ -290,7 +289,6 @@ public Q_SLOTS:
 
     void ValueChangedTimeDisplacement (int timeDisplacement);
     void ValueChangedT1Size (int index);
-    void ValueChangedT1sKernelSigma (double value);
     void ValueChangedDeformationSizeExp (int index);
     void ValueChangedDeformationLineWidthExp (int index);
     void ValueChangedVelocityLineWidthExp (int index);
@@ -410,8 +408,6 @@ private:
     void setSimulation (int i, ViewNumber::Enum viewNumber);
     void initTransformViewport ();
     void cleanupTransformViewport ();
-    void toggledT1sKernelTextureShown (ViewNumber::Enum viewNumber);
-    void valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber);
     bool linkedTimesValid (size_t timeBegin, size_t timeEnd);
     bool linkedTimesValid ();
     void contextMenuEventView (QMenu* menu) const;

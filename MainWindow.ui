@@ -2660,8 +2660,6 @@
     <slot>ButtonClickedInteractionObject(int)</slot>
     <slot>ToggledStandaloneFaceShown(bool)</slot>
     <slot>ToggledStandaloneEdgeShown(bool)</slot>
-    <slot>ValueChangedT1sKernelTextureSize(int)</slot>
-    <slot>ValueChangedT1sKernelSigma(int)</slot>
     <slot>ToggledShowDeformationGrid(bool)</slot>
     <slot>ToggledShowDeformationGridCellCenter(bool)</slot>
     <slot>ValueChangedT1sKernelIntervalPerPixel(int)</slot>
@@ -2729,8 +2727,6 @@
     <slot>ToggledBubblePathsHidden(bool)</slot>
     <slot>ValueChangedBubblePathsTimeBegin(int)</slot>
     <slot>ValueChangedBubblePathsTimeEnd(int)</slot>
-    <slot>ToggledT1sKernelTextureShown(bool)</slot>
-    <slot>ValueChangedT1sKernelSigma(double)</slot>
     <slot>ToggledSeedsShown(bool)</slot>
     <slot>ToggledKDESeeds(bool)</slot>
     <slot>ValueChangedKDEValue(double)</slot>
@@ -4224,8 +4220,8 @@
   <connection>
    <sender>checkBoxTextureShown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledT1sKernelTextureShown(bool)</slot>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledT1KDEKernelBoxShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>833</x>
@@ -4305,7 +4301,7 @@
    <sender>doubleSpinBoxKernelSigma</sender>
    <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
-   <slot>ValueChangedT1sKernelSigma(double)</slot>
+   <slot>ValueChangedT1KDEKernelSigma(double)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>833</x>
@@ -4314,22 +4310,6 @@
     <hint type="destinationlabel">
      <x>1016</x>
      <y>571</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>doubleSpinBoxKernelSigma</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedT1sKernelSigma(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>833</x>
-     <y>295</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>636</x>
-     <y>296</y>
     </hint>
    </hints>
   </connection>
@@ -4465,7 +4445,7 @@
   <slot>CurrentIndexChangedInteractionMode(int)</slot>
   <slot>ButtonClickedViewType(int)</slot>
   <slot>ButtonClickedVelocityVis(int)</slot>
-  <slot>ValueChangedT1sKernelSigma(double)</slot>
+  <slot>ValueChangedT1KDEKernelSigma(double)</slot>
   <slot>CurrentIndexChangedSimulation(int)</slot>
   <slot>ValueChangedAverageTimeWindow(int)</slot>
   <slot>ToggledTwoHalvesView(bool)</slot>
@@ -4488,6 +4468,7 @@
   <slot>EditingFinishedGlyphSeedsCount()</slot>
   <slot>ToggledVelocitySameSize(bool)</slot>
   <slot>ToggledScalarContext(bool)</slot>
+  <slot>ToggledT1KDEKernelBoxShown(bool)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupVelocityVis"/>

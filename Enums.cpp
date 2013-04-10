@@ -221,14 +221,14 @@ string BodyAttribute::ValueToString (size_t attribute, float* value)
 {
     ostringstream ostr;
     size_t numberOfComponents = BodyAttribute::GetNumberOfComponents (attribute);
-    if (numberOfComponents == 1)
+    if (numberOfComponents == SCALAR_NUMBER_OF_COMPONENTS)
 	ostr << *value;
-    else if (numberOfComponents == 3)
+    else if (numberOfComponents == VECTOR_NUMBER_OF_COMPONENTS)
     {
 	G3D::Vector3 v(value);
 	ostr << v;
     }
-    else if (numberOfComponents == 9)
+    else if (numberOfComponents == TENSOR_NUMBER_OF_COMPONENTS)
     {
 	G3D::Matrix3 m (value[0], value[1], value[2],
 			value[3], value[4], value[5],
@@ -262,7 +262,7 @@ size_t BodyAttribute::GetNumberOfComponents (BodyAttribute::Enum attribute)
 size_t BodyAttribute::GetNumberOfComponents (size_t attribute)
 {
     if (attribute < BodyScalar::COUNT)
-	return 1;
+	return SCALAR_NUMBER_OF_COMPONENTS;
     else
 	return GetNumberOfComponents (BodyAttribute::FromSizeT (attribute));
 }

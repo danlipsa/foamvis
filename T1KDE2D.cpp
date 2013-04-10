@@ -100,16 +100,21 @@ const float s_kernelSigmaInBubbleDiameters = 3;
 
 T1KDE2D::T1KDE2D (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
     ScalarAverage2DTemplate<SetterNop> (viewNumber, widgetGl, 
-				      "t1sKDE", QColor (0, 255, 0, 0)),
-    m_kernelSigma (s_kernelSigmaInBubbleDiameters * 
-                   GetWidgetGl ().GetBubbleDiameter (viewNumber)),
-    m_kernelTextureShown (false)
+				      "t1sKDE", QColor (0, 255, 0, 0))
 {
+}
+
+float T1KDE2D::getKernelSigma () const
+{
+    const ViewSettings& vs = GetViewSettings ();
+    return vs.GetT1KDESigmaInBubbleDiameter () * 
+        GetWidgetGl ().GetBubbleDiameter (GetViewNumber ());
 }
 
 size_t T1KDE2D::GetKernelTextureSize () const
 {
-    return m_kernelSigma / GetOnePixelInObjectSpace (GetSimulation ().Is2D ());
+    return getKernelSigma () / 
+        GetOnePixelInObjectSpace (GetSimulation ().Is2D ());
 }
 
 
@@ -117,7 +122,7 @@ void T1KDE2D::AverageInit ()
 {
     WarnOnOpenGLError ("a - T1KDE2D::AverageInit");
     ScalarAverage2DTemplate<SetterNop>::AverageInit ();
-    initKernel ();
+    InitKernel ();
     WarnOnOpenGLError ("b - T1KDE2D::AverageInit");
 }
 
@@ -125,7 +130,7 @@ void T1KDE2D::AverageInit ()
 // Interactive Visualization of Streaming Data with Kernel Density Estimation
 // Ove Daae Lampe and Helwig Hauser
 // h: bandwidth is equal with standard deviation
-void T1KDE2D::initKernel ()
+void T1KDE2D::InitKernel ()
 {
     float kernelTextureSize = GetKernelTextureSize ();
     QSize size (kernelTextureSize, kernelTextureSize);
@@ -136,23 +141,11 @@ void T1KDE2D::initKernel ()
     RuntimeAssert (m_kernel->isValid (), 
 		   string ("Framebuffer initialization failed:") + GetId ());
     m_kernel->bind ();    
-    m_gaussianInitShaderProgram->Bind (m_kernelSigma);
+    m_gaussianInitShaderProgram->Bind (getKernelSigma ());
     ActivateShader (
 	G3D::Rect2D (G3D::Vector2 (kernelTextureSize, kernelTextureSize)));
     m_gaussianInitShaderProgram->release ();
     m_kernel->release ();
-}
-
-void T1KDE2D::SetKernelSigmaInBubbleDiameters (float kernelSigmaInBubbleDiameters)
-{
-    m_kernelSigma = kernelSigmaInBubbleDiameters * 
-        GetWidgetGl ().GetBubbleDiameter (GetViewNumber ());
-    initKernel ();
-}
-
-float T1KDE2D::GetKernelSigmaInBubbleDiameters () const
-{
-    return m_kernelSigma / GetWidgetGl ().GetBubbleDiameter (GetViewNumber ());
 }
 
 void T1KDE2D::writeStepValues (ViewNumber::Enum viewNumber, size_t timeStep, 
@@ -191,7 +184,7 @@ size_t T1KDE2D::getStepSize (size_t timeStep) const
 
 float T1KDE2D::GetPeakHeight () const
 {
-    //return 1 / (m_kernelSigma * m_kernelSigma * 2 * M_PI);
+    //return 1 / (getKernelSigma () * getKernelSigma () * 2 * M_PI);
     return 1;
 }
 

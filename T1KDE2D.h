@@ -34,28 +34,14 @@ public:
     T1KDE2D (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl);
     virtual void AverageInit ();
 
-    float GetKernelSigma () const
-    {
-	return m_kernelSigma;
-    }
-    float GetKernelSigmaInBubbleDiameters () const;    
-    void SetKernelSigmaInBubbleDiameters (float kernelSigmaInBubbleDiameters);
     float GetPeakHeight () const;
 
     size_t GetKernelTextureSize () const;
 
-    bool IsKernelTextureShown () const
-    {
-	return m_kernelTextureShown;
-    }
-    void SetKernelTextureShown (bool kernelTextureShown)
-    {
-	m_kernelTextureShown = kernelTextureShown;
-    }
-
     void DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep, 
 			     size_t subStep) const;
     void CacheData (boost::shared_ptr<AverageCache> averageCache) const;
+    void InitKernel ();
 
 protected:
     virtual void writeStepValues (
@@ -63,8 +49,7 @@ protected:
     virtual size_t getStepSize (size_t timeStep) const;
 
 private:
-    void initKernel ();
-
+    float getKernelSigma () const;
 
 private:
     static boost::shared_ptr<GaussianInitShaderProgram
@@ -74,8 +59,6 @@ private:
 
 
     boost::shared_ptr<QGLFramebufferObject> m_kernel;
-    float m_kernelSigma;
-    bool m_kernelTextureShown;
 };
 
 #endif //__T1_KDE_2D_H__

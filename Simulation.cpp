@@ -632,6 +632,13 @@ const vector<T1>& Simulation::GetT1 (
 	return m_topologicalChange[t];
 }
 
+vtkSmartPointer<vtkImageData> Simulation::GetT1KDE (
+    size_t timeStep, size_t subStep, int t1Shift) const
+{
+    VTK_CREATE (vtkImageGaussianSource, gs);
+}
+
+
 void Simulation::ParseDMPs (
     const vector<string>& fileNames,
     bool useOriginal,
@@ -708,11 +715,6 @@ bool Simulation::IsTorqueAvailable () const
             torque = true;
     }
     return torque;
-}
-
-vtkSmartPointer<vtkImageData> Simulation::GetT1KDE (size_t timeStep) const
-{
-    
 }
 
 // Members: SimulationGroup

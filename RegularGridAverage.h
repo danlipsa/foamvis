@@ -51,9 +51,10 @@ protected:
     virtual void addStep (
 	size_t timeStep, size_t subStep);
     virtual void removeStep (size_t timeStep, size_t subStep);
+    virtual size_t getStepSize (size_t timeStep) const;
 
 private:
-    void opStep (size_t timeStep, OpType f);
+    void opStep (size_t timeStep, size_t subStep, OpType f);
 
 private:
     size_t m_bodyAttribute;

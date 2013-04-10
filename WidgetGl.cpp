@@ -2168,8 +2168,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     displayContextBodies (viewNumber);
     displayContextBox (viewNumber, isAverageAroundRotationShown);
     T1KDE2D& t1sKDE = aa.GetT1KDE ();
-    if (vs.GetViewType () == ViewType::T1_KDE &&
-	t1sKDE.IsKernelTextureShown ())
+    if (vs.GetViewType () == ViewType::T1_KDE && vs.IsT1KDEKernelBoxShown ())
     {
 	size_t timeStep = GetTime (viewNumber);
 	size_t stepSize = GetSimulation (viewNumber).GetT1 (
@@ -2902,24 +2901,6 @@ void WidgetGl::ActivateViewShader (
 					  ViewingVolumeOperation::ENCLOSE2D));
     activateViewShader (viewNumber, enclose, srcRect, 
 			rotationCenter, angleDegrees);
-}
-
-void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
-{
-    T1KDE2D& t1sKDE = GetAttributeAverages2D (
-        viewNumber).GetT1KDE ();
-    t1sKDE.SetKernelSigmaInBubbleDiameters (
-	static_cast<QDoubleSpinBox*> (sender ())->value ());
-    t1sKDE.AverageInitStep (GetViewSettings (viewNumber).GetTimeWindow ());
-    CompileUpdate (viewNumber);
-}
-
-void WidgetGl::toggledT1sKernelTextureShown (ViewNumber::Enum viewNumber)
-{
-    bool checked = static_cast<QCheckBox*> (sender ())->isChecked ();
-    GetAttributeAverages2D (
-        viewNumber).GetT1KDE ().SetKernelTextureShown (checked);
-    CompileUpdate (viewNumber);
 }
 
 void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
@@ -4500,23 +4481,6 @@ void WidgetGl::ValueChangedBubblePathsTimeEnd (int time)
 {
     GetViewSettings ().SetBubblePathsTimeEnd (time);
     CompileUpdate ();
-}
-
-
-void WidgetGl::ValueChangedT1sKernelSigma (double value)
-{
-    (void)value;
-    makeCurrent ();
-    GetSettingsPtr ()->SetOneOrTwoViews (
-        this, &WidgetGl::valueChangedT1sKernelSigma);
-}
-
-void WidgetGl::ToggledT1sKernelTextureShown (bool checked)
-{
-    makeCurrent ();
-    (void)checked;
-    GetSettingsPtr ()->SetOneOrTwoViews (
-        this, &WidgetGl::toggledT1sKernelTextureShown);
 }
 
 void WidgetGl::ValueChangedDeformationSizeExp (int index)

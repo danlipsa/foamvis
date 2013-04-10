@@ -76,6 +76,52 @@ public:
 
     /**
      * @{
+     * @name KDE
+     */
+    // Streamlines seeded based on KDE
+    float GetKDEValue () const
+    {
+        return m_kdeValue;
+    }
+    void SetKDEValue (float value)
+    {
+        m_kdeValue = value;
+    }
+    /**
+     * Streamlines seeded based on T1s KDE have higher resolution
+     * in grid squares with high KDE value.
+     * The number of seeds of a KDE grid square is 
+     * (2*m + 1)^2 where m is the kde multiplier
+     */
+    int GetKDEMultiplier () const
+    {
+        return m_kdeMultiplier;
+    }
+    void SetKDEMultiplier (int multiplier)
+    {
+        m_kdeMultiplier = multiplier;
+    }
+    bool IsT1KDEKernelBoxShown () const
+    {
+	return m_T1KDEKernelBoxShown;
+    }
+    void SetT1KDEKernelBoxShown (bool kernelTextureShown)
+    {
+	m_T1KDEKernelBoxShown = kernelTextureShown;
+    }    
+    float GetT1KDESigmaInBubbleDiameter () const
+    {
+        return m_T1KDESigmaInBubbleDiameter;
+    }
+    void SetT1KDESigmaInBubbleDiameter (float sigma)
+    {
+        m_T1KDESigmaInBubbleDiameter = sigma;
+    }
+    // @}
+
+
+    /**
+     * @{
      * @name Attributes
      */
     bool IsScalarShown () const
@@ -160,28 +206,6 @@ public:
     void SetDeformationLineWidth (float value)
     {
 	m_deformationLineWidth = value;
-    }
-    float GetKDEValue () const
-    {
-        return m_kdeValue;
-    }
-    void SetKDEValue (float value)
-    {
-        m_kdeValue = value;
-    }
-    /**
-     * Streamlines seeded based on T1s KDE have higher resolution
-     * in grid squares with high KDE value.
-     * The number of seeds of a KDE grid square is 
-     * (2*m + 1)^2 where m is the kde multiplier
-     */
-    int GetKDEMultiplier () const
-    {
-        return m_kdeMultiplier;
-    }
-    void SetKDEMultiplier (int multiplier)
-    {
-        m_kdeMultiplier = multiplier;
     }
     // @}
 
@@ -888,6 +912,8 @@ private:
     size_t m_bubblePathsTimeEnd;
     float m_kdeValue;
     int m_kdeMultiplier;
+    bool m_T1KDEKernelBoxShown;
+    float m_T1KDESigmaInBubbleDiameter;
     float m_onePixelInObjectSpace;
 };
 
