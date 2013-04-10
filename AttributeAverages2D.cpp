@@ -9,7 +9,7 @@
 #include "ForceAverage.h"
 #include "ScalarAverage2D.h"
 #include "Simulation.h"
-#include "T1sKDE.h"
+#include "T1KDE2D.h"
 #include "TensorAverage.h"
 #include "VectorAverage.h"
 #include "AttributeAverages2D.h"
@@ -31,7 +31,7 @@ AttributeAverages2D::AttributeAverages2D (ViewNumber::Enum viewNumber,
                        widgetGl.GetSimulationGroupPtr ())
 {
     m_scalarAverage.reset (new ScalarAverage2D (viewNumber, widgetGl));
-    m_t1KDE.reset (new T1sKDE (viewNumber, widgetGl));
+    m_t1KDE.reset (new T1KDE2D (viewNumber, widgetGl));
     m_deformationAverage.reset (
 	new TensorAverage (
             viewNumber, widgetGl, GetScalarAverage ().GetFbos ()));

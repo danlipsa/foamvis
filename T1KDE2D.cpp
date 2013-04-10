@@ -1,9 +1,9 @@
 /**
- * @file   T1sKDE.h
+ * @file   T1KDE2D.h
  * @author Dan R. Lipsa
  * @date  31 Aug. 2011
  *
- * Implementation for the T1sKDE class 
+ * Implementation for the T1KDE2D class 
  */
 
 #include "AverageShaders.h"
@@ -14,7 +14,7 @@
 #include "ScalarDisplay.h"
 #include "Settings.h"
 #include "ShaderProgram.h"
-#include "T1sKDE.h"
+#include "T1KDE2D.h"
 #include "Utils.h"
 #include "ViewSettings.h"
 
@@ -70,18 +70,18 @@ void GaussianStoreShaderProgram::Bind ()
 }
 
 
-// T1sKDE Methods and static fields
+// T1KDE2D Methods and static fields
 // ======================================================================
 
 boost::shared_ptr<
-    GaussianInitShaderProgram> T1sKDE::m_gaussianInitShaderProgram;
+    GaussianInitShaderProgram> T1KDE2D::m_gaussianInitShaderProgram;
 boost::shared_ptr<GaussianStoreShaderProgram
-		  > T1sKDE::m_gaussianStoreShaderProgram;
+		  > T1KDE2D::m_gaussianStoreShaderProgram;
 
 
-void T1sKDE::InitShaders ()
+void T1KDE2D::InitShaders ()
 {
-    cdbg << "==== T1sKDE ====" << endl;
+    cdbg << "==== T1KDE2D ====" << endl;
     m_initShaderProgram.reset (
 	new ShaderProgram (0, RESOURCE("T1sKDEInit.frag")));
     m_addShaderProgram.reset (
@@ -98,7 +98,7 @@ void T1sKDE::InitShaders ()
 
 const float s_kernelSigmaInBubbleDiameters = 3;
 
-T1sKDE::T1sKDE (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
+T1KDE2D::T1KDE2D (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
     ScalarAverage2DTemplate<SetterNop> (viewNumber, widgetGl, 
 				      "t1sKDE", QColor (0, 255, 0, 0)),
     m_kernelSigma (s_kernelSigmaInBubbleDiameters * 
@@ -107,25 +107,25 @@ T1sKDE::T1sKDE (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
 {
 }
 
-size_t T1sKDE::GetKernelTextureSize () const
+size_t T1KDE2D::GetKernelTextureSize () const
 {
     return m_kernelSigma / GetOnePixelInObjectSpace (GetSimulation ().Is2D ());
 }
 
 
-void T1sKDE::AverageInit ()
+void T1KDE2D::AverageInit ()
 {
-    WarnOnOpenGLError ("a - T1sKDE::AverageInit");
+    WarnOnOpenGLError ("a - T1KDE2D::AverageInit");
     ScalarAverage2DTemplate<SetterNop>::AverageInit ();
     initKernel ();
-    WarnOnOpenGLError ("b - T1sKDE::AverageInit");
+    WarnOnOpenGLError ("b - T1KDE2D::AverageInit");
 }
 
 
 // Interactive Visualization of Streaming Data with Kernel Density Estimation
 // Ove Daae Lampe and Helwig Hauser
 // h: bandwidth is equal with standard deviation
-void T1sKDE::initKernel ()
+void T1KDE2D::initKernel ()
 {
     float kernelTextureSize = GetKernelTextureSize ();
     QSize size (kernelTextureSize, kernelTextureSize);
@@ -143,22 +143,22 @@ void T1sKDE::initKernel ()
     m_kernel->release ();
 }
 
-void T1sKDE::SetKernelSigmaInBubbleDiameters (float kernelSigmaInBubbleDiameters)
+void T1KDE2D::SetKernelSigmaInBubbleDiameters (float kernelSigmaInBubbleDiameters)
 {
     m_kernelSigma = kernelSigmaInBubbleDiameters * 
         GetWidgetGl ().GetBubbleDiameter (GetViewNumber ());
     initKernel ();
 }
 
-float T1sKDE::GetKernelSigmaInBubbleDiameters () const
+float T1KDE2D::GetKernelSigmaInBubbleDiameters () const
 {
     return m_kernelSigma / GetWidgetGl ().GetBubbleDiameter (GetViewNumber ());
 }
 
-void T1sKDE::writeStepValues (ViewNumber::Enum viewNumber, size_t timeStep, 
+void T1KDE2D::writeStepValues (ViewNumber::Enum viewNumber, size_t timeStep, 
 			      size_t subStep)
 {
-    WarnOnOpenGLError ("a - T1sKDE::writeStepValues");
+    WarnOnOpenGLError ("a - T1KDE2D::writeStepValues");
     // activate texture unit 1
     glActiveTexture (
 	TextureEnum (m_gaussianStoreShaderProgram->GetGaussianTexUnit ()));
@@ -168,10 +168,10 @@ void T1sKDE::writeStepValues (ViewNumber::Enum viewNumber, size_t timeStep,
     m_gaussianStoreShaderProgram->release ();
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);    
-    WarnOnOpenGLError ("b - T1sKDE::writeStepValues");
+    WarnOnOpenGLError ("b - T1KDE2D::writeStepValues");
 }
 
-void T1sKDE::DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep, 
+void T1KDE2D::DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep, 
 				 size_t subStep) const
 {
     glPushAttrib (GL_CURRENT_BIT | GL_POLYGON_BIT);
@@ -182,20 +182,20 @@ void T1sKDE::DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep,
     glPopAttrib ();
 }
 
-size_t T1sKDE::getStepSize (size_t timeStep) const
+size_t T1KDE2D::getStepSize (size_t timeStep) const
 {
     ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
     return GetSimulation ().GetT1 (timeStep, 
 				    vs.T1sShiftLower ()).size ();
 }
 
-float T1sKDE::GetPeakHeight () const
+float T1KDE2D::GetPeakHeight () const
 {
     //return 1 / (m_kernelSigma * m_kernelSigma * 2 * M_PI);
     return 1;
 }
 
-void T1sKDE::CacheData (boost::shared_ptr<AverageCache> averageCache) const
+void T1KDE2D::CacheData (boost::shared_ptr<AverageCache> averageCache) const
 {
     vtkSmartPointer<vtkImageData> data = getData (GetId ());
     averageCache->SetT1KDE (data);

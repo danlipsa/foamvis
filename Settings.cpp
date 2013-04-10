@@ -12,7 +12,7 @@
 #include "MainWindow.h"
 #include "Settings.h"
 #include "Simulation.h"
-#include "T1sKDE.h"
+#include "T1KDE2D.h"
 #include "Utils.h"
 #include "ViewSettings.h"
 #include "WidgetGl.h"

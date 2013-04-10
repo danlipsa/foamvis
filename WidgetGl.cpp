@@ -28,7 +28,7 @@
 #include "OrientedFace.h"
 #include "SelectBodiesById.h"
 #include "Settings.h"
-#include "T1sKDE.h"
+#include "T1KDE2D.h"
 #include "TensorAverage.h"
 #include "Utils.h"
 #include "Vertex.h"
@@ -720,7 +720,7 @@ void WidgetGl::initializeGL()
             ScalarAverage2D::InitShaders ();
             TensorAverage::InitShaders ();
             VectorAverage::InitShaders ();
-            T1sKDE::InitShaders ();
+            T1KDE2D::InitShaders ();
         }
 	initializeLighting ();
 	GetSettingsPtr ()->SetViewNumber (ViewNumber::VIEW0);
@@ -1867,7 +1867,7 @@ void WidgetGl::DisplayT1Quad (
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
-    T1sKDE& t1sKDE = 
+    T1KDE2D& t1sKDE = 
         GetAttributeAverages2D (viewNumber).GetT1KDE ();
     float rectSize = t1sKDE.GetKernelTextureSize () * 
 	GetOnePixelInObjectSpace (simulation.Is2D ());
@@ -2167,7 +2167,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     displayT1 (viewNumber);
     displayContextBodies (viewNumber);
     displayContextBox (viewNumber, isAverageAroundRotationShown);
-    T1sKDE& t1sKDE = aa.GetT1KDE ();
+    T1KDE2D& t1sKDE = aa.GetT1KDE ();
     if (vs.GetViewType () == ViewType::T1_KDE &&
 	t1sKDE.IsKernelTextureShown ())
     {
@@ -2906,7 +2906,7 @@ void WidgetGl::ActivateViewShader (
 
 void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
 {
-    T1sKDE& t1sKDE = GetAttributeAverages2D (
+    T1KDE2D& t1sKDE = GetAttributeAverages2D (
         viewNumber).GetT1KDE ();
     t1sKDE.SetKernelSigmaInBubbleDiameters (
 	static_cast<QDoubleSpinBox*> (sender ())->value ());

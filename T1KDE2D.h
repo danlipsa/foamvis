@@ -1,13 +1,13 @@
 /**
- * @file   T1sKDE.h
+ * @file   T1KDE2D.h
  * @author Dan R. Lipsa
  * @date  31 Aug. 2011
  *
- * Interface for the T1sKDE class
+ * Interface for the T1KDE2D class
  */
 
-#ifndef __T1S_KDE_H__
-#define __T1S_KDE_H__
+#ifndef __T1_KDE_2D_H__
+#define __T1_KDE_2D_H__
 
 #include "ScalarAverage2D.h"
 
@@ -25,13 +25,13 @@ class GaussianStoreShaderProgram;
  * Gaussian 2D is a product of 1D Gaussians.
  * g_2D (x,y,s) = 1 / (2 * pi * s^2) * e ^ (0.5 * (x^2 + y^2) / s^2)
  */
-class T1sKDE : public ScalarAverage2DTemplate<SetterNop>
+class T1KDE2D : public ScalarAverage2DTemplate<SetterNop>
 {
 public:
     static void InitShaders ();
 
 public:    
-    T1sKDE (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl);
+    T1KDE2D (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl);
     virtual void AverageInit ();
 
     float GetKernelSigma () const
@@ -78,7 +78,7 @@ private:
     bool m_kernelTextureShown;
 };
 
-#endif //__T1S_KDE_H__
+#endif //__T1_KDE_2D_H__
 
 // Local Variables:
 // mode: c++

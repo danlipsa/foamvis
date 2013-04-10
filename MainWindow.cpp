@@ -20,7 +20,7 @@
 #include "ProcessBodyTorus.h"
 #include "Settings.h"
 #include "SystemDifferences.h"
-#include "T1sKDE.h"
+#include "T1KDE2D.h"
 #include "TensorAverage.h"
 #include "Utils.h"
 #include "OpenGLUtils.h"
@@ -2005,7 +2005,7 @@ void MainWindow::t1sKDEViewToUI (ViewNumber::Enum viewNumber)
     if (simulation.Is2D ())
     {
         bool kernelTextureShown = false;
-	const T1sKDE& kde = 
+	const T1KDE2D& kde = 
             widgetGl->GetAttributeAverages2D (
                 viewNumber).GetT1KDE ();
 	kernelTextureShown = kde.IsKernelTextureShown ();

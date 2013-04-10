@@ -12,7 +12,7 @@
 
 class ForceAverage;
 class ScalarAverage2D;
-class T1sKDE;
+class T1KDE2D;
 class TensorAverage;
 class WidgetGl;
 class VectorAverage;
@@ -29,9 +29,9 @@ public:
 	return *boost::static_pointer_cast<ScalarAverage2D> (m_scalarAverage);
     }
     
-    T1sKDE& GetT1KDE () const
+    T1KDE2D& GetT1KDE () const
     {
-	return *boost::static_pointer_cast<T1sKDE> (m_t1KDE);
+	return *boost::static_pointer_cast<T1KDE2D> (m_t1KDE);
     }
 
     TensorAverage& GetDeformationAverage () const
