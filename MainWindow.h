@@ -171,7 +171,7 @@ private:
     void deformationViewToUI ();
     void velocityViewToUI ();
     void forceViewToUI ();
-    void t1sKDEViewToUI (ViewNumber::Enum viewNumber);
+    void t1KDEViewToUI (ViewNumber::Enum viewNumber);
     void bubblePathsViewToUI ();
     void lightViewToUI (
 	const ViewSettings& vs, LightNumber::Enum lightNumber);

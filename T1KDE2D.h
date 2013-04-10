@@ -56,8 +56,6 @@ private:
 			     > m_gaussianInitShaderProgram;
     static boost::shared_ptr<GaussianStoreShaderProgram
 			     > m_gaussianStoreShaderProgram;
-
-
     boost::shared_ptr<QGLFramebufferObject> m_kernel;
 };
 

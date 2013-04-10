@@ -2017,7 +2017,7 @@ void MainWindow::forceViewToUI ()
             ViewSettings::TENSOR_LINE_WIDTH_EXP2, vs.GetForceLineWidth ()));
 }
 
-void MainWindow::t1sKDEViewToUI (ViewNumber::Enum viewNumber)
+void MainWindow::t1KDEViewToUI (ViewNumber::Enum viewNumber)
 {
     const Simulation& simulation = GetSimulation (viewNumber);
     if (simulation.Is2D ())
@@ -2159,7 +2159,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     deformationViewToUI ();
     velocityViewToUI ();
     forceViewToUI ();
-    t1sKDEViewToUI (viewNumber);
+    t1KDEViewToUI (viewNumber);
     bubblePathsViewToUI ();
     timeViewToUI (viewNumber);
     linkedTimeEventsViewToUI (viewNumber);
