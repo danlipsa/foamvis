@@ -48,7 +48,8 @@ protected:
     virtual void addStep (size_t timeStep, size_t subStep) = 0;
     virtual void removeStep (size_t timeStep, size_t subStep) = 0;
     /**
-     * A step is divident in stepSize subSteps
+     * A step is divided in stepSize subSteps. This is used for T1s where
+     * there are several t1s for one time step.
      */
     virtual size_t getStepSize (size_t timeStep) const
     {
