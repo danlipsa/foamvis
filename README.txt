@@ -9,7 +9,7 @@ Release log
         - you can specify ? and [0-9] filter.
         - add title to color bar in GL view.
         - moved T1s inside the original domain for 3D
-                
+        - set the peak height for gaussians to 1.0 for both 2D and 3D
 
 0.8.2740
         - update to vtk-6.0-20130125.tgz

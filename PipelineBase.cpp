@@ -144,7 +144,7 @@ void PipelineBase::UpdateViewTitle (
         position.x, position.y);
 }
 
-void PipelineBase::UpdateColorMap (
+void PipelineBase::UpdateColorMapScalar (
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction, 
     const char * name)
 {
@@ -152,7 +152,7 @@ void PipelineBase::UpdateColorMap (
     m_scalarBarActor->SetTitle (name);
 }
 
-void PipelineBase::UpdateOverlayMap (
+void PipelineBase::UpdateColorMapVelocity (
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction, 
     const char * name)
 {

@@ -170,13 +170,13 @@ void WidgetVtk::Average3dCreatePipeline (
     renWin->AddObserver (vtkCommand::EndEvent, sendPaint);
 }
 
-void WidgetVtk::UpdateScalarThreshold (QwtDoubleInterval interval)
+void WidgetVtk::UpdateThresholdScalar (QwtDoubleInterval interval)
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     if (GetPipelineType (viewNumber) == PipelineType::AVERAGE_3D)
     {
         const ViewSettings& vs = GetViewSettings (viewNumber);
-        m_pipelineAverage3d[viewNumber]->UpdateScalarThreshold (
+        m_pipelineAverage3d[viewNumber]->UpdateThresholdScalar (
             interval, BodyScalar::FromSizeT (vs.GetBodyOrFaceScalar ()));
         update ();
     }
@@ -216,66 +216,59 @@ void WidgetVtk::updateViewTitle (ViewNumber::Enum viewNumber)
 }
 
 
-void WidgetVtk::UpdateForceAverage ()
+void WidgetVtk::UpdateAverageForce ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();    
     if (! IsVtkView (viewNumber))
         return;
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
-    pipeline.UpdateForceAverage (m_average[viewNumber]->GetForceAverage ());    
+    pipeline.UpdateAverageForce (m_average[viewNumber]->GetForceAverage ());    
     update ();
 }
 
-void WidgetVtk::UpdateVelocityAverage ()
+void WidgetVtk::UpdateAverageVelocity ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();    
     if (! IsVtkView (viewNumber))
         return;
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
     pipeline.FromView (viewNumber, *this);    
-    pipeline.UpdateVelocityAverage (
+    pipeline.UpdateAverageVelocity (
         m_average[viewNumber]->GetVelocityAverage ());
     update ();
 }
 
-
-
 void WidgetVtk::AddAverageView (
     ViewNumber::Enum viewNumber,
-    const ColorBarModel& scalarColorBarModel, QwtDoubleInterval interval,
-    const ColorBarModel& velocityColorBarModel)
+    const ColorBarModel& scalarColorMap, QwtDoubleInterval interval,
+    const ColorBarModel& velocityColorMap)
 {
-    vtkSmartPointer<vtkRenderWindow> renderWindow = GetRenderWindow ();
     boost::shared_ptr<RegularGridAverage> scalarAverage = 
         m_average[viewNumber]->GetScalarAveragePtr ();
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    const char* scalarName = BodyScalar::ToString (
-        BodyScalar::FromSizeT (vs.GetBodyOrFaceScalar ()));
     const Simulation& simulation = scalarAverage->GetSimulation ();
     m_pipeline[viewNumber] = m_pipelineAverage3d[viewNumber];
+
+
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
     G3D::AABox vv = CalculateViewingVolume (viewNumber, simulation);
     scalarAverage->SetBodyAttribute (vs.GetBodyOrFaceScalar ());
     m_average[viewNumber]->AverageInitStep (vs.GetTimeWindow ());
     m_average[viewNumber]->ComputeAverage ();
-    pipeline.UpdateScalarAverage (m_average[viewNumber]->GetScalarAverage ());
-    pipeline.UpdateForceAverage (m_average[viewNumber]->GetForceAverage ());
-    pipeline.UpdateVelocityAverage (
-        m_average[viewNumber]->GetVelocityAverage ());
+
+    pipelineUpdateScalar (viewNumber, scalarColorMap, interval);
+    // force
+    pipeline.UpdateAverageForce (m_average[viewNumber]->GetForceAverage ());
+    pipelineUpdateVelocity (viewNumber, velocityColorMap);
+    // other
     pipeline.FromView (viewNumber, *this);
-    pipeline.UpdateScalarThreshold (
-        interval, 
-        BodyScalar::FromSizeT (vs.GetBodyOrFaceScalar ()));
-    pipeline.UpdateColorMap (scalarColorBarModel, scalarName);
-    pipeline.UpdateOverlayMap (
-        velocityColorBarModel, 
-        BodyAttribute::ToString (BodyAttribute::VELOCITY));
     pipeline.UpdateFocus (GetViewNumber () == viewNumber);
     pipeline.FromViewTransform (viewNumber, *this);
 
     G3D::Rect2D viewRect = GetNormalizedViewRect (viewNumber);
     G3D::Vector2 position = G3D::Vector2 (
         viewRect.center ().x, viewRect.y1 () * 0.99);
+    vtkSmartPointer<vtkRenderWindow> renderWindow = GetRenderWindow ();
     renderWindow->AddRenderer(pipeline.GetRenderer ());
     pipeline.GetRenderer ()->SetViewport (viewRect.x0 (), viewRect.y0 (),
                                           viewRect.x1 (), viewRect.y1 ());
@@ -287,15 +280,37 @@ void WidgetVtk::AddAverageView (
     m_pipeline[viewNumber]->GetRenderer ()->ResetCamera ();
 }
 
+void WidgetVtk::pipelineUpdateScalar (
+    ViewNumber::Enum viewNumber,
+    const ColorBarModel& scalarColorMap, QwtDoubleInterval interval)
+{
+    PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    pipeline.UpdateAverageScalar (m_average[viewNumber]->GetScalarAverage ());
+    pipeline.UpdateThresholdScalar (
+        interval, 
+        BodyScalar::FromSizeT (vs.GetBodyOrFaceScalar ()));
+    pipeline.UpdateColorMapScalar (scalarColorMap);
+}
+
+void WidgetVtk::pipelineUpdateVelocity (
+    ViewNumber::Enum viewNumber, const ColorBarModel& velocityColorMap)
+{
+    PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
+    pipeline.UpdateAverageVelocity (
+        m_average[viewNumber]->GetVelocityAverage ());
+    pipeline.UpdateColorMapVelocity (velocityColorMap);
+}
+
 void WidgetVtk::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
 {
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
     const ViewSettings& vs = GetViewSettings (viewNumber);
     m_average[viewNumber]->AverageStep (direction, vs.GetTimeWindow ());
     m_average[viewNumber]->ComputeAverage ();
-    pipeline.UpdateScalarAverage (m_average[viewNumber]->GetScalarAverage ());
-    pipeline.UpdateForceAverage (m_average[viewNumber]->GetForceAverage ());
-    pipeline.UpdateVelocityAverage (
+    pipeline.UpdateAverageScalar (m_average[viewNumber]->GetScalarAverage ());
+    pipeline.UpdateAverageForce (m_average[viewNumber]->GetForceAverage ());
+    pipeline.UpdateAverageVelocity (
         m_average[viewNumber]->GetVelocityAverage ());
     updateViewTitle (viewNumber);
 }
@@ -373,13 +388,13 @@ void WidgetVtk::resizeViewEvent (ViewNumber::Enum viewNumber)
     const Settings& settings = GetSettings ();
     const ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::Rect2D scalarBarRect = 
-        settings.GetColorBarRectWithLabels (viewNumber, viewRect);
+        settings.GetColorMapScalarRectWithLabels (viewNumber, viewRect);
     m_pipeline[viewNumber]->PositionScalarBar (
         toRatio (scalarBarRect, viewRect));
     if (vs.IsVelocityShown ())
     {
         G3D::Rect2D vectorBarRect =
-            settings.GetOverlayBarRectWithLabels (viewNumber, viewRect);
+            settings.GetColorMapVelocityRectWithLabels (viewNumber, viewRect);
         m_pipeline[viewNumber]->PositionVectorBar (
             toRatio (vectorBarRect, viewRect));
     }

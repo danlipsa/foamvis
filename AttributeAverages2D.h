@@ -31,7 +31,7 @@ public:
     
     T1sKDE& GetT1KDE () const
     {
-	return *boost::static_pointer_cast<T1sKDE> (m_topologicalChangeKDE);
+	return *boost::static_pointer_cast<T1sKDE> (m_t1KDE);
     }
 
     TensorAverage& GetDeformationAverage () const

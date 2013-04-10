@@ -23,10 +23,16 @@ AttributeAverages3D::AttributeAverages3D (
     m_scalarAverage.reset (
         new RegularGridAverage (viewNumber, settings, simulationGroup));
     
-    boost::shared_ptr<RegularGridAverage> velocityAverage (
+    boost::shared_ptr<RegularGridAverage> average (
         new RegularGridAverage (viewNumber, settings, simulationGroup));
-    velocityAverage->SetBodyAttribute (BodyAttribute::VELOCITY);
-    m_velocityAverage = velocityAverage;
+    average->SetBodyAttribute (BodyAttribute::VELOCITY);
+    m_velocityAverage = average;
+
+
+    average.reset (
+        new RegularGridAverage (viewNumber, settings, simulationGroup));
+    average->SetBodyAttribute (BodyScalar::T1_KDE);
+    m_t1KDE = average;
 
 /*
     boost::shared_ptr<RegularGridAverage> deformationAverage (
@@ -50,7 +56,7 @@ void AttributeAverages3D::ComputeAverage ()
         CALL_IF_NOT_NULL(GetDeformationAveragePtr (),ComputeAverage) ();
 	break;
 	
-    case ViewType::T1S_KDE:
+    case ViewType::T1_KDE:
 	CALL_IF_NOT_NULL(GetT1KDEPtr (),ComputeAverage) ();
 	break;
 

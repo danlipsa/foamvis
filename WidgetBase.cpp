@@ -39,26 +39,26 @@ WidgetBase::WidgetBase (QWidget* widget,
 	tr("&Focus"), m_widget);
     m_actionResetTransformFocus->setStatusTip(tr("Reset transform focus"));
     
-    m_actionColorMapEdit.reset (
+    m_actionColorMapScalarEdit.reset (
 	new QAction (tr("&Edit color map"), m_widget));
-    m_actionColorMapEdit->setStatusTip(tr("Edit color map"));
-    m_actionColorMapClampClear.reset (
+    m_actionColorMapScalarEdit->setStatusTip(tr("Edit color map"));
+    m_actionColorMapScalarClampClear.reset (
 	new QAction (tr("&Clamp clear"), m_widget));
-    m_actionColorMapClampClear->setStatusTip(tr("Clamp clear"));
-    initCopy (m_actionColorMapCopy, m_signalMapperColorMapCopy);
-    initCopy (m_actionOverlayMapCopy, m_signalMapperOverlayMapCopy);
+    m_actionColorMapScalarClampClear->setStatusTip(tr("Clamp clear"));
+    initCopy (m_actionColorMapScalarCopy, m_signalMapperColorMapScalarCopy);
+    initCopy (m_actionColorMapVelocityCopy, m_signalMapperColorMapVelocityCopy);
 
-    m_actionOverlayMapEdit.reset (
+    m_actionColorMapVelocityEdit.reset (
 	new QAction (tr("&Edit overlay map"), m_widget));
-    m_actionOverlayMapEdit->setStatusTip(tr("Edit overlay map"));
+    m_actionColorMapVelocityEdit->setStatusTip(tr("Edit overlay map"));
    
-    m_actionOverlayMapClampClear.reset (
+    m_actionColorMapVelocityClampClear.reset (
 	new QAction (tr("&Clamp clear"), m_widget));
-    m_actionOverlayMapClampClear->setStatusTip(tr("Clamp clear"));
+    m_actionColorMapVelocityClampClear->setStatusTip(tr("Clamp clear"));
 
-    m_actionOverlayMapCopyVelocityMagnitude.reset (
+    m_actionColorMapVelocityCopyVelocityMagnitude.reset (
 	new QAction (tr("&Copy velocity magnitude"), m_widget));
-    m_actionOverlayMapCopyVelocityMagnitude->setStatusTip(
+    m_actionColorMapVelocityCopyVelocityMagnitude->setStatusTip(
         tr("Copy velocity magnitude"));
 }
 
@@ -123,23 +123,23 @@ G3D::Rect2D WidgetBase::GetViewRect (ViewNumber::Enum viewNumber) const
 	m_widget->width (), m_widget->height (), mapping[viewNumber], viewCount);
 }
 
-void WidgetBase::contextMenuEventColorMap (QMenu* menu) const
+void WidgetBase::contextMenuEventColorMapScalar (QMenu* menu) const
 {
-    menu->addAction (m_actionColorMapClampClear.get ());
-    addCopyCompatibleMenu (menu, "Copy", &m_actionColorMapCopy[0], 
-                           &WidgetBase::IsColorMapCopyCompatible);
-    menu->addAction (m_actionColorMapEdit.get ());
+    menu->addAction (m_actionColorMapScalarClampClear.get ());
+    addCopyCompatibleMenu (menu, "Copy", &m_actionColorMapScalarCopy[0], 
+                           &WidgetBase::IsColorMapScalarCopyCompatible);
+    menu->addAction (m_actionColorMapScalarEdit.get ());
 }
 
-void WidgetBase::contextMenuEventOverlayMap (QMenu* menu) const
+void WidgetBase::contextMenuEventColorMapVelocity (QMenu* menu) const
 {
-    menu->addAction (m_actionOverlayMapClampClear.get ());
-    addCopyCompatibleMenu (menu, "Copy", &m_actionOverlayMapCopy[0], 
-                           &WidgetBase::IsOverlayMapCopyCompatible);
+    menu->addAction (m_actionColorMapVelocityClampClear.get ());
+    addCopyCompatibleMenu (menu, "Copy", &m_actionColorMapVelocityCopy[0], 
+                           &WidgetBase::IsColorMapVelocityCopyCompatible);
     if (GetViewSettings ().GetBodyOrFaceScalar () == 
         BodyScalar::VELOCITY_MAGNITUDE)
-        menu->addAction (m_actionOverlayMapCopyVelocityMagnitude.get ());
-    menu->addAction (m_actionOverlayMapEdit.get ());
+        menu->addAction (m_actionColorMapVelocityCopyVelocityMagnitude.get ());
+    menu->addAction (m_actionColorMapVelocityEdit.get ());
 }
 
 
@@ -149,21 +149,19 @@ void WidgetBase::contextMenuEvent (QContextMenuEvent *event)
     ViewNumber::Enum viewNumber = GetViewNumber ();
     const ViewSettings& vs = GetViewSettings (viewNumber);
     QPoint contextMenuPosWindow = event->pos ();
-    G3D::Rect2D barRect = 
-        GetSettings ().GetColorBarRectWithLabels (
+    G3D::Rect2D scalarBarRect = 
+        GetSettings ().GetColorMapScalarRectWithLabels (
             viewNumber, GetViewRect ());
-    if (vs.IsScalarShown () && ! vs.IsScalarContext () && barRect.contains (
+    G3D::Rect2D velocityBarRect = 
+        GetSettings ().GetColorMapVelocityRectWithLabels (
+            viewNumber, GetViewRect ());
+    if (vs.IsScalarShown () && ! vs.IsScalarContext () && 
+        scalarBarRect.contains (
             QtToOpenGl (contextMenuPosWindow, m_widget->height ())))
-	contextMenuEventColorMap (&menu);
-    else if (vs.IsVelocityShown ())
-    {
-        G3D::Rect2D overlayBarRect = 
-            GetSettings ().GetOverlayBarRectWithLabels (
-                viewNumber, GetViewRect ());
-        if (overlayBarRect.contains (
-		 QtToOpenGl (contextMenuPosWindow, m_widget->height ())))
-	contextMenuEventOverlayMap (&menu);
-    }
+	contextMenuEventColorMapScalar (&menu);
+    else if (vs.IsVelocityShown () && velocityBarRect.contains (
+                 QtToOpenGl (contextMenuPosWindow, m_widget->height ())))
+        contextMenuEventColorMapVelocity (&menu);
     else
 	contextMenuEventView (&menu);
     menu.exec (event->globalPos());
@@ -224,26 +222,26 @@ void WidgetBase::addCopyCompatibleMenu (
 	menuOp->setDisabled (true);    
 }
 
-bool WidgetBase::IsOverlayMapCopyCompatible (
+bool WidgetBase::IsColorMapVelocityCopyCompatible (
     ViewNumber::Enum vn, ViewNumber::Enum otherVn) const
 {
     return otherVn != vn;
 }
 
 
-bool WidgetBase::IsColorMapCopyCompatible (
+bool WidgetBase::IsColorMapScalarCopyCompatible (
     ViewNumber::Enum vn, ViewNumber::Enum otherVn) const
 {
-    ColorBarType::Enum currentColorBarType = 
-        GetSettings ().GetColorBarType (vn);
+    ColorMapScalarType::Enum currentColorBarType = 
+        GetSettings ().GetColorMapType (vn);
     const ViewSettings& vs = GetViewSettings (vn);
     const ViewSettings& otherVs = GetViewSettings (otherVn);
     size_t currentProperty = vs.GetBodyOrFaceScalar ();
     return otherVn != vn &&
         
-        currentColorBarType == GetSettings ().GetColorBarType (otherVn) &&
+        currentColorBarType == GetSettings ().GetColorMapType (otherVn) &&
         
-        ((currentColorBarType == ColorBarType::T1S_KDE) 
+        ((currentColorBarType == ColorMapScalarType::T1_KDE) 
          ||
          currentProperty == otherVs.GetBodyOrFaceScalar ());
 }

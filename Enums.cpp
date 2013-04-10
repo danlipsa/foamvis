@@ -105,7 +105,8 @@ boost::array<const char*, BodyScalar::COUNT> BodyScalar::NAME = {{
 	"Pressure",
 	"Target volume",
 	"Actual volume",
-	"Growth rate"
+	"Growth rate",
+        "T1s KDE"
     }};
 
 
@@ -137,7 +138,7 @@ const char* FaceScalar::ToString (FaceScalar::Enum faceProperty)
 
 const char* FaceScalar::ToString (size_t i)
 {
-    if (i < BodyScalar::COUNT)
+    if (i < BodyScalar::PROPERTY_COUNT)
 	return BodyScalar::ToString (BodyScalar::FromSizeT (i));
     else
 	return FaceScalar::ToString (FaceScalar::FromSizeT (i));
@@ -145,7 +146,7 @@ const char* FaceScalar::ToString (size_t i)
 
 FaceScalar::Enum FaceScalar::FromSizeT (size_t i)
 {
-    RuntimeAssert (i < COUNT && i >= BodyScalar::COUNT, 
+    RuntimeAssert (i < COUNT && i >= BodyScalar::PROPERTY_COUNT, 
 		   "Value outside of FaceScalar::Enum: ", i);
     return FaceScalar::Enum (i);
 }
@@ -165,6 +166,7 @@ BodyAttribute::DEPENDS_ON_INFO = {{
 	{COUNT, 0}, // TARGET_VOLUME
 	{COUNT, 0}, // ACTUAL_VOLUME
 	{COUNT, 0}, // GROWTH_RATE
+        {COUNT, 0}, // T1_KDE
 	{COUNT, 0}, // VELOCITY
 	{COUNT, 0}  // DEFORMATION
     }};
@@ -289,7 +291,7 @@ bool ViewType::IsTimeDependent (ViewType::Enum t)
     {
     case CENTER_PATHS:
     case AVERAGE:
-    case T1S_KDE:
+    case T1_KDE:
 	return true;
     default:
 	return false;
@@ -312,7 +314,7 @@ const char* ViewType::ToString (ViewType::Enum t)
 	return "Center paths";
     case AVERAGE:
 	return "Average";
-    case T1S_KDE:
+    case T1_KDE:
 	return "T1s KDE";
     default:
 	return "Invalid ViewType";

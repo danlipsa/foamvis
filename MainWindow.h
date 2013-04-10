@@ -50,10 +50,11 @@ Q_SIGNALS:
     void BodyOrFaceScalarChanged (
 	ViewNumber::Enum viewNumber,
 	boost::shared_ptr<ColorBarModel> colorBarModel, size_t property);
-    void ColorBarModelChanged (ViewNumber::Enum viewNumber, 
-			       boost::shared_ptr<ColorBarModel> colorBarModel);
-    void OverlayBarModelChanged (ViewNumber::Enum viewNumber, 
-				 boost::shared_ptr<ColorBarModel> colorBarModel);
+    void ColorMapScalarChanged (ViewNumber::Enum viewNumber, 
+                                boost::shared_ptr<ColorBarModel> colorBarModel);
+    void ColorMapVelocityChanged (
+        ViewNumber::Enum viewNumber, 
+        boost::shared_ptr<ColorBarModel> colorBarModel);
 
 
 public Q_SLOTS:
@@ -73,7 +74,7 @@ public Q_SLOTS:
     void ToggledVelocityShown (bool checked);
     void ToggledHistogramGridShown (bool checked);
     void ToggledHistogramShown (bool checked);
-    void ToggledHistogramColorMapped (bool checked);
+    void ToggledHistogramColor (bool checked);
     void ToggledHistogramAllTimesteps (bool checked);
     void ToggledVelocitySameSize (bool checked);
 
@@ -115,13 +116,13 @@ public Q_SLOTS:
     void CurrentIndexChangedViewLayout (int index);
     void CurrentIndexChangedWindowLayout (int index);
     
-    void ColorMapEdit ();
-    void ColorMapClampClear ();
-    void ColorMapCopy (int viewNumber);
-    void OverlayMapCopy (int other);
-    void OverlayMapEdit ();
-    void OverlayMapClampClear ();
-    void OverlayMapCopyVelocityMagnitude ();
+    void EditColorMapScalar ();
+    void ClampClearColorMapScalar ();
+    void CopyColorMapScalar (int viewNumber);
+    void CopyColorMapVelocity (int other);
+    void EditColorMapVelocity ();
+    void ClampClearColorMapVelocity ();
+    void CopyColorMapVelocityFromScalar ();
 
     void RotateShown ();
     void ScaleShown ();
@@ -151,7 +152,7 @@ public Q_SLOTS:
 	boost::shared_ptr<ColorBarModel> colorBarModel);    
 
 private:
-    void initOverlayBarModel ();
+    void initColorMapVelocity ();
     static void clearStretch (QWidget* widget);
     static void updateStretch (QWidget* widget, 
 			       ViewLayout::Enum layout,
@@ -232,17 +233,19 @@ private:
     void translatedBodyStep ();
     void createActions ();
     HistogramInfo getHistogramInfo (
-	ColorBarType::Enum colorBarType, size_t bodyOrFaceScalar) const;
-    boost::shared_ptr<ColorBarModel> getScalarColorBarModel () const;
-    boost::shared_ptr<ColorBarModel> getScalarColorBarModel (
+	ColorMapScalarType::Enum colorBarType, size_t bodyOrFaceScalar) const;
+    boost::shared_ptr<ColorBarModel> getColorMapScalar () const;
+    boost::shared_ptr<ColorBarModel> getColorMapScalar (
 	ViewNumber::Enum viewNumber) const;
-    boost::shared_ptr<ColorBarModel> getColorBarModel (
+    boost::shared_ptr<ColorBarModel> getColorMapScalar (
         ViewNumber::Enum viewNumber, size_t bodyAttribute) const;
-    boost::shared_ptr<ColorBarModel> getColorBarModel (
+    boost::shared_ptr<ColorBarModel> getColorMapScalar (
 	size_t simulationIndex,
 	ViewNumber::Enum viewNumber,
 	ViewType::Enum viewType, size_t property, 
 	StatisticsType::Enum statisticsType) const;
+    boost::shared_ptr<ColorBarModel> getColorMapVelocity (    
+        ViewNumber::Enum viewNumber) const;
     void clickedPlay (PlayType playType);
 
 private:
@@ -286,19 +289,19 @@ private:
     vector <
 	boost::array<
 	    boost::array<boost::shared_ptr<ColorBarModel>, 
-			 BodyScalar::COUNT>,
-	    ViewNumber::COUNT> > m_colorBarModelBodyScalar;
+			 BodyScalar::PROPERTY_COUNT>,
+                             ViewNumber::COUNT> > m_colorMapScalar;
     // index order: simulation index, view number
     vector <
 	boost::array<boost::shared_ptr<ColorBarModel>, 
-		     ViewNumber::COUNT> > m_overlayBarModel;
+		     ViewNumber::COUNT> > m_colorMapVelocity;
     // index order: simulation index, view number
     vector <
 	boost::array<boost::shared_ptr<ColorBarModel>,
-		     ViewNumber::COUNT> > m_colorBarModelDomainHistogram;
+		     ViewNumber::COUNT> > m_colorMapDomainHistogram;
     // index order: simulation index, view number
     vector <boost::array<boost::shared_ptr<ColorBarModel>,
-			 ViewNumber::COUNT> > m_colorBarModelT1sKDE;
+			 ViewNumber::COUNT> > m_colorMapT1sKDE;
     boost::shared_ptr<EditColorMap> m_editColorMap;
     /**
      * True if the program displays data in a loop, false

@@ -169,8 +169,8 @@ WidgetGl::~WidgetGl()
     m_quadric = 0;
     glDeleteLists (m_listBubblePaths[0], m_listBubblePaths.size ());
     glDeleteLists (m_listFacesNormal[0], m_listFacesNormal.size ());
-    glDeleteTextures (m_colorBarTexture.size (), &m_colorBarTexture[0]);
-    glDeleteTextures (m_overlayBarTexture.size (), &m_overlayBarTexture[0]);
+    glDeleteTextures (m_colorBarScalarTexture.size (), &m_colorBarScalarTexture[0]);
+    glDeleteTextures (m_colorBarVelocityTexture.size (), &m_colorBarVelocityTexture[0]);
 }
 
 
@@ -188,8 +188,8 @@ void WidgetGl::initStreamlines ()
 
 void WidgetGl::initTexture ()
 {
-    initTexture (&m_colorBarTexture);
-    initTexture (&m_overlayBarTexture);
+    initTexture (&m_colorBarScalarTexture);
+    initTexture (&m_colorBarVelocityTexture);
 }
 
 void WidgetGl::initTexture (boost::array<GLuint, ViewNumber::COUNT>* texture)
@@ -1674,7 +1674,7 @@ void WidgetGl::displayVelocityGlyphs (ViewNumber::Enum viewNumber) const
     if (va.IsColorMapped ())
     {
 	glEnable(GL_TEXTURE_1D);
-	glBindTexture (GL_TEXTURE_1D, m_overlayBarTexture[viewNumber]);
+	glBindTexture (GL_TEXTURE_1D, m_colorBarVelocityTexture[viewNumber]);
         //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
         //texture mapping?
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, 
@@ -1908,7 +1908,7 @@ pair<float, float> WidgetGl::GetRange (ViewNumber::Enum viewNumber) const
 	    maxValue = simulation.GetMax (bodyProperty);
 	}
 	break;
-    case ViewType::T1S_KDE:
+    case ViewType::T1_KDE:
 	return GetRangeT1sKDE (viewNumber);
     default:
 	break;
@@ -1941,7 +1941,7 @@ pair<float, float> WidgetGl::GetRangeT1sKDE (ViewNumber::Enum viewNumber) const
 {
     return pair<float, float> (
         0.0, GetAttributeAverages2D (
-            viewNumber).GetT1KDE ().GetMax ());
+            viewNumber).GetT1KDE ().GetPeakHeight ());
 }
 
 void WidgetGl::displayEdgesTorus (ViewNumber::Enum viewNumber) const
@@ -2147,7 +2147,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	return;
     glPushAttrib (GL_ENABLE_BIT);    
     glDisable (GL_DEPTH_TEST);
-    glBindTexture (GL_TEXTURE_1D, m_colorBarTexture[viewNumber]);
+    glBindTexture (GL_TEXTURE_1D, m_colorBarScalarTexture[viewNumber]);
     bool isAverageAroundRotationShown = 
 	vs.IsAverageAroundRotationShown ();
     G3D::Vector3 rotationCenterEye; float angleDegrees;
@@ -2168,7 +2168,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     displayContextBodies (viewNumber);
     displayContextBox (viewNumber, isAverageAroundRotationShown);
     T1sKDE& t1sKDE = aa.GetT1KDE ();
-    if (vs.GetViewType () == ViewType::T1S_KDE &&
+    if (vs.GetViewType () == ViewType::T1_KDE &&
 	t1sKDE.IsKernelTextureShown ())
     {
 	size_t timeStep = GetTime (viewNumber);
@@ -2245,7 +2245,7 @@ void WidgetGl::displayFacesInterior (
     //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
     //texture mapping?
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    glBindTexture (GL_TEXTURE_1D, m_colorBarTexture[viewNumber]);
+    glBindTexture (GL_TEXTURE_1D, m_colorBarScalarTexture[viewNumber]);
     // render opaque bodies and then transparent objects
     // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
     // Antialiasing, Fog and Polygon Offset page 293
@@ -2400,7 +2400,7 @@ void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT | 
 		  GL_POLYGON_BIT | GL_LINE_BIT);
     glEnable(GL_TEXTURE_1D);
-    glBindTexture (GL_TEXTURE_1D, m_colorBarTexture[viewNumber]);
+    glBindTexture (GL_TEXTURE_1D, m_colorBarScalarTexture[viewNumber]);
     glEnable (GL_CULL_FACE);
 
     //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
@@ -2462,7 +2462,7 @@ size_t WidgetGl::GetTimeSteps (ViewNumber::Enum viewNumber) const
     ViewType::Enum viewType = vs.GetViewType ();
     size_t simulationIndex = vs.GetSimulationIndex ();
     const Simulation& simulation = GetSimulation (simulationIndex);
-    return (viewType == ViewType::T1S_KDE) ?
+    return (viewType == ViewType::T1_KDE) ?
 	simulation.GetT1TimeSteps () :
 	simulation.GetTimeSteps ();
 }
@@ -2579,30 +2579,30 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
     glDisable (GL_DEPTH_TEST);
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     float xTranslateBar = 0;
-    if (settings.GetColorBarType (viewNumber) != ColorBarType::NONE &&
+    if (settings.GetColorMapType (viewNumber) != ColorMapScalarType::NONE &&
         vs.IsScalarShown () && ! vs.IsScalarContext ())
     {
-	G3D::Rect2D viewColorBarRect = settings.GetColorBarRect (viewRect);
-	displayColorBar (
-	    m_colorBarTexture[viewNumber], *vs.GetColorBarModel (),
+	G3D::Rect2D viewColorBarRect = settings.GetColorMapScalarRect (viewRect);
+	displayColorBarScalar (
+	    m_colorBarScalarTexture[viewNumber], *vs.GetColorMapScalar (),
             viewColorBarRect);
-        xTranslateBar = settings.GetColorBarLabelSize (viewNumber).x;
+        xTranslateBar = settings.GetColorMapScalarLabelSize (viewNumber).x;
     }
     if (vs.IsVelocityShown ())
     {
         const VectorAverage& va = 
             GetAttributeAverages2D (viewNumber).GetVelocityAverage ();
-        G3D::Rect2D barRect = settings.GetOverlayBarRect (
+        G3D::Rect2D barRect = settings.GetColorMapVelocityRect (
             viewNumber, viewRect) + G3D::Vector2 (xTranslateBar, 0);
         if (va.IsColorMapped ())
-            displayColorBar (
-                m_overlayBarTexture[viewNumber], *vs.GetOverlayBarModel (),
+            displayColorBarScalar (
+                m_colorBarVelocityTexture[viewNumber], *vs.GetColorMapVelocity (),
                 barRect);
         else if (vs.GetVelocityVis () == VectorVis::GLYPH && ! va.IsSameSize ())
-            displayOverlayBar (viewNumber, barRect);
+            displayColorBarVelocity (viewNumber, barRect);
     }
     if (m_t1sShown && simulation.Is3D ())
-        displayT1Legend (settings.GetT1Rect (GetViewRect (viewNumber)));
+        displayT1Legend (settings.GetT1LegendRect (GetViewRect (viewNumber)));
     displayViewTitle (viewNumber);
     if (viewNumber == GetViewNumber () && 
 	settings.IsViewFocusShown () &&
@@ -2677,7 +2677,7 @@ void WidgetGl::displayViewFocus (ViewNumber::Enum viewNumber)
     DisplayBox (rect);
 }
 
-void WidgetGl::displayColorBar (
+void WidgetGl::displayColorBarScalar (
     GLuint texture, const ColorBarModel& barModel, const G3D::Rect2D& br)
 {
     G3D::Vector2 s = barModel.GetBarLabelSize ();
@@ -2706,11 +2706,11 @@ void WidgetGl::displayColorBar (
     displayBarLabels (barModel, br);
 }
 
-void WidgetGl::displayOverlayBar (
+void WidgetGl::displayColorBarVelocity (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& br)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    const ColorBarModel& barModel = *vs.GetOverlayBarModel ();
+    const ColorBarModel& barModel = *vs.GetColorMapVelocity ();
     G3D::Vector2 s = barModel.GetBarLabelSize ();
     G3D::Rect2D barRect = G3D::Rect2D::xywh (
         br.x0 (), br.y0 () + s.y, 
@@ -2930,7 +2930,7 @@ void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
         m_average[viewNumber]->AverageStep (direction, vs.GetTimeWindow ());
         if (vs.GetVelocityVis () == VectorVis::STREAMLINE)
         {
-            if (vs.IsKDESeedEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
+            if (vs.IsKDESeedEnabled () && vs.GetViewType () == ViewType::T1_KDE)
                 CacheUpdateSeedsCalculateStreamline (viewNumber);
             else
                 CacheCalculateStreamline (viewNumber);
@@ -3074,7 +3074,7 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
         return;
 
     bool useKDESeeds = false;
-    if (vs.IsKDESeedEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
+    if (vs.IsKDESeedEnabled () && vs.GetViewType () == ViewType::T1_KDE)
     {
         useKDESeeds = true;
         if (GetAverageCache (viewNumber)->GetT1KDE () == 0)
@@ -3127,7 +3127,7 @@ void WidgetGl::CacheUpdateSeedsCalculateStreamline (ViewNumber::Enum viewNumber)
         GetAverageCache (viewNumber));
     saveVelocity (viewNumber, GetAverageCache (viewNumber)->GetVelocity ());
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    if (vs.IsKDESeedEnabled () && vs.GetViewType () == ViewType::T1S_KDE)
+    if (vs.IsKDESeedEnabled () && vs.GetViewType () == ViewType::T1_KDE)
     {
         m_average[viewNumber]->GetT1KDE ().CacheData (
             GetAverageCache (viewNumber));
@@ -3254,9 +3254,9 @@ void WidgetGl::displayVelocityStreamline (
                 velocityData, point, 
                 BodyAttribute::ToString (BodyAttribute::VELOCITY), &v));
         double value = velocity.length ();
-        if (vs.GetOverlayBarModel ()->GetInterval ().contains (value))
+        if (vs.GetColorMapVelocity ()->GetInterval ().contains (value))
         {
-            float texCoord = vs.GetOverlayBarModel ()->TexCoord (value);
+            float texCoord = vs.GetColorMapVelocity ()->TexCoord (value);
             glTexCoord1f (texCoord); 
         }
         glVertex2dv (point);
@@ -3306,7 +3306,7 @@ void WidgetGl::displayVelocityStreamlines (ViewNumber::Enum viewNumber) const
         if (va.IsColorMapped ())
         {
             glEnable(GL_TEXTURE_1D);
-            glBindTexture (GL_TEXTURE_1D, m_overlayBarTexture[viewNumber]);
+            glBindTexture (GL_TEXTURE_1D, m_colorBarVelocityTexture[viewNumber]);
             glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
         }
 
@@ -4346,31 +4346,31 @@ void WidgetGl::SetBodyOrFaceScalar (
     vs.SetBodyOrFaceScalar (bodyOrFaceScalar);
     if (vs.GetBodyOrFaceScalar () != FaceScalar::DMP_COLOR)
     {
-	vs.SetColorBarModel (colorBarModel);
-	setTexture (colorBarModel, m_colorBarTexture[viewNumber]);
+	vs.SetColorMapScalar (colorBarModel);
+	setTexture (colorBarModel, m_colorBarScalarTexture[viewNumber]);
     }
     else
 	vs.ResetColorBarModel ();
     CompileUpdate (viewNumber);
 }
 
-void WidgetGl::SetColorBarModel (ViewNumber::Enum viewNumber, 
+void WidgetGl::SetColorMapScalar (ViewNumber::Enum viewNumber, 
 				 boost::shared_ptr<ColorBarModel> colorBarModel)
 {
     makeCurrent ();
-    GetViewSettings (viewNumber).SetColorBarModel (colorBarModel);
-    setTexture (colorBarModel, m_colorBarTexture[viewNumber]);
+    GetViewSettings (viewNumber).SetColorMapScalar (colorBarModel);
+    setTexture (colorBarModel, m_colorBarScalarTexture[viewNumber]);
     update ();
 }
 
-void WidgetGl::SetOverlayBarModel (
+void WidgetGl::SetColorMapVelocity (
     ViewNumber::Enum viewNumber, 
     boost::shared_ptr<ColorBarModel> overlayBarModel)
 {
     makeCurrent ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    vs.SetOverlayBarModel (overlayBarModel);
-    setTexture (overlayBarModel, m_overlayBarTexture[viewNumber]);
+    vs.SetColorMapVelocity (overlayBarModel);
+    setTexture (overlayBarModel, m_colorBarVelocityTexture[viewNumber]);
     // you need to resize the vectors
     CompileUpdate ();
 }

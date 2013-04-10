@@ -30,7 +30,7 @@ void SetterTextureCoordinate::operator () (
     double value = body->GetScalarValue (property, Is2D ());
     double texCoord = 
 	m_settings.GetViewSettings (m_viewNumber).
-	GetColorBarModel ()->TexCoord (value);
+	GetColorMapScalar ()->TexCoord (value);
     glTexCoord1f (texCoord); 
 }
 

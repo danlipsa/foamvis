@@ -163,13 +163,13 @@ public:
     void CompileUpdate (ViewNumber::Enum viewNumber);
     void CompileUpdateAll ();
     void UpdateAverage (ViewNumber::Enum viewNumber, int direction);
-    GLuint GetColorBarTexture (ViewNumber::Enum viewNumber) const
+    GLuint GetColorMapScalarTexture (ViewNumber::Enum viewNumber) const
     {
-	return m_colorBarTexture[viewNumber];
+	return m_colorBarScalarTexture[viewNumber];
     }
-    GLuint GetOverlayBarTexture (ViewNumber::Enum viewNumber) const
+    GLuint GetColorMapVelocityTexture (ViewNumber::Enum viewNumber) const
     {
-	return m_overlayBarTexture[viewNumber];
+	return m_colorBarVelocityTexture[viewNumber];
     }
     G3D::AABox CalculateCenteredViewingVolume (
 	ViewNumber::Enum viewNumber) const;
@@ -254,9 +254,9 @@ public Q_SLOTS:
 	ViewNumber::Enum viewNumber,
 	boost::shared_ptr<ColorBarModel> colorBarModel,
 	size_t property);
-    void SetColorBarModel (ViewNumber::Enum viewNumber, 
+    void SetColorMapScalar (ViewNumber::Enum viewNumber, 
 			   boost::shared_ptr<ColorBarModel> colorBarModel);
-    void SetOverlayBarModel (ViewNumber::Enum viewNumber, 
+    void SetColorMapVelocity (ViewNumber::Enum viewNumber, 
 			     boost::shared_ptr<ColorBarModel> colorBarModel);
     void CurrentIndexChangedStatisticsType (int index);
     void CurrentIndexChangedAxisOrder (int index);
@@ -457,10 +457,10 @@ private:
         float cellLength);
     void displayViewDecorations (ViewNumber::Enum viewNumber);
     void displayViewFocus (ViewNumber::Enum viewNumber);
-    void displayColorBar (
+    void displayColorBarScalar (
         GLuint texture, const ColorBarModel& barModel,
         const G3D::Rect2D& barRect);    
-    void displayOverlayBar (
+    void displayColorBarVelocity (
 	ViewNumber::Enum viewNumber, const G3D::Rect2D& barRect);
     void displayT1Legend (const G3D::Rect2D& barRect);
     void displayBarLabels (
@@ -727,8 +727,8 @@ private:
         ViewNumber::COUNT> m_average;
     boost::array<GLuint, ViewNumber::COUNT> m_listBubblePaths;
     boost::array<GLuint, ViewNumber::COUNT> m_listFacesNormal;
-    boost::array<GLuint, ViewNumber::COUNT> m_colorBarTexture;
-    boost::array<GLuint, ViewNumber::COUNT> m_overlayBarTexture;
+    boost::array<GLuint, ViewNumber::COUNT> m_colorBarScalarTexture;
+    boost::array<GLuint, ViewNumber::COUNT> m_colorBarVelocityTexture;
     boost::array<bool, DuplicateDomain::COUNT> m_duplicateDomain;
     boost::array<vtkSmartPointer<vtkPolyData>, 
                  ViewNumber::COUNT> m_streamline;

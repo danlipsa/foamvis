@@ -38,7 +38,7 @@ public:
     int GetHeight () const;
     void UpdateFocus ();
     void UpdateSelection (ViewNumber::Enum viewNumber);
-    void UpdateColorMapped (
+    void UpdateColorMap (
         ViewNumber::Enum viewNumber,
         boost::shared_ptr<ColorBarModel> colorBarModel);
     void UpdateData (ViewNumber::Enum viewNumber, 

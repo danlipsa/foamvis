@@ -189,9 +189,10 @@ size_t T1sKDE::getStepSize (size_t timeStep) const
 				    vs.T1sShiftLower ()).size ();
 }
 
-float T1sKDE::GetMax () const
+float T1sKDE::GetPeakHeight () const
 {
-    return 1 / (m_kernelSigma * m_kernelSigma * 2 * M_PI);
+    //return 1 / (m_kernelSigma * m_kernelSigma * 2 * M_PI);
+    return 1;
 }
 
 void T1sKDE::CacheData (boost::shared_ptr<AverageCache> averageCache) const

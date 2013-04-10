@@ -86,39 +86,41 @@ public:
 
     /**
      * @{
-     * @name Color and Overlay Maps
+     * @name Color maps for scalars and velocity
      */
-    bool IsColorMapCopyCompatible (
+    bool IsColorMapScalarCopyCompatible (
         ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
-    bool IsOverlayMapCopyCompatible (
+    bool IsColorMapVelocityCopyCompatible (
         ViewNumber::Enum vn, ViewNumber::Enum otherVn) const;
-    boost::shared_ptr<QAction> GetActionColorMapEdit () const
+    boost::shared_ptr<QAction> GetActionColorMapScalarEdit () const
     {
-	return m_actionColorMapEdit;
+	return m_actionColorMapScalarEdit;
     }
-    boost::shared_ptr<QAction> GetActionColorMapClampClear () const
+    boost::shared_ptr<QAction> GetActionColorMapScalarClampClear () const
     {
-	return m_actionColorMapClampClear;
+	return m_actionColorMapScalarClampClear;
     }
-    boost::shared_ptr<QAction> GetActionOverlayMapEdit () const
+    boost::shared_ptr<QAction> GetActionColorMapVelocityEdit () const
     {
-	return m_actionOverlayMapEdit;
+	return m_actionColorMapVelocityEdit;
     }
-    boost::shared_ptr<QAction> GetActionOverlayMapClampClear () const
+    boost::shared_ptr<QAction> GetActionColorMapVelocityClampClear () const
     {
-	return m_actionOverlayMapClampClear;
+	return m_actionColorMapVelocityClampClear;
     }
-    boost::shared_ptr<QSignalMapper> GetSignalMapperColorMapCopy () const
+    boost::shared_ptr<QAction> 
+    GetActionColorMapVelocityCopyVelocityMagnitude () const
     {
-	return m_signalMapperColorMapCopy;
+	return m_actionColorMapVelocityCopyVelocityMagnitude;
     }
-    boost::shared_ptr<QSignalMapper> GetSignalMapperOverlayMapCopy () const
+
+    boost::shared_ptr<QSignalMapper> GetSignalMapperColorMapScalarCopy () const
     {
-	return m_signalMapperOverlayMapCopy;
+	return m_signalMapperColorMapScalarCopy;
     }
-    boost::shared_ptr<QAction> GetActionOverlayMapCopyVelocityMagnitude () const
+    boost::shared_ptr<QSignalMapper> GetSignalMapperColorMapVelocityCopy () const
     {
-	return m_actionOverlayMapCopyVelocityMagnitude;
+	return m_signalMapperColorMapVelocityCopy;
     }
     // @}
 
@@ -143,8 +145,8 @@ protected:
 	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation);
     virtual void contextMenuEventView (QMenu* menu) const
     {(void)menu;}
-    virtual void contextMenuEventColorMap (QMenu* menu) const;
-    virtual void contextMenuEventOverlayMap (QMenu* menu) const;
+    virtual void contextMenuEventColorMapScalar (QMenu* menu) const;
+    virtual void contextMenuEventColorMapVelocity (QMenu* menu) const;
 
 protected:
     boost::array<boost::shared_ptr<QAction>, 
@@ -159,18 +161,18 @@ protected:
     boost::shared_ptr<QAction> m_actionResetTransformFocus;
 
     // color bars actions
-    boost::shared_ptr<QAction> m_actionColorMapEdit;
-    boost::shared_ptr<QAction> m_actionColorMapClampClear;
+    boost::shared_ptr<QAction> m_actionColorMapScalarEdit;
+    boost::shared_ptr<QAction> m_actionColorMapScalarClampClear;
     boost::array<boost::shared_ptr<QAction>, 
-		 ViewNumber::COUNT> m_actionColorMapCopy;
-    boost::shared_ptr<QSignalMapper> m_signalMapperColorMapCopy;
+		 ViewNumber::COUNT> m_actionColorMapScalarCopy;
+    boost::shared_ptr<QSignalMapper> m_signalMapperColorMapScalarCopy;
     boost::array<boost::shared_ptr<QAction>, 
-		 ViewNumber::COUNT> m_actionOverlayMapCopy;
-    boost::shared_ptr<QSignalMapper> m_signalMapperOverlayMapCopy;
-    // overlay bar actions
-    boost::shared_ptr<QAction> m_actionOverlayMapEdit;
-    boost::shared_ptr<QAction> m_actionOverlayMapClampClear;
-    boost::shared_ptr<QAction> m_actionOverlayMapCopyVelocityMagnitude;
+		 ViewNumber::COUNT> m_actionColorMapVelocityCopy;
+    boost::shared_ptr<QSignalMapper> m_signalMapperColorMapVelocityCopy;
+    // color map velocity actions
+    boost::shared_ptr<QAction> m_actionColorMapVelocityEdit;
+    boost::shared_ptr<QAction> m_actionColorMapVelocityClampClear;
+    boost::shared_ptr<QAction> m_actionColorMapVelocityCopyVelocityMagnitude;
 
 private:
     AverageCaches* m_averageCache;

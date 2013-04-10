@@ -200,7 +200,7 @@ void PipelineAverage3D::UpdateViewTitle (
 }
 
 
-void PipelineAverage3D::UpdateScalarThreshold (
+void PipelineAverage3D::UpdateThresholdScalar (
     QwtDoubleInterval interval, BodyScalar::Enum scalar)
 {
     if (m_scalarThreshold != 0)
@@ -224,37 +224,39 @@ void PipelineAverage3D::UpdateScalarThreshold (
     }
 }
 
-void PipelineAverage3D::UpdateColorMap (
-    const ColorBarModel& colorBarModel, const char * name)
+void PipelineAverage3D::UpdateColorMapScalar (
+    const ColorBarModel& colorMapScalar)
 {
-    if (m_scalarAverageActor != 0)
-    {
-        vtkSmartPointer<vtkColorTransferFunction> vtkColorMap = 
-            colorBarModel.GetVtkColorMap ();
-        PipelineBase::UpdateColorMap (vtkColorMap, name);
-	m_scalarAverageActor->GetMapper ()->SetLookupTable (
-            vtkColorMap);
-    }
+    if (m_scalarAverageActor == 0)
+        return;
+    vtkSmartPointer<vtkColorTransferFunction> vtkColorMap = 
+        colorMapScalar.GetVtkColorMap ();
+    PipelineBase::UpdateColorMapScalar (
+        vtkColorMap, colorMapScalar.GetTitle ().c_str ());
+    m_scalarAverageActor->GetMapper ()->SetLookupTable (
+        vtkColorMap);
+
     for (size_t i = 0; i < m_forceActor.size (); ++i)
         for (size_t j = 0; j < m_forceActor[i].size (); ++j)
         {
-            QColor color = colorBarModel.GetHighlightColor (
+            QColor color = colorMapScalar.GetHighlightColor (
                 HighlightNumber::Enum (j));
             m_forceActor[i][j]->GetProperty ()->SetColor (
                 color.redF (), color.greenF (), color.blueF ());
         }
 }
 
-void PipelineAverage3D::UpdateOverlayMap (
-    const ColorBarModel& colorBarModel, const char* name)
+void PipelineAverage3D::UpdateColorMapVelocity (
+    const ColorBarModel& colorMapVelocity)
 {
     vtkSmartPointer<vtkColorTransferFunction> vtkColorMap = 
-        colorBarModel.GetVtkColorMap ();
-    PipelineBase::UpdateOverlayMap (vtkColorMap, name);
+        colorMapVelocity.GetVtkColorMap ();
+    PipelineBase::UpdateColorMapVelocity (
+        vtkColorMap, colorMapVelocity.GetTitle ().c_str ());
     m_velocityGlyphActor->GetMapper ()->SetLookupTable (vtkColorMap);
 }
 
-void PipelineAverage3D::UpdateForceAverage (
+void PipelineAverage3D::UpdateAverageForce (
     const ForceAverage& forceAverage)
 {
     const Foam& foam = forceAverage.GetFoam ();
@@ -294,7 +296,7 @@ void PipelineAverage3D::updateForce (
     actor.SetVisibility (shown);
 }
 
-void PipelineAverage3D::UpdateVelocityAverage (
+void PipelineAverage3D::UpdateAverageVelocity (
     const RegularGridAverage& velocityAverage)
 {
     const ViewSettings& vs = velocityAverage.GetViewSettings ();
@@ -307,7 +309,7 @@ void PipelineAverage3D::UpdateVelocityAverage (
 }
 
 
-void PipelineAverage3D::UpdateScalarAverage (const RegularGridAverage& average)
+void PipelineAverage3D::UpdateAverageScalar (const RegularGridAverage& average)
 {
     const Foam& foam = average.GetFoam ();
     const ViewSettings& vs = average.GetViewSettings ();
@@ -381,7 +383,7 @@ void PipelineAverage3D::fromViewVelocityGlyph (
         __LOG__ (cdbg << "scale factor: " 
                  << base.GetBubbleDiameter (viewNumber) << endl;);
         boost::shared_ptr<ColorBarModel> colorBarModel = 
-            vs.GetOverlayBarModel ();
+            vs.GetColorMapVelocity ();
         if (colorBarModel != 0)
         {
             m_velocityGlyph->ClampingOn ();

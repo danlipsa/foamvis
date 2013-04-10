@@ -68,7 +68,7 @@ bool Base::IsVtkView (ViewNumber::Enum viewNumber) const
     bool isVtkView = 
         simulation.Is3D () && 
         (vs.GetViewType () == ViewType::AVERAGE || 
-         vs.GetViewType () == ViewType::T1S_KDE);
+         vs.GetViewType () == ViewType::T1_KDE);
     return isVtkView;
 }
 

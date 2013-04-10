@@ -20,9 +20,9 @@ public:
     void SetData (const QwtIntervalData& histogram, double maxValue,
 		  const ColorBarModel& colorBarModel, bool gridEnabled = true);
     
-    const ColorBarModel& GetColorBarModel () const
+    const ColorBarModel& GetColorMap () const
     {
-	return m_colorBarModel;
+	return m_colorMap;
     }
     void SetDefaultFont ();
 
@@ -51,7 +51,7 @@ private:
 
 private:
     Q_OBJECT
-    ColorBarModel m_colorBarModel;
+    ColorBarModel m_colorMap;
     boost::array<QLabel*, HighlightNumber::COUNT> m_labelHighlight;
 };
 

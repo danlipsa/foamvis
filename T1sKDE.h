@@ -40,7 +40,7 @@ public:
     }
     float GetKernelSigmaInBubbleDiameters () const;    
     void SetKernelSigmaInBubbleDiameters (float kernelSigmaInBubbleDiameters);
-    float GetMax () const;
+    float GetPeakHeight () const;
 
     size_t GetKernelTextureSize () const;
 

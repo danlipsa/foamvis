@@ -399,7 +399,6 @@ private:
     void subtractFromPressureRegularGrid (
         vtkSmartPointer<vtkImageData> data) const;
 
-
 public:
     static const double Z_COORDINATE_2D = 0.0;
 
@@ -441,8 +440,8 @@ private:
     G3D::AABox m_boundingBox;
     G3D::AABox m_boundingBoxTorus;
 
-    double m_min[BodyScalar::COUNT];
-    double m_max[BodyScalar::COUNT];
+    double m_min[BodyScalar::PROPERTY_COUNT];
+    double m_max[BodyScalar::PROPERTY_COUNT];
     vector<HistogramStatistics> m_histogram;
     ObjectPosition m_dmpObjectPosition;
     vector<ForceOneObject> m_forces;

@@ -26,10 +26,10 @@ public:
     {
         return m_renderer;
     }
-    virtual void UpdateColorMap (
+    virtual void UpdateColorMapScalar (
         vtkSmartPointer<vtkColorTransferFunction> vtkColorMap, 
         const char * name);
-    virtual void UpdateOverlayMap (
+    virtual void UpdateColorMapVelocity (
         vtkSmartPointer<vtkColorTransferFunction> vtkColorMap, 
         const char * name);
     void PositionScalarBar (G3D::Rect2D position);

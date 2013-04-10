@@ -17,7 +17,7 @@ void ScalarDisplay::Bind (GLfloat minValue, GLfloat maxValue,
     setUniformValue (m_displayTypeLocation, displayType);
     setUniformValue (m_minValueLocation, minValue);
     setUniformValue (m_maxValueLocation, maxValue);
-    setUniformValue (m_colorBarTexUnitLocation, GetColorBarTexUnit ());
+    setUniformValue (m_colorBarTexUnitLocation, GetColorMapTexUnit ());
     setUniformValue (m_scalarAverageTexUnitLocation, 
                      GetScalarAverageTexUnit ());
 }

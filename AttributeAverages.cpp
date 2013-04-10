@@ -57,7 +57,7 @@ void AttributeAverages::AverageInit ()
     m_forceAverage->AverageInit ();
     CALL_IF_NOT_NULL(m_velocityAverage,AverageInit) ();
     CALL_IF_NOT_NULL(m_deformationAverage,AverageInit) ();
-    CALL_IF_NOT_NULL(m_topologicalChangeKDE,AverageInit) ();
+    CALL_IF_NOT_NULL(m_t1KDE,AverageInit) ();
 }
 
 void AttributeAverages::AverageRelease ()
@@ -66,7 +66,7 @@ void AttributeAverages::AverageRelease ()
     m_forceAverage->AverageRelease ();
     CALL_IF_NOT_NULL(m_velocityAverage,AverageRelease) ();
     CALL_IF_NOT_NULL(m_deformationAverage,AverageRelease) ();
-    CALL_IF_NOT_NULL(m_topologicalChangeKDE,AverageRelease) ();
+    CALL_IF_NOT_NULL(m_t1KDE,AverageRelease) ();
 }
 
 
@@ -84,9 +84,9 @@ void AttributeAverages::AverageStep (int direction, size_t timeWindow)
             direction, timeWindow);
 	break;
 	
-    case ViewType::T1S_KDE:
+    case ViewType::T1_KDE:
 	CALL_IF_NOT_NULL(m_velocityAverage,AverageStep) (direction, timeWindow);
-	CALL_IF_NOT_NULL(m_topologicalChangeKDE,AverageStep) (direction, timeWindow);
+	CALL_IF_NOT_NULL(m_t1KDE,AverageStep) (direction, timeWindow);
 	break;
     default:
 	break;
@@ -110,8 +110,8 @@ void AttributeAverages::AverageRotateAndDisplay (
 		displayType, rotationCenter, angleDegrees);
 	break;
 	
-    case ViewType::T1S_KDE:
-	CALL_IF_NOT_NULL(m_topologicalChangeKDE,AverageRotateAndDisplay) (
+    case ViewType::T1_KDE:
+	CALL_IF_NOT_NULL(m_t1KDE,AverageRotateAndDisplay) (
 	    displayType, rotationCenter, angleDegrees);
 	break;
     default:

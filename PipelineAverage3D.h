@@ -23,15 +23,13 @@ public:
     PipelineAverage3D (
         size_t objects, size_t constraintSurfaces, size_t fontSize);
 
-    virtual void UpdateColorMap (
-        const ColorBarModel& colorBarModel, const char* name);
-    virtual void UpdateOverlayMap (
-        const ColorBarModel& colorBarModel, const char* name);
-    void UpdateScalarThreshold (QwtDoubleInterval interval, 
+    virtual void UpdateColorMapScalar (const ColorBarModel& colorMapScalar);
+    virtual void UpdateColorMapVelocity (const ColorBarModel& colorMapVelocity);
+    void UpdateThresholdScalar (QwtDoubleInterval interval, 
                                 BodyScalar::Enum scalar);
-    void UpdateScalarAverage (const RegularGridAverage& average);
-    void UpdateForceAverage (const ForceAverage& forceAverage);
-    void UpdateVelocityAverage (const RegularGridAverage& velocity);
+    void UpdateAverageScalar (const RegularGridAverage& average);
+    void UpdateAverageForce (const ForceAverage& forceAverage);
+    void UpdateAverageVelocity (const RegularGridAverage& velocity);
     void UpdateViewTitle (
         bool titleShown, const G3D::Vector2& postion,
         const string& simulationName, const string& viewTitle);

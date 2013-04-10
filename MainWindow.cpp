@@ -218,7 +218,7 @@ void MainWindow::configureInterfaceDataDependent (
 	GetSettingsPtr ()->SetViewNumber (viewNumber);
 	comboBoxSimulation->setCurrentIndex (i);
     }
-    initOverlayBarModel ();
+    initColorMapVelocity ();
 }
 
 
@@ -278,31 +278,31 @@ void MainWindow::connectSignals ()
 	SLOT (SetBodyOrFaceScalar (
 		  ViewNumber::Enum, boost::shared_ptr<ColorBarModel>, size_t)));
     
-    // ColorBarModelChanged & OverlayBarModelChanged
+    // ColorMapScalarChanged & ColorMapVelocityChanged
     // from MainWindow to WidgetGl
     connect (
 	this, 
-	SIGNAL (ColorBarModelChanged (ViewNumber::Enum, 
+	SIGNAL (ColorMapScalarChanged (ViewNumber::Enum, 
 				      boost::shared_ptr<ColorBarModel>)),
 	widgetGl, 
-	SLOT (SetColorBarModel (ViewNumber::Enum, 
+	SLOT (SetColorMapScalar (ViewNumber::Enum, 
 				boost::shared_ptr<ColorBarModel>)));
     connect (
 	this, 
-	SIGNAL (ColorBarModelChanged (ViewNumber::Enum, 
+	SIGNAL (ColorMapScalarChanged (ViewNumber::Enum, 
 				      boost::shared_ptr<ColorBarModel>)),
 	widgetVtk, 
 	SLOT (FromView (ViewNumber::Enum)));
     connect (
 	this, 
-	SIGNAL (OverlayBarModelChanged (ViewNumber::Enum, 
+	SIGNAL (ColorMapVelocityChanged (ViewNumber::Enum, 
 					boost::shared_ptr<ColorBarModel>)),
 	widgetGl, 
-	SLOT (SetOverlayBarModel (ViewNumber::Enum, 
+	SLOT (SetColorMapVelocity (ViewNumber::Enum, 
 					  boost::shared_ptr<ColorBarModel>)));
     connect (
 	this, 
-	SIGNAL (OverlayBarModelChanged (ViewNumber::Enum, 
+	SIGNAL (ColorMapVelocityChanged (ViewNumber::Enum, 
 					boost::shared_ptr<ColorBarModel>)),
 	widgetVtk, 
 	SLOT (FromView (ViewNumber::Enum)));
@@ -332,7 +332,7 @@ void MainWindow::connectColorBarHistogram (bool connected)
 		      boost::shared_ptr<ColorBarModel>)));
 	connect (
 	    this, 
-	    SIGNAL (ColorBarModelChanged (ViewNumber::Enum,
+	    SIGNAL (ColorMapScalarChanged (ViewNumber::Enum,
 					  boost::shared_ptr<ColorBarModel>)),
 	    this, 
 	    SLOT (SetHistogramColorBarModel (ViewNumber::Enum,
@@ -360,7 +360,7 @@ void MainWindow::setupButtonGroups ()
     buttonGroupViewType->setId (radioButtonBubblesPaths, ViewType::CENTER_PATHS);
     buttonGroupViewType->setId (radioButtonAverage, 
 				ViewType::AVERAGE);
-    buttonGroupViewType->setId (radioButtonT1sKDE, ViewType::T1S_KDE);
+    buttonGroupViewType->setId (radioButtonT1sKDE, ViewType::T1_KDE);
     
 
     buttonGroupInteractionObject->setId (
@@ -573,10 +573,9 @@ void MainWindow::addVtkView (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const BodySelector& bodySelector = vs.GetBodySelector ();
-    const ColorBarModel& scalarColorBarModel = 
-        *getScalarColorBarModel (viewNumber);
+    const ColorBarModel& scalarColorBarModel = *getColorMapScalar (viewNumber);
     const ColorBarModel& velocityColorBarModel = 
-        *getColorBarModel (viewNumber, BodyAttribute::VELOCITY);
+        *getColorMapVelocity (viewNumber);
     QwtDoubleInterval interval;
     if (bodySelector.GetType () == BodySelectorType::PROPERTY_VALUE)
     {
@@ -631,34 +630,34 @@ void MainWindow::createActions ()
     
     addAction (widgetGl->GetActionResetTransformAll ().get ());    
 
-    connect (widgetGl->GetActionColorMapEdit ().get (), SIGNAL(triggered()), 
-             this, SLOT(ColorMapEdit()));
-    connect (widgetVtk->GetActionColorMapEdit ().get (), SIGNAL(triggered()), 
-             this, SLOT(ColorMapEdit ()));
-    connect (widgetGl->GetActionColorMapClampClear ().get (), 
-             SIGNAL (triggered ()), this, SLOT (ColorMapClampClear ()));
-    connect (widgetVtk->GetActionColorMapClampClear ().get (), 
-             SIGNAL (triggered ()), this, SLOT (ColorMapClampClear ()));
-    connect (widgetGl->GetActionOverlayMapEdit ().get (), 
-             SIGNAL (triggered ()), this, SLOT(OverlayMapEdit ()));
-    connect (widgetVtk->GetActionOverlayMapEdit ().get (), 
-             SIGNAL (triggered ()), this, SLOT(OverlayMapEdit ()));
-    connect (widgetGl->GetActionOverlayMapClampClear ().get (), 
-             SIGNAL (triggered ()), this, SLOT (OverlayMapClampClear ()));
-    connect (widgetVtk->GetActionOverlayMapClampClear ().get (), 
-             SIGNAL (triggered ()), this, SLOT (OverlayMapClampClear ()));
-    connect (widgetGl->GetSignalMapperColorMapCopy ().get (),
-	     SIGNAL (mapped (int)), this, SLOT (ColorMapCopy (int)));
-    connect (widgetVtk->GetSignalMapperColorMapCopy ().get (),
-	     SIGNAL (mapped (int)), this, SLOT (ColorMapCopy (int)));
-    connect (widgetGl->GetSignalMapperOverlayMapCopy ().get (),
-	     SIGNAL (mapped (int)), this, SLOT (OverlayMapCopy (int)));
-    connect (widgetVtk->GetSignalMapperOverlayMapCopy ().get (),
-	     SIGNAL (mapped (int)), this, SLOT (OverlayMapCopy (int)));
-    connect(widgetGl->GetActionOverlayMapCopyVelocityMagnitude ().get (),
-            SIGNAL(triggered()), this, SLOT(OverlayMapCopyVelocityMagnitude ()));
-    connect(widgetVtk->GetActionOverlayMapCopyVelocityMagnitude ().get (),
-            SIGNAL(triggered()), this, SLOT(OverlayMapCopyVelocityMagnitude ()));
+    connect (widgetGl->GetActionColorMapScalarEdit ().get (), SIGNAL(triggered()), 
+             this, SLOT(EditColorMapScalar()));
+    connect (widgetVtk->GetActionColorMapScalarEdit ().get (), SIGNAL(triggered()), 
+             this, SLOT(EditColorMapScalar ()));
+    connect (widgetGl->GetActionColorMapScalarClampClear ().get (), 
+             SIGNAL (triggered ()), this, SLOT (ClampClearColorMapScalar ()));
+    connect (widgetVtk->GetActionColorMapScalarClampClear ().get (), 
+             SIGNAL (triggered ()), this, SLOT (ClampClearColorMapScalar ()));
+    connect (widgetGl->GetActionColorMapVelocityEdit ().get (), 
+             SIGNAL (triggered ()), this, SLOT(EditColorMapVelocity ()));
+    connect (widgetVtk->GetActionColorMapVelocityEdit ().get (), 
+             SIGNAL (triggered ()), this, SLOT(EditColorMapVelocity ()));
+    connect (widgetGl->GetActionColorMapVelocityClampClear ().get (), 
+             SIGNAL (triggered ()), this, SLOT (ClampClearColorMapVelocity ()));
+    connect (widgetVtk->GetActionColorMapVelocityClampClear ().get (), 
+             SIGNAL (triggered ()), this, SLOT (ClampClearColorMapVelocity ()));
+    connect (widgetGl->GetSignalMapperColorMapScalarCopy ().get (),
+	     SIGNAL (mapped (int)), this, SLOT (CopyColorMapScalar (int)));
+    connect (widgetVtk->GetSignalMapperColorMapScalarCopy ().get (),
+	     SIGNAL (mapped (int)), this, SLOT (CopyColorMapScalar (int)));
+    connect (widgetGl->GetSignalMapperColorMapVelocityCopy ().get (),
+	     SIGNAL (mapped (int)), this, SLOT (CopyColorMapVelocity (int)));
+    connect (widgetVtk->GetSignalMapperColorMapVelocityCopy ().get (),
+	     SIGNAL (mapped (int)), this, SLOT (CopyColorMapVelocity (int)));
+    connect(widgetGl->GetActionColorMapVelocityCopyVelocityMagnitude ().get (),
+            SIGNAL(triggered()), this, SLOT(CopyColorMapVelocityFromScalar ()));
+    connect(widgetVtk->GetActionColorMapVelocityCopyVelocityMagnitude ().get (),
+            SIGNAL(triggered()), this, SLOT(CopyColorMapVelocityFromScalar ()));
 
     addAction (sliderTimeSteps->GetActionNextSelectedTimeStep ().get ());
     addAction (sliderTimeSteps->GetActionPreviousSelectedTimeStep ().get ());
@@ -684,15 +683,15 @@ void MainWindow::createActions ()
  * @todo Calculate the correct histogram for the 'domain histogram' image.
  */
 MainWindow::HistogramInfo MainWindow::getHistogramInfo (
-    ColorBarType::Enum colorBarType, size_t bodyOrFaceScalar) const
+    ColorMapScalarType::Enum colorBarType, size_t bodyOrFaceScalar) const
 {
     const Simulation& simulation = GetSimulation ();
     switch (colorBarType)
     {
-    case ColorBarType::STATISTICS_COUNT:
+    case ColorMapScalarType::STATISTICS_COUNT:
 	return createHistogramInfo (widgetGl->GetRangeCount (), 1);
     
-    case ColorBarType::PROPERTY:
+    case ColorMapScalarType::PROPERTY:
     {
 	const HistogramStatistics& histogramStatistics = 
 	    simulation.GetHistogram (bodyOrFaceScalar);
@@ -700,7 +699,7 @@ MainWindow::HistogramInfo MainWindow::getHistogramInfo (
 			      histogramStatistics.GetMaxCountPerBin ());
     }
     
-    case ColorBarType::T1S_KDE:
+    case ColorMapScalarType::T1_KDE:
 	return createHistogramInfo (
 	    widgetGl->GetRangeT1sKDE (), simulation.GetT1Size ());
 
@@ -728,10 +727,10 @@ MainWindow::HistogramInfo MainWindow::createHistogramInfo (
 void MainWindow::setupColorBarModels ()
 {
     size_t simulationCount = GetSimulationGroup ().size ();
-    m_colorBarModelBodyScalar.resize (simulationCount);
-    m_overlayBarModel.resize (simulationCount);
-    m_colorBarModelDomainHistogram.resize (simulationCount);
-    m_colorBarModelT1sKDE.resize (simulationCount);
+    m_colorMapScalar.resize (simulationCount);
+    m_colorMapVelocity.resize (simulationCount);
+    m_colorMapDomainHistogram.resize (simulationCount);
+    m_colorMapT1sKDE.resize (simulationCount);
     for (size_t simulationIndex = 0; simulationIndex < simulationCount; 
 	 ++simulationIndex)
 	for (size_t vn = 0; vn < ViewNumber::COUNT; ++vn)
@@ -741,7 +740,7 @@ void MainWindow::setupColorBarModels ()
 void MainWindow::setupColorBarModels (size_t simulationIndex,
 				      ViewNumber::Enum viewNumber)
 {    
-    for (size_t i = 0; i < BodyScalar::COUNT; ++i)
+    for (size_t i = 0; i < BodyScalar::PROPERTY_COUNT; ++i)
     {
 	BodyScalar::Enum property = BodyScalar::FromSizeT (i);
 	setupColorBarModelScalar (simulationIndex, viewNumber, property);
@@ -760,7 +759,7 @@ void MainWindow::setupViews ()
         const ViewSettings& vs = GetViewSettings (viewNumber);
 	widgetGl->SetBodyOrFaceScalar (
 	    viewNumber, 
-	    m_colorBarModelBodyScalar
+	    m_colorMapScalar
             [vs.GetSimulationIndex ()][viewNumber][BodyScalar::PRESSURE], 
 	    BodyScalar::PRESSURE);
     }
@@ -771,7 +770,7 @@ void MainWindow::setupColorBarModelT1sKDE (
     ViewNumber::Enum viewNumber)
 {
     boost::shared_ptr<ColorBarModel>& colorBarModel = 
-	m_colorBarModelT1sKDE[simulationIndex][viewNumber];
+	m_colorMapT1sKDE[simulationIndex][viewNumber];
     colorBarModel.reset (new ColorBarModel ());
     colorBarModel->SetTitle ("T1s KDE");
     colorBarModel->SetInterval (
@@ -786,7 +785,7 @@ void MainWindow::setupColorBarModelDomainHistogram (
     ViewNumber::Enum viewNumber)
 {
     boost::shared_ptr<ColorBarModel>& colorBarModel = 
-	m_colorBarModelDomainHistogram[simulationIndex][viewNumber];
+	m_colorMapDomainHistogram[simulationIndex][viewNumber];
     colorBarModel.reset (new ColorBarModel ());
     colorBarModel->SetTitle ("Count per area");
     colorBarModel->SetInterval (
@@ -801,7 +800,7 @@ void MainWindow::setupColorBarModelScalar (size_t simulationIndex,
                                            BodyScalar::Enum property)
 {
     boost::shared_ptr<ColorBarModel>& colorBarModel = 
-	m_colorBarModelBodyScalar[simulationIndex][viewNumber][property];
+	m_colorMapScalar[simulationIndex][viewNumber][property];
     setupColorBarModel (colorBarModel, property, simulationIndex);
 }
 
@@ -810,7 +809,7 @@ void MainWindow::setupColorBarModelVelocity (
     ViewNumber::Enum viewNumber)
 {
     boost::shared_ptr<ColorBarModel>& colorBarModel = 
-	m_overlayBarModel[simulationIndex][viewNumber];
+	m_colorMapVelocity[simulationIndex][viewNumber];
     BodyScalar::Enum property = BodyScalar::VELOCITY_MAGNITUDE;
     setupColorBarModel (colorBarModel, property, simulationIndex);
     colorBarModel->SetTitle (
@@ -831,19 +830,19 @@ void MainWindow::setupColorBarModel (
 
 
 
-boost::shared_ptr<ColorBarModel> MainWindow::getScalarColorBarModel () const
+boost::shared_ptr<ColorBarModel> MainWindow::getColorMapScalar () const
 {
-    return getScalarColorBarModel (GetViewNumber ());
+    return getColorMapScalar (GetViewNumber ());
 }
 
 
-boost::shared_ptr<ColorBarModel> MainWindow::getScalarColorBarModel (
+boost::shared_ptr<ColorBarModel> MainWindow::getColorMapScalar (
     ViewNumber::Enum viewNumber) const
 {
-    return getColorBarModel (viewNumber, BodyAttribute::COUNT);
+    return getColorMapScalar (viewNumber, BodyAttribute::COUNT);
 }
 
-boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
+boost::shared_ptr<ColorBarModel> MainWindow::getColorMapScalar (
     ViewNumber::Enum viewNumber, size_t bodyAttribute) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -852,31 +851,41 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
     if (bodyAttribute == BodyAttribute::COUNT)
         bodyAttribute = vs.GetBodyOrFaceScalar ();
     StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
-    return getColorBarModel (simulationIndex, 
-			     viewNumber, viewType, bodyAttribute, statisticsType);
+    return getColorMapScalar (
+        simulationIndex, 
+        viewNumber, viewType, bodyAttribute, statisticsType);
 }
 
-boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
+
+boost::shared_ptr<ColorBarModel> MainWindow::getColorMapVelocity (    
+    ViewNumber::Enum viewNumber) const
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    size_t simulationIndex = vs.GetSimulationIndex ();
+    return m_colorMapVelocity[simulationIndex][viewNumber];
+}
+
+boost::shared_ptr<ColorBarModel> MainWindow::getColorMapScalar (
     size_t simulationIndex,
     ViewNumber::Enum viewNumber,
     ViewType::Enum viewType, size_t property, 
     StatisticsType::Enum statisticsType) const
 {
-    ColorBarType::Enum colorBarType = ViewSettings::GetColorBarType (
+    ColorMapScalarType::Enum colorBarType = ViewSettings::GetColorMapType (
 	viewType, property, statisticsType);
     switch (colorBarType)
     {
-    case ColorBarType::PROPERTY:
+    case ColorMapScalarType::PROPERTY:
         if (property == BodyAttribute::VELOCITY)
-            return m_overlayBarModel[simulationIndex][viewNumber];
+            return m_colorMapVelocity[simulationIndex][viewNumber];
         else
-            return m_colorBarModelBodyScalar
+            return m_colorMapScalar
                 [simulationIndex][viewNumber][property];
-    case ColorBarType::STATISTICS_COUNT:
-	return m_colorBarModelDomainHistogram[simulationIndex][viewNumber];
+    case ColorMapScalarType::STATISTICS_COUNT:
+	return m_colorMapDomainHistogram[simulationIndex][viewNumber];
 
-    case ColorBarType::T1S_KDE:
-	return m_colorBarModelT1sKDE[simulationIndex][viewNumber];
+    case ColorMapScalarType::T1_KDE:
+	return m_colorMapT1sKDE[simulationIndex][viewNumber];
 
     default:
 	return boost::shared_ptr<ColorBarModel> ();
@@ -936,10 +945,10 @@ void MainWindow::currentIndexChangedFaceColor (
 	::setEnabled (widgetsEnabled, true);
 	Q_EMIT BodyOrFaceScalarChanged (
 	    viewNumber,
-	    m_colorBarModelBodyScalar
+	    m_colorMapScalar
 	    [simulationIndex][viewNumber][property], property);
-        widgetHistogram->UpdateColorMapped (
-            viewNumber, getScalarColorBarModel (viewNumber));
+        widgetHistogram->UpdateColorMap (
+            viewNumber, getColorMapScalar (viewNumber));
 	widgetHistogram->UpdateData (
             viewNumber, WidgetHistogram::DISCARD_SELECTION, 
             WidgetHistogram::REPLACE_MAX_VALUE);
@@ -1021,7 +1030,7 @@ void MainWindow::SelectionChangedHistogram (int vn)
 	    interval = QwtDoubleInterval (0, -1);
 	else
 	    interval = valueIntervals[0];
-	widgetVtk->UpdateScalarThreshold (interval);
+	widgetVtk->UpdateThresholdScalar (interval);
     }
 }
 
@@ -1161,7 +1170,7 @@ void MainWindow::ToggledViewFocusShown (bool checked)
     widgetHistogram->UpdateFocus ();
 }
 
-void MainWindow::initOverlayBarModel ()
+void MainWindow::initColorMapVelocity ()
 {
     vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -1170,8 +1179,8 @@ void MainWindow::initOverlayBarModel ()
 	const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
 	size_t simulationIndex = vs.GetSimulationIndex ();
 	boost::shared_ptr<ColorBarModel> overlayBarModel = 
-	    m_overlayBarModel[simulationIndex][viewNumber];
-	Q_EMIT OverlayBarModelChanged (viewNumber, overlayBarModel);
+	    m_colorMapVelocity[simulationIndex][viewNumber];
+	Q_EMIT ColorMapVelocityChanged (viewNumber, overlayBarModel);
     }    
 }
 
@@ -1185,12 +1194,12 @@ void MainWindow::ToggledVelocityShown (bool shown)
 	ViewSettings& vs = GetViewSettings (viewNumber);
 	vs.SetVelocityShown (shown);
     }
-    initOverlayBarModel ();
+    initColorMapVelocity ();
     radioButtonVelocityGlyph->setEnabled (shown);
     radioButtonVelocityStreamline->setEnabled (shown);
     radioButtonVelocityPathline->setEnabled (shown);
     widgetGl->CompileUpdateAll ();
-    widgetVtk->UpdateVelocityAverage ();
+    widgetVtk->UpdateAverageVelocity ();
 }
 
 void MainWindow::ToggledVelocitySameSize (bool checked)
@@ -1217,21 +1226,21 @@ void MainWindow::ToggledHistogramShown (bool checked)
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetHistogramShown (checked);
-    widgetHistogram->UpdateColorMapped (viewNumber, 
-                                        getScalarColorBarModel (viewNumber));
+    widgetHistogram->UpdateColorMap (viewNumber, 
+                                        getColorMapScalar (viewNumber));
     widgetHistogram->UpdateData (
         viewNumber, WidgetHistogram::KEEP_SELECTION, 
         WidgetHistogram::KEEP_MAX_VALUE);    
 }
 
 
-void MainWindow::ToggledHistogramColorMapped (bool checked)
+void MainWindow::ToggledHistogramColor (bool checked)
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetHistogramOption (HistogramType::COLOR_MAPPED, checked);
-    widgetHistogram->UpdateColorMapped (
-        viewNumber, getScalarColorBarModel (viewNumber));
+    widgetHistogram->UpdateColorMap (
+        viewNumber, getColorMapScalar (viewNumber));
     widgetHistogram->UpdateData (
         viewNumber, WidgetHistogram::KEEP_SELECTION, 
         WidgetHistogram::KEEP_MAX_VALUE);
@@ -1242,8 +1251,8 @@ void MainWindow::ToggledHistogramAllTimesteps (bool checked)
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetHistogramOption (HistogramType::ALL_TIME_STEPS_SHOWN, checked);
-    widgetHistogram->UpdateColorMapped (
-        viewNumber, getScalarColorBarModel (viewNumber));
+    widgetHistogram->UpdateColorMap (
+        viewNumber, getColorMapScalar (viewNumber));
     widgetHistogram->UpdateData (
         viewNumber, WidgetHistogram::KEEP_SELECTION, 
         WidgetHistogram::REPLACE_MAX_VALUE);
@@ -1382,7 +1391,7 @@ void MainWindow::ValueChangedT1sKernelSigma (double value)
 	ViewNumber::Enum viewNumber = vn[i];
 	size_t simulationIndex = 
 	    GetViewSettings (viewNumber).GetSimulationIndex ();
-	m_colorBarModelT1sKDE[simulationIndex][viewNumber]->SetInterval (
+	m_colorMapT1sKDE[simulationIndex][viewNumber]->SetInterval (
 	    toQwtDoubleInterval (widgetGl->GetRangeT1sKDE (viewNumber)));
     }
 }
@@ -1408,12 +1417,12 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
         ViewType::Enum viewType = vs.GetViewType ();
         if (vs.GetTime () < GetSettings ().GetLinkedTime ())
             continue;
-        widgetHistogram->UpdateColorMapped (
-            viewNumber, getScalarColorBarModel (viewNumber));
+        widgetHistogram->UpdateColorMap (
+            viewNumber, getColorMapScalar (viewNumber));
         widgetHistogram->UpdateData (viewNumber,
                                      WidgetHistogram::KEEP_SELECTION, 
                                      WidgetHistogram::KEEP_MAX_VALUE);
-        if (viewType == ViewType::AVERAGE || viewType == ViewType::T1S_KDE)
+        if (viewType == ViewType::AVERAGE || viewType == ViewType::T1_KDE)
         {
             if (simulation.Is3D ())
                 widgetVtk->UpdateAverage (viewNumber, direction[viewNumber]);
@@ -1475,7 +1484,7 @@ void MainWindow::ButtonClickedForce (int t)
     }
     vs.SetForceShown (type, ! vs.IsForceShown (type));
     widgetGl->CompileUpdate ();
-    widgetVtk->UpdateForceAverage ();
+    widgetVtk->UpdateAverageForce ();
 }
 
 void MainWindow::ButtonClickedTorque (int t)
@@ -1493,7 +1502,7 @@ void MainWindow::ButtonClickedViewType (int vt)
     ViewType::Enum oldViewType = 
         GetSettingsPtr ()->SetTwoHalvesViewType (viewType);
     widgetTimeWindow->setVisible (
-        viewType == ViewType::AVERAGE || viewType == ViewType::T1S_KDE);
+        viewType == ViewType::AVERAGE || viewType == ViewType::T1_KDE);
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -1506,8 +1515,8 @@ void MainWindow::ButtonClickedViewType (int vt)
 	StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
 
 	setStackedWidgetVisualization (viewType);
-	Q_EMIT ColorBarModelChanged (
-	    viewNumber, getColorBarModel (
+	Q_EMIT ColorMapScalarChanged (
+	    viewNumber, getColorMapScalar (
                 simulationIndex, viewNumber, viewType, 
                 property, statisticsType));
 
@@ -1526,7 +1535,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 		BodyScalar::ToString (BodyScalar::FromSizeT (property)));
 	    break;
 
-	case ViewType::T1S_KDE:
+	case ViewType::T1_KDE:
 	    sliderTimeSteps->setMaximum (
                 simulation.GetT1TimeSteps () - 1);
 	    break;
@@ -1534,7 +1543,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 	default:
 	    break;
 	}
-	if (oldViewType == ViewType::T1S_KDE)
+	if (oldViewType == ViewType::T1_KDE)
 	    sliderTimeSteps->setMaximum (simulation.GetTimeSteps () - 1);
     }
     widgetGl->ButtonClickedViewType (oldViewType);
@@ -1564,9 +1573,9 @@ void MainWindow::CurrentIndexChangedSimulation (int simulationIndex)
     ViewType::Enum viewType = vs.GetViewType ();
     size_t property = vs.GetBodyOrFaceScalar ();
     StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
-    Q_EMIT ColorBarModelChanged (
+    Q_EMIT ColorMapScalarChanged (
 	viewNumber,
-	getColorBarModel (
+	getColorMapScalar (
             simulationIndex, viewNumber, viewType, property, statisticsType));
     widgetGl->CurrentIndexChangedSimulation (simulationIndex);
     ViewToUI (viewNumber);
@@ -1605,8 +1614,8 @@ void MainWindow::CurrentIndexChangedStatisticsType (int value)
 	::setVisible (widgetsAverageTimeWindow, false);
 	break;
     }
-    Q_EMIT ColorBarModelChanged (GetViewNumber (), 
-				 getScalarColorBarModel ());
+    Q_EMIT ColorMapScalarChanged (GetViewNumber (), 
+				 getColorMapScalar ());
 }
 
 void MainWindow::ToggledBubblePathsLineUsed (bool checked)
@@ -1655,90 +1664,91 @@ void MainWindow::updateSliderTimeSteps (
     
 }
 
-void MainWindow::ColorMapClampClear ()
+void MainWindow::ClampClearColorMapScalar ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    boost::shared_ptr<ColorBarModel> colorBarModel = vs.GetColorBarModel ();
+    boost::shared_ptr<ColorBarModel> colorBarModel = vs.GetColorMapScalar ();
     colorBarModel->SetClampClear ();
-    Q_EMIT ColorBarModelChanged (viewNumber, colorBarModel);
+    Q_EMIT ColorMapScalarChanged (viewNumber, colorBarModel);
 }
 
-void MainWindow::OverlayMapClampClear ()
+void MainWindow::ClampClearColorMapVelocity ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    boost::shared_ptr<ColorBarModel> colorBarModel = vs.GetOverlayBarModel ();
+    boost::shared_ptr<ColorBarModel> colorBarModel = 
+        vs.GetColorMapVelocity ();
     colorBarModel->SetClampClear ();
-    Q_EMIT OverlayBarModelChanged (viewNumber, colorBarModel);
+    Q_EMIT ColorMapVelocityChanged (viewNumber, colorBarModel);
 }
 
-void MainWindow::ColorMapCopy (int other)
+void MainWindow::CopyColorMapScalar (int other)
 {
     ViewSettings& otherVs = GetViewSettings (ViewNumber::Enum (other));
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings ();
-    vs.ColorMapCopy (otherVs);
-    Q_EMIT ColorBarModelChanged (viewNumber, vs.GetColorBarModel ());
+    vs.CopyColorMapScalar (otherVs);
+    Q_EMIT ColorMapScalarChanged (viewNumber, vs.GetColorMapScalar ());
 }
 
-void MainWindow::OverlayMapCopy (int other)
+void MainWindow::CopyColorMapVelocity (int other)
 {
     ViewSettings& otherVs = GetViewSettings (ViewNumber::Enum (other));
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     size_t simulationIndex = vs.GetSimulationIndex ();
     boost::shared_ptr<ColorBarModel> overlayBarModel = 
-	m_overlayBarModel[simulationIndex][viewNumber];
-    vs.OverlayMapCopy (otherVs);
-    Q_EMIT OverlayBarModelChanged (viewNumber, overlayBarModel);
+	m_colorMapVelocity[simulationIndex][viewNumber];
+    vs.CopyColorMapVelocity (otherVs);
+    Q_EMIT ColorMapVelocityChanged (viewNumber, overlayBarModel);
 }
 
 
-void MainWindow::OverlayMapCopyVelocityMagnitude ()
+void MainWindow::CopyColorMapVelocityFromScalar ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     size_t simulationIndex = vs.GetSimulationIndex ();
     boost::shared_ptr<ColorBarModel> overlayBarModel = 
-	m_overlayBarModel[simulationIndex][viewNumber];
-    vs.OverlayMapCopyVelocityMagnitude ();
-    Q_EMIT OverlayBarModelChanged (GetViewNumber (), overlayBarModel);
+	m_colorMapVelocity[simulationIndex][viewNumber];
+    vs.CopyColorMapVelocityFromScalar ();
+    Q_EMIT ColorMapVelocityChanged (GetViewNumber (), overlayBarModel);
 }
 
 
-void MainWindow::OverlayMapEdit ()
+void MainWindow::EditColorMapVelocity ()
 {
     HistogramInfo p = getHistogramInfo (
-	ColorBarType::PROPERTY, BodyScalar::VELOCITY_MAGNITUDE);
+	ColorMapScalarType::PROPERTY, BodyScalar::VELOCITY_MAGNITUDE);
     ViewNumber::Enum viewNumber = GetViewNumber ();
     size_t simulationIndex = 
 	GetViewSettings (viewNumber).GetSimulationIndex ();
     boost::shared_ptr<ColorBarModel> colorBarModel = 
-	m_overlayBarModel[simulationIndex][viewNumber];
+	m_colorMapVelocity[simulationIndex][viewNumber];
     m_editColorMap->SetData (p.first, p.second, 
 			     *colorBarModel,
 			     checkBoxHistogramGridShown->isChecked ());
     if (m_editColorMap->exec () == QDialog::Accepted)
     {
-	*colorBarModel = m_editColorMap->GetColorBarModel ();
-	Q_EMIT OverlayBarModelChanged (GetViewNumber (), colorBarModel);
+	*colorBarModel = m_editColorMap->GetColorMap ();
+	Q_EMIT ColorMapVelocityChanged (GetViewNumber (), colorBarModel);
     }
 }
 
 
-void MainWindow::ColorMapEdit ()
+void MainWindow::EditColorMapScalar ()
 {
     HistogramInfo p = getHistogramInfo (
-	GetSettings ().GetColorBarType (), widgetGl->GetBodyOrFaceScalar ());
+	GetSettings ().GetColorMapType (), widgetGl->GetBodyOrFaceScalar ());
     m_editColorMap->SetData (
-	p.first, p.second, *getScalarColorBarModel (),
+	p.first, p.second, *getColorMapScalar (),
 	checkBoxHistogramGridShown->isChecked ());
     if (m_editColorMap->exec () == QDialog::Accepted)
     {
-	*getScalarColorBarModel () = m_editColorMap->GetColorBarModel ();
-	Q_EMIT ColorBarModelChanged (GetViewNumber (),
-				     getScalarColorBarModel ());
+	*getColorMapScalar () = m_editColorMap->GetColorMap ();
+	Q_EMIT ColorMapScalarChanged (GetViewNumber (),
+				     getColorMapScalar ());
     }
 }
 
@@ -2067,7 +2077,7 @@ void MainWindow::timeViewToUI (ViewNumber::Enum viewNumber)
     ViewType::Enum viewType = vs.GetViewType ();
     widgetTimeWindow->setVisible (
         viewType == ViewType::AVERAGE || 
-        viewType == ViewType::T1S_KDE);
+        viewType == ViewType::T1_KDE);
     SetValueAndMaxNoSignals (spinBoxAverageTimeWindow,
 			     scalarAverageTimeWindow, steps);
 }

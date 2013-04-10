@@ -9,8 +9,9 @@ void main(void)
     x = intervalPerTexture * x;
     // x varies between [-intervalPerTexture/2, intervalPerTexture/2]
     float sumSquares = dot (x, x);
-    float k = 1.0 / (u_sigma * u_sigma * 2.0 * pi) * 
-        exp (- 0.5 * sumSquares / (u_sigma * u_sigma));
+    //float peakHeight = 1.0 / (u_sigma * u_sigma * 2.0 * pi);
+    float peakHeight = 1;
+    float k = peakHeight * exp (- 0.5 * sumSquares / (u_sigma * u_sigma));
     gl_FragColor = vec4 (k, 0, 0, 0);
 }
 

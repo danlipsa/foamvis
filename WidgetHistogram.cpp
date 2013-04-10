@@ -57,7 +57,7 @@ void WidgetHistogram::Init (
     updateGeometry ();
 }
 
-void WidgetHistogram::UpdateColorMapped (
+void WidgetHistogram::UpdateColorMap (
     ViewNumber::Enum viewNumber,
     boost::shared_ptr<ColorBarModel> colorBarModel)
 {

@@ -233,6 +233,7 @@ public:
     void SetRegularGridResolution (size_t resolution);
     static string GetBaseCacheDir ();
     string GetCacheDir () const;
+    vtkSmartPointer<vtkImageData> GetT1KDE (size_t timeStep) const;
 
 private:
     void MapPerFoam (FoamParamMethod* foamMethods, size_t n);
@@ -341,11 +342,11 @@ class AverageCache
 public:
     void SetT1KDE (vtkSmartPointer<vtkImageData> average)
     {
-        m_topologicalChangeKDE = average;
+        m_t1KDE = average;
     }
     vtkSmartPointer<vtkImageData> GetT1KDE () const
     {
-        return m_topologicalChangeKDE;
+        return m_t1KDE;
     }
 
     void SetVelocity (vtkSmartPointer<vtkImageData> average)
@@ -359,7 +360,7 @@ public:
     }
     
 private:
-    vtkSmartPointer<vtkImageData> m_topologicalChangeKDE;
+    vtkSmartPointer<vtkImageData> m_t1KDE;
     vtkSmartPointer<vtkImageData> m_velocityAverage;
 };
 

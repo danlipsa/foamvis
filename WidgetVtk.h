@@ -78,13 +78,13 @@ public:
     {
         FromView (GetViewNumber ());
     }
-    void UpdateScalarThreshold (QwtDoubleInterval interval);
+    void UpdateThresholdScalar (QwtDoubleInterval interval);
     void AddAverageView (
 	ViewNumber::Enum viewNumber, const ColorBarModel& scalarColorBarModel,	
 	QwtDoubleInterval interval, const ColorBarModel& velocityColorBarModel);
     void UpdateAverage (ViewNumber::Enum viewNumber, int direction);
-    void UpdateForceAverage ();
-    void UpdateVelocityAverage ();
+    void UpdateAverageForce ();
+    void UpdateAverageVelocity ();
     void Average3dCreatePipeline (size_t objects, size_t constraintSurfaces, 
                                   size_t fontSize);
     void UpdateAverage3dTitle ();
@@ -112,6 +112,11 @@ private:
     void resizeViewEvent (ViewNumber::Enum viewNumber);
     void removeView (ViewNumber::Enum viewNumber);
     void createActions ();
+    void pipelineUpdateScalar (
+        ViewNumber::Enum viewNumber,
+        const ColorBarModel& scalarColorMap, QwtDoubleInterval interval);
+    void pipelineUpdateVelocity (
+        ViewNumber::Enum viewNumber, const ColorBarModel& velocityColorMap);
 
 private:
     Q_OBJECT

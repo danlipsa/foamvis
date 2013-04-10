@@ -124,7 +124,7 @@ QColor ViewSettings::GetBubblePathsContextColor () const
 
 float ViewSettings::GetVelocityInverseClampMaxRatio () const
 {
-    float clampMaxRatio = m_velocityOverlayBarModel->GetClampMaxRatio ();
+    float clampMaxRatio = m_colorMapVelocity->GetClampMaxRatio ();
     if (clampMaxRatio == 0)
         return numeric_limits<float>::max ();
     else
@@ -277,31 +277,31 @@ bool ViewSettings::IsContextDisplayBody (size_t bodyId) const
     return m_contextBody.find (bodyId) != m_contextBody.end ();
 }
 
-void ViewSettings::ColorMapCopy (const ViewSettings& from)
+void ViewSettings::CopyColorMapScalar (const ViewSettings& from)
 {
-    m_colorBarModel->ColorMapCopy (*from.m_colorBarModel);
+    m_colorMapScalar->ColorMapCopy (*from.m_colorMapScalar);
 }
 
-void ViewSettings::OverlayMapCopy (const ViewSettings& from)
+void ViewSettings::CopyColorMapVelocity (const ViewSettings& from)
 {
-    m_velocityOverlayBarModel->ColorMapCopy (*from.m_velocityOverlayBarModel);
+    m_colorMapVelocity->ColorMapCopy (*from.m_colorMapVelocity);
 }
 
-void ViewSettings::OverlayMapCopyVelocityMagnitude ()
+void ViewSettings::CopyColorMapVelocityFromScalar ()
 {
-    m_velocityOverlayBarModel->ColorMapCopy (*m_colorBarModel);
+    m_colorMapVelocity->ColorMapCopy (*m_colorMapScalar);
 }
 
-void ViewSettings::SetColorBarModel (
+void ViewSettings::SetColorMapScalar (
     const boost::shared_ptr<ColorBarModel>& colorBarModel)
 {
-    m_colorBarModel = colorBarModel;
+    m_colorMapScalar = colorBarModel;
 }
 
-void ViewSettings::SetOverlayBarModel (
+void ViewSettings::SetColorMapVelocity (
     const boost::shared_ptr<ColorBarModel>& colorBarModel)
 {
-    m_velocityOverlayBarModel = colorBarModel;
+    m_colorMapVelocity = colorBarModel;
 }
 
 
@@ -688,37 +688,37 @@ string ViewSettings::GetTitle (ViewNumber::Enum viewNumber) const
     return ostr.str ();
 }
 
-ColorBarType::Enum ViewSettings::GetColorBarType () const
+ColorMapScalarType::Enum ViewSettings::GetColorMapType () const
 {
     ViewType::Enum viewType = GetViewType ();
     size_t property = GetBodyOrFaceScalar ();
     StatisticsType::Enum statisticsType = GetStatisticsType ();
-    return GetColorBarType (viewType, property, statisticsType);
+    return GetColorMapType (viewType, property, statisticsType);
 }
 
-ColorBarType::Enum ViewSettings::GetColorBarType (
+ColorMapScalarType::Enum ViewSettings::GetColorMapType (
     ViewType::Enum viewType, size_t property,
     StatisticsType::Enum statisticsType)
 {
     switch (viewType)
     {
-    case ViewType::T1S_KDE:
-	return ColorBarType::T1S_KDE;
+    case ViewType::T1_KDE:
+	return ColorMapScalarType::T1_KDE;
 
     case ViewType::AVERAGE:
 	if (statisticsType == StatisticsType::COUNT)
-	    return ColorBarType::STATISTICS_COUNT;
-        return ColorBarType::PROPERTY;
+	    return ColorMapScalarType::STATISTICS_COUNT;
+        return ColorMapScalarType::PROPERTY;
 
     case ViewType::FACES:
 	if (property == FaceScalar::DMP_COLOR)
-	    return ColorBarType::NONE;
-        return ColorBarType::PROPERTY;
+	    return ColorMapScalarType::NONE;
+        return ColorMapScalarType::PROPERTY;
 
     case ViewType::CENTER_PATHS:
-	return ColorBarType::PROPERTY;
+	return ColorMapScalarType::PROPERTY;
     default:
-	return ColorBarType::NONE;
+	return ColorMapScalarType::NONE;
     }
 }
 

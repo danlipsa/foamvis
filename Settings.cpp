@@ -227,7 +227,7 @@ QColor Settings::GetHighlightColor (
     ViewNumber::Enum viewNumber, HighlightNumber::Enum highlight) const
 {
     boost::shared_ptr<ColorBarModel> colorBarModel = 
-	GetViewSettings (viewNumber).GetColorBarModel ();
+	GetViewSettings (viewNumber).GetColorMapScalar ();
     if (colorBarModel)
 	return colorBarModel->GetHighlightColor (highlight);
     else
@@ -446,7 +446,7 @@ G3D::Rect2D Settings::GetViewRect (
 
 
 
-G3D::Rect2D Settings::GetColorBarRect (const G3D::Rect2D& viewRect) const
+G3D::Rect2D Settings::GetColorMapScalarRect (const G3D::Rect2D& viewRect) const
 {
     float barHeight = 
         m_barLarge ? (viewRect.height () - 3 * BAR_MARGIN_DISTANCE) : 
@@ -456,7 +456,7 @@ G3D::Rect2D Settings::GetColorBarRect (const G3D::Rect2D& viewRect) const
                               BAR_WIDTH, barHeight);
 }
 
-G3D::Rect2D Settings::GetT1Rect (const G3D::Rect2D& viewRect) const
+G3D::Rect2D Settings::GetT1LegendRect (const G3D::Rect2D& viewRect) const
 {
     float barHeight = 
         m_barLarge ? (viewRect.height () - 3 * BAR_MARGIN_DISTANCE) : 
@@ -468,7 +468,7 @@ G3D::Rect2D Settings::GetT1Rect (const G3D::Rect2D& viewRect) const
 
 
 
-G3D::Rect2D Settings::GetOverlayBarRect (ViewNumber::Enum viewNumber, 
+G3D::Rect2D Settings::GetColorMapVelocityRect (ViewNumber::Enum viewNumber, 
                                          const G3D::Rect2D& viewRect) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -483,39 +483,39 @@ G3D::Rect2D Settings::GetOverlayBarRect (ViewNumber::Enum viewNumber,
         viewRect.y0 () + BAR_MARGIN_DISTANCE, BAR_WIDTH, barHeight);
 }
 
-G3D::Vector2 Settings::GetColorBarLabelSize (ViewNumber::Enum viewNumber) const
+G3D::Vector2 Settings::GetColorMapScalarLabelSize (ViewNumber::Enum viewNumber) const
 {
     if (! BarLabelsShown ())
         return G3D::Vector2 (0, 0);
-    return GetViewSettings (viewNumber).GetColorBarModel ()->GetBarLabelSize ();
+    return GetViewSettings (viewNumber).GetColorMapScalar ()->GetBarLabelSize ();
 }
 
-G3D::Vector2 Settings::GetOverlayBarLabelSize (ViewNumber::Enum viewNumber) const
+G3D::Vector2 Settings::GetColorMapVelocityLabelSize (ViewNumber::Enum viewNumber) const
 {
     if (! BarLabelsShown ())
         return G3D::Vector2 (0, 0);
     return GetViewSettings (
-        viewNumber).GetOverlayBarModel ()->GetBarLabelSize ();
+        viewNumber).GetColorMapVelocity ()->GetBarLabelSize ();
 }
 
 
-G3D::Rect2D Settings::GetColorBarRectWithLabels (
+G3D::Rect2D Settings::GetColorMapScalarRectWithLabels (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const
 {
-    return getBarRectWithLabels (GetColorBarRect (viewRect),
-                                 GetColorBarLabelSize (viewNumber));
+    return getBarRectWithLabels (GetColorMapScalarRect (viewRect),
+                                 GetColorMapScalarLabelSize (viewNumber));
 }
 
-G3D::Rect2D Settings::GetOverlayBarRectWithLabels (
+G3D::Rect2D Settings::GetColorMapVelocityRectWithLabels (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const
 {
     float labelWidth = 0;
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsScalarShown () && ! vs.IsScalarContext ())
-        labelWidth = GetColorBarLabelSize (viewNumber).x;
+        labelWidth = GetColorMapScalarLabelSize (viewNumber).x;
     return getBarRectWithLabels (
-        GetOverlayBarRect (viewNumber, viewRect), 
-        GetOverlayBarLabelSize (viewNumber)) + G3D::Vector2 (labelWidth, 0);
+        GetColorMapVelocityRect (viewNumber, viewRect), 
+        GetColorMapVelocityLabelSize (viewNumber)) + G3D::Vector2 (labelWidth, 0);
 }
 
 
@@ -577,14 +577,14 @@ G3D::Vector2 Settings::CalculateScaleCenter (
 	return (rect.x0y1 () + rect.x1y1 ()) / 2;
 }
 
-ColorBarType::Enum Settings::GetColorBarType () const
+ColorMapScalarType::Enum Settings::GetColorMapType () const
 {
-    return GetColorBarType (GetViewNumber ());
+    return GetColorMapType (GetViewNumber ());
 }
 
-ColorBarType::Enum Settings::GetColorBarType (ViewNumber::Enum viewNumber) const
+ColorMapScalarType::Enum Settings::GetColorMapType (ViewNumber::Enum viewNumber) const
 {
-    return GetViewSettings (viewNumber).GetColorBarType ();
+    return GetViewSettings (viewNumber).GetColorMapType ();
 }
 
 template<typename T>

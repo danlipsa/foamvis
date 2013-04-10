@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1067</width>
+    <width>1121</width>
     <height>703</height>
    </rect>
   </property>
@@ -3921,7 +3921,7 @@
    <sender>checkBoxHistogramColorMapped</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>ToggledHistogramColorMapped(bool)</slot>
+   <slot>ToggledHistogramColor(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>811</x>
@@ -4470,7 +4470,7 @@
   <slot>ValueChangedAverageTimeWindow(int)</slot>
   <slot>ToggledTwoHalvesView(bool)</slot>
   <slot>ToggledHistogramShown(bool)</slot>
-  <slot>ToggledHistogramColorMapped(bool)</slot>
+  <slot>ToggledHistogramColor(bool)</slot>
   <slot>ToggledHistogramAllTimesteps(bool)</slot>
   <slot>CurrentIndexChangedWindowLayout(int)</slot>
   <slot>ToggledViewFocusShown(bool)</slot>

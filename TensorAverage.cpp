@@ -194,7 +194,7 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
     this->glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetOverlayBarTexUnit ()));    
     glBindTexture (GL_TEXTURE_1D, 
-		   this->GetWidgetGl ().GetOverlayBarTexture (
+		   this->GetWidgetGl ().GetColorMapVelocityTexture (
 		       this->GetViewNumber ()));
 
     widgetGl.ActivateViewShader (this->GetViewNumber (), enclose,

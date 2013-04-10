@@ -191,7 +191,7 @@ public:
 
     /**
      * @{
-     * @name Color and overlay bars
+     * @name Color maps
      */
     bool IsBarLarge () const
     {
@@ -209,18 +209,19 @@ public:
     {
         m_barLabelsShown = shown;
     }
-    ColorBarType::Enum GetColorBarType (ViewNumber::Enum viewNumber) const;
-    ColorBarType::Enum GetColorBarType () const;
-    G3D::Rect2D GetColorBarRect (const G3D::Rect2D& viewRect) const;
-    G3D::Rect2D GetT1Rect (const G3D::Rect2D& viewRect) const;
-    G3D::Rect2D GetColorBarRectWithLabels (
+    ColorMapScalarType::Enum GetColorMapType (ViewNumber::Enum viewNumber) const;
+    ColorMapScalarType::Enum GetColorMapType () const;
+    G3D::Rect2D GetColorMapScalarRect (const G3D::Rect2D& viewRect) const;
+    G3D::Rect2D GetT1LegendRect (const G3D::Rect2D& viewRect) const;
+    G3D::Rect2D GetColorMapScalarRectWithLabels (
         ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const;
-    G3D::Rect2D GetOverlayBarRectWithLabels (
+    G3D::Rect2D GetColorMapVelocityRectWithLabels (
         ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect) const;
-    G3D::Rect2D GetOverlayBarRect (ViewNumber::Enum viewNumber, 
+    G3D::Rect2D GetColorMapVelocityRect (ViewNumber::Enum viewNumber, 
                                    const G3D::Rect2D& viewRect) const;
-    G3D::Vector2 GetColorBarLabelSize (ViewNumber::Enum viewNumber) const;
-    G3D::Vector2 GetOverlayBarLabelSize (ViewNumber::Enum viewNumber) const;
+    G3D::Vector2 GetColorMapScalarLabelSize (ViewNumber::Enum viewNumber) const;
+    G3D::Vector2 GetColorMapVelocityLabelSize (
+        ViewNumber::Enum viewNumber) const;
     // @}
 
     /**

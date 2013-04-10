@@ -86,12 +86,14 @@ void RegularGridAverage::removeStep (size_t timeStep, size_t subStep)
 void RegularGridAverage::opStep (size_t timeStep, RegularGridAverage::OpType f)
 {
     const Foam& foam = GetFoam (timeStep);
+    const Simulation& simulation = GetSimulation ();
     const ViewSettings& vs = GetViewSettings ();
     size_t attribute = GetBodyAttribute ();
-    vtkSmartPointer<vtkImageData> regularFoam = foam.GetRegularGrid (attribute);
+    vtkSmartPointer<vtkImageData> regularFoam = 
+        (attribute == BodyScalar::T1_KDE) ? simulation.GetT1KDE (timeStep) : 
+        foam.GetRegularGrid (attribute);
     if (vs.IsAverageAround ())
     {
-	const Simulation& simulation = GetSimulation ();
 	G3D::Vector3 translate = GetTranslation (timeStep);
 	G3D::Vector3 origin (regularFoam->GetOrigin ());
 	origin += translate;

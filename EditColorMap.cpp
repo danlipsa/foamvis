@@ -54,16 +54,16 @@ void EditColorMap::SetData (
     const QwtIntervalData& intervalData, double maxValue,
     const ColorBarModel& colorBarModel, bool gridEnabled)
 {
-    m_colorBarModel = colorBarModel;
-    setCombos (m_colorBarModel.GetPalette ());
+    m_colorMap = colorBarModel;
+    setCombos (m_colorMap.GetPalette ());
     widgetHistogram->SetDataAllBinsSelected (
 	intervalData, maxValue, 
-	m_colorBarModel.GetTitle ().c_str ());
+	m_colorMap.GetTitle ().c_str ());
     widgetHistogram->SetColorTransferFunction (
-	m_colorBarModel.GetInterval (), m_colorBarModel.GetQwtColorMap ());
+	m_colorMap.GetInterval (), m_colorMap.GetQwtColorMap ());
     widgetHistogram->SetGridEnabled (gridEnabled);
-    QwtDoubleInterval interval = m_colorBarModel.GetInterval ();
-    QwtDoubleInterval clampValues = m_colorBarModel.GetClampInterval ();
+    QwtDoubleInterval interval = m_colorMap.GetInterval ();
+    QwtDoubleInterval clampValues = m_colorMap.GetClampInterval ();
     if (clampValues.minValue () > interval.minValue ())
 	widgetHistogram->SetItemsSelectionLow (false, clampValues.minValue ());
     if (clampValues.maxValue () < interval.maxValue ())
@@ -75,7 +75,7 @@ void EditColorMap::setHighlightColors ()
 {
     for (size_t i = 0; i < m_labelHighlight.size (); ++i)
 	m_labelHighlight[i]->setText (
-	    ColorToHtml (m_colorBarModel.GetHighlightColor (
+	    ColorToHtml (m_colorMap.GetHighlightColor (
 			     HighlightNumber::Enum (i)), 
 			 HIGHLIGHT_LABEL_TEXT).c_str ());
 }
@@ -83,11 +83,11 @@ void EditColorMap::setHighlightColors ()
 
 void EditColorMap::clickedHighlight (HighlightNumber::Enum highlightNumber)
 {
-    QColor color = QColorDialog::getColor (m_colorBarModel.GetHighlightColor (
+    QColor color = QColorDialog::getColor (m_colorMap.GetHighlightColor (
 					       highlightNumber));
     if (color.isValid ())
     {
-	m_colorBarModel.SetHighlightColor (highlightNumber, color);
+	m_colorMap.SetHighlightColor (highlightNumber, color);
 	m_labelHighlight[highlightNumber]->setText (
 	    ColorToHtml (color, HIGHLIGHT_LABEL_TEXT).c_str ());
     }
@@ -100,9 +100,9 @@ void EditColorMap::SetDefaultFont ()
 
 void EditColorMap::setPalette (Palette palette)
 {
-    m_colorBarModel.SetupPalette (palette);
+    m_colorMap.SetupPalette (palette);
     widgetHistogram->SetColorTransferFunction (
-	m_colorBarModel.GetInterval (), m_colorBarModel.GetQwtColorMap ());
+	m_colorMap.GetInterval (), m_colorMap.GetQwtColorMap ());
     widgetHistogram->replot ();
     setHighlightColors ();    
 }
@@ -111,7 +111,7 @@ void EditColorMap::setPalette (Palette palette)
 // ======================================================================
 void EditColorMap::CurrentIndexChangedType (int i)
 {
-    Palette palette = m_colorBarModel.GetPalette ();
+    Palette palette = m_colorMap.GetPalette ();
     Palette newPalette = Palette (PaletteType::Enum (i), palette.m_sequential,
 				  palette.m_diverging);
     setCombos (newPalette);
@@ -120,7 +120,7 @@ void EditColorMap::CurrentIndexChangedType (int i)
 
 void EditColorMap::HighlightedPalette (int index)
 {
-    setPalette (Palette (m_colorBarModel.GetPalette ().m_type, index));
+    setPalette (Palette (m_colorMap.GetPalette ().m_type, index));
 }
 
 void EditColorMap::ToggledColorCodedHistogram(bool checked)
@@ -131,7 +131,7 @@ void EditColorMap::ToggledColorCodedHistogram(bool checked)
 
 void EditColorMap::ToggledLog10Values (bool checked)
 {
-    m_colorBarModel.SetLog10 (checked);
+    m_colorMap.SetLog10 (checked);
 }
 
 
@@ -152,23 +152,23 @@ void EditColorMap::ClickedHighlight2 ()
 
 void EditColorMap::SetClampMax (double value)
 {
-    m_colorBarModel.SetClampMax (value);
+    m_colorMap.SetClampMax (value);
     widgetHistogram->SetColorTransferFunction (
-	m_colorBarModel.GetInterval (), m_colorBarModel.GetQwtColorMap ());
+	m_colorMap.GetInterval (), m_colorMap.GetQwtColorMap ());
     widgetHistogram->SetItemsSelectionHigh (false, value);
 }
 
 void EditColorMap::SetClampMin (double value)
 {
-    m_colorBarModel.SetClampMin (value);
+    m_colorMap.SetClampMin (value);
     widgetHistogram->SetColorTransferFunction (
-	m_colorBarModel.GetInterval (), m_colorBarModel.GetQwtColorMap ());
+	m_colorMap.GetInterval (), m_colorMap.GetQwtColorMap ());
     widgetHistogram->SetItemsSelectionLow (false, value);
 }
 
 void EditColorMap::ClampClear ()
 {
-    m_colorBarModel.SetClampClear ();
+    m_colorMap.SetClampClear ();
     widgetHistogram->SetColorTransferFunction (
-	m_colorBarModel.GetInterval (), m_colorBarModel.GetQwtColorMap ());
+	m_colorMap.GetInterval (), m_colorMap.GetQwtColorMap ());
 }

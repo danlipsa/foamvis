@@ -31,7 +31,7 @@ AttributeAverages2D::AttributeAverages2D (ViewNumber::Enum viewNumber,
                        widgetGl.GetSimulationGroupPtr ())
 {
     m_scalarAverage.reset (new ScalarAverage (viewNumber, widgetGl));
-    m_topologicalChangeKDE.reset (new T1sKDE (viewNumber, widgetGl));
+    m_t1KDE.reset (new T1sKDE (viewNumber, widgetGl));
     m_deformationAverage.reset (
 	new TensorAverage (
             viewNumber, widgetGl, GetScalarAverage ().GetFbos ()));

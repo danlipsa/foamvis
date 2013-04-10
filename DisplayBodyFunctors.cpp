@@ -223,7 +223,7 @@ void DisplayBodyVelocity::display (boost::shared_ptr<Body> body)
     }
     if (GetFocusContext (body) == FOCUS)
     {
-	float texCoord = vs.GetOverlayBarModel ()->TexCoord (velocityLength);
+	float texCoord = vs.GetColorMapVelocity ()->TexCoord (velocityLength);
 	glTexCoord1f (texCoord); 
     }
     else
@@ -500,7 +500,7 @@ storeFocusSegment (double value, const Segment& segment)
 {
     double textureCoordinate = 
 	this->m_settings.GetViewSettings (
-	    this->GetViewNumber ()).GetColorBarModel ()
+	    this->GetViewNumber ()).GetColorMapScalar ()
 	->TexCoord (value);
     boost::shared_ptr<FocusTextureSegment> fs = 
 	boost::make_shared<FocusTextureSegment> (textureCoordinate, segment);

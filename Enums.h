@@ -96,22 +96,21 @@ class BodyScalar
 public:
     enum Enum
     {
-	VELOCITY_X,
-	    PROPERTY_BEGIN = VELOCITY_X,
+	VELOCITY_X,PROPERTY_BEGIN = VELOCITY_X,
 	VELOCITY_Y,
 	VELOCITY_Z,
 	VELOCITY_MAGNITUDE,
 
-	SIDES_PER_BUBBLE, // edges per face for 2D, faces per body for 3D
+	SIDES_PER_BUBBLE,   // edges per face for 2D, faces per body for 3D
 	DEFORMATION_SIMPLE, // P / sqrt (A) for 2D, A / V^(2/3) for 3D
 	DEFORMATION_EIGEN,  // l - l_min / l_max where (l_i are the eigen values
 	                    // for the deformation tensor
-	PRESSURE,
-	    DMP_BEGIN = PRESSURE,
+	PRESSURE, DMP_BEGIN = PRESSURE,
 	TARGET_VOLUME,
 	ACTUAL_VOLUME,
 	GROWTH_RATE,
-	COUNT
+	T1_KDE, PROPERTY_COUNT = T1_KDE,
+        COUNT
     };
 public:
     static const char* ToString (BodyScalar::Enum property);
@@ -126,7 +125,7 @@ class FaceScalar
 public:
     enum Enum
     {
-	DMP_COLOR = BodyScalar::COUNT,
+	DMP_COLOR = BodyScalar::PROPERTY_COUNT,
 	COUNT
     };
 public:
@@ -279,7 +278,7 @@ public:
 
 	CENTER_PATHS,
 	AVERAGE,
-	T1S_KDE,
+	T1_KDE,
         COUNT
     };
     static Enum FromSizeT (size_t i);
@@ -494,13 +493,13 @@ struct ViewingVolumeOperation
     };
 };
 
-struct ColorBarType
+struct ColorMapScalarType
 {
     enum Enum
     {
 	PROPERTY,
 	STATISTICS_COUNT,
-	T1S_KDE,
+	T1_KDE,
 	NONE
     };
 };

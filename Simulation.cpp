@@ -123,7 +123,7 @@ const char* CACHE_DIR_NAME = ".foamvis";
 
 Simulation::Simulation () :
     m_histogram (
-        BodyScalar::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
+        BodyScalar::PROPERTY_COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
     m_pressureAdjusted (false),
     m_topologicalChangeShift (0),
     m_useOriginal (false),
@@ -314,7 +314,7 @@ void Simulation::adjustPressureAlignMedians ()
 void Simulation::calculateStatistics ()
 {
     for (size_t i = BodyScalar::PROPERTY_BEGIN; 
-	 i < BodyScalar::COUNT; ++i)
+	 i < BodyScalar::PROPERTY_COUNT; ++i)
     {
 	MinMaxStatistics minMaxStat;
 	// statistics for all time-steps
@@ -562,8 +562,7 @@ void Simulation::ParseT1s (
         {
             m_topologicalChange.resize (0);
             RuntimeAssert (
-                i == 1, 
-                "ParseT1s: T1s variables not set at index ", i);
+                i == 1, "ParseT1s: T1s variables not set at index ", i);
             return;
         }
     }
@@ -711,6 +710,10 @@ bool Simulation::IsTorqueAvailable () const
     return torque;
 }
 
+vtkSmartPointer<vtkImageData> Simulation::GetT1KDE (size_t timeStep) const
+{
+    
+}
 
 // Members: SimulationGroup
 // ======================================================================

@@ -189,27 +189,27 @@ public:
      * @{
      * @name ColorBar
      */
-    boost::shared_ptr<ColorBarModel> GetColorBarModel () const
+    boost::shared_ptr<ColorBarModel> GetColorMapScalar () const
     {
-	return m_colorBarModel;
+	return m_colorMapScalar;
     }
-    boost::shared_ptr<ColorBarModel> GetOverlayBarModel () const
+    boost::shared_ptr<ColorBarModel> GetColorMapVelocity () const
     {
-	return m_velocityOverlayBarModel;
+	return m_colorMapVelocity;
     }
-    void SetColorBarModel (
+    void SetColorMapScalar (
 	const boost::shared_ptr<ColorBarModel>& colorBarModel);
-    void SetOverlayBarModel (
+    void SetColorMapVelocity (
 	const boost::shared_ptr<ColorBarModel>& colorBarModel);
     void ResetColorBarModel ()
     {
-	m_colorBarModel.reset ();
+	m_colorMapScalar.reset ();
     }
-    void ColorMapCopy (const ViewSettings& from);
-    void OverlayMapCopy (const ViewSettings& from);
-    void OverlayMapCopyVelocityMagnitude ();
-    ColorBarType::Enum GetColorBarType () const;    
-    static ColorBarType::Enum GetColorBarType (
+    void CopyColorMapScalar (const ViewSettings& from);
+    void CopyColorMapVelocity (const ViewSettings& from);
+    void CopyColorMapVelocityFromScalar ();
+    ColorMapScalarType::Enum GetColorMapType () const;    
+    static ColorMapScalarType::Enum GetColorMapType (
         ViewType::Enum viewType, size_t property,
         StatisticsType::Enum statisticsType);
     // @}
@@ -804,8 +804,8 @@ private:
     ViewType::Enum m_viewType;
     size_t m_bodyOrFaceScalar;
     StatisticsType::Enum m_statisticsType;
-    boost::shared_ptr<ColorBarModel> m_colorBarModel;
-    boost::shared_ptr<ColorBarModel> m_velocityOverlayBarModel;
+    boost::shared_ptr<ColorBarModel> m_colorMapScalar;
+    boost::shared_ptr<ColorBarModel> m_colorMapVelocity;
     G3D::Matrix3 m_rotationFocus;
     G3D::Vector3 m_rotationCenter;
     RotationCenterType m_rotationCenterType;

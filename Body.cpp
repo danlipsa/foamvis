@@ -334,6 +334,7 @@ float Body::GetScalarValue (BodyScalar::Enum property, bool is2D) const
 	    property - BodyScalar::DMP_BEGIN);
     case BodyScalar::GROWTH_RATE:
 	return GetGrowthRate ();
+    case BodyScalar::T1_KDE:
     case BodyScalar::COUNT:
 	ThrowException ("Invalid BodyScalar: ", property);
 	return 0;
