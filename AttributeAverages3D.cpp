@@ -31,7 +31,7 @@ AttributeAverages3D::AttributeAverages3D (
 
     average.reset (
         new RegularGridAverage (viewNumber, settings, simulationGroup));
-    average->SetBodyAttribute (BodyScalar::T1_KDE);
+    average->SetBodyAttribute (OtherScalar::T1_KDE);
     m_t1KDE = average;
 
 /*

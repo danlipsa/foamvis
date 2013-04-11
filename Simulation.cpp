@@ -124,9 +124,9 @@ const char* CACHE_DIR_NAME = ".foamvis";
 
 Simulation::Simulation () :
     m_histogram (
-        BodyScalar::PROPERTY_COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
+        BodyScalar::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
     m_pressureAdjusted (false),
-    m_topologicalChangeShift (0),
+    m_t1Shift (0),
     m_useOriginal (false),
     m_rotation2D (0),
     m_reflectAxis (numeric_limits<size_t>::max ()),
@@ -228,12 +228,12 @@ void Simulation::Preprocess ()
     calculateStatistics ();
     if (IsTorus () && Is3D ())
     {
-        for (size_t i = 0; i < m_topologicalChange.size (); ++i)
+        for (size_t i = 0; i < m_t1.size (); ++i)
         {
             const OOBox& originalDomain = m_foams[i]->GetTorusDomain ();
-            for (size_t j = 0; j < m_topologicalChange[i].size (); ++j)
+            for (size_t j = 0; j < m_t1[i].size (); ++j)
                 moveInsideOriginalDomain (
-                    &m_topologicalChange[i][j], originalDomain);
+                    &m_t1[i][j], originalDomain);
         }
     }
 }
@@ -315,7 +315,7 @@ void Simulation::adjustPressureAlignMedians ()
 void Simulation::calculateStatistics ()
 {
     for (size_t i = BodyScalar::PROPERTY_BEGIN; 
-	 i < BodyScalar::PROPERTY_COUNT; ++i)
+	 i < BodyScalar::COUNT; ++i)
     {
 	MinMaxStatistics minMaxStat;
 	// statistics for all time-steps
@@ -523,7 +523,7 @@ size_t Simulation::GetMaxCountPerBinIndividual (
 
 bool Simulation::IsT1Available () const
 {
-    BOOST_FOREACH (const vector<T1> tc, m_topologicalChange)
+    BOOST_FOREACH (const vector<T1> tc, m_t1)
 	if (tc.size () != 0)
 	    return true;
     return false;
@@ -531,13 +531,13 @@ bool Simulation::IsT1Available () const
 
 size_t Simulation::GetT1TimeSteps () const
 {
-    return m_topologicalChange.size ();
+    return m_t1.size ();
 }
 
 size_t Simulation::GetT1Size () const
 {
     size_t size = 0;
-    BOOST_FOREACH (const vector<T1>& tc, m_topologicalChange)
+    BOOST_FOREACH (const vector<T1>& tc, m_t1)
     {
 	size += tc.size ();
     }
@@ -547,21 +547,21 @@ size_t Simulation::GetT1Size () const
 void Simulation::ParseT1s (
     const char* arrayName, const char* countName)
 {
-    if (! m_topologicalChange.empty ())
+    if (! m_t1.empty ())
         return;
     cdbg << "Parsing topological changes..." << endl;
     Foams& foams = GetFoams ();
-    m_topologicalChange.resize (foams.size () - 1);
+    m_t1.resize (foams.size () - 1);
     for (size_t i = 1; i < foams.size (); ++i)
     {
         boost::shared_ptr<Foam> foam = foams[i];
         // in the file: first time step is 1 and T1s occur before timeStep
         // in memory: first time step is 0 and T1s occur after timeStep
         if (! foam->GetParsingData ().GetT1 (
-                arrayName, countName, &m_topologicalChange[i - 1], 
+                arrayName, countName, &m_t1[i - 1], 
                 foams[0]->Is2D ()))
         {
-            m_topologicalChange.resize (0);
+            m_t1.resize (0);
             RuntimeAssert (
                 i == 1, "ParseT1s: T1s variables not set at index ", i);
             return;
@@ -615,11 +615,11 @@ void Simulation::ParseT1s (
 	// in the file: first time step is 1 and T1s occur before timeStep
 	// in memory: first time step is 0 and T1s occur after timeStep
 	timeStep -= 1;
-	if (timeStep >= m_topologicalChange.size ())
-	    m_topologicalChange.resize (timeStep + 1);
-	m_topologicalChange[timeStep].push_back (tc);
+	if (timeStep >= m_t1.size ())
+	    m_t1.resize (timeStep + 1);
+	m_t1[timeStep].push_back (tc);
     }
-    m_topologicalChangeShift = (t1sShiftLower ? 1 : 0);
+    m_t1Shift = (t1sShiftLower ? 1 : 0);
     cdbg << "last topological change timestep: " << timeStep << endl;
 }
 
@@ -627,10 +627,10 @@ const vector<T1>& Simulation::GetT1 (
     size_t timeStep, int t1sShift) const
 {
     int t = int(timeStep) + t1sShift;
-    if (t < 0 || size_t (t) >= m_topologicalChange.size ())
+    if (t < 0 || size_t (t) >= m_t1.size ())
 	return NO_T1S;
     else
-	return m_topologicalChange[t];
+	return m_t1[t];
 }
 
 vtkSmartPointer<vtkImageData> Simulation::GetT1KDE (
@@ -640,10 +640,12 @@ vtkSmartPointer<vtkImageData> Simulation::GetT1KDE (
     VTK_CREATE (vtkImageGaussianSource, gs);
     float bubbleDiameterInPixels = 
         GetBubbleDiameter () / GetOnePixelInObjectSpace (Is2D ());
-    gs->SetWholeExtent (0, bubbleDiameterInPixels, 0, bubbleDiameterInPixels,
-                        0, bubbleDiameterInPixels);
+    gs->SetWholeExtent (0, GetRegularGridResolution (), 
+                        0, GetRegularGridResolution (),
+                        0, GetRegularGridResolution ());
     gs->SetMaximum (1.0);
     gs->SetStandardDeviation (sigmaInBubbleDiameters * bubbleDiameterInPixels);
+    return vtkSmartPointer<vtkImageData> ();
 }
 
 

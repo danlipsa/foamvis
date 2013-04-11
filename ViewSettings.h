@@ -771,11 +771,11 @@ public:
 
     bool T1sShiftLower () const
     {
-	return m_topologicalChangeShiftLower;
+	return m_t1ShiftLower;
     }
     void SetT1sShiftLower (bool t1sShiftLower)
     {
-	m_topologicalChangeShiftLower = t1sShiftLower;
+	m_t1ShiftLower = t1sShiftLower;
     }
 
     float AngleDisplay (float angle) const;
@@ -892,7 +892,7 @@ private:
     size_t m_time;
     size_t m_timeSteps;
     size_t m_timeWindow;
-    bool m_topologicalChangeShiftLower;
+    bool m_t1ShiftLower;
     vector<size_t> m_linkedTimeEvent;
     float m_deformationSize;
     float m_deformationLineWidth;

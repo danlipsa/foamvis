@@ -690,7 +690,7 @@ string WidgetGl::infoSelectedBodies ()
 	ostream_iterator<size_t> out (ostr, " ");
 	copy (ids.begin (), ids.end (), out);
 	if (GetViewSettings ().GetBodyOrFaceScalar () != 
-	    FaceScalar::DMP_COLOR)
+	    OtherScalar::DMP_COLOR)
 	{
 	    ostr << endl;
 		
@@ -4325,7 +4325,7 @@ void WidgetGl::SetBodyOrFaceScalar (
     makeCurrent ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetBodyOrFaceScalar (bodyOrFaceScalar);
-    if (vs.GetBodyOrFaceScalar () != FaceScalar::DMP_COLOR)
+    if (vs.GetBodyOrFaceScalar () != OtherScalar::DMP_COLOR)
     {
 	vs.SetColorMapScalar (colorBarModel);
 	setTexture (colorBarModel, m_colorBarScalarTexture[viewNumber]);

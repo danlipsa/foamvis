@@ -292,7 +292,7 @@ private:
     vector <
 	boost::array<
 	    boost::array<boost::shared_ptr<ColorBarModel>, 
-			 BodyScalar::PROPERTY_COUNT>,
+			 BodyScalar::COUNT>,
                              ViewNumber::COUNT> > m_colorMapScalar;
     // index order: simulation index, view number
     vector <

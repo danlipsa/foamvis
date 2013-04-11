@@ -88,7 +88,7 @@ Foam::Foam (bool useOriginal,
     m_parsingData (new ParsingData (
 		       useOriginal, dmpObjectInfo, forcesNames)),
     m_histogram (
-	BodyScalar::PROPERTY_COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
+	BodyScalar::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
     m_properties (dataProperties),
     m_parametersOperation (paramsOp),
     m_pressureSubtraction (0)
@@ -767,7 +767,7 @@ void Foam::SetViewMatrix (
 void Foam::CalculateMinMaxStatistics ()
 {
     for (size_t i = BodyScalar::PROPERTY_BEGIN;
-	 i < BodyScalar::PROPERTY_COUNT; ++i)
+	 i < BodyScalar::COUNT; ++i)
     {
 	// statistics for all time-steps
 	BodyScalar::Enum property = BodyScalar::FromSizeT (i);

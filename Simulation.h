@@ -215,11 +215,11 @@ public:
     bool IsT1Available () const;
     int GetT1Shift () const
     {
-	return m_topologicalChangeShift;
+	return m_t1Shift;
     }
     bool GetT1ShiftLower () const
     {
-	return m_topologicalChangeShift == 1;
+	return m_t1Shift == 1;
     }
     const vector<T1>& GetT1 (size_t timeStep, int t1sShift) const;
     vtkSmartPointer<vtkImageData> GetT1KDE (
@@ -285,8 +285,8 @@ private:
     string m_name;
     vector<HistogramStatistics> m_histogram;
     bool m_pressureAdjusted;
-    vector< vector<T1> > m_topologicalChange;
-    int m_topologicalChangeShift;
+    vector< vector<T1> > m_t1;
+    int m_t1Shift;
     DmpObjectInfo m_dmpObjectInfo;
     vector<ForceNamesOneObject> m_forceNames;
     bool m_useOriginal;

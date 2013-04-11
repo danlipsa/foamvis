@@ -83,7 +83,7 @@ ViewSettings::ViewSettings () :
     m_time (0),
     m_timeSteps (0),
     m_timeWindow (0),
-    m_topologicalChangeShiftLower (false),
+    m_t1ShiftLower (false),
     m_deformationSize (1),
     m_deformationLineWidth (1),
     m_velocityLineWidth (1),
@@ -713,7 +713,7 @@ ColorMapScalarType::Enum ViewSettings::GetColorMapType (
         return ColorMapScalarType::PROPERTY;
 
     case ViewType::FACES:
-	if (property == FaceScalar::DMP_COLOR)
+	if (property == OtherScalar::DMP_COLOR)
 	    return ColorMapScalarType::NONE;
         return ColorMapScalarType::PROPERTY;
 

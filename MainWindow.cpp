@@ -740,7 +740,7 @@ void MainWindow::setupColorBarModels ()
 void MainWindow::setupColorBarModels (size_t simulationIndex,
 				      ViewNumber::Enum viewNumber)
 {    
-    for (size_t i = 0; i < BodyScalar::PROPERTY_COUNT; ++i)
+    for (size_t i = 0; i < BodyScalar::COUNT; ++i)
     {
 	BodyScalar::Enum property = BodyScalar::FromSizeT (i);
 	setupColorBarModelScalar (simulationIndex, viewNumber, property);
@@ -932,12 +932,12 @@ void MainWindow::currentIndexChangedFaceColor (
     boost::array<QWidget*, 1> widgetsEnabled = {{
 	    radioButtonAverage}};
     size_t simulationIndex = vs.GetSimulationIndex ();
-    if (value == FaceScalar::DMP_COLOR) {
+    if (value == BodyScalar::COUNT) {
+        OtherScalar::Enum os = OtherScalar::DMP_COLOR;
 	::setVisible (widgetsVisible, false);
 	::setEnabled (widgetsEnabled, false);
 	Q_EMIT BodyOrFaceScalarChanged (
-	    viewNumber,
-	    boost::shared_ptr<ColorBarModel> (), value);
+	    viewNumber, boost::shared_ptr<ColorBarModel> (), os);
     }
     else {
 	BodyScalar::Enum property = BodyScalar::FromSizeT (value);
@@ -2041,7 +2041,7 @@ void MainWindow::bubblePathsViewToUI ()
     int property = vs.GetBodyOrFaceScalar ();
     const Simulation& simulation = GetSimulation ();
 
-    labelBubblePathsColor->setText (FaceScalar::ToString (property));
+    labelBubblePathsColor->setText (OtherScalar::ToString (property));
     SetCheckedNoSignals (checkBoxBubblePathsPartialPathHidden, 
                          vs.IsPartialPathHidden ());    
     SetValueNoSignals (horizontalSliderBubblePathsTimeDisplacement,
@@ -2153,7 +2153,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 
     SetCheckedNoSignals (checkBoxT1sShiftLower, vs.T1sShiftLower ());
     SetValueNoSignals (horizontalSliderAngleOfView, vs.GetAngleOfView ());
-    labelAverageColor->setText (FaceScalar::ToString (property));
+    labelAverageColor->setText (OtherScalar::ToString (property));
 
     settingsViewToUI (viewNumber);
     deformationViewToUI ();

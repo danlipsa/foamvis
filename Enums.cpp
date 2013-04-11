@@ -105,8 +105,7 @@ boost::array<const char*, BodyScalar::COUNT> BodyScalar::NAME = {{
 	"Pressure",
 	"Target volume",
 	"Actual volume",
-	"Growth rate",
-        "T1s KDE"
+	"Growth rate"
     }};
 
 
@@ -121,34 +120,6 @@ BodyScalar::Enum BodyScalar::FromSizeT (size_t i)
 {
     RuntimeAssert (i < COUNT, "Value outside of BodyScalar::Enum: ", i);
     return BodyScalar::Enum (i);
-}
-
-// Methods FaceScalar
-// ======================================================================
-const char* FaceScalar::ToString (FaceScalar::Enum faceProperty)
-{
-    switch (faceProperty)
-    {
-    case DMP_COLOR:
-	return "Dmp color";
-    default:
-	return "Error";
-    }
-}
-
-const char* FaceScalar::ToString (size_t i)
-{
-    if (i < BodyScalar::PROPERTY_COUNT)
-	return BodyScalar::ToString (BodyScalar::FromSizeT (i));
-    else
-	return FaceScalar::ToString (FaceScalar::FromSizeT (i));
-}
-
-FaceScalar::Enum FaceScalar::FromSizeT (size_t i)
-{
-    RuntimeAssert (i < COUNT && i >= BodyScalar::PROPERTY_COUNT, 
-		   "Value outside of FaceScalar::Enum: ", i);
-    return FaceScalar::Enum (i);
 }
 
 // Methods BodyAttribute
@@ -166,7 +137,6 @@ BodyAttribute::DEPENDS_ON_INFO = {{
 	{COUNT, 0}, // TARGET_VOLUME
 	{COUNT, 0}, // ACTUAL_VOLUME
 	{COUNT, 0}, // GROWTH_RATE
-        {COUNT, 0}, // T1_KDE
 	{COUNT, 0}, // VELOCITY
 	{COUNT, 0}  // DEFORMATION
     }};
@@ -206,7 +176,7 @@ BodyAttribute::ConvertType BodyAttribute::Convert (size_t attribute)
 
 BodyAttribute::Enum BodyAttribute::FromSizeT (size_t i)
 {
-    RuntimeAssert (i < COUNT && i >= BodyScalar::COUNT, 
+    RuntimeAssert (BodyScalar::COUNT <= i && i < COUNT, 
 		   "Value outside of BodyAttribute::Enum: ", i);
     return BodyAttribute::Enum (i);
 }
@@ -243,9 +213,17 @@ string BodyAttribute::ValueToString (size_t attribute, float* value)
 const char* BodyAttribute::ToString (size_t attribute)
 {
     if (attribute < BodyScalar::COUNT)
-	return BodyScalar::ToString (BodyScalar::FromSizeT (attribute));
-    else
+	return BodyScalar::ToString (BodyScalar::Enum (attribute));
+    else if (attribute < BodyAttribute::COUNT)
 	return BodyAttribute::ToString (BodyAttribute::FromSizeT (attribute));
+    else if (attribute == OtherScalar::T1_KDE)
+        return OtherScalar::ToString (OtherScalar::FromSizeT (attribute));
+    else
+    {
+        ThrowException (
+            "BodyAttribute::ToString: Invalid attribute: ", attribute);
+        return 0;
+    }
 }
 
 bool BodyAttribute::IsRedundant (size_t attribute)
@@ -263,9 +241,54 @@ size_t BodyAttribute::GetNumberOfComponents (size_t attribute)
 {
     if (attribute < BodyScalar::COUNT)
 	return SCALAR_NUMBER_OF_COMPONENTS;
-    else
-	return GetNumberOfComponents (BodyAttribute::FromSizeT (attribute));
+    else if (attribute < BodyAttribute::COUNT)
+	return GetNumberOfComponents (BodyAttribute::Enum (attribute));
+    else if (attribute == OtherScalar::T1_KDE)
+        return SCALAR_NUMBER_OF_COMPONENTS;
+    else 
+    {
+        ThrowException (
+            "BodyAttribute::GetNumberOfComponents: Invalid attribute", 
+            attribute);
+        return 0;
+    }
 }
+
+// Methods OtherScalar
+// ======================================================================
+const char* OtherScalar::ToString (OtherScalar::Enum faceProperty)
+{
+    switch (faceProperty)
+    {
+    case DMP_COLOR:
+	return "Dmp color";
+    case T1_KDE:
+        return "T1s KDE";
+    default:
+	return "Error";
+    }
+}
+
+const char* OtherScalar::ToString (size_t i)
+{
+    if (i < BodyScalar::COUNT)
+	return BodyScalar::ToString (BodyScalar::FromSizeT (i));
+    else if (BodyAttribute::COUNT <= i && i < OtherScalar::COUNT)
+	return OtherScalar::ToString (OtherScalar::FromSizeT (i));
+    else
+    {
+        ThrowException ("OtherScalar::ToString: Invalid scalar: ", i);
+        return 0;
+    }
+}
+
+OtherScalar::Enum OtherScalar::FromSizeT (size_t i)
+{
+    RuntimeAssert (BodyAttribute::COUNT <= i && i < COUNT, 
+		   "Value outside of OtherScalar::Enum: ", i);
+    return OtherScalar::Enum (i);
+}
+
 
 // Methods ViewNumber
 // ======================================================================

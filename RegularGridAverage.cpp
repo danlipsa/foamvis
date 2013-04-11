@@ -89,7 +89,7 @@ void RegularGridAverage::opStep (
     const ViewSettings& vs = GetViewSettings ();
     size_t attribute = GetBodyAttribute ();
     vtkSmartPointer<vtkImageData> regularFoam = 
-        (attribute == BodyScalar::T1_KDE) ? 
+        (attribute == OtherScalar::T1_KDE) ? 
         simulation.GetT1KDE (
             timeStep, subStep, vs.T1sShiftLower (), 
             vs.GetT1KDESigmaInBubbleDiameter ()) : 
@@ -127,7 +127,7 @@ void RegularGridAverage::ComputeAverage ()
 
 size_t RegularGridAverage::getStepSize (size_t timeStep) const
 {
-    if (GetBodyAttribute () == BodyScalar::T1_KDE)
+    if (GetBodyAttribute () == OtherScalar::T1_KDE)
     {
         ViewSettings& vs = GetViewSettings ();
         return GetSimulation ().GetT1 (timeStep, 

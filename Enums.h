@@ -96,7 +96,7 @@ class BodyScalar
 public:
     enum Enum
     {
-	VELOCITY_X,PROPERTY_BEGIN = VELOCITY_X,
+	VELOCITY_X,     PROPERTY_BEGIN = VELOCITY_X,
 	VELOCITY_Y,
 	VELOCITY_Z,
 	VELOCITY_MAGNITUDE,
@@ -105,12 +105,11 @@ public:
 	DEFORMATION_SIMPLE, // P / sqrt (A) for 2D, A / V^(2/3) for 3D
 	DEFORMATION_EIGEN,  // l - l_min / l_max where (l_i are the eigen values
 	                    // for the deformation tensor
-	PRESSURE, DMP_BEGIN = PRESSURE,
+	PRESSURE,       DMP_BEGIN = PRESSURE,
 	TARGET_VOLUME,
 	ACTUAL_VOLUME,
 	GROWTH_RATE,
-	T1_KDE, PROPERTY_COUNT = T1_KDE,
-        COUNT
+        COUNT                // 11
     };
 public:
     static const char* ToString (BodyScalar::Enum property);
@@ -118,20 +117,6 @@ public:
 
 private:
     static boost::array<const char*, COUNT> NAME;
-};
-
-class FaceScalar
-{
-public:
-    enum Enum
-    {
-	DMP_COLOR = BodyScalar::PROPERTY_COUNT,
-	COUNT
-    };
-public:
-    static const char* ToString (FaceScalar::Enum property);
-    static const char* ToString (size_t property);
-    static Enum FromSizeT (size_t i);
 };
 
 struct BodyAttribute
@@ -150,7 +135,7 @@ struct BodyAttribute
     {
 	VELOCITY = BodyScalar::COUNT,
 	DEFORMATION,
-	COUNT
+	COUNT                // 13
     };
     static const char* ToString (BodyAttribute::Enum attribute);
     static const char* ToString (size_t attribute);
@@ -192,6 +177,22 @@ private:
     };
     static boost::array<Info, COUNT> INFO;
     static boost::array<DependsOnInfo, COUNT> DEPENDS_ON_INFO;
+};
+
+
+class OtherScalar
+{
+public:
+    enum Enum
+    {
+	DMP_COLOR = BodyAttribute::COUNT,
+        T1_KDE,
+	COUNT                // 15
+    };
+public:
+    static const char* ToString (OtherScalar::Enum property);
+    static const char* ToString (size_t property);
+    static Enum FromSizeT (size_t i);
 };
 
 

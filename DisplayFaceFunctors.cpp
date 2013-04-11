@@ -188,7 +188,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
     if (this->m_focus == DisplayElement::FOCUS && ! vs.IsScalarContext ())
     {
 	if (this->m_propertySetter.GetBodyOrFaceScalar () == 
-	    FaceScalar::DMP_COLOR)
+	    OtherScalar::DMP_COLOR)
 	{
 	    glColor (of->GetColor (
 			 this->m_settings.GetHighlightColor (
