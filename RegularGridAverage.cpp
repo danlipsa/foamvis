@@ -90,7 +90,9 @@ void RegularGridAverage::opStep (
     size_t attribute = GetBodyAttribute ();
     vtkSmartPointer<vtkImageData> regularFoam = 
         (attribute == BodyScalar::T1_KDE) ? 
-        simulation.GetT1KDE (timeStep, subStep, vs.T1sShiftLower ()) : 
+        simulation.GetT1KDE (
+            timeStep, subStep, vs.T1sShiftLower (), 
+            vs.GetT1KDESigmaInBubbleDiameter ()) : 
         foam.GetRegularGrid (attribute);
     if (vs.IsAverageAround ())
     {

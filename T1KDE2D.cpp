@@ -100,7 +100,7 @@ const float s_kernelSigmaInBubbleDiameters = 3;
 
 T1KDE2D::T1KDE2D (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
     ScalarAverage2DTemplate<SetterNop> (viewNumber, widgetGl, 
-				      "t1sKDE", QColor (0, 255, 0, 0))
+                                        "t1sKDE", QColor (0, 255, 0, 0))
 {
 }
 
@@ -108,12 +108,15 @@ float T1KDE2D::getKernelSigma () const
 {
     const ViewSettings& vs = GetViewSettings ();
     return vs.GetT1KDESigmaInBubbleDiameter () * 
-        GetWidgetGl ().GetBubbleDiameter (GetViewNumber ());
+        GetBubbleDiameter (GetViewNumber ());
 }
 
 size_t T1KDE2D::GetKernelTextureSize () const
 {
-    return getKernelSigma () / 
+    // WARNING: has to be the same as in GaussianInit.frag
+    const float STDDEV_COUNT = 5.0;
+    // we want our texture to cover 1 sigma
+    return STDDEV_COUNT * getKernelSigma () / 
         GetOnePixelInObjectSpace (GetSimulation ().Is2D ());
 }
 

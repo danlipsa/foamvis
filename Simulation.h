@@ -223,7 +223,8 @@ public:
     }
     const vector<T1>& GetT1 (size_t timeStep, int t1sShift) const;
     vtkSmartPointer<vtkImageData> GetT1KDE (
-        size_t timeStep, size_t subStep, int t1Shift) const;
+        size_t timeStep, size_t subStep, int t1Shift,
+        float sigmaInBubbleDiameters) const;
 
     size_t GetT1Size () const;
     size_t GetT1TimeSteps () const;

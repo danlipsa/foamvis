@@ -1131,7 +1131,7 @@ void Foam::SaveRegularGrid (size_t resolution) const
 
 vtkSmartPointer<vtkImageData> Foam::GetRegularGrid (size_t bodyAttribute) const
 {
-    RuntimeAssert (bodyAttribute < BodyScalar::PROPERTY_COUNT, 
+    RuntimeAssert (bodyAttribute < BodyAttribute::COUNT, 
                    "Invalid attribute: ", bodyAttribute);
     VTK_CREATE (vtkXMLImageDataReader, reader);    
     reader->SetFileName (getVtiPath ().c_str ());

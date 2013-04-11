@@ -9,6 +9,7 @@
 #include "Debug.h"
 #include "Foam.h"
 #include "Simulation.h"
+#include "OpenGLUtils.h"
 #include "ParsingData.h"
 #include "Settings.h"
 #include "ViewSettings.h"
@@ -633,9 +634,16 @@ const vector<T1>& Simulation::GetT1 (
 }
 
 vtkSmartPointer<vtkImageData> Simulation::GetT1KDE (
-    size_t timeStep, size_t subStep, int t1Shift) const
+    size_t timeStep, size_t subStep, int t1Shift, 
+    float sigmaInBubbleDiameters) const
 {
     VTK_CREATE (vtkImageGaussianSource, gs);
+    float bubbleDiameterInPixels = 
+        GetBubbleDiameter () / GetOnePixelInObjectSpace (Is2D ());
+    gs->SetWholeExtent (0, bubbleDiameterInPixels, 0, bubbleDiameterInPixels,
+                        0, bubbleDiameterInPixels);
+    gs->SetMaximum (1.0);
+    gs->SetStandardDeviation (sigmaInBubbleDiameters * bubbleDiameterInPixels);
 }
 
 
@@ -689,7 +697,7 @@ float Simulation::GetBubbleDiameter () const
     const Foam& foam = GetFoam (0);
     if (foam.GetBodies ().size () == 0)
     {
-        // return a value <> 0 (the program is not functional in this case,
+        // return a value != 0 (the program is not functional in this case,
         // so the value is not used)
         return 1;
     }
