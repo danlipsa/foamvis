@@ -62,7 +62,7 @@ public:
 	const DmpObjectInfo& dmpObjectInfo, 
 	const vector<ForceNamesOneObject>& forceNames,
 	bool useOriginal, DataProperties* dataProperties, 
-	Foam::ParametersOperation parametersOperation,
+	Foam::ParametersOperation parametersOperation, size_t resolution,
 	bool debugParsing = false, bool debugScanning = false) : 
 
         m_dir (qPrintable(dir)), 
@@ -70,6 +70,7 @@ public:
 	m_useOriginal (useOriginal),
 	m_dataProperties (dataProperties), 
 	m_parametersOperation (parametersOperation),
+        m_regularGridResolution (resolution),
 	m_debugParsing (debugParsing),
 	m_debugScanning (debugScanning)
     {
@@ -96,7 +97,7 @@ public:
 		      m_parametersOperation));
 	foam->GetParsingData ().SetDebugParsing (m_debugParsing);
 	foam->GetParsingData ().SetDebugScanning (m_debugScanning);	    
-	foam->SetCachePath (fullPath);
+	foam->SetVtiPath (fullPath, m_regularGridResolution);
 	result = foam->GetParsingData ().Parse (fullPath, foam.get ());
 	if (result != 0)
 	    ThrowException ("Error parsing ", fullPath);
@@ -112,6 +113,7 @@ private:
     const bool m_useOriginal;
     DataProperties* m_dataProperties;
     Foam::ParametersOperation m_parametersOperation;
+    size_t m_regularGridResolution;
     const bool m_debugParsing;
     const bool m_debugScanning;
 };
@@ -679,7 +681,7 @@ void Simulation::ParseDMPs (
     GetFoams ()[0] = ParseDMP (
 	dir.absolutePath (), GetDmpObjectInfo (),
 	GetForcesNames (), OriginalUsed (), GetDataProperties (),
-	Foam::SET_DATA_PROPERTIES,
+	Foam::SET_DATA_PROPERTIES, GetRegularGridResolution (),
 	debugParsing, debugScanning) (*files.begin ());
     QList< boost::shared_ptr<Foam> > foams = QtConcurrent::blockingMapped 
 	< QList < boost::shared_ptr<Foam> > > (
@@ -687,7 +689,8 @@ void Simulation::ParseDMPs (
 	    ParseDMP (	
 		dir.absolutePath (), GetDmpObjectInfo (),
 		GetForcesNames (), OriginalUsed (), GetDataProperties (),
-		Foam::TEST_DATA_PROPERTIES, debugParsing, debugScanning));
+		Foam::TEST_DATA_PROPERTIES, GetRegularGridResolution (),
+                debugParsing, debugScanning));
     if (count_if (foams.constBegin (), foams.constEnd (),
 		  bl::_1 != boost::shared_ptr<Foam>()) != foams.size ())
 	ThrowException ("Could not process all files\n");

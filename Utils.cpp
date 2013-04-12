@@ -544,28 +544,24 @@ QStringList ToQStringList (const vector<string>& v)
 // File path
 // ======================================================================
 
-QString lastName (const QString& path)
-{
-    int slashPos = path.lastIndexOf ('/');
-    QString ret = path;
-    return ret.remove (0, slashPos + 1);
-}
 
-string LastDirFile (const char* fileName)
+string LastDirFile (const char* path)
 {
-    QFileInfo fileInfo (fileName);
-    QDir dir = fileInfo.absoluteDir ();
+    QFileInfo fiFile (path);
+    QFileInfo fiDir (fiFile.absoluteDir ().absolutePath ());
     string filePattern = 
-	(lastName (dir.absolutePath ()) + 
-	 '/' + fileInfo.fileName ()).toStdString ();
+        (fiDir.baseName () + '/' + fiFile.fileName ()).toStdString ();
     return filePattern;
 }
 
-string LastDirFile (const string& fileName)
+void LastDirFile (const char* p, string* dir, string* file)
 {
-    return LastDirFile (fileName.c_str ());
+    string path (p);
+    string ldf = LastDirFile (p);
+    int slashPos = ldf.rfind ('/');
+    *dir = ldf.substr (0, slashPos);
+    *file = ldf.substr (slashPos + 1);
 }
-
 
 string ChangeExtension (const string& path, const char* ext)
 {

@@ -301,7 +301,7 @@ public:
     {
 	return m_attributesInfoElements;
     }
-    void SetCachePath (const string& dmpPath);
+    void SetVtiPath (const string& dmpPath, size_t resolution);
     string GetCacheDir () const;
     string GetDmpName () const;
     void SaveRegularGrid (size_t regularGridResolution, 
@@ -334,7 +334,10 @@ private:
     static void addRedundantAttribute (
 	vtkSmartPointer<vtkImageData> data, size_t attribute);
     
-    string getVtiPath () const;
+    string getVtiPath () const
+    {
+        return m_vtiPath;
+    }
     void getTetraPoints (
 	vtkSmartPointer<vtkPoints>* tetraPoints,
 	vector<boost::shared_ptr<Vertex> >* sortedPoints,
@@ -453,7 +456,7 @@ private:
     DataProperties& m_properties;    
     ParametersOperation m_parametersOperation;
     AttributesInfoElements m_attributesInfoElements;
-    string m_cachePath;
+    string m_vtiPath;
     float m_pressureSubtraction;
 };
 

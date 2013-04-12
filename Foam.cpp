@@ -1176,33 +1176,39 @@ vtkSmartPointer<vtkImageData> Foam::calculateRegularGrid (
     return vtkImageData::SafeDownCast(regularProbe->GetOutput ());
 }
 
-void Foam::SetCachePath (const string& dmpPath)
+void Foam::SetVtiPath (const string& dmpPath, size_t resolution)
 {
-    m_cachePath = Simulation::GetBaseCacheDir () + LastDirFile (dmpPath);
-
-    QFileInfo fi (m_cachePath.c_str ());
-    QDir parentDir = fi.dir ();
-    if (! parentDir.exists ())
+    ostringstream ostr;
+    string dir, file;
+    LastDirFile (dmpPath.c_str (), &dir, &file);
+    ostr << Simulation::GetBaseCacheDir () << dir << "/" << resolution << "/"
+         << file ;
+    m_vtiPath = ChangeExtension (ostr.str (), "vti");
+    QFileInfo fiVtiFile (m_vtiPath.c_str ());
+    QFileInfo fiResolution (fiVtiFile.dir ().absolutePath ());
+    cdbg << fiVtiFile.absoluteFilePath ().toStdString () << endl;
+    cdbg << fiResolution.absoluteFilePath ().toStdString () << endl;
+    if (! fiResolution.exists ())
     {
-        QDir::root ().mkpath (parentDir.absolutePath ());
+        QFileInfo fiSimulationName (fiResolution.dir ().absolutePath ());
+        cdbg << fiSimulationName.absoluteFilePath ().toStdString () << endl;
+        if (! fiSimulationName.exists ())
+            QDir::root ().mkpath (fiSimulationName.absoluteFilePath ());
+        QDir::root ().mkpath (fiResolution.absoluteFilePath ());
     }
 }
 
 string Foam::GetCacheDir () const
 {
-    QFileInfo fi (m_cachePath.c_str ());
-    QDir parentDir = fi.dir ();
-    return parentDir.absolutePath ().toStdString ();
-}
-
-string Foam::getVtiPath () const
-{
-    return ChangeExtension (m_cachePath, "vti");
+    QFileInfo fiVtiFile (m_vtiPath.c_str ());
+    QFileInfo fiResolution (fiVtiFile.dir ().absolutePath ());
+    QFileInfo fiSimulationName (fiResolution.dir ().absolutePath ());
+    return fiSimulationName.absoluteFilePath ().toStdString ();
 }
 
 string Foam::GetDmpName () const
 {
-    return NameFromPath (m_cachePath);
+    return ChangeExtension (NameFromPath (m_vtiPath), "dmp");
 }
 
 boost::shared_ptr<OrientedFace> pairGetSecond (

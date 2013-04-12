@@ -189,8 +189,8 @@ template<typename T> void setPointerValue (T* p, T value)
  */
 string ChangeExtension (const string& path, const char* ext);
 string NameFromPath (const string& path);
-string LastDirFile (const char* fileName);
-string LastDirFile (const string& fileName);
+string LastDirFile (const char* path);
+void LastDirFile (const char* path, string* dir, string* file);
 // @}
 
 /**

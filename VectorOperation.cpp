@@ -89,8 +89,9 @@ void VectorOpVector::operator() (DataAndValidFlag left, DataAndValidFlag right)
     vtkIdType tuples = left.m_data->GetNumberOfTuples ();
     for (vtkIdType i = 0; i < tuples; ++i)
     {
-        //if (! isDataValid (i, left, right))
-        //continue;
+        // if we leave average data, it looks weird for the shear dataset.
+        // if (! isDataValid (i, left, right))
+        // continue;
         boost::array<float, BodyAttribute::MAX_NUMBER_OF_COMPONENTS> leftData;
         boost::array<float, BodyAttribute::MAX_NUMBER_OF_COMPONENTS> rightData;
         left.m_data->GetTupleValue (i, &leftData[0]);
@@ -112,7 +113,8 @@ void VectorOpVector::operator () (G3D::Vector3& left, const G3D::Vector3& right)
 // VectorOpScalar
 // ===========================================================================
 
-void VectorOpScalar::operator() (DataAndValidFlag left, DataAndValidFlag right, double scalar)
+void VectorOpScalar::operator() (
+    DataAndValidFlag left, DataAndValidFlag right, double scalar)
 {
     size_t components = left.m_data->GetNumberOfComponents ();
     vtkIdType tuples = left.m_data->GetNumberOfTuples ();
