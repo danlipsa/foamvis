@@ -148,21 +148,21 @@ boost::array<BodyAttribute::Info, BodyAttribute::COUNT> BodyAttribute::INFO = {{
 	 BodyAttribute::TENSOR_NUMBER_OF_COMPONENTS}
     }};
 
-vtkDataSetAttributes::AttributeTypes BodyAttribute::GetType (size_t attribute)
+
+const char* BodyAttribute::ToString (BodyAttribute::Enum attribute)
 {
-    size_t components = GetNumberOfComponents (attribute);
-    switch (components)
-    {
-    case SCALAR_NUMBER_OF_COMPONENTS:
-	return vtkDataSetAttributes::SCALARS;
-    case VECTOR_NUMBER_OF_COMPONENTS:
-	return vtkDataSetAttributes::VECTORS;
-    case TENSOR_NUMBER_OF_COMPONENTS:
-	return vtkDataSetAttributes::TENSORS;
-    default:
-	return vtkDataSetAttributes::NUM_ATTRIBUTES;
-    }
+    return INFO[attribute - BodyScalar::COUNT].m_name;
 }
+
+
+
+size_t BodyAttribute::GetNumberOfComponents (BodyAttribute::Enum attribute)
+{
+    return INFO[attribute  - BodyScalar::COUNT].m_numberOfComponents;
+}
+
+// Methods BodyAttribute - Generic functions
+// ======================================================================
 
 size_t BodyAttribute::DependsOn (size_t attribute)
 {
@@ -179,12 +179,6 @@ BodyAttribute::Enum BodyAttribute::FromSizeT (size_t i)
     RuntimeAssert (BodyScalar::COUNT <= i && i < COUNT, 
 		   "Value outside of BodyAttribute::Enum: ", i);
     return BodyAttribute::Enum (i);
-}
-
-
-const char* BodyAttribute::ToString (BodyAttribute::Enum attribute)
-{
-    return INFO[attribute - BodyScalar::COUNT].m_name;
 }
 
 string BodyAttribute::ValueToString (size_t attribute, float* value)
@@ -231,12 +225,6 @@ bool BodyAttribute::IsRedundant (size_t attribute)
     return BodyAttribute::DependsOn (attribute) != COUNT;
 }
 
-
-size_t BodyAttribute::GetNumberOfComponents (BodyAttribute::Enum attribute)
-{
-    return INFO[attribute  - BodyScalar::COUNT].m_numberOfComponents;
-}
-
 size_t BodyAttribute::GetNumberOfComponents (size_t attribute)
 {
     if (attribute < BodyScalar::COUNT)
@@ -251,6 +239,22 @@ size_t BodyAttribute::GetNumberOfComponents (size_t attribute)
             "BodyAttribute::GetNumberOfComponents: Invalid attribute", 
             attribute);
         return 0;
+    }
+}
+
+vtkDataSetAttributes::AttributeTypes BodyAttribute::GetType (size_t attribute)
+{
+    size_t components = GetNumberOfComponents (attribute);
+    switch (components)
+    {
+    case SCALAR_NUMBER_OF_COMPONENTS:
+	return vtkDataSetAttributes::SCALARS;
+    case VECTOR_NUMBER_OF_COMPONENTS:
+	return vtkDataSetAttributes::VECTORS;
+    case TENSOR_NUMBER_OF_COMPONENTS:
+	return vtkDataSetAttributes::TENSORS;
+    default:
+	return vtkDataSetAttributes::NUM_ATTRIBUTES;
     }
 }
 

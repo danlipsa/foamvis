@@ -14,12 +14,12 @@ class VectorOperation
 {
 public:
     typedef boost::function<double (double, double)> BinaryOperation;
-    struct ValidData
+    struct DataAndValidFlag
     {
-        ValidData ()
+        DataAndValidFlag ()
         {
         }
-        ValidData (vtkSmartPointer<vtkFloatArray> data,
+        DataAndValidFlag (vtkSmartPointer<vtkFloatArray> data,
                    vtkSmartPointer<vtkCharArray> valid) :
             m_data (data), m_valid (valid)
         {
@@ -59,7 +59,7 @@ public:
     {
     }
     
-    void operator() (ValidData left,ValidData right);
+    void operator() (DataAndValidFlag left,DataAndValidFlag right);
     void operator () (G3D::Vector3& left, const G3D::Vector3& right);
 };
 
@@ -74,7 +74,7 @@ public:
     {
     }
     
-    void operator() (ValidData left, ValidData right, double scalar);
+    void operator() (DataAndValidFlag left, DataAndValidFlag right, double scalar);
 };
 
 void ImageOpImage (

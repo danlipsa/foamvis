@@ -304,7 +304,8 @@ public:
     void SetCachePath (const string& dmpPath);
     string GetCacheDir () const;
     string GetDmpName () const;
-    void SaveRegularGrid (size_t regularGridResolution) const;
+    void SaveRegularGrid (size_t regularGridResolution, 
+                          const G3D::AABox& simulationBB) const;
     void StoreConstraintFaces ();
     vtkSmartPointer<vtkPolyData> GetConstraintFacesPolyData (
 	size_t constraintIndex) const;
@@ -325,7 +326,7 @@ public:
 private:
     vtkSmartPointer<vtkUnstructuredGrid> getTetraGrid () const;
     vtkSmartPointer<vtkImageData> calculateRegularGrid (
-	size_t regularGridResolution) const;
+	size_t regularGridResolution, const G3D::AABox& simulationBB) const;
     vtkSmartPointer<vtkUnstructuredGrid> addCellAttribute (
 	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
 	size_t attribute) const;

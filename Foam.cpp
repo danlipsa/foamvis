@@ -1115,13 +1115,15 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::getTetraGrid () const
     return aTetraGrid;
 }
 
-void Foam::SaveRegularGrid (size_t resolution) const
+void Foam::SaveRegularGrid (size_t resolution, 
+                            const G3D::AABox& simulationBB) const
 {
     string message = string ("Resampling ") + GetDmpName () + " ...\n";
     cdbg << message;
     if (! QFile (getVtiPath ().c_str ()).exists ())
     {
-	vtkSmartPointer<vtkImageData> data = calculateRegularGrid (resolution);
+	vtkSmartPointer<vtkImageData> data = calculateRegularGrid (
+            resolution, simulationBB);
 	VTK_CREATE (vtkXMLImageDataWriter, writer);
 	writer->SetFileName (getVtiPath ().c_str ());
 	writer->SetInputDataObject (data);
@@ -1154,18 +1156,18 @@ void Foam::subtractFromPressureRegularGrid (
 }
 
 vtkSmartPointer<vtkImageData> Foam::calculateRegularGrid (
-    size_t regularGridResolution) const
+    size_t regularGridResolution, const G3D::AABox& simulationBB) const
 {
     // vtkUnstructuredGrid->vtkCellDatatoPointData, vtkImageData->vtkProbeFilter
-     vtkSmartPointer<vtkUnstructuredGrid> tetraFoamCell = getTetraGrid ();
-
+    vtkSmartPointer<vtkUnstructuredGrid> tetraFoamCell = getTetraGrid ();
+    
     VTK_CREATE (vtkCellDataToPointData, cellToPoint);
     cellToPoint->SetInputDataObject (tetraFoamCell);
     int extent[6] = {0, regularGridResolution -1,
                      0, regularGridResolution -1,
                      0, regularGridResolution -1};
     vtkSmartPointer<vtkImageData> regularFoam = 
-	CreateRegularGridNoAttributes (GetBoundingBox (), extent);
+	CreateRegularGridNoAttributes (simulationBB, extent);
 
     VTK_CREATE (vtkProbeFilter, regularProbe);
     regularProbe->SetSourceConnection (cellToPoint->GetOutputPort ());

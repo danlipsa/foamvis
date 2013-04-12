@@ -152,16 +152,19 @@ void WidgetBase::contextMenuEvent (QContextMenuEvent *event)
     G3D::Rect2D scalarBarRect = 
         GetSettings ().GetColorMapScalarRectWithLabels (
             viewNumber, GetViewRect ());
-    G3D::Rect2D velocityBarRect = 
-        GetSettings ().GetColorMapVelocityRectWithLabels (
-            viewNumber, GetViewRect ());
     if (vs.IsScalarShown () && ! vs.IsScalarContext () && 
         scalarBarRect.contains (
             QtToOpenGl (contextMenuPosWindow, m_widget->height ())))
 	contextMenuEventColorMapScalar (&menu);
-    else if (vs.IsVelocityShown () && velocityBarRect.contains (
-                 QtToOpenGl (contextMenuPosWindow, m_widget->height ())))
-        contextMenuEventColorMapVelocity (&menu);
+    else if (vs.IsVelocityShown ())
+    {
+        G3D::Rect2D velocityBarRect = 
+            GetSettings ().GetColorMapVelocityRectWithLabels (
+                viewNumber, GetViewRect ());
+        if (velocityBarRect.contains (
+                QtToOpenGl (contextMenuPosWindow, m_widget->height ())))
+            contextMenuEventColorMapVelocity (&menu);
+    }
     else
 	contextMenuEventView (&menu);
     menu.exec (event->globalPos());

@@ -38,24 +38,24 @@ void logValidPoints (vtkSmartPointer<vtkImageData> data)
 void convertDataToArrays (
     size_t attribute, vtkSmartPointer<vtkImageData> left, 
     vtkSmartPointer<vtkImageData> right,
-    VectorOperation::ValidData* l, VectorOperation::ValidData* r)
+    VectorOperation::DataAndValidFlag* l, VectorOperation::DataAndValidFlag* r)
 {
     const char* attributeName = BodyAttribute::ToString (attribute);
-    *l = VectorOperation::ValidData ( 
+    *l = VectorOperation::DataAndValidFlag ( 
 	vtkFloatArray::SafeDownCast (
 	    left->GetPointData ()->GetArray (attributeName)),
 	vtkCharArray::SafeDownCast (
             left->GetPointData ()->GetArray (VectorOperation::VALID_NAME)));
 
-    *r = VectorOperation::ValidData ( 
+    *r = VectorOperation::DataAndValidFlag ( 
 	vtkFloatArray::SafeDownCast (
 	    right->GetPointData ()->GetArray (attributeName)),
 	vtkCharArray::SafeDownCast (
             right->GetPointData ()->GetArray (VectorOperation::VALID_NAME)));
 }
 
-bool isDataValid (size_t i, VectorOperation::ValidData left, 
-                  VectorOperation::ValidData right)
+bool isDataValid (size_t i, VectorOperation::DataAndValidFlag left, 
+                  VectorOperation::DataAndValidFlag right)
 {
     char leftValid, rightValid;
     left.m_valid->GetTupleValue (i, &leftValid);
@@ -83,14 +83,14 @@ const char* VectorOperation::VALID_NAME = "vtkValidPointMask";
 // VectorOpVector
 //============================================================================
 
-void VectorOpVector::operator() (ValidData left, ValidData right)
+void VectorOpVector::operator() (DataAndValidFlag left, DataAndValidFlag right)
 {
     size_t components = left.m_data->GetNumberOfComponents ();
     vtkIdType tuples = left.m_data->GetNumberOfTuples ();
     for (vtkIdType i = 0; i < tuples; ++i)
     {
-        if (! isDataValid (i, left, right))
-            continue;
+        //if (! isDataValid (i, left, right))
+        //continue;
         boost::array<float, BodyAttribute::MAX_NUMBER_OF_COMPONENTS> leftData;
         boost::array<float, BodyAttribute::MAX_NUMBER_OF_COMPONENTS> rightData;
         left.m_data->GetTupleValue (i, &leftData[0]);
@@ -112,7 +112,7 @@ void VectorOpVector::operator () (G3D::Vector3& left, const G3D::Vector3& right)
 // VectorOpScalar
 // ===========================================================================
 
-void VectorOpScalar::operator() (ValidData left, ValidData right, double scalar)
+void VectorOpScalar::operator() (DataAndValidFlag left, DataAndValidFlag right, double scalar)
 {
     size_t components = left.m_data->GetNumberOfComponents ();
     vtkIdType tuples = left.m_data->GetNumberOfTuples ();
@@ -137,7 +137,7 @@ void ImageOpImage (
     vtkSmartPointer<vtkImageData> right, 
     VectorOperation::BinaryOperation f, size_t attribute)
 {
-    VectorOperation::ValidData l, r;
+    VectorOperation::DataAndValidFlag l, r;
     convertDataToArrays (attribute, left, right, &l, &r);
     VectorOpVector vf (f);
     vf (l, r);
@@ -149,7 +149,7 @@ void ImageOpScalar (
     vtkSmartPointer<vtkImageData> right, float scalar,
     VectorOperation::BinaryOperation f, size_t attribute)
 {
-    VectorOperation::ValidData l, r;
+    VectorOperation::DataAndValidFlag l, r;
     convertDataToArrays (attribute, left, right, &l, &r);
     VectorOpScalar vos(f); 
     vos (l, r, scalar);

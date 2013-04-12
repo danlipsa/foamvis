@@ -220,7 +220,7 @@ void Simulation::Preprocess ()
     {
 	cdbg << "Resampling to a regular grid ..." << endl;
 	f = boost::bind (&Foam::SaveRegularGrid, _1, 
-			 GetRegularGridResolution ());
+			 GetRegularGridResolution (), GetBoundingBox ());
 	MapPerFoam (&f, 1);
     }
     if (m_pressureAdjusted && ! GetFoam (0).HasFreeFace ())
