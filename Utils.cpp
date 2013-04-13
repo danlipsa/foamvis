@@ -97,27 +97,27 @@ G3D::Rect2D toRect2D (G3D::AABox box)
 
 ostream& operator<< (ostream& ostr, const G3D::AABox& box)
 {
-    ostr << "AABox(" << box.low () << ", " << box.high () << ")";
+    ostr << "(" << box.low () << ", " << box.high () << ")";
     return ostr;
 }
 
 ostream& operator<< (ostream& ostr, const G3D::Matrix2& m)
 {
-    ostr << "Matrix2(" << m[0][0] << ", " << m[0][1] << ", "
+    ostr << "(" << m[0][0] << ", " << m[0][1] << ", "
 	 << m[1][0] << ", " << m[1][1] << ")";
     return ostr;
 }
 
 ostream& operator<< (ostream& ostr, const QBox3D& box)
 {
-    ostr << "QBox3D(" << box.minimum () << ", " << box.maximum () << ")";
+    ostr << "(" << box.minimum () << ", " << box.maximum () << ")";
     return ostr;
 }
 
 
 ostream& operator<< (ostream& ostr, const G3D::Rect2D& box)
 {
-    ostr << "Rect2D (" << box.x0y0 () << ", " << box.x1y1 () << ")";
+    ostr << "(" << box.x0y0 () << ", " << box.x1y1 () << ")";
     return ostr;
 }
 
@@ -133,15 +133,15 @@ ostream& operator<< (ostream& ostr, const G3D::Plane& plane)
     G3D::Vector3 normal;
     float distance;
     plane.getEquation (normal, distance);
-    ostr << "Plane (" << normal << ", " << distance << ")";
+    ostr << "(" << normal << ", " << distance << ")";
     return ostr;
 }
 
 
 ostream& operator<< (ostream& ostr, const QColor& color)
 {
-    return ostr << "[" << color.redF () << ", " << color.greenF () << ", "
-		<< color.blueF () << ", " << color.alphaF () << "]";
+    return ostr << "(" << color.redF () << ", " << color.greenF () << ", "
+		<< color.blueF () << ", " << color.alphaF () << ")";
 }
 
 ostream& operator<< (ostream& ostr, const QwtDoubleInterval& interval)
@@ -173,7 +173,7 @@ ostream& operator<< (ostream& ostr, const vector<bool>& v)
 ostream& operator<< (ostream& ostr, const G3D::Matrix4& m)
 {
     return ostr
-	<< "G3D::Matrix4 (" << endl
+	<< "(" << endl
 	<< m.row (0) << endl
 	<< m.row (1) << endl
 	<< m.row (2) << endl
@@ -183,7 +183,7 @@ ostream& operator<< (ostream& ostr, const G3D::Matrix4& m)
 ostream& operator<< (ostream& ostr, const G3D::Matrix3& m)
 {
     return ostr
-	<< "G3D::Matrix3 (" << endl
+	<< "(" << endl
 	<< m.row (0) << endl
 	<< m.row (1) << endl
 	<< m.row (2) << ")" << endl;
@@ -191,7 +191,8 @@ ostream& operator<< (ostream& ostr, const G3D::Matrix3& m)
 
 ostream& operator<< (ostream& ostr, const G3D::Vector4& v)
 {
-    return ostr << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3];
+    return ostr << "(" << v[0] << ", " 
+                << v[1] << ", " << v[2] << ", " << v[3] << ")";
 }
 
 ostream& operator<< (ostream& ostr, const QVector3D& v)

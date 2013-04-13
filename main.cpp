@@ -75,6 +75,7 @@ void parseOptions (
     for (size_t i = 0; i < simulationsCount; ++i)
     {
 	Simulation& simulation = simulationGroup->GetSimulation (i);
+        simulation.SetBoundingBoxAllTimeSteps (co[i]->m_simulationBoundingBoxAllTimeSteps);
 	if (co[i]->m_vm.count (Option::m_name[Option::RESOLUTION]))
 	    simulation.SetRegularGridResolution (co[i]->m_resolution);
 	if (co[i]->m_vm.count (Option::m_name[Option::T1S]))

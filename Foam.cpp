@@ -1186,12 +1186,9 @@ void Foam::SetVtiPath (const string& dmpPath, size_t resolution)
     m_vtiPath = ChangeExtension (ostr.str (), "vti");
     QFileInfo fiVtiFile (m_vtiPath.c_str ());
     QFileInfo fiResolution (fiVtiFile.dir ().absolutePath ());
-    cdbg << fiVtiFile.absoluteFilePath ().toStdString () << endl;
-    cdbg << fiResolution.absoluteFilePath ().toStdString () << endl;
     if (! fiResolution.exists ())
     {
         QFileInfo fiSimulationName (fiResolution.dir ().absolutePath ());
-        cdbg << fiSimulationName.absoluteFilePath ().toStdString () << endl;
         if (! fiSimulationName.exists ())
             QDir::root ().mkpath (fiSimulationName.absoluteFilePath ());
         QDir::root ().mkpath (fiResolution.absoluteFilePath ());

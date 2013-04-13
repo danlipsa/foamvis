@@ -360,10 +360,11 @@ void WidgetGl::createActions ()
     connect(m_actionInfoBody.get (), SIGNAL(triggered()), this, 
 	    SLOT(InfoBody ()));
 
-    m_actionInfoFoam = boost::make_shared<QAction> (tr("&Foam"), this);
-    m_actionInfoFoam->setStatusTip(tr("Info foam"));
-    connect(m_actionInfoFoam.get (), SIGNAL(triggered()), this, 
-	    SLOT(InfoFoam ()));
+    m_actionInfoSimulation = 
+        boost::make_shared<QAction> (tr("&Simulation"), this);
+    m_actionInfoSimulation->setStatusTip(tr("Info simulation"));
+    connect(m_actionInfoSimulation.get (), SIGNAL(triggered()), this, 
+	    SLOT(InfoSimulation ()));
 
     m_actionInfoOpenGL = boost::make_shared<QAction> (
 	tr("&OpenGL"), this);
@@ -2502,7 +2503,7 @@ void WidgetGl::contextMenuEventView (QMenu* menu) const
 	menuInfo->addAction (m_actionInfoEdge.get ());
 	menuInfo->addAction (m_actionInfoFace.get ());
 	menuInfo->addAction (m_actionInfoBody.get ());
-	menuInfo->addAction (m_actionInfoFoam.get ());
+	menuInfo->addAction (m_actionInfoSimulation.get ());
 	menuInfo->addAction (m_actionInfoOpenGL.get ());
 	menuInfo->addAction (m_actionInfoSelectedBodies.get ());
     }
@@ -3497,7 +3498,7 @@ void WidgetGl::ToggledAverageAroundAllowRotation (bool checked)
 }
 
 
-void WidgetGl::InfoFoam ()
+void WidgetGl::InfoSimulation ()
 {
     makeCurrent ();
     ShowMessageBox (GetSimulation ().ToHtml ().c_str ());

@@ -364,7 +364,7 @@ void PipelineAverage3D::fromViewVelocityGlyph (
     const ViewSettings& vs = base.GetViewSettings (viewNumber);
     m_velocityGlyphSeeds->SetNumberOfPoints (vs.GetGlyphSeedsCount ());
 
-    G3D::AABox b = base.GetSimulation (viewNumber).GetBoundingBox ();
+    G3D::AABox b = base.GetSimulation (viewNumber).GetBoundingBoxAllTimeSteps ();
     G3D::Vector3 c = b.center ();
     m_velocityGlyphSeeds->SetCenter (c.x, c.y, c.z);
     m_velocityGlyphSeeds->SetRadius (b.extent ().max () / 2);

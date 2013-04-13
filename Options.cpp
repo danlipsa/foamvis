@@ -14,19 +14,24 @@
 // ======================================================================
 
 template<typename Tokenizer, typename TokenizerIterator>
-class ReadStringToken
+class ReadToken
 {
 public:
-    ReadStringToken (Tokenizer& tok, const string& errorMessage) :
+    ReadToken (Tokenizer& tok, const string& errorMessage) :
 	m_tok (tok), m_errorMessage (errorMessage)
     {
     }
-
-    void operator() (string* dest, TokenizerIterator* it)
+    
+    template<typename T>
+    void operator() (T* dest, TokenizerIterator* it)
     {
-	if (++(*it) == m_tok.end ())
-	    throw invalid_argument (m_errorMessage);
-	*dest = *(*it);
+        if (*it == m_tok.end ())
+            throw invalid_argument (m_errorMessage);
+        istringstream istr;
+        istr.str (*(*it));
+        cdbg << istr.str () << endl;
+        istr >> (*dest);
+        ++(*it);
     }
 private:
     Tokenizer& m_tok;
@@ -57,78 +62,6 @@ void filterAndExpandWildcards (vector<string>* fileNames, string filter)
 	++itSrc;
 	++itDest;
     }
-}
-
-void validate(boost::any& v, const std::vector<std::string>& values,
-              DmpObjectInfo* ignore1, int ignore2)
-{
-    (void) ignore1;(void)ignore2;
-    DmpObjectInfo crn;
-    boost::tokenizer<> tok (values[0]);
-    istringstream istr;
-    string errorMessage ("--constraint-rotation needs four parameters.");
-    boost::tokenizer<>::iterator it = tok.begin ();
-    if (it == tok.end ())
-	throw invalid_argument (errorMessage);
-    istr.str (*it);
-    istr >> crn.m_constraintIndex;
-    ReadStringToken<boost::tokenizer<>, boost::tokenizer<>::iterator> 
-        readStringToken (tok, errorMessage);
-    readStringToken (&crn.m_xName, &it);
-    readStringToken (&crn.m_yName, &it);
-    readStringToken (&crn.m_angleName, &it);
-    v = boost::any(crn);
-}
-
-
-void validate(boost::any& v, const std::vector<std::string>& values,
-              ForceNamesOneObject* ignore1, int ignore2)
-{
-    (void)ignore1;(void)ignore2;
-    typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
-    boost::char_separator<char> sep(",", "", boost::keep_empty_tokens);
-    Tokenizer tok (values[0], sep);
-    ForceNamesOneObject fn;
-    istringstream istr;
-    string errorMessage ("--force needs 7 parameters.");    
-    Tokenizer::iterator it = tok.begin ();
-    if (it == tok.end ())
-	throw invalid_argument (errorMessage);
-    istr.str (*it);
-    istr >> fn.m_bodyId;
-    --fn.m_bodyId;
-    ReadStringToken<Tokenizer, Tokenizer::iterator> 
-        readStringToken (tok, errorMessage);
-    readStringToken (&fn.m_networkForceName[0], &it);
-    readStringToken (&fn.m_networkForceName[1], &it);
-    readStringToken (&fn.m_networkForceName[2], &it);
-    readStringToken (&fn.m_pressureForceName[0], &it);
-    readStringToken (&fn.m_pressureForceName[1], &it);
-    readStringToken (&fn.m_pressureForceName[2], &it);
-    try
-    {
-	// these can be omitted
-	readStringToken (&fn.m_networkTorqueName, &it);
-	readStringToken (&fn.m_pressureTorqueName, &it);
-    }
-    catch (invalid_argument& e)
-    {
-    }
-    v = boost::any(fn);    
-}
-
-void validate(boost::any& v, const std::vector<std::string>& values,
-              Labels* ignore1, int ignore2)
-{
-    (void)ignore1;(void)ignore2;
-    Labels labels;
-    typedef boost::tokenizer< boost::char_separator<char> > tokenizer;
-    boost::char_separator<char> sep(", ");
-    tokenizer tok (values[0], sep);
-    for (tokenizer::iterator it = tok.begin ();
-	 it != tok.end (); ++it)
-	labels.m_values.push_back (*it);
-    v = boost::any(labels);
 }
 
 po::options_description getIniOptions (
@@ -274,6 +207,94 @@ void questionMarkCount (const vector<string>& parameters, vector<size_t>* c)
     }
 }
 
+// validate functions for boost::program_options
+// ======================================================================
+
+void validate(boost::any& v, const std::vector<std::string>& values,
+              DmpObjectInfo* ignore1, int ignore2)
+{
+    (void)ignore1;(void)ignore2;
+    DmpObjectInfo crn;
+    boost::tokenizer<> tok (values[0]);
+    boost::tokenizer<>::iterator it = tok.begin ();
+    ReadToken<boost::tokenizer<>, boost::tokenizer<>::iterator> 
+        readToken (tok, "--constraint-rotation needs four parameters.");
+    readToken (&crn.m_constraintIndex, &it);
+    readToken (&crn.m_xName, &it);
+    readToken (&crn.m_yName, &it);
+    readToken (&crn.m_angleName, &it);
+    v = boost::any(crn);
+}
+
+namespace G3D
+{
+void validate(boost::any& v, const std::vector<std::string>& values,
+              G3D::AABox* ignore1, int ignore2)
+{
+    (void)ignore1;(void)ignore2;
+    typedef boost::tokenizer<boost::escaped_list_separator<char> > Tokenizer;
+    Tokenizer tok (values[0]);
+    Tokenizer::iterator it = tok.begin ();
+    ReadToken<Tokenizer, Tokenizer::iterator> 
+        readToken (tok, "--simulation-box needs six parameters.");
+    float x0 = 0, y0 = 0, z0 = 0, x1 = 0, y1 = 0, z1 = 0;
+    readToken (&x0, &it);
+    readToken (&y0, &it);
+    readToken (&z0, &it);
+    readToken (&x1, &it);
+    readToken (&y1, &it);
+    readToken (&z1, &it);
+    v = boost::any (
+        G3D::AABox (G3D::Vector3 (x0, y0, z0), G3D::Vector3 (x1, y1, z1)));
+}
+};
+
+void validate(boost::any& v, const std::vector<std::string>& values,
+              ForceNamesOneObject* ignore1, int ignore2)
+{
+    (void)ignore1;(void)ignore2;
+    typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+    boost::char_separator<char> sep(",", "", boost::keep_empty_tokens);
+    Tokenizer tok (values[0], sep);
+    ForceNamesOneObject fn;
+    ReadToken<Tokenizer, Tokenizer::iterator> 
+        readToken (tok, "--force needs 7 parameters.");
+    Tokenizer::iterator it = tok.begin ();
+    readToken (&fn.m_bodyId, &it);
+    --fn.m_bodyId;
+    readToken (&fn.m_networkForceName[0], &it);
+    readToken (&fn.m_networkForceName[1], &it);
+    readToken (&fn.m_networkForceName[2], &it);
+    readToken (&fn.m_pressureForceName[0], &it);
+    readToken (&fn.m_pressureForceName[1], &it);
+    readToken (&fn.m_pressureForceName[2], &it);
+    try
+    {
+	// these can be omitted
+	readToken (&fn.m_networkTorqueName, &it);
+	readToken (&fn.m_pressureTorqueName, &it);
+    }
+    catch (invalid_argument& e)
+    {
+    }
+    v = boost::any(fn);    
+}
+
+void validate(boost::any& v, const std::vector<std::string>& values,
+              Labels* ignore1, int ignore2)
+{
+    (void)ignore1;(void)ignore2;
+    Labels labels;
+    typedef boost::tokenizer< boost::char_separator<char> > tokenizer;
+    boost::char_separator<char> sep(", ");
+    tokenizer tok (values[0], sep);
+    for (tokenizer::iterator it = tok.begin ();
+	 it != tok.end (); ++it)
+	labels.m_values.push_back (*it);
+    v = boost::any(labels);
+}
+
+
 // Option
 // ======================================================================
 
@@ -296,6 +317,7 @@ const char* Option::m_name[] = {
     "resolution",
     "rotation-2d",
     "simulation",
+    "simulation-box",
     "t1s",
     "t1s-lower",
     "ticks-for-timestep",
@@ -395,11 +417,11 @@ CommonOptions::CommonOptions () :
     m_rotation2D (0),
     m_commonOptions (
 	getCommonAndHiddenOptions (
-	    &m_fileNames, 
-	    getDescription (&m_t1sFile, &m_dmpObjectInfo, &m_forceNames, 
-			    &m_ticksForTimeStep, &m_resolution,
-			    &m_rotation2D, 
-			    &m_reflectionAxis)))
+            &m_fileNames, 
+            getDescription (
+                &m_t1sFile, &m_dmpObjectInfo, &m_forceNames, 
+                &m_ticksForTimeStep, &m_simulationBoundingBoxAllTimeSteps, 
+                &m_resolution, &m_rotation2D, &m_reflectionAxis)))
 {
     m_positionalOptions.add (Option::m_name[Option::DMP_FILES], -1);    
 }
@@ -456,7 +478,7 @@ po::options_description CommonOptions::getDescription (
     string* t1sFile,
     DmpObjectInfo* dmpObjectInfo,
     vector<ForceNamesOneObject>* forceNames,
-    size_t* ticksForTimeStep, size_t* resolution,
+    size_t* ticksForTimeStep, G3D::AABox* simulationBox, size_t* resolution,
     int *rotation2D,
     size_t *reflectionAxis)
 {
@@ -521,6 +543,12 @@ po::options_description CommonOptions::getDescription (
 	 "rotate around Z axes.\n"
 	 "arg=<angle>, where <angle> can be 90 or -90, positive rotation is "
 	 "counterclockwise.")
+	(Option::m_name[Option::SIMULATION_BOX],
+	 po::value<G3D::AABox>(simulationBox), 
+	 "specifies the simulation bounding box.\n"
+	 "where arg=\"<x0>,<y0>,<z0>,<x1>,<y1>,<z1>\""
+         "the lower left and upper right corners of the bounding box. "
+         "Used for 3D when caching a regular grid on disk.")
 	(Option::m_name[Option::T1S],
 	 po::value<string>(t1sFile), 
 	 "reads T1 positions from file.\n"

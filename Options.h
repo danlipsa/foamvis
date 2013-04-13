@@ -35,6 +35,7 @@ struct Option
 	RESOLUTION,
 	ROTATION_2D,
 	SIMULATION,
+        SIMULATION_BOX,
 	T1S,
 	T1S_LOWER,
 	TICKS_FOR_TIMESTEP,
@@ -82,14 +83,14 @@ public:
     void read (string parameters, string filter);
     static po::options_description getDescription ()
     {
-	return getDescription (0, 0, 0, 0, 0, 0, 0);
+	return getDescription (0, 0, 0, 0, 0, 0, 0, 0);
     }
 
     static po::options_description getDescription (
 	string* t1sFile,
 	DmpObjectInfo* dmpObjectInfo,
 	vector<ForceNamesOneObject>* forcesNames,
-	size_t* ticksForTimeStep, size_t* resolution,
+	size_t* ticksForTimeStep, G3D::AABox* simulationBox, size_t* resolution,
 	int* rotation2D, size_t* reflectionAxis);
 
 public:
@@ -99,6 +100,7 @@ public:
     vector<ForceNamesOneObject> m_forceNames;
     size_t m_ticksForTimeStep;
     size_t m_reflectionAxis;
+    G3D::AABox m_simulationBoundingBoxAllTimeSteps;
     size_t m_resolution;
     int m_rotation2D;
     po::variables_map m_vm;

@@ -317,7 +317,7 @@ public Q_SLOTS:
     void InfoEdge ();
     void InfoFace ();
     void InfoBody ();
-    void InfoFoam ();
+    void InfoSimulation ();
     void InfoOpenGL ();
     void InfoSelectedBodies ();
     void ShowNeighbors ();
@@ -699,7 +699,7 @@ private:
     boost::shared_ptr<QAction> m_actionInfoEdge;
     boost::shared_ptr<QAction> m_actionInfoFace;
     boost::shared_ptr<QAction> m_actionInfoBody;
-    boost::shared_ptr<QAction> m_actionInfoFoam;
+    boost::shared_ptr<QAction> m_actionInfoSimulation;
     boost::shared_ptr<QAction> m_actionInfoOpenGL;
     boost::shared_ptr<QAction> m_actionInfoSelectedBodies;
 

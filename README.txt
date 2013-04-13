@@ -14,7 +14,7 @@ Release log
                      foam bounding box but averaging was done using a 
                      simulation box.
                      WARNING: saving and loading of the regular grid has to
-                     be done with the same number of steps (same simulation 
+                     be done with the same number of steps (the same simulation 
                      bounding box)
         -
 

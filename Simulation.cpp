@@ -179,6 +179,14 @@ void Simulation::CalculateBoundingBox ()
     m_boundingBoxTorus.set (low, high);
 }
 
+G3D::AABox Simulation::GetBoundingBoxAllTimeSteps () const
+{
+    if (m_boundingBoxAllTimeSteps == G3D::AABox::zero ())
+        return m_boundingBox;
+    else
+        return m_boundingBoxAllTimeSteps;
+}
+
 void Simulation::calculateBodyWraps ()
 {
     if (m_foams.size () <= 1)
@@ -221,8 +229,9 @@ void Simulation::Preprocess ()
     if (Is3D () && GetRegularGridResolution () != 0)
     {
 	cdbg << "Resampling to a regular grid ..." << endl;
-	f = boost::bind (&Foam::SaveRegularGrid, _1, 
-			 GetRegularGridResolution (), GetBoundingBox ());
+	f = boost::bind (
+            &Foam::SaveRegularGrid, _1, 
+            GetRegularGridResolution (), GetBoundingBoxAllTimeSteps ());
 	MapPerFoam (&f, 1);
     }
     if (m_pressureAdjusted && ! GetFoam (0).HasFreeFace ())
@@ -461,6 +470,9 @@ string Simulation::ToHtml () const
     ostringstream ostr;
     ostr << 
 	"<table border>"
+        "<tr><th></th><th>First</th><th>Last</th>" 
+	"<tr><th>Time step</th><td>" 
+	 << 0 << "</td><td>" << (timeSteps - 1) << "</td></tr>"
 	"<tr><th>Bodies</th><td>" 
 	 << bodies[0] << "</td><td>" << bodies[1] << "</td></tr>"
 	"<tr><th>Faces</th><td>" 
@@ -469,9 +481,8 @@ string Simulation::ToHtml () const
 	 << edges[0] << "</td><td>" << edges[1] << "</td></tr>"
 	"<tr><th>Vertices</th><td>" 
 	 << vertices[0] << "</td><td>" << vertices[1] << "</td></tr>"
-	"<tr><th>Time step</th><td>" 
-	 << 0 << "</td><td>" << (timeSteps - 1) << "</td></tr>"
-	"</table>" << endl;
+	"</table>"
+        "Bounding box: " << GetBoundingBox () << endl;
     return ostr.str ();
 }
 

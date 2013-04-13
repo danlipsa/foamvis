@@ -51,6 +51,11 @@ public:
     {
 	return m_boundingBox;
     }
+    void SetBoundingBoxAllTimeSteps (const G3D::AABox& box)
+    {
+        m_boundingBoxAllTimeSteps = box;
+    }
+    G3D::AABox GetBoundingBoxAllTimeSteps () const;
     const G3D::AABox& GetBoundingBoxTorus () const
     {
 	return m_boundingBoxTorus;
@@ -278,6 +283,7 @@ private:
      * The AABox for this vector of Foam objects
      */
     G3D::AABox m_boundingBox;
+    G3D::AABox m_boundingBoxAllTimeSteps;
     G3D::AABox m_boundingBoxTorus;
     /**
      * This is the name specified in the ini file.
