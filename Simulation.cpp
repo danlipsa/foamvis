@@ -249,6 +249,13 @@ void Simulation::Preprocess ()
     }
 }
 
+boost::array<int, 6> Simulation::GetExtentResolution () const
+{
+    return ::GetExtentResolution (
+        GetRegularGridResolution (), GetBoundingBoxAllTimeSteps ());
+}
+
+
 void Simulation::moveInsideOriginalDomain (
     T1* tc, const OOBox& originalDomain)
 {

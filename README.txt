@@ -16,7 +16,9 @@ Release log
                      WARNING: saving and loading of the regular grid has to
                      be done with the same number of steps (the same simulation 
                      bounding box)
-        -
+        - added parameter --simulation-box that specifies the simulation box
+          for all time steps. This allows loading just a few time steps and
+          having the regular grid correctly rendered.
 
 0.8.2740
         - update to vtk-6.0-20130125.tgz

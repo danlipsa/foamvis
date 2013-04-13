@@ -212,6 +212,8 @@ public:
     void SetRegularGridResolution (size_t resolution);
     static string GetBaseCacheDir ();
     string GetCacheDir () const;
+    boost::array<int, 6> GetExtentResolution () const;
+
 
     /**
      * @{

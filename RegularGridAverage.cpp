@@ -39,15 +39,13 @@ void RegularGridAverage::AverageInit ()
 {
     Average::AverageInit ();
     const Simulation& simulation = GetSimulation ();
-    size_t regularGridResolution = simulation.GetRegularGridResolution ();
-    int extent[6] = {0, regularGridResolution -1,
-                     0, regularGridResolution -1,
-                     0, regularGridResolution -1};
-    m_sum = CreateEmptyRegularGrid (GetBodyAttribute (), extent, 
-                                    simulation.GetBoundingBoxAllTimeSteps ());
+    m_sum = CreateEmptyRegularGrid (
+        GetBodyAttribute (), &simulation.GetExtentResolution ()[0],
+        simulation.GetBoundingBoxAllTimeSteps ());
     AddValidPointMask (m_sum);
     m_average = CreateEmptyRegularGrid (
-	GetBodyAttribute (), extent, simulation.GetBoundingBoxAllTimeSteps ());
+	GetBodyAttribute (), &simulation.GetExtentResolution ()[0], 
+        simulation.GetBoundingBoxAllTimeSteps ());
     AddValidPointMask (m_average);
     if (GetBodyAttribute () == BodyAttribute::VELOCITY)
         m_average->GetPointData ()->SetActiveScalars (
@@ -100,13 +98,10 @@ void RegularGridAverage::opStep (
 	G3D::Vector3 origin (regularFoam->GetOrigin ());
 	origin += translate;
 	regularFoam->SetOrigin (origin.x, origin.y, origin.z);
-        size_t regularGridResolution = simulation.GetRegularGridResolution ();
-        int extent[6] = {0, regularGridResolution -1,
-                         0, regularGridResolution -1,
-                         0, regularGridResolution -1};
 	vtkSmartPointer<vtkImageData> translatedRegularFoam = 
 	    CreateEmptyRegularGrid (
-		GetBodyAttribute (), extent, 
+		GetBodyAttribute (), 
+                &simulation.GetExtentResolution ()[0],
 		simulation.GetBoundingBoxAllTimeSteps ());
 	VTK_CREATE (vtkProbeFilter, translatedDataProbe);
 	translatedDataProbe->SetSourceData (regularFoam);

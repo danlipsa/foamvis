@@ -29,7 +29,6 @@ public:
             throw invalid_argument (m_errorMessage);
         istringstream istr;
         istr.str (*(*it));
-        cdbg << istr.str () << endl;
         istr >> (*dest);
         ++(*it);
     }

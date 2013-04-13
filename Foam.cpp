@@ -1160,14 +1160,13 @@ vtkSmartPointer<vtkImageData> Foam::calculateRegularGrid (
 {
     // vtkUnstructuredGrid->vtkCellDatatoPointData, vtkImageData->vtkProbeFilter
     vtkSmartPointer<vtkUnstructuredGrid> tetraFoamCell = getTetraGrid ();
+    boost::array<int, 6> extentResolution = GetExtentResolution (
+        regularGridResolution, simulationBB);
     
     VTK_CREATE (vtkCellDataToPointData, cellToPoint);
     cellToPoint->SetInputDataObject (tetraFoamCell);
-    int extent[6] = {0, regularGridResolution -1,
-                     0, regularGridResolution -1,
-                     0, regularGridResolution -1};
     vtkSmartPointer<vtkImageData> regularFoam = 
-	CreateRegularGridNoAttributes (simulationBB, extent);
+	CreateRegularGridNoAttributes (simulationBB, &extentResolution[0]);
 
     VTK_CREATE (vtkProbeFilter, regularProbe);
     regularProbe->SetSourceConnection (cellToPoint->GetOutputPort ());

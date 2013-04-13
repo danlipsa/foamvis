@@ -451,6 +451,21 @@ G3D::Matrix3 GetAxisRotation (
     return rotation;
 }
 
+boost::array<int, 6> GetExtentResolution (
+    size_t resolution, const G3D::AABox& bb)
+{
+    G3D::Vector3 extentObject = bb.extent ();
+    float maxExtentObject = extentObject.max ();
+    boost::array<int, 6> extentResolution = {{
+            0, ceil (extentObject.x / maxExtentObject * resolution)  - 1,
+            0, ceil (extentObject.y / maxExtentObject * resolution) - 1,
+            0, ceil (extentObject.z / maxExtentObject * resolution) - 1
+        }};
+    return extentResolution;
+}
+
+
+
 G3D::Matrix3 GetAxisRotation (const G3D::Vector3& v, G3D::Vector3::Axis axis)
 {
     return GetAxisRotation (G3D::Vector3::zero (), v, axis);

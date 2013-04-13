@@ -123,6 +123,9 @@ typedef boost::array<size_t, 3> AxisOrder;
  * All values in this 2d array are indexes in m_vector.
  */
 const boost::array<AxisOrder,3>& GetAxisOrder ();
+boost::array<int, 6> GetExtentResolution (
+    size_t resolution, const G3D::AABox& bb);
+
 // @}
 
 
