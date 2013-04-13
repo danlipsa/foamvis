@@ -213,7 +213,7 @@ public:
     static string GetBaseCacheDir ();
     string GetCacheDir () const;
     boost::array<int, 6> GetExtentResolution () const;
-
+    float GetOneVoxelInObjectSpace () const;
 
     /**
      * @{

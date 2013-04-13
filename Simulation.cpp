@@ -121,6 +121,21 @@ private:
 const vector<T1> NO_T1S;
 const char* CACHE_DIR_NAME = ".foamvis";
 
+vtkSmartPointer<vtkImageData> doubleToFloatArray (vtkImageData* p)
+{
+    vtkDataArray* doubleArray = p->GetPointData ()->GetArray (0);
+    VTK_CREATE (vtkFloatArray, floatArray);
+    floatArray->SetName (OtherScalar::ToString (OtherScalar::T1_KDE));
+    floatArray->SetNumberOfComponents (1);
+    floatArray->SetNumberOfTuples (doubleArray->GetNumberOfTuples ());
+    for (vtkIdType i = 0; i < floatArray->GetNumberOfTuples (); ++i)
+        floatArray->SetValue (i, doubleArray->GetTuple (i)[0]);
+    p->GetPointData ()->RemoveArray (0);
+    p->GetPointData ()->AddArray (floatArray);
+    return p;
+}
+
+
 // Members: Simulation
 // ======================================================================
 
@@ -253,6 +268,12 @@ boost::array<int, 6> Simulation::GetExtentResolution () const
 {
     return ::GetExtentResolution (
         GetRegularGridResolution (), GetBoundingBoxAllTimeSteps ());
+}
+
+float Simulation::GetOneVoxelInObjectSpace () const
+{
+    G3D::Vector3 extentObject = GetBoundingBoxAllTimeSteps ().extent ();
+    return extentObject.max () / GetRegularGridResolution ();
 }
 
 
@@ -657,15 +678,22 @@ vtkSmartPointer<vtkImageData> Simulation::GetT1KDE (
     size_t timeStep, size_t subStep, int t1Shift, 
     float sigmaInBubbleDiameters) const
 {
-    VTK_CREATE (vtkImageGaussianSource, gs);
     float bubbleDiameterInPixels = 
-        GetBubbleDiameter () / GetOnePixelInObjectSpace (Is2D ());
-    gs->SetWholeExtent (0, GetRegularGridResolution (), 
-                        0, GetRegularGridResolution (),
-                        0, GetRegularGridResolution ());
+        GetBubbleDiameter () / GetOneVoxelInObjectSpace ();
+    boost::array<int, 6> extentResolution = GetExtentResolution ();
+    G3D::Vector3 t1Position = GetT1 (timeStep, t1Shift)[subStep].GetPosition ();
+    t1Position -= GetBoundingBoxAllTimeSteps ().low ();
+    t1Position /= GetOneVoxelInObjectSpace ();
+
+    VTK_CREATE (vtkImageGaussianSource, gs);
+    gs->SetWholeExtent (
+        extentResolution[0], extentResolution[1], extentResolution[2],
+        extentResolution[3], extentResolution[4], extentResolution[5]);
+    gs->SetCenter (t1Position.x, t1Position.y, t1Position.z);
     gs->SetMaximum (1.0);
     gs->SetStandardDeviation (sigmaInBubbleDiameters * bubbleDiameterInPixels);
-    return vtkSmartPointer<vtkImageData> ();
+    gs->Update ();
+    return doubleToFloatArray (gs->GetOutput ());
 }
 
 

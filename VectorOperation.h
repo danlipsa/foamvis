@@ -20,7 +20,7 @@ public:
         {
         }
         DataAndValidFlag (vtkSmartPointer<vtkFloatArray> data,
-                   vtkSmartPointer<vtkCharArray> valid) :
+                          vtkSmartPointer<vtkCharArray> valid) :
             m_data (data), m_valid (valid)
         {
         }
