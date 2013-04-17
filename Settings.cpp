@@ -97,7 +97,6 @@ Settings::Settings (
     m_barLarge (false),
     m_velocityFieldSaved (false),
     m_barLabelsShown (true),
-    m_axesShown (false),
     m_interactionMode (InteractionMode::ROTATE),
     m_interactionObject (InteractionObject::FOCUS)
 {

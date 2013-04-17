@@ -54,13 +54,13 @@ void convertDataToArrays (
             right->GetPointData ()->GetArray (VectorOperation::VALID_NAME)));
 }
 
-bool isDataValid (size_t i, VectorOperation::DataAndValidFlag left, 
-                  VectorOperation::DataAndValidFlag right)
+bool isValidSetData (size_t i, VectorOperation::DataAndValidFlag left, 
+                     VectorOperation::DataAndValidFlag right)
 {
     char leftValid, rightValid;
     left.m_valid->GetTupleValue (i, &leftValid);
     right.m_valid->GetTupleValue (i, &rightValid);
-    if (! leftValid || ! rightValid)
+    if (! leftValid && ! rightValid)
     {
         char c (0);
         left.m_valid->SetTupleValue (i, &c);
@@ -89,9 +89,8 @@ void VectorOpVector::operator() (DataAndValidFlag left, DataAndValidFlag right)
     vtkIdType tuples = left.m_data->GetNumberOfTuples ();
     for (vtkIdType i = 0; i < tuples; ++i)
     {
-        // if we leave average data, it looks weird for the shear dataset.
-        // if (! isDataValid (i, left, right))
-        // continue;
+        if (! isValidSetData (i, left, right))
+            continue;
         boost::array<float, BodyAttribute::MAX_NUMBER_OF_COMPONENTS> leftData;
         boost::array<float, BodyAttribute::MAX_NUMBER_OF_COMPONENTS> rightData;
         left.m_data->GetTupleValue (i, &leftData[0]);
@@ -120,7 +119,7 @@ void VectorOpScalar::operator() (
     vtkIdType tuples = left.m_data->GetNumberOfTuples ();
     for (vtkIdType i = 0; i < tuples; ++i)
     {
-        if (! isDataValid (i, left, right))
+        if (! isValidSetData (i, left, right))
             continue;
         boost::array<float, BodyAttribute::MAX_NUMBER_OF_COMPONENTS> leftData;
         boost::array<float, BodyAttribute::MAX_NUMBER_OF_COMPONENTS> rightData;

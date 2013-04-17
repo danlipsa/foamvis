@@ -187,7 +187,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
     ViewSettings& vs = this->m_settings.GetViewSettings (viewNumber);
     if (this->m_focus == DisplayElement::FOCUS && ! vs.IsScalarContext ())
     {
-	if (this->m_propertySetter.GetBodyOrFaceScalar () == 
+	if (this->m_propertySetter.GetBodyOrOtherScalar () == 
 	    OtherScalar::DMP_COLOR)
 	{
 	    glColor (of->GetColor (
@@ -200,7 +200,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	{
 	    boost::shared_ptr<Body> body = of->GetAdjacentBody ().GetBody ();
 	    BodyScalar::Enum property = BodyScalar::FromSizeT (
-		this->m_propertySetter.GetBodyOrFaceScalar ());
+		this->m_propertySetter.GetBodyOrOtherScalar ());
 	    glColor (Qt::white);
 	    bool deduced;
 	    bool exists = body->HasScalarValue (property, &deduced);

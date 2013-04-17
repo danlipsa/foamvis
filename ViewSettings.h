@@ -55,14 +55,14 @@ public:
 	m_viewType = viewType;
     }
 
-    size_t GetBodyOrFaceScalar () const
-    {
-	return m_bodyOrFaceScalar;
-    }
     void SetBodyOrFaceScalar (size_t bodyOrFaceScalar)
     {
 	m_bodyOrFaceScalar = bodyOrFaceScalar;
     }
+    /**
+     * BodyOrFace scalar or T1_KDE
+     */
+    size_t GetBodyOrOtherScalar () const;
     
     StatisticsType::Enum GetStatisticsType () const
     {
@@ -654,14 +654,6 @@ public:
     {
 	m_selectionContextShown = shown;
     }
-    float GetContextAlpha () const
-    {
-	return m_contextAlpha;
-    }
-    void SetContextAlpha (float contextAlpha)
-    {
-	m_contextAlpha = contextAlpha;
-    }
     // @}
     
     /**
@@ -791,6 +783,30 @@ public:
     {
         m_domainClipped = clipped;
     }
+    float GetContextAlpha () const
+    {
+	return m_contextAlpha;
+    }
+    void SetContextAlpha (float contextAlpha)
+    {
+	m_contextAlpha = contextAlpha;
+    }
+    bool AxesShown () const
+    {
+        return m_axesShown;
+    }
+    void SetAxesShown (bool shown)
+    {
+        m_axesShown = shown;
+    }
+    bool IsBoundingBoxSimulationShown () const
+    {
+        return m_boundingBoxSimulationShown;
+    }
+    void SetBoundingBoxSimulationShown (bool shown)
+    {
+        m_boundingBoxSimulationShown = shown;
+    }
     //@}
 
 public:
@@ -915,6 +931,8 @@ private:
     bool m_T1KDEKernelBoxShown;
     float m_T1KDESigmaInBubbleDiameter;
     float m_onePixelInObjectSpace;
+    bool m_axesShown;
+    bool m_boundingBoxSimulationShown;
 };
 
 

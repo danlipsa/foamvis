@@ -107,12 +107,12 @@ public:
     void ProjectionTransform (
 	ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose =
         ViewingVolumeOperation::DONT_ENCLOSE2D) const;
-    size_t GetBodyOrFaceScalar () const
+    size_t GetBodyOrOtherScalar () const
     {
-	return GetBodyOrFaceScalar (GetViewNumber ());
+	return GetBodyOrOtherScalar (GetViewNumber ());
     }
 
-    size_t GetBodyOrFaceScalar (ViewNumber::Enum viewNumber) const;
+    size_t GetBodyOrOtherScalar (ViewNumber::Enum viewNumber) const;
 
     void SetStatus (QLabel* labelStatusBar)
     {
@@ -211,7 +211,6 @@ public Q_SLOTS:
     void ToggledKDESeed (bool toggled);
     void ToggledSeedShown (bool shown);
     void ToggledStandaloneElementsShown (bool checked);
-    void ToggledBoundingBoxSimulation (bool checked);
     void ToggledBoundingBoxFoam (bool checked);
     void ToggledBoundingBoxBody (bool checked);
     void ToggledAverageAroundMarked (bool checked);
@@ -665,7 +664,6 @@ private:
     bool m_bodyNeighborsShown;
     bool m_faceCenterShown;
     bool m_bubblePathsBodyShown;
-    bool m_boundingBoxSimulationShown;    
     bool m_boundingBoxFoamShown;
     bool m_boundingBoxBodyShown;
     bool m_standaloneElementsShown;

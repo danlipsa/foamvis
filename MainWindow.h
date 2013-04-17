@@ -58,10 +58,11 @@ Q_SIGNALS:
 
 
 public Q_SLOTS:
-    void SelectionChangedSettings (ViewNumber::Enum viewNumber);
+    void SelectionChangedFromSettings (ViewNumber::Enum viewNumber);
     void ToggledT1KDEKernelBoxShown (bool checked);
     void ToggledBarLarge (bool large);
     void ToggledAxesShown (bool checked);
+    void ToggledBoundingBoxSimulation (bool checked);
     void ToggledScalarShown (bool shown);
     void ToggledScalarContext (bool context);
     void ToggledViewFocusShown (bool checked);
@@ -132,7 +133,7 @@ public Q_SLOTS:
     void DeselectShown ();
     void ResetTransformAll ();
 
-    void SelectionChangedHistogram (int viewNumber);
+    void SelectionChangedFromHistogram (int viewNumber);
     /**
      * Invoqued by the timer to show the next data in the vector
      */
@@ -147,6 +148,7 @@ public Q_SLOTS:
     void ValueChangedSliderTimeSteps (int value);
     void ValueChangedAverageTimeWindow (int timeSteps);
     void ValueChangedT1KDEKernelSigma (double value);
+    void ValueChangedT1KDEIsosurfaceValue (double value);
     void ViewToUI (ViewNumber::Enum prevViewNumber);
     void SetHistogramColorBarModel (
 	ViewNumber::Enum viewNumber,
@@ -235,6 +237,7 @@ private:
     void createActions ();
     HistogramInfo getHistogramInfo (
 	ColorMapScalarType::Enum colorBarType, size_t bodyOrFaceScalar) const;
+    QwtDoubleInterval getScalarInterval (ViewNumber::Enum viewNumber);
     boost::shared_ptr<ColorBarModel> getColorMapScalar () const;
     boost::shared_ptr<ColorBarModel> getColorMapScalar (
 	ViewNumber::Enum viewNumber) const;

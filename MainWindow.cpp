@@ -87,13 +87,13 @@ MainWindow::MainWindow (
     connect (GetSettingsPtr ().get (),
              SIGNAL (SelectionChanged (ViewNumber::Enum)),
              this,
-             SLOT (SelectionChangedSettings (ViewNumber::Enum)));
+             SLOT (SelectionChangedFromSettings (ViewNumber::Enum)));
     widgetHistogram->Init (GetSettingsPtr (), simulationGroup);
     connect (
 	widgetHistogram,
 	SIGNAL (SelectionChanged (int)),
 	this, 
-	SLOT (SelectionChangedHistogram (int)));
+	SLOT (SelectionChangedFromHistogram (int)));
     
     connectSignals ();
     setupButtonGroups ();
@@ -194,6 +194,7 @@ void MainWindow::configureInterfaceDataDependent (
 		comboBoxViewLayout->setCurrentIndex (ViewLayout::VERTICAL);
 	}
         checkBoxVelocityColorMapped->setChecked (false);
+        doubleSpinBoxT1KDEIsosurfaceValue->setVisible (false);
     }
     else
     {
@@ -571,23 +572,38 @@ void MainWindow::updateAllViews3DAverage ()
 
 void MainWindow::addVtkView (ViewNumber::Enum viewNumber)
 {
+    const ColorBarModel& colorMapScalar = *getColorMapScalar (viewNumber);
+    const ColorBarModel& colorMapVelocity = *getColorMapVelocity (viewNumber);
+    QwtDoubleInterval scalarInterval = getScalarInterval (viewNumber);
+    widgetVtk->AddAverageView (viewNumber, colorMapScalar, scalarInterval,
+                               colorMapVelocity);
+}
+
+
+QwtDoubleInterval MainWindow::getScalarInterval (ViewNumber::Enum viewNumber)
+{
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const BodySelector& bodySelector = vs.GetBodySelector ();
-    const ColorBarModel& scalarColorBarModel = *getColorMapScalar (viewNumber);
-    const ColorBarModel& velocityColorBarModel = 
-        *getColorMapVelocity (viewNumber);
-    QwtDoubleInterval interval;
-    if (bodySelector.GetType () == BodySelectorType::PROPERTY_VALUE)
+    const ColorBarModel& colorMapScalar = *getColorMapScalar (viewNumber);
+    QwtDoubleInterval scalarInterval;
+    if (vs.GetViewType () == ViewType::T1_KDE)
     {
-	const vector<QwtDoubleInterval>& v = 
-	    static_cast<const PropertyValueBodySelector&> (bodySelector).
-	    GetIntervals ();
-	interval = v[0];
+        scalarInterval.setMinValue (doubleSpinBoxT1KDEIsosurfaceValue->value ());
+        scalarInterval.setMaxValue (1);
     }
     else
-        interval = scalarColorBarModel.GetInterval ();
-    widgetVtk->AddAverageView (viewNumber, scalarColorBarModel, interval,
-                               velocityColorBarModel);
+    {
+        if (bodySelector.GetType () == BodySelectorType::PROPERTY_VALUE)
+        {
+            const vector<QwtDoubleInterval>& v = 
+                static_cast<const PropertyValueBodySelector&> (bodySelector).
+                GetIntervals ();
+            scalarInterval = v[0];
+        }
+        else
+            scalarInterval = colorMapScalar.GetInterval ();
+    }
+    return scalarInterval;
 }
 
 
@@ -849,20 +865,11 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorMapScalar (
     size_t simulationIndex = vs.GetSimulationIndex ();
     ViewType::Enum viewType = vs.GetViewType ();
     if (bodyAttribute == BodyAttribute::COUNT)
-        bodyAttribute = vs.GetBodyOrFaceScalar ();
+        bodyAttribute = vs.GetBodyOrOtherScalar ();
     StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
     return getColorMapScalar (
         simulationIndex, 
         viewNumber, viewType, bodyAttribute, statisticsType);
-}
-
-
-boost::shared_ptr<ColorBarModel> MainWindow::getColorMapVelocity (    
-    ViewNumber::Enum viewNumber) const
-{
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    size_t simulationIndex = vs.GetSimulationIndex ();
-    return m_colorMapVelocity[simulationIndex][viewNumber];
 }
 
 boost::shared_ptr<ColorBarModel> MainWindow::getColorMapScalar (
@@ -871,9 +878,9 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorMapScalar (
     ViewType::Enum viewType, size_t property, 
     StatisticsType::Enum statisticsType) const
 {
-    ColorMapScalarType::Enum colorBarType = ViewSettings::GetColorMapType (
+    ColorMapScalarType::Enum colorMapType = ViewSettings::GetColorMapType (
 	viewType, property, statisticsType);
-    switch (colorBarType)
+    switch (colorMapType)
     {
     case ColorMapScalarType::PROPERTY:
         if (property == BodyAttribute::VELOCITY)
@@ -883,16 +890,22 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorMapScalar (
                 [simulationIndex][viewNumber][property];
     case ColorMapScalarType::STATISTICS_COUNT:
 	return m_colorMapDomainHistogram[simulationIndex][viewNumber];
-
+        
     case ColorMapScalarType::T1_KDE:
 	return m_colorMapT1sKDE[simulationIndex][viewNumber];
-
+        
     default:
 	return boost::shared_ptr<ColorBarModel> ();
     }
 }
 
-
+boost::shared_ptr<ColorBarModel> MainWindow::getColorMapVelocity (    
+    ViewNumber::Enum viewNumber) const
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    size_t simulationIndex = vs.GetSimulationIndex ();
+    return m_colorMapVelocity[simulationIndex][viewNumber];
+}
 
 void MainWindow::clickedPlay (PlayType playType)
 {
@@ -992,27 +1005,26 @@ void MainWindow::ShowMessageBox (const char* message)
 // Slots and methods called by the UI
 // ==================================
 
-void MainWindow::SelectionChangedSettings (ViewNumber::Enum viewNumber)
+void MainWindow::SelectionChangedFromSettings (ViewNumber::Enum viewNumber)
 {
     widgetHistogram->UpdateSelection (viewNumber);
-    SelectionChangedHistogram (viewNumber);
+    SelectionChangedFromHistogram (viewNumber);
 }
 
-void MainWindow::SelectionChangedHistogram (int vn)
+void MainWindow::SelectionChangedFromHistogram (int vn)
 {
     ViewNumber::Enum viewNumber = ViewNumber::FromSizeT (vn);
     ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
     const Histogram& histogram = widgetHistogram->GetHistogram (viewNumber);
     BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT (
-        vs.GetBodyOrFaceScalar ());
-
+        vs.GetBodyOrOtherScalar ());
     vector<QwtDoubleInterval> valueIntervals;
     vector<pair<size_t, size_t> > bins;
+
     histogram.GetSelectedIntervals (&valueIntervals);
     histogram.GetSelectedBins (&bins);
-    updateSliderTimeSteps (viewNumber, valueIntervals);
-    
+    updateSliderTimeSteps (viewNumber, valueIntervals);    
     if (histogram.AreAllItemsSelected ())
 	vs.SetBodySelector (
 	    AllBodySelector::Get (), BodySelectorType::PROPERTY_VALUE);
@@ -1022,8 +1034,9 @@ void MainWindow::SelectionChangedHistogram (int vn)
 		new PropertyValueBodySelector (
                     bodyScalar, simulation.Is2D (),
                     valueIntervals, bins)));
-    widgetGl->CompileUpdate (viewNumber);
-    if (simulation.Is3D ())
+    if (IsGlView (viewNumber))
+        widgetGl->CompileUpdate (viewNumber);
+    else
     {
 	QwtDoubleInterval interval;
 	if (valueIntervals.empty ())
@@ -1157,10 +1170,18 @@ void MainWindow::ToggledBarLarge (bool large)
 
 void MainWindow::ToggledAxesShown (bool checked)
 {
-    GetSettingsPtr ()->SetAxesShown (checked);
-    widgetGl->CompileUpdateAll ();
+    GetViewSettings ().SetAxesShown (checked);
+    widgetGl->CompileUpdate ();
     widgetVtk->FromView ();
 }
+
+void MainWindow::ToggledBoundingBoxSimulation (bool checked)
+{
+    GetViewSettings ().SetBoundingBoxSimulationShown (checked);
+    widgetGl->CompileUpdate ();
+    widgetVtk->FromView ();
+}
+
 
 void MainWindow::ToggledScalarShown (bool checked)
 {
@@ -1414,6 +1435,14 @@ void MainWindow::valueChangedT1KDEKernelSigma (ViewNumber::Enum viewNumber)
     t1sKDE.AverageInitStep (GetViewSettings (viewNumber).GetTimeWindow ());
 }
 
+
+void MainWindow::ValueChangedT1KDEIsosurfaceValue (double value)
+{
+    QwtDoubleInterval interval (value, 1);
+    widgetVtk->UpdateThresholdScalar (interval);
+}
+
+
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
     __LOG__ (cdbg << "MainWindow::ValueChangedSliderTimeSteps" 
@@ -1435,11 +1464,14 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
         ViewType::Enum viewType = vs.GetViewType ();
         if (vs.GetTime () < GetSettings ().GetLinkedTime ())
             continue;
-        widgetHistogram->UpdateColorMap (
-            viewNumber, getColorMapScalar (viewNumber));
-        widgetHistogram->UpdateData (viewNumber,
-                                     WidgetHistogram::KEEP_SELECTION, 
-                                     WidgetHistogram::KEEP_MAX_VALUE);
+        if (viewType != ViewType::T1_KDE)
+        {
+            widgetHistogram->UpdateColorMap (
+                viewNumber, getColorMapScalar (viewNumber));
+            widgetHistogram->UpdateData (viewNumber,
+                                         WidgetHistogram::KEEP_SELECTION, 
+                                         WidgetHistogram::KEEP_MAX_VALUE);
+        }
         if (viewType == ViewType::AVERAGE || viewType == ViewType::T1_KDE)
         {
             if (simulation.Is3D ())
@@ -1529,7 +1561,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 
 	size_t simulationIndex = vs.GetSimulationIndex ();
 	ViewType::Enum oldViewType = vs.GetViewType ();
-	size_t property = vs.GetBodyOrFaceScalar ();
+	size_t property = vs.GetBodyOrOtherScalar ();
 	StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
 
 	setStackedWidgetVisualization (viewType);
@@ -1589,7 +1621,7 @@ void MainWindow::CurrentIndexChangedSimulation (int simulationIndex)
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
     ViewType::Enum viewType = vs.GetViewType ();
-    size_t property = vs.GetBodyOrFaceScalar ();
+    size_t property = vs.GetBodyOrOtherScalar ();
     StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
     Q_EMIT ColorMapScalarChanged (
 	viewNumber,
@@ -1675,7 +1707,7 @@ void MainWindow::updateSliderTimeSteps (
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
     BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT (
-        vs.GetBodyOrFaceScalar ());
+        vs.GetBodyOrOtherScalar ());
     simulation.GetTimeStepSelection (
 	bodyScalar, valueIntervals, &timeStepSelection);
     sliderTimeSteps->SetRestrictedTo (timeStepSelection);
@@ -1758,7 +1790,7 @@ void MainWindow::EditColorMapVelocity ()
 void MainWindow::EditColorMapScalar ()
 {
     HistogramInfo p = getHistogramInfo (
-	GetSettings ().GetColorMapType (), widgetGl->GetBodyOrFaceScalar ());
+	GetSettings ().GetColorMapType (), widgetGl->GetBodyOrOtherScalar ());
     m_editColorMap->SetData (
 	p.first, p.second, *getColorMapScalar (),
 	checkBoxHistogramGridShown->isChecked ());
@@ -2038,7 +2070,7 @@ void MainWindow::bubblePathsViewToUI ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     const ViewSettings& vs = GetViewSettings ();
-    int property = vs.GetBodyOrFaceScalar ();
+    int property = vs.GetBodyOrOtherScalar ();
     const Simulation& simulation = GetSimulation ();
 
     labelBubblePathsColor->setText (OtherScalar::ToString (property));
@@ -2102,6 +2134,9 @@ void MainWindow::settingsViewToUI (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     SetCheckedNoSignals (checkBoxDomainClipped, vs.DomainClipped ());
+    SetCheckedNoSignals (checkBoxAxes, vs.AxesShown ());
+    SetCheckedNoSignals (
+        checkBoxBoundingBoxSimulation, vs.IsBoundingBoxSimulationShown ());
     SetValueNoSignals (
         horizontalSliderContextAlpha, 
         ValueToIndex (horizontalSliderContextAlpha, 
@@ -2135,7 +2170,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     (void)prevViewNumber;
     ViewNumber::Enum viewNumber = GetViewNumber ();
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    int property = vs.GetBodyOrFaceScalar ();
+    int property = vs.GetBodyOrOtherScalar ();
     size_t simulationIndex = vs.GetSimulationIndex ();
     ViewType::Enum viewType = vs.GetViewType ();
 
@@ -2169,7 +2204,8 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 
     const AttributeHistogram& histogram = 
         widgetHistogram->GetHistogram (viewNumber);
-    if (histogram.GetYAxisMaxValue () == 0)
+    if (vs.GetViewType () == ViewType::T1_KDE || 
+        histogram.GetYAxisMaxValue () == 0)
         sliderTimeSteps->SetFullRange ();
     else
     {

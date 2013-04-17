@@ -51,17 +51,26 @@ void AttributeAverages3D::ComputeAverage ()
     switch (vs.GetViewType ())
     {
     case ViewType::AVERAGE:
-	GetScalarAveragePtr ()->ComputeAverage ();
-        CALL_IF_NOT_NULL(GetVelocityAveragePtr (),ComputeAverage) ();
-        CALL_IF_NOT_NULL(GetDeformationAveragePtr (),ComputeAverage) ();
+	GetScalarAverage ()->ComputeAverage ();
+        CALL_IF_NOT_NULL(GetVelocityAverage (),ComputeAverage) ();
+        CALL_IF_NOT_NULL(GetDeformationAverage (),ComputeAverage) ();
 	break;
 	
     case ViewType::T1_KDE:
-	CALL_IF_NOT_NULL(GetT1KDEPtr (),ComputeAverage) ();
+	CALL_IF_NOT_NULL(GetT1KDE (),ComputeAverage) ();
 	break;
 
     default:
 	break;
     }
 
+}
+
+boost::shared_ptr<RegularGridAverage> 
+AttributeAverages3D::GetBodyOrOtherScalarAverage ()
+{
+    const ViewSettings& vs = GetViewSettings ();
+    size_t bodyOrOtherScalar = vs.GetBodyOrOtherScalar ();
+    return (bodyOrOtherScalar == OtherScalar::T1_KDE) ? 
+        GetT1KDE () : GetScalarAverage ();
 }

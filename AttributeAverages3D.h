@@ -27,44 +27,26 @@ public:
     
     void ComputeAverage ();
 
-    boost::shared_ptr<RegularGridAverage> GetScalarAveragePtr () const
+    boost::shared_ptr<RegularGridAverage> GetScalarAverage ()
     {
         return boost::static_pointer_cast<RegularGridAverage> (
             m_scalarAverage);
     }
-    const RegularGridAverage& GetScalarAverage () const
+    boost::shared_ptr<RegularGridAverage> GetT1KDE ()
     {
-        return *boost::static_pointer_cast<RegularGridAverage> (
-            m_scalarAverage);
+	return boost::static_pointer_cast<RegularGridAverage> (
+            m_t1KDE);
     }
-    boost::shared_ptr<RegularGridAverage> GetVelocityAveragePtr ()
+    boost::shared_ptr<RegularGridAverage> GetBodyOrOtherScalarAverage ();
+    boost::shared_ptr<RegularGridAverage> GetVelocityAverage ()
     {
 	return boost::static_pointer_cast<RegularGridAverage> (
             m_velocityAverage);
     }
-    const  RegularGridAverage& GetVelocityAverage () const
-    {
-	return *boost::static_pointer_cast<RegularGridAverage> (
-            m_velocityAverage);
-    }
-    boost::shared_ptr<RegularGridAverage> GetDeformationAveragePtr ()
+    boost::shared_ptr<RegularGridAverage> GetDeformationAverage ()
     {
 	return boost::static_pointer_cast<RegularGridAverage> (
             m_deformationAverage);
-    }
-    const RegularGridAverage& GetDeformationAverage () const
-    {
-	return *boost::static_pointer_cast<RegularGridAverage> (
-            m_deformationAverage);
-    }
-    boost::shared_ptr<RegularGridAverage> GetT1KDEPtr ()
-    {
-	return boost::static_pointer_cast<RegularGridAverage> (
-            m_deformationAverage);
-    }
-    const RegularGridAverage& GetT1KDE () const
-    {
-	return *boost::static_pointer_cast<RegularGridAverage> (m_t1KDE);
     }
 };
 

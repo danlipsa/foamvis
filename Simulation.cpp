@@ -121,7 +121,8 @@ private:
 const vector<T1> NO_T1S;
 const char* CACHE_DIR_NAME = ".foamvis";
 
-vtkSmartPointer<vtkImageData> doubleToFloatArray (vtkImageData* p)
+vtkSmartPointer<vtkImageData> doubleToFloatArray (
+    vtkSmartPointer<vtkImageData> p)
 {
     vtkDataArray* doubleArray = p->GetPointData ()->GetArray (0);
     VTK_CREATE (vtkFloatArray, floatArray);
@@ -129,7 +130,10 @@ vtkSmartPointer<vtkImageData> doubleToFloatArray (vtkImageData* p)
     floatArray->SetNumberOfComponents (1);
     floatArray->SetNumberOfTuples (doubleArray->GetNumberOfTuples ());
     for (vtkIdType i = 0; i < floatArray->GetNumberOfTuples (); ++i)
-        floatArray->SetValue (i, doubleArray->GetTuple (i)[0]);
+    {
+        double value = doubleArray->GetTuple (i)[0];
+        floatArray->SetValue (i, value);
+    }
     p->GetPointData ()->RemoveArray (0);
     p->GetPointData ()->AddArray (floatArray);
     return p;
@@ -693,7 +697,9 @@ vtkSmartPointer<vtkImageData> Simulation::GetT1KDE (
     gs->SetMaximum (1.0);
     gs->SetStandardDeviation (sigmaInBubbleDiameters * bubbleDiameterInPixels);
     gs->Update ();
-    return doubleToFloatArray (gs->GetOutput ());
+    vtkSmartPointer<vtkImageData> t1KDEImageData (gs->GetOutput ());
+    AddValidPointMask (t1KDEImageData);
+    return doubleToFloatArray (t1KDEImageData);
 }
 
 

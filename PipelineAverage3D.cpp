@@ -201,7 +201,7 @@ void PipelineAverage3D::UpdateViewTitle (
 
 
 void PipelineAverage3D::UpdateThresholdScalar (
-    QwtDoubleInterval interval, BodyScalar::Enum scalar)
+    QwtDoubleInterval interval, size_t scalar)
 {
     if (m_scalarThreshold != 0)
     {
@@ -349,11 +349,10 @@ void PipelineAverage3D::FromView (ViewNumber::Enum viewNumber, const Base& base)
 {
     PipelineBase::FromView (viewNumber, base);
     const ViewSettings& vs = base.GetViewSettings (viewNumber);
-    const Settings& settings = base.GetSettings ();
     updateAlpha (vs.GetContextAlpha (), m_constraintSurface);
     updateAlpha (vs.GetObjectAlpha (), m_object);
     m_scalarAverageActor->SetVisibility (vs.IsScalarShown ());
-    m_outlineActor->SetVisibility (settings.AxesShown ());
+    m_outlineActor->SetVisibility (vs.IsBoundingBoxSimulationShown ());
     fromViewVelocityGlyph (viewNumber, base);
 }
 

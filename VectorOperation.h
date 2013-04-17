@@ -74,7 +74,8 @@ public:
     {
     }
     
-    void operator() (DataAndValidFlag left, DataAndValidFlag right, double scalar);
+    void operator() (
+        DataAndValidFlag left, DataAndValidFlag right, double scalar);
 };
 
 void ImageOpImage (

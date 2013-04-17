@@ -26,7 +26,7 @@ public:
     virtual void UpdateColorMapScalar (const ColorBarModel& colorMapScalar);
     virtual void UpdateColorMapVelocity (const ColorBarModel& colorMapVelocity);
     void UpdateThresholdScalar (QwtDoubleInterval interval, 
-                                BodyScalar::Enum scalar);
+                                size_t scalar);
     void UpdateAverageScalar (const RegularGridAverage& average);
     void UpdateAverageForce (const ForceAverage& forceAverage);
     void UpdateAverageVelocity (const RegularGridAverage& velocity);

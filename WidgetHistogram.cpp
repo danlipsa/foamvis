@@ -74,7 +74,7 @@ void WidgetHistogram::UpdateData (
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     BodyScalar::Enum property = BodyScalar::FromSizeT (
-        vs.GetBodyOrFaceScalar ());
+        vs.GetBodyOrOtherScalar ());
     const Simulation& simulation = GetSimulation (viewNumber);
 
     double maxYValue = 0;

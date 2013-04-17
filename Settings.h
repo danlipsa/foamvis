@@ -366,14 +366,6 @@ public:
     {
 	m_viewFocusShown = shown;
     }
-    bool AxesShown () const
-    {
-        return m_axesShown;
-    }
-    void SetAxesShown (bool shown)
-    {
-        m_axesShown = shown;
-    }
     // @}
     
 
@@ -494,7 +486,6 @@ private:
     bool m_barLarge;
     bool m_velocityFieldSaved;
     bool m_barLabelsShown;
-    bool m_axesShown;
     boost::shared_ptr<QSignalMapper> m_signalMapperSelectionChanged;    
     InteractionMode::Enum m_interactionMode;
     InteractionObject::Enum m_interactionObject;

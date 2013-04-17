@@ -103,7 +103,9 @@ ViewSettings::ViewSettings () :
     m_kdeMultiplier (3),
     m_T1KDEKernelBoxShown (false),
     m_T1KDESigmaInBubbleDiameter (1),
-    m_onePixelInObjectSpace (0)
+    m_onePixelInObjectSpace (0),
+    m_axesShown (false),
+    m_boundingBoxSimulationShown (false)
 {
     setInitialLightParameters ();
     for (size_t i = 0; i < m_averageAroundBodyId.size (); ++i)
@@ -472,6 +474,11 @@ void ViewSettings::CopySelection (const ViewSettings& other)
     Q_EMIT SelectionChanged ();
 }
 
+size_t ViewSettings::GetBodyOrOtherScalar () const
+{
+    return GetViewType () == ViewType::T1_KDE ? 
+        static_cast<size_t> (OtherScalar::T1_KDE) : m_bodyOrFaceScalar;
+}
 
 G3D::Matrix3 ViewSettings::GetRotationForAxisOrder (const Foam& foam) const
 {
@@ -693,7 +700,7 @@ string ViewSettings::GetTitle (ViewNumber::Enum viewNumber) const
 ColorMapScalarType::Enum ViewSettings::GetColorMapType () const
 {
     ViewType::Enum viewType = GetViewType ();
-    size_t property = GetBodyOrFaceScalar ();
+    size_t property = GetBodyOrOtherScalar ();
     StatisticsType::Enum statisticsType = GetStatisticsType ();
     return GetColorMapType (viewType, property, statisticsType);
 }

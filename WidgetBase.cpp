@@ -136,7 +136,7 @@ void WidgetBase::contextMenuEventColorMapVelocity (QMenu* menu) const
     menu->addAction (m_actionColorMapVelocityClampClear.get ());
     addCopyCompatibleMenu (menu, "Copy", &m_actionColorMapVelocityCopy[0], 
                            &WidgetBase::IsColorMapVelocityCopyCompatible);
-    if (GetViewSettings ().GetBodyOrFaceScalar () == 
+    if (GetViewSettings ().GetBodyOrOtherScalar () == 
         BodyScalar::VELOCITY_MAGNITUDE)
         menu->addAction (m_actionColorMapVelocityCopyVelocityMagnitude.get ());
     menu->addAction (m_actionColorMapVelocityEdit.get ());
@@ -239,14 +239,14 @@ bool WidgetBase::IsColorMapScalarCopyCompatible (
         GetSettings ().GetColorMapType (vn);
     const ViewSettings& vs = GetViewSettings (vn);
     const ViewSettings& otherVs = GetViewSettings (otherVn);
-    size_t currentProperty = vs.GetBodyOrFaceScalar ();
+    size_t currentProperty = vs.GetBodyOrOtherScalar ();
     return otherVn != vn &&
         
         currentColorBarType == GetSettings ().GetColorMapType (otherVn) &&
         
         ((currentColorBarType == ColorMapScalarType::T1_KDE) 
          ||
-         currentProperty == otherVs.GetBodyOrFaceScalar ());
+         currentProperty == otherVs.GetBodyOrOtherScalar ());
 }
 
 
@@ -257,7 +257,7 @@ bool WidgetBase::IsSelectionCopyCompatible (
     const ViewSettings& otherVs = GetViewSettings (otherVn);
     return otherVn != vn && 
         vs.GetSimulationIndex () == otherVs.GetSimulationIndex () &&
-        (vs.GetBodyOrFaceScalar () == otherVs.GetBodyOrFaceScalar () ||
+        (vs.GetBodyOrOtherScalar () == otherVs.GetBodyOrOtherScalar () ||
          otherVs.GetBodySelector ().GetType () == BodySelectorType::ID || 
          otherVs.GetBodySelector ().GetType () == BodySelectorType::ALL);
 }

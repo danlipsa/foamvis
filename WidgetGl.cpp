@@ -138,7 +138,6 @@ WidgetGl::WidgetGl(QWidget *parent)
       m_bodyNeighborsShown (false),
       m_faceCenterShown (false),
       m_bubblePathsBodyShown (false),
-      m_boundingBoxSimulationShown (false),
       m_boundingBoxFoamShown (false),
       m_boundingBoxBodyShown (false),
       m_standaloneElementsShown (true),
@@ -690,7 +689,7 @@ string WidgetGl::infoSelectedBodies ()
 	ostr << "Selected ids: ";
 	ostream_iterator<size_t> out (ostr, " ");
 	copy (ids.begin (), ids.end (), out);
-	if (GetViewSettings ().GetBodyOrFaceScalar () != 
+	if (GetViewSettings ().GetBodyOrOtherScalar () != 
 	    OtherScalar::DMP_COLOR)
 	{
 	    ostr << endl;
@@ -1513,8 +1512,8 @@ void WidgetGl::displayBoundingBox (ViewNumber::Enum viewNumber) const
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
-    if (m_boundingBoxSimulationShown)
-	DisplayBox (simulation, Qt::black);
+    if (vs.IsBoundingBoxSimulationShown ())
+	DisplayBox (simulation.GetBoundingBoxAllTimeSteps (), Qt::black);
     if (m_boundingBoxFoamShown)
 	DisplayBox (foam, Qt::black);
     if (m_boundingBoxBodyShown)
@@ -1530,10 +1529,10 @@ void WidgetGl::displayBoundingBox (ViewNumber::Enum viewNumber) const
 
 void WidgetGl::displayAxes (ViewNumber::Enum viewNumber)
 {
-    const Settings& settings = GetSettings ();
-    const Simulation& simulation = GetSimulation (viewNumber);
-    if (settings.AxesShown ())
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    if (vs.AxesShown ())
     {
+        const Simulation& simulation = GetSimulation (viewNumber);
         float arrowBaseRadius, edgeRadius, arrowHeight;
         Settings::SetArrowParameters (
             GetOnePixelInObjectSpace (simulation.Is2D ()),
@@ -1904,7 +1903,7 @@ pair<float, float> WidgetGl::GetRange (ViewNumber::Enum viewNumber) const
 	else
 	{
 	    BodyScalar::Enum bodyProperty = 
-		BodyScalar::FromSizeT (vs.GetBodyOrFaceScalar ());
+		BodyScalar::FromSizeT (vs.GetBodyOrOtherScalar ());
 	    minValue = simulation.GetMin (bodyProperty);
 	    maxValue = simulation.GetMax (bodyProperty);
 	}
@@ -2660,9 +2659,9 @@ void WidgetGl::displayViewText (
 
 
 
-size_t WidgetGl::GetBodyOrFaceScalar (ViewNumber::Enum viewNumber) const
+size_t WidgetGl::GetBodyOrOtherScalar (ViewNumber::Enum viewNumber) const
 {
-    return GetViewSettings (viewNumber).GetBodyOrFaceScalar ();
+    return GetViewSettings (viewNumber).GetBodyOrOtherScalar ();
 }
 
 
@@ -4068,14 +4067,6 @@ void WidgetGl::ToggledLightEnabled (bool checked)
     update ();
 }
 
-
-void WidgetGl::ToggledBoundingBoxSimulation (bool checked)
-{
-    makeCurrent ();
-    m_boundingBoxSimulationShown = checked;
-    CompileUpdate ();
-}
-
 void WidgetGl::ToggledBoundingBoxFoam (bool checked)
 {
     makeCurrent ();
@@ -4326,7 +4317,7 @@ void WidgetGl::SetBodyOrFaceScalar (
     makeCurrent ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetBodyOrFaceScalar (bodyOrFaceScalar);
-    if (vs.GetBodyOrFaceScalar () != OtherScalar::DMP_COLOR)
+    if (vs.GetBodyOrOtherScalar () != OtherScalar::DMP_COLOR)
     {
 	vs.SetColorMapScalar (colorBarModel);
 	setTexture (colorBarModel, m_colorBarScalarTexture[viewNumber]);
