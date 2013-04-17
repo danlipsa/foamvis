@@ -79,7 +79,7 @@ public:
         FromView (GetViewNumber ());
     }
     void UpdateThresholdScalar (QwtDoubleInterval interval);
-    void AddAverageView (
+    void UpdateView (
 	ViewNumber::Enum viewNumber, const ColorBarModel& scalarColorBarModel,	
 	QwtDoubleInterval interval, const ColorBarModel& velocityColorBarModel);
     void UpdateAverage (ViewNumber::Enum viewNumber, int direction);

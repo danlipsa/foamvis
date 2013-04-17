@@ -164,8 +164,8 @@ private:
         ViewNumber::Enum viewNumber,
         const vector<QwtDoubleInterval>& valueIntervals);
     void updateStretch ();
-    void addVtkView (ViewNumber::Enum viewNumber);
-    void updateAllViews3DAverage ();
+    void updateVtkView (ViewNumber::Enum viewNumber);
+    void updateVtkViewAll ();
     void currentIndexChangedFaceColor (ViewNumber::Enum viewNumber);
     void settingsViewToUI (ViewNumber::Enum viewNumber);
     void timeViewToUI (ViewNumber::Enum viewNumber);

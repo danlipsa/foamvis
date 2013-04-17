@@ -560,23 +560,23 @@ void MainWindow::processBodyTorusStep ()
     }
 }
 
-void MainWindow::updateAllViews3DAverage ()
+void MainWindow::updateVtkViewAll ()
 {
     if (GetSimulationGroup ().GetIndex3DSimulation () == INVALID_INDEX)
 	return;
     widgetVtk->RemoveViews ();
     widgetVtk->WidgetBase::ForAllViews (
-        boost::bind (&MainWindow::addVtkView, this, _1));
+        boost::bind (&MainWindow::updateVtkView, this, _1));
     updateStretch ();
 }
 
-void MainWindow::addVtkView (ViewNumber::Enum viewNumber)
+void MainWindow::updateVtkView (ViewNumber::Enum viewNumber)
 {
     const ColorBarModel& colorMapScalar = *getColorMapScalar (viewNumber);
     const ColorBarModel& colorMapVelocity = *getColorMapVelocity (viewNumber);
     QwtDoubleInterval scalarInterval = getScalarInterval (viewNumber);
-    widgetVtk->AddAverageView (viewNumber, colorMapScalar, scalarInterval,
-                               colorMapVelocity);
+    widgetVtk->UpdateView (viewNumber, colorMapScalar, scalarInterval,
+                           colorMapVelocity);
 }
 
 
@@ -1098,7 +1098,7 @@ void MainWindow::CurrentIndexChangedViewLayout (int index)
     updateStretch ();
     widgetGl->CompileUpdate ();
     widgetVtk->update ();
-    updateAllViews3DAverage ();
+    updateVtkViewAll ();
     comboBoxWindowLayout->setCurrentIndex (index);
 }
 
@@ -1120,7 +1120,7 @@ void MainWindow::CurrentIndexChangedViewCount (int index)
     GetSettingsPtr ()->SetAverageTimeWindow (
         GetSettings ().GetLinkedTimeSteps ());
     widgetHistogram->UpdateHidden ();
-    updateAllViews3DAverage ();
+    updateVtkViewAll ();
 }
 
 
@@ -1428,11 +1428,16 @@ void MainWindow::ValueChangedT1KDEKernelSigma (double value)
 void MainWindow::valueChangedT1KDEKernelSigma (ViewNumber::Enum viewNumber)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    T1KDE2D& t1sKDE = widgetGl->GetAttributeAverages2D (
-        viewNumber).GetT1KDE ();    
     vs.SetT1KDESigmaInBubbleDiameter (
 	static_cast<QDoubleSpinBox*> (sender ())->value ());
-    t1sKDE.AverageInitStep (GetViewSettings (viewNumber).GetTimeWindow ());
+    if (GetSimulation (viewNumber).Is2D ())
+    {
+        T1KDE2D& t1sKDE = widgetGl->GetAttributeAverages2D (
+            viewNumber).GetT1KDE ();
+        t1sKDE.AverageInitStep (GetViewSettings (viewNumber).GetTimeWindow ());
+    }
+    else
+        updateVtkView (viewNumber);
 }
 
 
@@ -1597,7 +1602,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 	    sliderTimeSteps->setMaximum (simulation.GetTimeSteps () - 1);
     }
     widgetGl->ButtonClickedViewType (oldViewType);
-    updateAllViews3DAverage ();
+    updateVtkViewAll ();
 }
 
 void MainWindow::ButtonClickedTimeLinkage (int id)

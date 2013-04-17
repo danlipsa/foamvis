@@ -39,10 +39,7 @@ void RegularGridAverage::AverageInit ()
 {
     Average::AverageInit ();
     const Simulation& simulation = GetSimulation ();
-    m_sum = CreateEmptyRegularGrid (
-        GetBodyAttribute (), &simulation.GetExtentResolution ()[0],
-        simulation.GetBoundingBoxAllTimeSteps ());
-    AddValidPointMask (m_sum);
+    // initialize m_average
     m_average = CreateEmptyRegularGrid (
 	GetBodyAttribute (), &simulation.GetExtentResolution ()[0], 
         simulation.GetBoundingBoxAllTimeSteps ());
@@ -50,6 +47,11 @@ void RegularGridAverage::AverageInit ()
     if (GetBodyAttribute () == BodyAttribute::VELOCITY)
         m_average->GetPointData ()->SetActiveScalars (
             VectorOperation::VALID_NAME);
+    // initialize m_sum
+    m_sum = CreateEmptyRegularGrid (
+        GetBodyAttribute (), &simulation.GetExtentResolution ()[0],
+        simulation.GetBoundingBoxAllTimeSteps ());
+    AddValidPointMask (m_sum);
 }
 
 void RegularGridAverage::AverageRelease ()
@@ -115,9 +117,8 @@ void RegularGridAverage::opStep (
 
 void RegularGridAverage::ComputeAverage ()
 {
-    if (m_average->GetMTime () < m_sum->GetMTime ())
-        ImageOpScalar (m_average, m_sum, GetCurrentTimeWindow (),
-                       std::divides<double> (), GetBodyAttribute ());
+    ImageOpScalar (m_average, m_sum, GetCurrentTimeWindow (),
+                   std::divides<double> (), GetBodyAttribute ());
 }
 
 size_t RegularGridAverage::getStepSize (size_t timeStep) const

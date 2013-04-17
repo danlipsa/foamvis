@@ -1513,7 +1513,7 @@
          <item>
           <widget class="QStackedWidget" name="stackedWidgetVisualization">
            <property name="currentIndex">
-            <number>1</number>
+            <number>4</number>
            </property>
            <widget class="QWidget" name="pageEmpty"/>
            <widget class="QWidget" name="pageFacesNormal">
@@ -1900,10 +1900,10 @@
                 <double>1.000000000000000</double>
                </property>
                <property name="singleStep">
-                <double>0.200000000000000</double>
+                <double>0.100000000000000</double>
                </property>
                <property name="value">
-                <double>0.400000000000000</double>
+                <double>0.300000000000000</double>
                </property>
               </widget>
              </item>
@@ -2590,6 +2590,7 @@
     <slot>ToggledFacesTorusTubes(bool)</slot>
     <slot>ToggledTorusOriginalDomainDisplay(bool)</slot>
     <slot>ToggledTorusOriginalDomainClipped(bool)</slot>
+    <slot>ToggledBoundingBox(bool)</slot>
     <slot>ValueChangedAngleOfView(int)</slot>
     <slot>ToggledShowBoundingBox(bool)</slot>
     <slot>ToggledEdgesShown(bool)</slot>
@@ -2610,6 +2611,7 @@
     <slot>ToggledShowTorusOriginalDomain(bool)</slot>
     <slot>ToggledEnableLighting(bool)</slot>
     <slot>ToggledEnableDirectionalLight(bool)</slot>
+    <slot>ToggledBoundingBoxShown(bool)</slot>
     <slot>ToggledLightNumberShown(bool)</slot>
     <slot>ToggledTorusDomainShown(bool)</slot>
     <slot>ToggledLightingEnabled(bool)</slot>
@@ -2718,6 +2720,7 @@
     <slot>ValueChangedT1sTimeWindow(int)</slot>
     <slot>ToggledFoamContainerShown(bool)</slot>
     <slot>ToggledContextBoxShown(bool)</slot>
+    <slot>ToggledBoundingBoxSimulation(bool)</slot>
     <slot>ToggledBoundingBoxBody(bool)</slot>
     <slot>ToggledBoundingBoxFoam(bool)</slot>
     <slot>ToggledDomainClipped(bool)</slot>

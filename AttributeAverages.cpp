@@ -85,8 +85,8 @@ void AttributeAverages::AverageStep (int direction, size_t timeWindow)
 	break;
 	
     case ViewType::T1_KDE:
-	CALL_IF_NOT_NULL(m_velocityAverage,AverageStep) (direction, timeWindow);
 	CALL_IF_NOT_NULL(m_t1KDE,AverageStep) (direction, timeWindow);
+	CALL_IF_NOT_NULL(m_velocityAverage,AverageStep) (direction, timeWindow);
 	break;
     default:
 	break;

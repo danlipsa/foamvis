@@ -2101,7 +2101,7 @@ void WidgetGl::compileFacesNormal (ViewNumber::Enum viewNumber) const
     displayDeformation (viewNumber);
     displayVelocityGlyphs (viewNumber);
     displayT1 (viewNumber);
-    GetAttributeAverages2D (viewNumber).GetForceAverage ().DisplayOneTimeStep ();
+    GetAttributeAverages2D (viewNumber).GetForceAverage ()->DisplayOneTimeStep ();
     glEndList ();
 }
 

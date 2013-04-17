@@ -27,9 +27,9 @@ public:
         boost::shared_ptr<Settings> settings, 
         boost::shared_ptr<const SimulationGroup> simulationGroup);
 
-    const ForceAverage& GetForceAverage () const
+    boost::shared_ptr<ForceAverage> GetForceAverage ()
     {
-	return *m_forceAverage;
+	return m_forceAverage;
     }
     const Settings& GetSettings () const;
     const ViewSettings& GetViewSettings () const;
