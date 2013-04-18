@@ -27,6 +27,10 @@ public:
         ViewNumber::Enum viewNumber, 
         boost::shared_ptr<Settings> settings, 
         boost::shared_ptr<const SimulationGroup> simulationGroup);
+    bool IsInitialized () const
+    {
+        return m_sum != 0;
+    }
     virtual void AverageInit ();
     virtual void AverageRotateAndDisplay (
 	StatisticsType::Enum displayType = StatisticsType::AVERAGE,

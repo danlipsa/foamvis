@@ -156,6 +156,7 @@ public:
     {
 	return *m_average[GetViewNumber ()];
     }
+    void Compile (ViewNumber::Enum viewNumber);
     void CompileUpdate ()
     {
 	CompileUpdate (GetViewNumber ());

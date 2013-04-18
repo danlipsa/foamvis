@@ -30,10 +30,9 @@ void  DisplayOrientedEdgeVertices (const boost::shared_ptr<OrientedEdge> e)
 // DisplayFaceHighlightColor
 // ======================================================================
 
-template <HighlightNumber::Enum highlightColorIndex,
-	  typename displayEdges, typename PropertySetter>
-DisplayFaceHighlightColor<highlightColorIndex, 
-			  displayEdges, PropertySetter>::
+template <HighlightNumber::Enum highlight, 
+          typename displayEdges, typename PropertySetter>
+DisplayFaceHighlightColor<highlight, displayEdges, PropertySetter>::
 DisplayFaceHighlightColor (
     const Settings& settings, bool is2D,
     typename DisplayElement::FocusContext focus,
@@ -46,10 +45,9 @@ DisplayFaceHighlightColor (
 {
 }
 
-template <HighlightNumber::Enum highlightColorIndex,
-	  typename displayEdges, typename PropertySetter>
-DisplayFaceHighlightColor<highlightColorIndex, 
-			  displayEdges, PropertySetter>::
+template <HighlightNumber::Enum highlight, 
+          typename displayEdges, typename PropertySetter>
+DisplayFaceHighlightColor<highlight, displayEdges, PropertySetter>::
 DisplayFaceHighlightColor (const Settings& settings, 
 			   PropertySetter propertySetter,
 			   typename DisplayElement::FocusContext focus,
@@ -60,34 +58,27 @@ DisplayFaceHighlightColor (const Settings& settings,
 {
 }
 
-template <HighlightNumber::Enum highlightColorIndex,
-	  typename displayEdges, typename PropertySetter>
-void DisplayFaceHighlightColor<highlightColorIndex, 
-			       displayEdges, PropertySetter>::
+template <HighlightNumber::Enum highlight, 
+          typename displayEdges, typename PropertySetter>
+void DisplayFaceHighlightColor<highlight, displayEdges, PropertySetter>::
 operator () (const boost::shared_ptr<Face>& f)
 {
     ViewNumber::Enum viewNumber = this->GetViewNumber ();
     ViewSettings& vs = this->m_settings.GetViewSettings (viewNumber);
     if (this->m_focus == DisplayElement::FOCUS)
-    {
 	glColor (this->m_settings.GetHighlightColor (
-		     this->GetViewNumber (), highlightColorIndex));
-    }
+                     this->GetViewNumber (), highlight));
     else
-    {
-        QColor color =  QColor::fromRgbF (0, 0, 0, vs.GetContextAlpha ());
-	glColor (color);
-    }
+	glColor (QColor::fromRgbF (0, 0, 0, vs.GetContextAlpha ()));
     (displayEdges (this->m_settings, this->GetViewNumber (), 
                    this->m_propertySetter.Is2D (),
                    this->m_focus,
                    this->m_useZPos, this->m_zPos)) (f);
 }
 
-template <HighlightNumber::Enum highlightColorIndex,
-	  typename displayEdges, typename PropertySetter>
-void DisplayFaceHighlightColor<highlightColorIndex, 
-			       displayEdges, PropertySetter>::
+template <HighlightNumber::Enum highlight, 
+          typename displayEdges, typename PropertySetter>
+void DisplayFaceHighlightColor<highlight, displayEdges, PropertySetter>::
 operator () (const boost::shared_ptr<OrientedFace>& of)
 {
     operator () (of->GetFace ());

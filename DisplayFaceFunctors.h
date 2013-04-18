@@ -43,8 +43,7 @@ public:
 /**
  * Functor that displays a face using a color map highlight color
  */
-template <HighlightNumber::Enum highlightColorIndex,
-	  typename displayEdges, 
+template <HighlightNumber::Enum color, typename displayEdges, 
 	  typename PropertySetter = SetterTextureCoordinate>
 class DisplayFaceHighlightColor : 
     public DisplayElementPropertyFocus<PropertySetter>

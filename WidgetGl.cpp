@@ -2101,7 +2101,8 @@ void WidgetGl::compileFacesNormal (ViewNumber::Enum viewNumber) const
     displayDeformation (viewNumber);
     displayVelocityGlyphs (viewNumber);
     displayT1 (viewNumber);
-    GetAttributeAverages2D (viewNumber).GetForceAverage ()->DisplayOneTimeStep ();
+    GetAttributeAverages2D (
+        viewNumber).GetForceAverage ()->DisplayOneTimeStep ();
     glEndList ();
 }
 
@@ -3371,7 +3372,7 @@ void WidgetGl::ShowMessageBox (const char* message)
 // Slots and methods called by the UI
 // ==================================
 
-void WidgetGl::CompileUpdate (ViewNumber::Enum viewNumber)
+void WidgetGl::Compile (ViewNumber::Enum viewNumber)
 {
     if (! IsGlView (viewNumber))
         return;
@@ -3387,13 +3388,19 @@ void WidgetGl::CompileUpdate (ViewNumber::Enum viewNumber)
     default:
 	break;
     }
+}
+
+void WidgetGl::CompileUpdate (ViewNumber::Enum viewNumber)
+{
+    Compile (viewNumber);
     update ();
 }
 
 void WidgetGl::CompileUpdateAll ()
 {
     for (size_t i = 0; i < GetViewCount (); ++i)
-        CompileUpdate (ViewNumber::Enum (i));
+        Compile (ViewNumber::Enum (i));
+    update ();
 }
 
 void WidgetGl::SetAverageAroundBody ()

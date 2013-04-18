@@ -57,6 +57,7 @@ void RegularGridAverage::AverageInit ()
 void RegularGridAverage::AverageRelease ()
 {
     m_sum = 0;
+    m_average = 0;
 }
 
 

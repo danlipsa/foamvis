@@ -131,7 +131,7 @@ MainWindow::MainWindow (
     spinBoxHistogramHeight->setMaximum (500);
     spinBoxHistogramHeight->setValue (widgetHistogram->GetHeight ());
 
-    m_timer->setInterval (20);
+    m_timer->setInterval (0);
     //initTranslatedBody ();
     configureInterfaceDataDependent (*simulationGroup);    
     ValueChangedSliderTimeSteps (0);
@@ -1450,8 +1450,6 @@ void MainWindow::ValueChangedT1KDEIsosurfaceValue (double value)
 
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
-    __LOG__ (cdbg << "MainWindow::ValueChangedSliderTimeSteps" 
-             << timeStep << endl;);
     vector<ViewNumber::Enum> vn = GetSettings ().GetLinkedTimeViewNumbers ();
     boost::array<int, ViewNumber::COUNT> direction;
 
@@ -1484,7 +1482,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
             else
                 widgetGl->UpdateAverage (viewNumber, direction[viewNumber]);
         }
-        widgetGl->CompileUpdate (viewNumber);
+        widgetGl->Compile (viewNumber);
 
         if (m_debugTranslatedBody)
         {
@@ -1493,7 +1491,8 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
                 const_cast<Foam&> (foam).GetBodies ().begin ();
         }
     }
-    widgetVtk->update ();
+    widgetGl->repaint ();
+    widgetVtk->repaint ();
     updateButtons ();
 }
 
@@ -1562,44 +1561,35 @@ void MainWindow::ButtonClickedViewType (int vt)
     {
 	ViewNumber::Enum viewNumber = vn[i];
 	ViewSettings& vs = GetViewSettings (viewNumber);
-	const Simulation& simulation = GetSimulation (viewNumber);
-
 	size_t simulationIndex = vs.GetSimulationIndex ();
-	ViewType::Enum oldViewType = vs.GetViewType ();
 	size_t property = vs.GetBodyOrOtherScalar ();
 	StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
 
 	setStackedWidgetVisualization (viewType);
-	Q_EMIT ColorMapScalarChanged (
-	    viewNumber, getColorMapScalar (
+	Q_EMIT ColorMapScalarChanged ( 
+            viewNumber, 
+            getColorMapScalar (
                 simulationIndex, viewNumber, viewType, 
                 property, statisticsType));
-
 	switch (viewType)
 	{
-	case ViewType::FACES:
-	    break;
-
 	case ViewType::AVERAGE:
 	    labelAverageColor->setText (
 		BodyScalar::ToString (BodyScalar::FromSizeT (property)));
 	    break;
-
+            
 	case ViewType::CENTER_PATHS:
 	    labelBubblePathsColor->setText (
 		BodyScalar::ToString (BodyScalar::FromSizeT (property)));
 	    break;
 
-	case ViewType::T1_KDE:
-	    sliderTimeSteps->setMaximum (
-                simulation.GetT1TimeSteps () - 1);
-	    break;
+        case ViewType::T1_KDE:
+            vs.SetBoundingBoxSimulationShown (true);
+            break;
 
 	default:
 	    break;
 	}
-	if (oldViewType == ViewType::T1_KDE)
-	    sliderTimeSteps->setMaximum (simulation.GetTimeSteps () - 1);
     }
     widgetGl->ButtonClickedViewType (oldViewType);
     updateVtkViewAll ();
