@@ -2294,14 +2294,13 @@ void WidgetGl::displayFacesInteriorFocusContext (
     }
 }
 
-
 void WidgetGl::displayFacesInterior (const Foam::Faces& faces) const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
     for_each (faces.begin (), faces.end (),
-	      DisplayFaceDmpColor<0xff000000>(GetSettings ()));
+	      DisplayFaceH0Color<>(GetSettings ()));
     glPopAttrib ();
 }
 

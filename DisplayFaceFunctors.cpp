@@ -213,11 +213,11 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 }
 
 
-// DisplayFaceDmpColor
+// DisplayFaceH0Color
 // ======================================================================
-template<QRgb faceColor, typename PropertySetter>
-DisplayFaceDmpColor<faceColor, PropertySetter>::
-DisplayFaceDmpColor (
+template<typename PropertySetter>
+DisplayFaceH0Color<PropertySetter>::
+DisplayFaceH0Color (
     const Settings& settings, 
     typename DisplayElement::FocusContext focus, ViewNumber::Enum view, 
     bool useZPos, double zPos) : 
@@ -232,9 +232,9 @@ DisplayFaceDmpColor (
 {
 }
 
-template<QRgb faceColor, typename PropertySetter>
-DisplayFaceDmpColor<faceColor, PropertySetter>::
-DisplayFaceDmpColor (
+template<typename PropertySetter>
+DisplayFaceH0Color<PropertySetter>::
+DisplayFaceH0Color (
     const Settings& settings, 
     PropertySetter propertySetter,
     typename DisplayElement::FocusContext focus,
@@ -247,42 +247,22 @@ DisplayFaceDmpColor (
 {
 }
 
-template<QRgb faceColor, typename PropertySetter>
-void DisplayFaceDmpColor<faceColor, PropertySetter>::
-operator () (const boost::shared_ptr<OrientedFace>& of)
-{
-    // ~/Documents/swansea-phd/foam/straight_6x2q_2/straightq_2_12_0001.dmp
-    // has a standalone face (#13) that is not closed.
-    if (of->IsClosed ())
-    {	
-	glNormal (of->GetNormal ());
-	displayNoNormal (of->GetFace ());
-    }
-}
 
-template<QRgb faceColor, typename PropertySetter>
-void DisplayFaceDmpColor<faceColor, PropertySetter>::
+template<typename PropertySetter>
+void DisplayFaceH0Color<PropertySetter>::
 operator () (const boost::shared_ptr<Face>& f)
 {
-    // ~/Documents/swansea-phd/foam/straight_6x2q_2/straightq_2_12_0001.dmp
+    // foam/straight_6x2q_2/straightq_2_12_0001.dmp
     // has a standalone face (#13) that is not closed.
     if (f->IsClosed ())
     {	
 	glNormal (f->GetNormal ());
-	displayNoNormal (f);
+        glColor (f->GetColor (this->m_settings.GetHighlightColor (
+                                  this->GetViewNumber (),
+                                  HighlightNumber::H0)));
+        (DisplayFaceTriangleFan (this->m_settings, this->GetViewNumber (),
+                                 this->Is2D ())) (f);
     }
-}
-
-
-template<QRgb faceColor, typename PropertySetter>
-void DisplayFaceDmpColor<faceColor, PropertySetter>::
-displayNoNormal (const boost::shared_ptr<Face>& f)
-{
-    glColor (f->GetColor (this->m_settings.GetHighlightColor (
-			       this->GetViewNumber (),
-			       HighlightNumber::H0)));
-    (DisplayFaceTriangleFan (this->m_settings, this->GetViewNumber (),
-                             this->Is2D ())) (f);
 }
 
 
@@ -414,9 +394,9 @@ template class DisplayFaceBodyScalarColor<SetterNop>;
 template class DisplayFaceBodyScalarColor<SetterVelocity>;
 
 
-// DisplayFaceDmpColor
+// DisplayFaceH0Color
 // ======================================================================
-template class DisplayFaceDmpColor<0xff000000, SetterTextureCoordinate>;
+template class DisplayFaceH0Color<SetterTextureCoordinate>;
 
 // DisplayFaceEdges
 // ======================================================================

@@ -83,7 +83,7 @@ public:
 template<typename PropertySetter = SetterTextureCoordinate>
 class DisplayFaceBodyScalarColor : 
     public DisplayFaceHighlightColor<HighlightNumber::H0, 
-				     DisplayFaceTriangleFan, PropertySetter>
+                            DisplayFaceTriangleFan, PropertySetter>
 {
 public:
     DisplayFaceBodyScalarColor (
@@ -108,31 +108,27 @@ private:
 };
 
 
-template<QRgb faceColor,
-	 typename PropertySetter = SetterTextureCoordinate>
-class DisplayFaceDmpColor : 
+template<typename PropertySetter = SetterTextureCoordinate>
+class DisplayFaceH0Color : 
     public DisplayFaceHighlightColor<HighlightNumber::H0, 
-				     DisplayFaceTriangleFan, PropertySetter>
+                            DisplayFaceTriangleFan, PropertySetter>
 {
 public:
-    DisplayFaceDmpColor (
+    DisplayFaceH0Color (
 	const Settings& settings, 
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	ViewNumber::Enum view = ViewNumber::VIEW0, 
 	bool useZPos = false,
 	double zPos = 0);
 
-    DisplayFaceDmpColor (
+    DisplayFaceH0Color (
 	const Settings& settings, 
 	PropertySetter propertySetter,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	bool useZPos = false, 
 	double zPos = 0);
 
-    void operator () (const boost::shared_ptr<OrientedFace>& of);
     void operator () (const boost::shared_ptr<Face>& f);
-private:
-    void displayNoNormal (const boost::shared_ptr<Face>& f);
 };
 
 // Display all edges of a face
