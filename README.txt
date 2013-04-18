@@ -269,7 +269,7 @@ cd xxx-private/src/
 
 Release log
 ===========
-0.8.
+0.9.2826
         - add Reset transform/All and Focus to the VTK view (3D average)
         - color and overlay bars work in VTK view
         - velocity glyph visualization in the average view.
