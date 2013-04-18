@@ -20,6 +20,7 @@ Release log
           for all time steps. This allows loading just a few time steps and
           having the regular grid correctly rendered.
         - voxels are square now (so that Gaussian is spheric)
+        - t1s kde for 3D implemented
 0.8.2740
         - update to vtk-6.0-20130125.tgz
         - remove folders inside .foamvis to regenerate regular grid data for 3D
