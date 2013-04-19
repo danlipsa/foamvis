@@ -2088,6 +2088,7 @@ void MainWindow::bubblePathsViewToUI ()
 void MainWindow::timeViewToUI (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
     size_t scalarAverageTimeWindow = 0;
     if (GetSettings ().GetTimeLinkage () == TimeLinkage::INDEPENDENT)
         scalarAverageTimeWindow = vs.GetTimeWindow ();
