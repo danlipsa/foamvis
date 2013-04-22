@@ -38,18 +38,12 @@ int checkedId (const QButtonGroup* group)
     return group->id (group->checkedButton ());
 }
 
-template<size_t size>
-void setVisible (const boost::array<QWidget*, size>& widgets, bool visible)
+template<typename Iterator>
+void setProperty (void (QWidget::*setProperty) (bool), 
+                  Iterator begin, Iterator end, bool enabled)
 {
-    BOOST_FOREACH(QWidget* widget, widgets)
-	widget->setVisible (visible);
-}
-
-template<size_t size>
-void setEnabled (const boost::array<QWidget*, size>& widgets, bool enabled)
-{
-    BOOST_FOREACH(QWidget* widget, widgets)
-	widget->setEnabled (enabled);
+    for (Iterator it = begin; it != end; ++it)
+	CALL_MEMBER(**it, setProperty) (enabled);
 }
 
 // Static fields
@@ -118,7 +112,7 @@ MainWindow::MainWindow (
     initComboBoxSimulation (*simulationGroup);
     configureInterface ();
     createActions ();
-    setTabOrder (radioButtonBubblesPaths, sliderTimeSteps);
+    setTabOrder (radioButtonBubblePaths, sliderTimeSteps);
     string title ("FoamVis");
     if (simulationGroup->size () == 1)
     {
@@ -249,6 +243,18 @@ void MainWindow::translatedBodyInit ()
     m_currentTranslatedBody = foam.GetBodies ().begin ();
 }
 
+vector<QWidget*> MainWindow::getHistogramWidgets () const
+{
+    boost::array<QWidget*, 6> a = {{
+            checkBoxHistogramShown, checkBoxHistogramAllTimesteps,
+            checkBoxHistogramColorMapped, 
+	    checkBoxHistogramAllTimesteps, checkBoxHistogramGridShown,
+            spinBoxHistogramHeight}};
+    vector<QWidget*> v (6);
+    copy (a.begin (), a.end (), v.begin ());
+    return v;
+}
+
 
 void MainWindow::connectSignals ()
 {
@@ -358,7 +364,7 @@ void MainWindow::setupButtonGroups ()
     buttonGroupViewType->setId (radioButtonFaceEdgesTorus, 
 				ViewType::FACES_TORUS);
     buttonGroupViewType->setId (radioButtonFacesNormal, ViewType::FACES);
-    buttonGroupViewType->setId (radioButtonBubblesPaths, ViewType::CENTER_PATHS);
+    buttonGroupViewType->setId (radioButtonBubblePaths, ViewType::CENTER_PATHS);
     buttonGroupViewType->setId (radioButtonAverage, 
 				ViewType::AVERAGE);
     buttonGroupViewType->setId (radioButtonT1sKDE, ViewType::T1_KDE);
@@ -934,40 +940,6 @@ void MainWindow::clickedPlay (PlayType playType)
     updateButtons ();
 }
 
-void MainWindow::currentIndexChangedFaceColor (
-    ViewNumber::Enum viewNumber)
-{
-    int value = static_cast<QComboBox*> (sender ())->currentIndex ();
-    const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
-    boost::array<QWidget*, 3> widgetsVisible = {{
-	    checkBoxHistogramShown, checkBoxHistogramColorMapped, 
-	    checkBoxHistogramAllTimesteps}};
-    boost::array<QWidget*, 1> widgetsEnabled = {{
-	    radioButtonAverage}};
-    size_t simulationIndex = vs.GetSimulationIndex ();
-    if (value == BodyScalar::COUNT) {
-        OtherScalar::Enum os = OtherScalar::DMP_COLOR;
-	::setVisible (widgetsVisible, false);
-	::setEnabled (widgetsEnabled, false);
-	Q_EMIT BodyOrFaceScalarChanged (
-	    viewNumber, boost::shared_ptr<ColorBarModel> (), os);
-    }
-    else {
-	BodyScalar::Enum property = BodyScalar::FromSizeT (value);
-	::setVisible (widgetsVisible, true);
-	::setEnabled (widgetsEnabled, true);
-	Q_EMIT BodyOrFaceScalarChanged (
-	    viewNumber,
-	    m_colorMapScalar
-	    [simulationIndex][viewNumber][property], property);
-        widgetHistogram->UpdateColorMap (
-            viewNumber, getColorMapScalar (viewNumber));
-	widgetHistogram->UpdateData (
-            viewNumber, WidgetHistogram::DISCARD_SELECTION, 
-            WidgetHistogram::REPLACE_MAX_VALUE);
-    }
-}
-
 void MainWindow::setStackedWidgetVisualization (ViewType::Enum viewType)
 {
     // WARNING: Has to match ViewType::Enum order
@@ -1112,10 +1084,10 @@ void MainWindow::CurrentIndexChangedViewCount (int index)
 
     boost::array<QWidget*, 2> widgetsViewLayout = 
 	{{labelViewLayout, comboBoxViewLayout}};
-    if (viewCount == ViewCount::TWO || viewCount == ViewCount::THREE)
-	::setVisible (widgetsViewLayout, true);
-    else
-	::setVisible (widgetsViewLayout, false);
+    ::setProperty (
+        &QWidget::setVisible, 
+        widgetsViewLayout.begin (), widgetsViewLayout.end (), 
+        viewCount == ViewCount::TWO || viewCount == ViewCount::THREE);
     checkBoxTitleShown->setChecked (viewCount != ViewCount::ONE);    
     GetSettingsPtr ()->SetAverageTimeWindow (
         GetSettings ().GetLinkedTimeSteps ());
@@ -1632,12 +1604,47 @@ void MainWindow::CurrentIndexChangedSelectedLight (int i)
     lightViewToUI (vs, LightNumber::Enum (i));
 }
 
-void MainWindow::CurrentIndexChangedFaceColor (int value)
+void MainWindow::CurrentIndexChangedOtherScalar (int value)
 {
     (void)value;
     GetSettingsPtr ()->SetOneOrTwoViews (
-        this, &MainWindow::currentIndexChangedFaceColor);
+        this, &MainWindow::currentIndexChangedOtherScalar);
 }
+void MainWindow::currentIndexChangedOtherScalar (
+    ViewNumber::Enum viewNumber)
+{
+    int value = static_cast<QComboBox*> (sender ())->currentIndex ();
+    const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
+    boost::array<QWidget*, 9> a = {{
+            radioButtonAverage, radioButtonBubblePaths, radioButtonT1sKDE}};
+    vector<QWidget*> widgetsEnabled = getHistogramWidgets ();
+    widgetsEnabled.resize (widgetsEnabled.size () + a.size ());
+    copy (a.begin (), a.end (), widgetsEnabled.end ());
+    size_t simulationIndex = vs.GetSimulationIndex ();
+    if (value == BodyScalar::COUNT) {
+        OtherScalar::Enum os = OtherScalar::DMP_COLOR;
+	::setProperty (
+            &QWidget::setEnabled, 
+            widgetsEnabled.begin (), widgetsEnabled.end (), false);
+	Q_EMIT BodyOrFaceScalarChanged (
+	    viewNumber, boost::shared_ptr<ColorBarModel> (), os);
+    }
+    else {
+	BodyScalar::Enum property = BodyScalar::FromSizeT (value);
+	::setProperty (&QWidget::setEnabled, 
+                       widgetsEnabled.begin (), widgetsEnabled.end (), true);
+	Q_EMIT BodyOrFaceScalarChanged (
+	    viewNumber,
+	    m_colorMapScalar
+	    [simulationIndex][viewNumber][property], property);
+        widgetHistogram->UpdateColorMap (
+            viewNumber, getColorMapScalar (viewNumber));
+	widgetHistogram->UpdateData (
+            viewNumber, WidgetHistogram::DISCARD_SELECTION, 
+            WidgetHistogram::REPLACE_MAX_VALUE);
+    }
+}
+
 
 void MainWindow::CurrentIndexChangedStatisticsType (int value)
 {
@@ -1647,16 +1654,25 @@ void MainWindow::CurrentIndexChangedStatisticsType (int value)
     {
     case StatisticsType::AVERAGE:
 	connectColorBarHistogram (true);
-	::setVisible (widgetsAverageTimeWindow, true);
+	::setProperty (&QWidget::setVisible, 
+                      widgetsAverageTimeWindow.begin (), 
+                      widgetsAverageTimeWindow.end (), 
+                      true);
 	break;
     case StatisticsType::MIN:
     case StatisticsType::MAX:
 	connectColorBarHistogram (true);
-	::setVisible (widgetsAverageTimeWindow, false);
+	::setProperty (&QWidget::setVisible, 
+                      widgetsAverageTimeWindow.begin (), 
+                      widgetsAverageTimeWindow.end (), 
+                      false);
 	break;
     case StatisticsType::COUNT:
 	connectColorBarHistogram (false);
-	::setVisible (widgetsAverageTimeWindow, false);
+	::setProperty (&QWidget::setVisible, 
+                       widgetsAverageTimeWindow.begin (), 
+                       widgetsAverageTimeWindow.end (), 
+                       false);
 	break;
     }
     Q_EMIT ColorMapScalarChanged (GetViewNumber (), 
@@ -2088,7 +2104,6 @@ void MainWindow::bubblePathsViewToUI ()
 void MainWindow::timeViewToUI (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    const Simulation& simulation = GetSimulation (viewNumber);
     size_t scalarAverageTimeWindow = 0;
     if (GetSettings ().GetTimeLinkage () == TimeLinkage::INDEPENDENT)
         scalarAverageTimeWindow = vs.GetTimeWindow ();

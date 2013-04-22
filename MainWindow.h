@@ -108,7 +108,7 @@ public Q_SLOTS:
     void ButtonClickedPlayReverse ();
     void CurrentIndexChangedSimulation (int index);
     void CurrentIndexChangedInteractionMode (int index);
-    void CurrentIndexChangedFaceColor (int value);
+    void CurrentIndexChangedOtherScalar (int value);
     void CurrentIndexChangedStatisticsType (int value);
     /**
      * Copy status from WidgetGl to the UI controls
@@ -166,7 +166,7 @@ private:
     void updateStretch ();
     void updateVtkView (ViewNumber::Enum viewNumber);
     void updateVtkViewAll ();
-    void currentIndexChangedFaceColor (ViewNumber::Enum viewNumber);
+    void currentIndexChangedOtherScalar (ViewNumber::Enum viewNumber);
     void settingsViewToUI (ViewNumber::Enum viewNumber);
     void timeViewToUI (ViewNumber::Enum viewNumber);
     void linkedTimeEventsViewToUI (ViewNumber::Enum viewNumber);
@@ -253,6 +253,8 @@ private:
     void clickedPlay (PlayType playType);
     void toggledT1KDEKernelBoxShown (ViewNumber::Enum viewNumber);
     void valueChangedT1KDEKernelSigma (ViewNumber::Enum viewNumber);
+    vector<QWidget*> getHistogramWidgets () const;
+
 
 private:
     /**

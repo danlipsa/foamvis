@@ -1432,7 +1432,7 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QRadioButton" name="radioButtonBubblesPaths">
+             <widget class="QRadioButton" name="radioButtonBubblePaths">
               <property name="text">
                <string>Bubble paths</string>
               </property>
@@ -2614,7 +2614,7 @@
     <slot>ValueChangedBlend(int)</slot>
     <slot>ToggledFacesTorus(bool)</slot>
     <slot>ValueChangedSliderTimeSteps(int)</slot>
-    <slot>CurrentIndexChangedFaceColor(int)</slot>
+    <slot>CurrentIndexChangedOtherScalar(int)</slot>
     <slot>ToggledFacesAverage(bool)</slot>
     <slot>ToggledCenterPathUnselected(bool)</slot>
     <slot>ToggledCenterPathDisplayUnselectedPaths(bool)</slot>
@@ -4133,7 +4133,7 @@
    <sender>comboBoxColor</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>CurrentIndexChangedFaceColor(int)</slot>
+   <slot>CurrentIndexChangedOtherScalar(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>1091</x>
@@ -4491,7 +4491,7 @@
   <slot>ButtonClickedAllTimestepsHistogram(int)</slot>
   <slot>ToggledAverageTimeWindowEnabled(bool)</slot>
   <slot>CurrentIndexChangedStatisticsType(int)</slot>
-  <slot>CurrentIndexChangedFaceColor(int)</slot>
+  <slot>CurrentIndexChangedOtherScalar(int)</slot>
   <slot>ToggledFacesDomainHistogram(bool)</slot>
   <slot>CurrentIndexChangedViewCount(int)</slot>
   <slot>ValueChangedHistogramHeight(int)</slot>
