@@ -250,8 +250,7 @@ vector<QWidget*> MainWindow::getHistogramWidgets () const
             checkBoxHistogramColorMapped, 
 	    checkBoxHistogramAllTimesteps, checkBoxHistogramGridShown,
             spinBoxHistogramHeight}};
-    vector<QWidget*> v (6);
-    copy (a.begin (), a.end (), v.begin ());
+    vector<QWidget*> v (a.begin (), a.end ());
     return v;
 }
 
@@ -1235,7 +1234,7 @@ void MainWindow::ToggledHistogramShown (bool checked)
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetHistogramShown (checked);
     widgetHistogram->UpdateColorMap (viewNumber, 
-                                        getColorMapScalar (viewNumber));
+                                     getColorMapScalar (viewNumber));
     widgetHistogram->UpdateData (
         viewNumber, WidgetHistogram::KEEP_SELECTION, 
         WidgetHistogram::KEEP_MAX_VALUE);    
@@ -1525,8 +1524,23 @@ void MainWindow::ButtonClickedViewType (int vt)
 {
     vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
     ViewType::Enum viewType = ViewType::Enum(vt);
+    if (viewType == ViewType::T1_KDE)
+    {
+        checkBoxHistogramShown->setChecked (false);
+        vector<QWidget*> widgetsEnabled = getHistogramWidgets ();
+        ::setProperty (
+            &QWidget::setEnabled, 
+            widgetsEnabled.begin (), widgetsEnabled.end (), false);
+    }
     ViewType::Enum oldViewType = 
         GetSettingsPtr ()->SetTwoHalvesViewType (viewType);
+    if (oldViewType == ViewType::T1_KDE)
+    {
+        vector<QWidget*> widgetsEnabled = getHistogramWidgets ();
+        ::setProperty (
+            &QWidget::setEnabled, 
+            widgetsEnabled.begin (), widgetsEnabled.end (), true);
+    }
     widgetTimeWindow->setVisible (
         viewType == ViewType::AVERAGE || viewType == ViewType::T1_KDE);
     for (size_t i = 0; i < vn.size (); ++i)
@@ -1537,12 +1551,6 @@ void MainWindow::ButtonClickedViewType (int vt)
 	size_t property = vs.GetBodyOrOtherScalar ();
 	StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
 
-	setStackedWidgetVisualization (viewType);
-	Q_EMIT ColorMapScalarChanged ( 
-            viewNumber, 
-            getColorMapScalar (
-                simulationIndex, viewNumber, viewType, 
-                property, statisticsType));
 	switch (viewType)
 	{
 	case ViewType::AVERAGE:
@@ -1558,10 +1566,16 @@ void MainWindow::ButtonClickedViewType (int vt)
         case ViewType::T1_KDE:
             vs.SetBoundingBoxSimulationShown (true);
             break;
-
+            
 	default:
 	    break;
 	}
+	setStackedWidgetVisualization (viewType);
+	Q_EMIT ColorMapScalarChanged ( 
+            viewNumber, 
+            getColorMapScalar (
+                simulationIndex, viewNumber, viewType, 
+                property, statisticsType));
     }
     widgetGl->ButtonClickedViewType (oldViewType);
     updateVtkViewAll ();
@@ -1615,14 +1629,15 @@ void MainWindow::currentIndexChangedOtherScalar (
 {
     int value = static_cast<QComboBox*> (sender ())->currentIndex ();
     const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
-    boost::array<QWidget*, 9> a = {{
+    boost::array<QWidget*, 3> a = {{
             radioButtonAverage, radioButtonBubblePaths, radioButtonT1sKDE}};
     vector<QWidget*> widgetsEnabled = getHistogramWidgets ();
-    widgetsEnabled.resize (widgetsEnabled.size () + a.size ());
-    copy (a.begin (), a.end (), widgetsEnabled.end ());
+    BOOST_FOREACH (QWidget* widget, a)
+        widgetsEnabled.push_back (widget);
     size_t simulationIndex = vs.GetSimulationIndex ();
     if (value == BodyScalar::COUNT) {
         OtherScalar::Enum os = OtherScalar::DMP_COLOR;
+        checkBoxHistogramShown->setChecked (false);
 	::setProperty (
             &QWidget::setEnabled, 
             widgetsEnabled.begin (), widgetsEnabled.end (), false);
