@@ -60,6 +60,7 @@ Q_SIGNALS:
 public Q_SLOTS:
     void SelectionChangedFromSettings (ViewNumber::Enum viewNumber);
     void ToggledT1KDEKernelBoxShown (bool checked);
+    void ToggledScalarContourShown (bool checked);
     void ToggledBarLarge (bool large);
     void ToggledAxesShown (bool checked);
     void ToggledBoundingBoxSimulation (bool checked);

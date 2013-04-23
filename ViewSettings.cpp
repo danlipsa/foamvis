@@ -105,7 +105,8 @@ ViewSettings::ViewSettings () :
     m_T1KDESigmaInBubbleDiameter (1),
     m_onePixelInObjectSpace (0),
     m_axesShown (false),
-    m_boundingBoxSimulationShown (false)
+    m_boundingBoxSimulationShown (false),
+    m_scalarContourShown (false)
 {
     setInitialLightParameters ();
     for (size_t i = 0; i < m_averageAroundBodyId.size (); ++i)

@@ -106,8 +106,10 @@ public:
     string ToString () const;
     void ColorMapCopy (const ColorBarModel& other);
     G3D::Vector2 GetBarLabelSize () const;
+    QColor GetColor (double value) const;
 
 
+public:
     static const size_t COLORS;
 
 private:    
@@ -125,7 +127,6 @@ private:
     void setup ();
     void setupColorMap ();
     void setupImage ();
-    QColor getColor (double value) const;
     void adjustColorTransferFunction ();
 
 private:

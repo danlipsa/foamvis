@@ -34,7 +34,7 @@ QColor ColorBarModel::GetHighlightColor (HighlightNumber::Enum i) const
     return m_highlightColor[i];
 }
 
-QColor ColorBarModel::getColor (double value) const
+QColor ColorBarModel::GetColor (double value) const
 {
     QColor color;
     color.setRedF (m_ctf->GetRedValue (value));
@@ -276,23 +276,23 @@ void ColorBarModel::adjustColorTransferFunction ()
 
 void ColorBarModel::setupColorMap ()
 {
-    m_qwtColorMap.setColorInterval (getColor (0), getColor (1));
+    m_qwtColorMap.setColorInterval (GetColor (0), GetColor (1));
     double width = m_interval.width ();
     double low = 
         (m_clampInterval.minValue () -  m_interval.minValue ()) / width;
     double high = 
         (m_clampInterval.maxValue () -  m_interval.minValue ()) / width;
     if (low != 0)
-	m_qwtColorMap.addColorStop (low, getColor (0));
+	m_qwtColorMap.addColorStop (low, GetColor (0));
     if (high != 1)
-	m_qwtColorMap.addColorStop (high, getColor (1));
+	m_qwtColorMap.addColorStop (high, GetColor (1));
     m_qwtColorMap.setMode (QwtLinearColorMap::FixedColors);
     size_t colors = COLORS - 1;
     for (size_t i = 1; i < colors; ++i)
     {
 	double value = static_cast<double>(i) / colors;
 	double insideClamp = low + value * (high - low);
-	m_qwtColorMap.addColorStop (insideClamp, getColor (value));
+	m_qwtColorMap.addColorStop (insideClamp, GetColor (value));
     }
 }
 
@@ -310,15 +310,15 @@ void ColorBarModel::setupImage ()
 	uint rgb;
 	if (value <= low)
 	    rgb = static_cast<uint> (
-		getColor (0).rgb ());
+		GetColor (0).rgb ());
 	else if (value >= high)
 	    rgb = static_cast<uint> (
-		getColor (1).rgb ());
+		GetColor (1).rgb ());
 	else
 	{
 	    double inside01 = (value - low) / (high - low);
 	    rgb = static_cast<uint> (
-		getColor (inside01).rgb ());
+		GetColor (inside01).rgb ());
 	}
 	m_image.setPixel (i, 0, rgb);
     }

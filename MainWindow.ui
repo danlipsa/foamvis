@@ -2614,7 +2614,7 @@
     <slot>ValueChangedBlend(int)</slot>
     <slot>ToggledFacesTorus(bool)</slot>
     <slot>ValueChangedSliderTimeSteps(int)</slot>
-    <slot>CurrentIndexChangedOtherScalar(int)</slot>
+    <slot>CurrentIndexChangedFaceColor(int)</slot>
     <slot>ToggledFacesAverage(bool)</slot>
     <slot>ToggledCenterPathUnselected(bool)</slot>
     <slot>ToggledCenterPathDisplayUnselectedPaths(bool)</slot>
@@ -2775,6 +2775,7 @@
     <slot>ToggledVelocityFieldSaved(bool)</slot>
     <slot>ToggledSeedShown(bool)</slot>
     <slot>ToggledKDESeed(bool)</slot>
+    <slot>CurrentIndexChangedOtherScalar(int)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -4137,7 +4138,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>1091</x>
-     <y>462</y>
+     <y>489</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -4153,7 +4154,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>921</x>
-     <y>489</y>
+     <y>516</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -4168,8 +4169,8 @@
    <slot>ValueChangedTimeDisplacement(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1100</x>
-     <y>536</y>
+     <x>913</x>
+     <y>484</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -4184,8 +4185,8 @@
    <slot>ToggledBubblePathsTubeUsed(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1100</x>
-     <y>506</y>
+     <x>913</x>
+     <y>484</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -4200,7 +4201,7 @@
    <slot>CurrentIndexChangedStatisticsType(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1100</x>
+     <x>913</x>
      <y>484</y>
     </hint>
     <hint type="destinationlabel">
@@ -4216,7 +4217,7 @@
    <slot>CurrentIndexChangedStatisticsType(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1100</x>
+     <x>913</x>
      <y>484</y>
     </hint>
     <hint type="destinationlabel">
@@ -4232,8 +4233,8 @@
    <slot>ToggledBubblePathsLineUsed(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1100</x>
-     <y>479</y>
+     <x>913</x>
+     <y>484</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -4248,8 +4249,8 @@
    <slot>ToggledPartialPathHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>907</x>
-     <y>506</y>
+     <x>913</x>
+     <y>484</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -4264,8 +4265,8 @@
    <slot>ToggledT1KDEKernelBoxShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1091</x>
-     <y>457</y>
+     <x>913</x>
+     <y>484</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -4296,8 +4297,8 @@
    <slot>ToggledBubblePathsLineUsed(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1100</x>
-     <y>479</y>
+     <x>913</x>
+     <y>484</y>
     </hint>
     <hint type="destinationlabel">
      <x>1017</x>
@@ -4312,8 +4313,8 @@
    <slot>ValueChangedBubblePathsTimeBegin(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1100</x>
-     <y>568</y>
+     <x>913</x>
+     <y>484</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -4328,8 +4329,8 @@
    <slot>ValueChangedBubblePathsTimeEnd(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1100</x>
-     <y>606</y>
+     <x>913</x>
+     <y>484</y>
     </hint>
     <hint type="destinationlabel">
      <x>622</x>
@@ -4344,8 +4345,8 @@
    <slot>ValueChangedT1KDEKernelSigma(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1091</x>
-     <y>489</y>
+     <x>913</x>
+     <y>484</y>
     </hint>
     <hint type="destinationlabel">
      <x>1016</x>
@@ -4472,12 +4473,28 @@
    <slot>ValueChangedT1KDEIsosurfaceValue(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>991</x>
-     <y>506</y>
+     <x>913</x>
+     <y>484</y>
     </hint>
     <hint type="destinationlabel">
      <x>1124</x>
      <y>599</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxIsosurface</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledScalarContourShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>880</x>
+     <y>438</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1125</x>
+     <y>673</y>
     </hint>
    </hints>
   </connection>
@@ -4527,6 +4544,7 @@
   <slot>ToggledT1KDEKernelBoxShown(bool)</slot>
   <slot>ValueChangedT1KDEIsosurfaceValue(double)</slot>
   <slot>ToggledBoundingBoxSimulation(bool)</slot>
+  <slot>ToggledScalarContourShown(bool)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupVelocityVis"/>

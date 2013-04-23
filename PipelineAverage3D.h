@@ -50,12 +50,16 @@ private:
     void updateForce (size_t objectIndex, ForceType::Enum forceType,
                       G3D::Vector3 force, G3D::Vector3 position, bool shown);
     void fromViewVelocityGlyph (ViewNumber::Enum viewNumber, const Base& base);
+    void fromViewScalar (ViewNumber::Enum viewNumber, const Base& base);
+    void updateContourColor ();
 
     
 private:
     // scalar average
     vtkSmartPointer<vtkActor> m_scalarAverageActor;
     vtkSmartPointer<vtkThreshold> m_scalarThreshold;
+    vtkSmartPointer<vtkContourFilter> m_scalarContour;
+
     // constraint surfaces
     vector<vtkSmartPointer<vtkActor> > m_constraintSurface;
     // objects

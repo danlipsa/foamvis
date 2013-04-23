@@ -119,10 +119,9 @@ public:
     }
     // @}
 
-
     /**
      * @{
-     * @name Attributes
+     * @name Scalar
      */
     bool IsScalarShown () const
     {
@@ -140,6 +139,21 @@ public:
     {
         m_scalarContext = context;
     }
+    bool IsScalarContourShown () const
+    {
+        return m_scalarContourShown;
+    }
+    void SetScalarContourShown (bool shown)
+    {
+        m_scalarContourShown = shown;
+    }
+    // @}
+
+
+    /**
+     * @{
+     * @name Attributes
+     */
     void SetForceShown (ForceType::Enum type, bool value)
     {
 	m_forceShown[type] = value;
@@ -933,6 +947,7 @@ private:
     float m_onePixelInObjectSpace;
     bool m_axesShown;
     bool m_boundingBoxSimulationShown;
+    bool m_scalarContourShown;
 };
 
 

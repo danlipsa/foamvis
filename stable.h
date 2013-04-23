@@ -127,6 +127,7 @@
 #include <vtkConeSource.h>
 #include <vtkCompositeDataGeometryFilter.h>
 #include <vtkCommand.h>
+#include <vtkContourFilter.h>
 #include <vtkDataSetMapper.h>
 #include <vtkEventQtSlotConnect.h>
 #include <vtkFloatArray.h>

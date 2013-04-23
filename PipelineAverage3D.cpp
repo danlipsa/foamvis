@@ -57,19 +57,23 @@ void PipelineAverage3D::createScalarAverageActor ()
     // vtkImageData->vtkThreshold->vtkDatasetMapper->vtkActor->vtkRenderer
     //                                               vtkScalarBarActor
 
+    // vtkImageData->vtkContourFilter
+    VTK_CREATE (vtkContourFilter, scalarContour);
+
     // threshold scalar value
-    VTK_CREATE (vtkThreshold, thresholdScalar);
-    thresholdScalar->AllScalarsOn ();
-    //thresholdScalar->SetInputDataObject ();
+    VTK_CREATE (vtkThreshold, scalarThreshold);
+    scalarThreshold->AllScalarsOn ();
+    //scalarThreshold->SetInputDataObject ();
 
     // scalar average mapper and actor
     VTK_CREATE (vtkDataSetMapper, averageMapper);
-    averageMapper->SetInputConnection (thresholdScalar->GetOutputPort ());
+    averageMapper->SetInputConnection (scalarThreshold->GetOutputPort ());
     VTK_CREATE(vtkActor, averageActor);
     averageActor->SetMapper(averageMapper);
     GetRenderer ()->AddViewProp(averageActor);
 
-    m_scalarThreshold = thresholdScalar;
+    m_scalarContour = scalarContour;
+    m_scalarThreshold = scalarThreshold;
     m_scalarAverageActor = averageActor;
 }
 
@@ -208,6 +212,8 @@ void PipelineAverage3D::UpdateThresholdScalar (
         //__ENABLE_LOGGING__;        
 	m_scalarThreshold->ThresholdBetween (
 	    interval.minValue (), interval.maxValue ());
+        m_scalarContour->SetValue (0, interval.minValue ());
+        updateContourColor ();
         if (scalar == BodyScalar::VELOCITY_MAGNITUDE)
         {
             m_velocityGlyph->SetInputConnection(
@@ -224,6 +230,16 @@ void PipelineAverage3D::UpdateThresholdScalar (
     }
 }
 
+void PipelineAverage3D::updateContourColor ()
+{
+    double value = m_scalarContour->GetValue (0);
+    vtkScalarsToColors* colorMap = 
+        m_scalarAverageActor->GetMapper ()->GetLookupTable ();
+    double rgb[3];
+    colorMap->GetColor (value, rgb);
+    m_scalarAverageActor->GetProperty ()->SetColor (rgb[0], rgb[1], rgb[2]);
+}
+
 void PipelineAverage3D::UpdateColorMapScalar (
     const ColorBarModel& colorMapScalar)
 {
@@ -233,9 +249,8 @@ void PipelineAverage3D::UpdateColorMapScalar (
         colorMapScalar.GetVtkColorMap ();
     PipelineBase::UpdateColorMapScalar (
         vtkColorMap, colorMapScalar.GetTitle ().c_str ());
-    m_scalarAverageActor->GetMapper ()->SetLookupTable (
-        vtkColorMap);
-
+    m_scalarAverageActor->GetMapper ()->SetLookupTable (vtkColorMap);
+    updateContourColor ();
     for (size_t i = 0; i < m_forceActor.size (); ++i)
         for (size_t j = 0; j < m_forceActor[i].size (); ++j)
         {
@@ -320,6 +335,7 @@ void PipelineAverage3D::UpdateAverageScalar (const RegularGridAverage& average)
 
     // update scalar
     m_scalarThreshold->SetInputDataObject (imageData);
+    m_scalarContour->SetInputDataObject (imageData);
     
     // update objects
     const Foam::Bodies& objects = foam.GetObjects ();
@@ -351,9 +367,21 @@ void PipelineAverage3D::FromView (ViewNumber::Enum viewNumber, const Base& base)
     const ViewSettings& vs = base.GetViewSettings (viewNumber);
     updateAlpha (vs.GetContextAlpha (), m_constraintSurface);
     updateAlpha (vs.GetObjectAlpha (), m_object);
-    m_scalarAverageActor->SetVisibility (vs.IsScalarShown ());
+    fromViewScalar (viewNumber, base);
     m_outlineActor->SetVisibility (vs.IsBoundingBoxSimulationShown ());
     fromViewVelocityGlyph (viewNumber, base);
+}
+
+void PipelineAverage3D::fromViewScalar (
+    ViewNumber::Enum viewNumber, const Base& base)
+{
+    const ViewSettings& vs = base.GetViewSettings (viewNumber);
+    m_scalarAverageActor->SetVisibility (vs.IsScalarShown ());
+    vtkMapper* mapper = m_scalarAverageActor->GetMapper ();
+    if (vs.IsScalarContourShown ())
+        mapper->SetInputConnection (m_scalarContour->GetOutputPort ());
+    else
+        mapper->SetInputConnection (m_scalarThreshold->GetOutputPort ());
 }
 
 

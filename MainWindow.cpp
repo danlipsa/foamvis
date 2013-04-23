@@ -1725,6 +1725,13 @@ void MainWindow::ToggledTitleShown (bool checked)
     widgetVtk->UpdateAverage3dTitle ();
 }
 
+void MainWindow::ToggledScalarContourShown (bool checked)
+{
+    GetViewSettings ().SetScalarContourShown (checked);
+    widgetVtk->FromView ();
+}
+
+
 void MainWindow::updateSliderTimeSteps (
     ViewNumber::Enum viewNumber,
     const vector<QwtDoubleInterval>& valueIntervals)
