@@ -1118,6 +1118,12 @@ void MainWindow::CurrentIndexChangedWindowLayout (int index)
 }
 
 
+void MainWindow::ToggledDmpTransformShown (bool checked)
+{
+    GetViewSettings ().SetDmpTransformShown (checked);
+    widgetGl->update ();
+}
+
 void MainWindow::ToggledT1KDEKernelBoxShown (bool checked)
 {
     (void)checked;

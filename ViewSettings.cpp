@@ -106,7 +106,8 @@ ViewSettings::ViewSettings () :
     m_onePixelInObjectSpace (0),
     m_axesShown (false),
     m_boundingBoxSimulationShown (false),
-    m_scalarContourShown (false)
+    m_scalarContourShown (false),
+    m_dmpTransformShown (false)
 {
     setInitialLightParameters ();
     for (size_t i = 0; i < m_averageAroundBodyId.size (); ++i)
@@ -568,8 +569,9 @@ G3D::Matrix3 ViewSettings::getRotation3D (const Foam& foam) const
      */
     const static G3D::Matrix3 evolverAxes (0, 1, 0,  0, 0, 1,  1, 0, 0);
     G3D::Matrix3 rotation (evolverAxes);
-    rotation = rotation * 
-	foam.GetViewMatrix ().approxCoordinateFrame ().rotation;
+    if (IsDmpTransformShown ())
+        rotation = rotation * 
+            foam.GetViewMatrix ().approxCoordinateFrame ().rotation;
     return rotation;
 }
 

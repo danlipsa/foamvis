@@ -55,12 +55,15 @@ public:
 	m_viewType = viewType;
     }
 
+    /**
+     * body scalar or DMP_COLOR
+     */
     void SetBodyOrFaceScalar (size_t bodyOrFaceScalar)
     {
 	m_bodyOrFaceScalar = bodyOrFaceScalar;
     }
     /**
-     * BodyOrFace scalar or T1_KDE
+     * body scalar or DMP_COLOR or T1_KDE
      */
     size_t GetBodyOrOtherScalar () const;
     
@@ -349,6 +352,14 @@ public:
     float GetOnePixelInObjectSpace () const
     {
         return m_onePixelInObjectSpace;
+    }
+    bool IsDmpTransformShown () const
+    {
+        return m_dmpTransformShown;
+    }
+    void SetDmpTransformShown (bool shown)
+    {
+        m_dmpTransformShown = shown;
     }
     // @}
 
@@ -948,6 +959,7 @@ private:
     bool m_axesShown;
     bool m_boundingBoxSimulationShown;
     bool m_scalarContourShown;
+    bool m_dmpTransformShown;
 };
 
 

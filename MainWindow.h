@@ -58,30 +58,6 @@ Q_SIGNALS:
 
 
 public Q_SLOTS:
-    void SelectionChangedFromSettings (ViewNumber::Enum viewNumber);
-    void ToggledT1KDEKernelBoxShown (bool checked);
-    void ToggledScalarContourShown (bool checked);
-    void ToggledBarLarge (bool large);
-    void ToggledAxesShown (bool checked);
-    void ToggledBoundingBoxSimulation (bool checked);
-    void ToggledScalarShown (bool shown);
-    void ToggledScalarContext (bool context);
-    void ToggledViewFocusShown (bool checked);
-    void ToggledTitleShown (bool checked);
-    void ToggledBubblePathsLineUsed (bool checked);
-    void ValueChangedContextAlpha (int sliderValue);
-    void ValueChangedObjectAlpha (int sliderValue);
-    void ValueChangedForceSize (int index);
-    void ValueChangedForceLineWidth (int index);
-    void ValueChangedGlyphSeedsCount (int index);
-    void ToggledVelocityShown (bool checked);
-    void ToggledHistogramGridShown (bool checked);
-    void ToggledHistogramShown (bool checked);
-    void ToggledHistogramColor (bool checked);
-    void ToggledHistogramAllTimesteps (bool checked);
-    void ToggledVelocitySameSize (bool checked);
-
-    void CellClickedLinkedTimeEvents (int row, int column);
     void ButtonClickedInteractionObject (int id);
     void ButtonClickedViewType (int viewType);
     void ButtonClickedForce (int type);
@@ -89,7 +65,7 @@ public Q_SLOTS:
     void ButtonClickedVelocityVis (int velocityVis);
     void ButtonClickedTimeLinkage (int id);
 
-    void ToggledTwoHalvesView (bool checked);
+
 
     /**
      * Called when the Begin Slider button is pressed. Shows the first
@@ -107,6 +83,9 @@ public Q_SLOTS:
      */
     void ButtonClickedPlay ();
     void ButtonClickedPlayReverse ();
+
+
+    void CellClickedLinkedTimeEvents (int row, int column);
     void CurrentIndexChangedSimulation (int index);
     void CurrentIndexChangedInteractionMode (int index);
     void CurrentIndexChangedOtherScalar (int value);
@@ -129,12 +108,32 @@ public Q_SLOTS:
 
     void RotateShown ();
     void ScaleShown ();
-    void TranslateShown ();    
+    void TranslateShown ();
     void SelectShown ();
     void DeselectShown ();
     void ResetTransformAll ();
 
+    void ToggledDmpTransformShown (bool checked);
+    void ToggledT1KDEKernelBoxShown (bool checked);
+    void ToggledScalarContourShown (bool checked);
+    void ToggledBarLarge (bool large);
+    void ToggledAxesShown (bool checked);
+    void ToggledBoundingBoxSimulation (bool checked);
+    void ToggledScalarShown (bool shown);
+    void ToggledScalarContext (bool context);
+    void ToggledViewFocusShown (bool checked);
+    void ToggledTitleShown (bool checked);
+    void ToggledBubblePathsLineUsed (bool checked);
+    void ToggledVelocityShown (bool checked);
+    void ToggledHistogramGridShown (bool checked);
+    void ToggledHistogramShown (bool checked);
+    void ToggledHistogramColor (bool checked);
+    void ToggledHistogramAllTimesteps (bool checked);
+    void ToggledVelocitySameSize (bool checked);
+    void ToggledTwoHalvesView (bool checked);
+
     void SelectionChangedFromHistogram (int viewNumber);
+    void SelectionChangedFromSettings (ViewNumber::Enum viewNumber);
     /**
      * Invoqued by the timer to show the next data in the vector
      */
@@ -150,6 +149,11 @@ public Q_SLOTS:
     void ValueChangedAverageTimeWindow (int timeSteps);
     void ValueChangedT1KDEKernelSigma (double value);
     void ValueChangedT1KDEIsosurfaceValue (double value);
+    void ValueChangedContextAlpha (int sliderValue);
+    void ValueChangedObjectAlpha (int sliderValue);
+    void ValueChangedForceSize (int index);
+    void ValueChangedForceLineWidth (int index);
+    void ValueChangedGlyphSeedsCount (int index);
     void ViewToUI (ViewNumber::Enum prevViewNumber);
     void SetHistogramColorBarModel (
 	ViewNumber::Enum viewNumber,

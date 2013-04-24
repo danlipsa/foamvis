@@ -706,6 +706,7 @@ private:
     boost::shared_ptr<QAction> m_actionShowDeformation;
     boost::shared_ptr<QAction> m_actionShowVelocity;
     boost::shared_ptr<QAction> m_actionShowReset;
+    boost::shared_ptr<QAction> m_actionCopySelectionValueToId;
 
     boost::shared_ptr<SelectBodiesById> m_selectBodiesByIdList;
     QLabel *m_labelStatusBar;

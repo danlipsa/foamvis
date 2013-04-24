@@ -182,9 +182,10 @@ void WidgetBase::addCopyMenu (
     QMenu* menu, const char* nameOp, 
     const boost::shared_ptr<QAction>* actionCopyOp) const
 {
+    
+    QMenu* menuOp = menu->addMenu (nameOp);
     if (GetViewCount () > 1)
     {
-	QMenu* menuOp = menu->addMenu (nameOp);
 	for (size_t i = 0; i < GetViewCount (); ++i)
 	{
 	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
@@ -193,6 +194,8 @@ void WidgetBase::addCopyMenu (
 	    menuOp->addAction (actionCopyOp[i].get ());
 	}
     }
+    if (GetViewCount () == 1)
+        menuOp->setDisabled (true);
 }
 
 void WidgetBase::addCopyCompatibleMenu (
