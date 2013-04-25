@@ -341,7 +341,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tabSettings">
         <attribute name="title">
@@ -1416,9 +1416,9 @@
              </widget>
             </item>
             <item row="5" column="0">
-             <widget class="QRadioButton" name="radioButtonFacesNormal">
+             <widget class="QRadioButton" name="radioButtonScalar">
               <property name="text">
-               <string>Faces</string>
+               <string>Scalar</string>
               </property>
               <property name="checked">
                <bool>true</bool>
@@ -1545,12 +1545,12 @@
              <item row="0" column="0">
               <widget class="QLabel" name="label_3">
                <property name="text">
-                <string>Colored by</string>
+                <string>Color map</string>
                </property>
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QComboBox" name="comboBoxColor">
+              <widget class="QComboBox" name="comboBoxScalar">
                <item>
                 <property name="text">
                  <string>Velocity along x</string>
@@ -1688,7 +1688,7 @@
              <item row="0" column="0">
               <widget class="QLabel" name="label_2">
                <property name="text">
-                <string>Colored by</string>
+                <string>Color map</string>
                </property>
               </widget>
              </item>
@@ -1829,7 +1829,7 @@
              <item row="0" column="0">
               <widget class="QLabel" name="label_7">
                <property name="text">
-                <string>Colored by</string>
+                <string>Color map</string>
                </property>
               </widget>
              </item>
@@ -4138,7 +4138,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>comboBoxColor</sender>
+   <sender>comboBoxScalar</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>CurrentIndexChangedOtherScalar(int)</slot>

@@ -400,6 +400,14 @@ void WidgetGl::createActions ()
     connect(m_actionShowReset.get (), SIGNAL(triggered()),
 	    this, SLOT(ShowReset ()));
 
+    m_actionCopySelectionValueToId = 
+        boost::make_shared<QAction> (tr("&Value to Id"), this);
+    m_actionCopySelectionValueToId->setStatusTip(
+        tr("Copy selection Value to Id"));
+    connect(m_actionCopySelectionValueToId.get (), SIGNAL(triggered()),
+	    this, SLOT(CopySelectionValueToId ()));
+
+
     // actions for the color and overlay bar
     MAKE_COMMON_CONNECTIONS;
 }
@@ -411,7 +419,7 @@ void WidgetGl::initDisplayView ()
 	{{&WidgetGl::displayEdgesNormal,
 	  &WidgetGl::displayEdgesTorus,
 	  &WidgetGl::displayFacesTorus,
-	  &WidgetGl::displayFacesNormal,
+	  &WidgetGl::displayScalar,
 	  &WidgetGl::displayBubblePathsWithBodies,
 	  &WidgetGl::displayFacesAverage,
 	  &WidgetGl::displayFacesAverage,
@@ -675,7 +683,7 @@ string WidgetGl::infoSelectedBody ()
 string WidgetGl::infoSelectedBodies ()
 {
     ostringstream ostr;
-    const BodySelector& bodySelector = GetViewSettings ().GetBodySelector ();
+    const BodySelector& bodySelector = *GetViewSettings ().GetBodySelector ();
     const vector<size_t>& ids = 
 	(static_cast<const IdBodySelector&> (bodySelector)).GetIds ();
     if (ids.size () == 1)
@@ -1056,7 +1064,7 @@ G3D::Vector3 WidgetGl::brushedBodies (
     const QPoint& position, 
     vector< boost::shared_ptr<Body> >* bodies, bool selected)
 {
-    const BodySelector& selector = GetViewSettings ().GetBodySelector ();
+    const BodySelector& selector = *GetViewSettings ().GetBodySelector ();
     G3D::Vector3 op = toObjectTransform (position);
     const Foam& foam = GetFoam ();
     BOOST_FOREACH (boost::shared_ptr<Body> body, foam.GetBodies ())
@@ -1323,7 +1331,7 @@ string WidgetGl::getAverageAroundMovementShownLabel ()
 
 string WidgetGl::getBodySelectorLabel ()
 {
-    const BodySelector& bodySelector = GetViewSettings ().GetBodySelector ();
+    const BodySelector& bodySelector = *GetViewSettings ().GetBodySelector ();
     BodySelectorType::Enum type = bodySelector.GetType ();
     switch (type)
     {
@@ -1519,7 +1527,7 @@ void WidgetGl::displayBoundingBox (ViewNumber::Enum viewNumber) const
     if (m_boundingBoxBodyShown)
     {
 	const Foam::Bodies& bodies = foam.GetBodies ();
-	const BodySelector& bodySelector = vs.GetBodySelector ();
+	const BodySelector& bodySelector = *vs.GetBodySelector ();
 	BOOST_FOREACH (boost::shared_ptr<Body> body, bodies)
 	    if (bodySelector (body))
 		DisplayBox (body, Qt::black);
@@ -1596,7 +1604,7 @@ void WidgetGl::displayEdges (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
-    const BodySelector& bodySelector = vs.GetBodySelector ();
+    const BodySelector& bodySelector = *vs.GetBodySelector ();
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
     const Foam::Bodies& bodies = 
 	simulation.GetFoam (GetTime (viewNumber)).GetBodies ();
@@ -1653,7 +1661,7 @@ void WidgetGl::displayDeformation (ViewNumber::Enum viewNumber) const
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBodyDeformation (
 		  GetSettings (), viewNumber, simulation.Is2D (),
-                  vs.GetBodySelector (),
+                  *vs.GetBodySelector (),
 		  GetDeformationSizeInitialRatio (viewNumber)));
     glPopAttrib ();    
 }
@@ -1688,7 +1696,7 @@ void WidgetGl::displayVelocityGlyphs (ViewNumber::Enum viewNumber) const
 	bodies.begin (), bodies.end (),
 	DisplayBodyVelocity (
 	    GetSettings (), viewNumber, simulation.Is2D (),
-	    vs.GetBodySelector (), GetBubbleDiameter (viewNumber), 
+	    *vs.GetBodySelector (), GetBubbleDiameter (viewNumber), 
 	    GetVelocitySizeInitialRatio (viewNumber),
 	    GetOnePixelInObjectSpace (simulation.Is2D ()), GetQuadric (),
 	    va.IsSameSize (), va.IsClampingShown ()));
@@ -1712,7 +1720,7 @@ void WidgetGl::displayBodyDeformation (
 	glColor (Qt::black);
 	DisplayBodyDeformation (
 	    GetSettings (), viewNumber, simulation.Is2D (),
-	    vs.GetBodySelector (), 
+	    *vs.GetBodySelector (), 
 	    GetDeformationSizeInitialRatio (viewNumber)) (
 		*foam.FindBody (m_showBodyId));
 	glPopAttrib ();
@@ -1737,7 +1745,7 @@ void WidgetGl::displayBodyVelocity (
 	    m_average[viewNumber]->GetVelocityAverage ();
 	DisplayBodyVelocity (
 	    GetSettings (), viewNumber, simulation.Is2D (),
-	    vs.GetBodySelector (), 
+	    *vs.GetBodySelector (), 
 	    GetBubbleDiameter (viewNumber), 
 	    GetVelocitySizeInitialRatio (viewNumber),
 	    GetOnePixelInObjectSpace (simulation.Is2D ()), GetQuadric (),
@@ -2022,7 +2030,7 @@ void WidgetGl::displayBodyCenters (
 	const ViewSettings& vs = GetViewSettings (viewNumber);
 	size_t currentTime = GetTime (viewNumber);
 	const Simulation& simulation = GetSimulation (viewNumber);
-	const BodySelector& bodySelector = vs.GetBodySelector ();
+	const BodySelector& bodySelector = *vs.GetBodySelector ();
 	double zPos = (vs.GetViewType () == ViewType::CENTER_PATHS) ?
 	    currentTime * vs.GetTimeDisplacement () : 0;
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
@@ -2073,13 +2081,13 @@ void WidgetGl::displayContextMenuPos (ViewNumber::Enum viewNumber) const
 }
 
 
-void WidgetGl::displayFacesNormal (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayScalar (ViewNumber::Enum viewNumber) const
 {
     glCallList (m_listFacesNormal[viewNumber]);
 }
 
 
-void WidgetGl::compileFacesNormal (ViewNumber::Enum viewNumber) const
+void WidgetGl::compileScalar (ViewNumber::Enum viewNumber) const
 {
     const Foam& foam = GetFoam (viewNumber);
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -2208,7 +2216,7 @@ void WidgetGl::displayFacesContour (
 {
     const Simulation& simulation = GetSimulation (viewNumber);
     const BodySelector& bodySelector = 
-	GetViewSettings (viewNumber).GetBodySelector ();
+	*GetViewSettings (viewNumber).GetBodySelector ();
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
     glLineWidth (lineWidth);
     for_each (bodies.begin (), bodies.end (),
@@ -2229,7 +2237,7 @@ void WidgetGl::displayFacesInterior (
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
-    const BodySelector& bodySelector = vs.GetBodySelector ();
+    const BodySelector& bodySelector = *vs.GetBodySelector ();
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT | 
 		  GL_TEXTURE_BIT);
     glEnable (GL_POLYGON_OFFSET_FILL);
@@ -2274,7 +2282,7 @@ void WidgetGl::displayFacesInteriorFocusContext (
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
-    const BodySelector& bodySelector = vs.GetBodySelector ();
+    const BodySelector& bodySelector = *vs.GetBodySelector ();
     boost::array<FocusContextInfo, 2> beginEnd =
         {{
                 {b.begin (), contextBodiesBegin, false},
@@ -2341,7 +2349,7 @@ void WidgetGl::displayBubblePathsBody (ViewNumber::Enum viewNumber) const
     if (IsBubblePathsBodyShown ())
     {
         const ViewSettings& vs = GetViewSettings (viewNumber);
-        const BodySelector& bodySelector = vs.GetBodySelector ();
+        const BodySelector& bodySelector = *vs.GetBodySelector ();
         const Simulation& simulation = GetSimulation (viewNumber);
         size_t currentTime = GetTime (viewNumber);
 	const Foam::Bodies& bodies = 
@@ -2394,7 +2402,7 @@ void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    const BodySelector& bodySelector = vs.GetBodySelector ();
+    const BodySelector& bodySelector = *vs.GetBodySelector ();
     glNewList (m_listBubblePaths[viewNumber], GL_COMPILE);
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT | 
 		  GL_POLYGON_BIT | GL_LINE_BIT);
@@ -2494,8 +2502,11 @@ void WidgetGl::contextMenuEventView (QMenu* menu) const
     }
     QMenu* menuCopy = menu->addMenu ("Copy");
     addCopyMenu (menuCopy, "Transformation", &m_actionCopyTransformation[0]);
-    addCopyCompatibleMenu (menuCopy, "Selection", &m_actionCopySelection[0], 
-                           &WidgetBase::IsSelectionCopyCompatible);
+    QMenu* menuSelection = addCopyCompatibleMenu (
+        menuCopy, "Selection", &m_actionCopySelection[0], 
+        &WidgetBase::IsSelectionCopyCompatible);
+    menuSelection->setEnabled (true);
+    menuSelection->addAction (m_actionCopySelectionValueToId.get ());
     {
 	QMenu* menuInfo = menu->addMenu ("Info");
 	menuInfo->addAction (m_actionInfoPoint.get ());
@@ -3383,7 +3394,7 @@ void WidgetGl::Compile (ViewNumber::Enum viewNumber)
 	compileBubblePaths (viewNumber);
 	break;
     case ViewType::FACES:
-	compileFacesNormal (viewNumber);
+	compileScalar (viewNumber);
     default:
 	break;
     }
@@ -3565,7 +3576,7 @@ void WidgetGl::InfoSelectedBodies ()
 {
     makeCurrent ();
     Info msgBox (this, "Info");
-    const BodySelector& bodySelector = GetViewSettings ().GetBodySelector ();
+    const BodySelector& bodySelector = *GetViewSettings ().GetBodySelector ();
     string message;
     switch (bodySelector.GetType ())
     {
@@ -3882,6 +3893,31 @@ void WidgetGl::CopySelectionFrom (int fromViewNumber)
     GetViewSettings (toViewNumber).CopySelection (
 	GetViewSettings (ViewNumber::Enum (fromViewNumber)));
     CompileUpdate (toViewNumber);
+}
+
+void WidgetGl::CopySelectionValueToId ()
+{
+    ViewSettings& vs = GetViewSettings ();
+    boost::shared_ptr<BodySelector> bodySelector = vs.GetBodySelector ();
+    if (bodySelector->GetType () == BodySelectorType::PROPERTY_VALUE ||
+        bodySelector->GetType () == BodySelectorType::COMPOSITE)
+    {
+        boost::shared_ptr<ValueBodySelector> valueBodySelector = 
+            (bodySelector->GetType () == BodySelectorType::COMPOSITE) ?
+            boost::static_pointer_cast<CompositeBodySelector> (
+                bodySelector)->GetValueSelector () : 
+            boost::static_pointer_cast<ValueBodySelector> (bodySelector);
+        vector<size_t> ids;
+        const Foam::Bodies& bodies = GetFoam ().GetBodies ();
+        BOOST_FOREACH (boost::shared_ptr<Body> body, bodies)
+        {
+            if ((*valueBodySelector) (body))
+                ids.push_back (body->GetId ());
+        }
+        boost::shared_ptr<IdBodySelector> idBodySelector (
+            new IdBodySelector (ids));
+        vs.SetBodySelector (idBodySelector);
+    }
 }
 
 void WidgetGl::ToggledVelocityFieldSaved (bool saved)

@@ -28,7 +28,7 @@ class SelectBodiesById;
 class Settings;
 class ViewSettings;
 class AttributeAverages2D;
-class PropertyValueBodySelector;
+class ValueBodySelector;
 class IdBodySelector;
 class AllBodySelector;
 
@@ -327,6 +327,7 @@ public Q_SLOTS:
 
     void CopyTransformationFrom (int viewNumber);
     void CopySelectionFrom (int viewNumber);
+    void CopySelectionValueToId ();
 
 
 
@@ -509,8 +510,8 @@ private:
     void displayEdgesTorusTubes (ViewNumber::Enum view) const;
     void displayEdgesTorusLines (ViewNumber::Enum view) const;
 
-    void displayFacesNormal (ViewNumber::Enum view) const;
-    void compileFacesNormal (ViewNumber::Enum view) const;
+    void displayScalar (ViewNumber::Enum view) const;
+    void compileScalar (ViewNumber::Enum view) const;
     void displayFacesTorus (ViewNumber::Enum view) const;
     void displayFacesAverage (ViewNumber::Enum view) const;
     void displayFacesTorusTubes (ViewNumber::Enum viewNumber) const;

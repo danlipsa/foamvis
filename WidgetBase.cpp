@@ -198,7 +198,7 @@ void WidgetBase::addCopyMenu (
         menuOp->setDisabled (true);
 }
 
-void WidgetBase::addCopyCompatibleMenu (
+QMenu* WidgetBase::addCopyCompatibleMenu (
     QMenu* menu, const char* nameOp, 
     const boost::shared_ptr<QAction>* actionCopyOp, 
     IsCopyCompatibleType isCopyCompatible) const
@@ -221,7 +221,8 @@ void WidgetBase::addCopyCompatibleMenu (
 	}
     }
     if (! actions)
-	menuOp->setDisabled (true);    
+	menuOp->setDisabled (true);
+    return menuOp;
 }
 
 bool WidgetBase::IsColorMapVelocityCopyCompatible (
@@ -252,13 +253,13 @@ bool WidgetBase::IsColorMapScalarCopyCompatible (
 bool WidgetBase::IsSelectionCopyCompatible (
     ViewNumber::Enum vn, ViewNumber::Enum otherVn) const
 {
-    const ViewSettings& vs = GetViewSettings (vn);
-    const ViewSettings& otherVs = GetViewSettings (otherVn);
+    ViewSettings& vs = GetViewSettings (vn);
+    ViewSettings& otherVs = GetViewSettings (otherVn);
     return otherVn != vn && 
         vs.GetSimulationIndex () == otherVs.GetSimulationIndex () &&
         (vs.GetBodyOrOtherScalar () == otherVs.GetBodyOrOtherScalar () ||
-         otherVs.GetBodySelector ().GetType () == BodySelectorType::ID || 
-         otherVs.GetBodySelector ().GetType () == BodySelectorType::ALL);
+         otherVs.GetBodySelector ()->GetType () == BodySelectorType::ID || 
+         otherVs.GetBodySelector ()->GetType () == BodySelectorType::ALL);
 }
 
 

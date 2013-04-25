@@ -16,7 +16,7 @@ class ColorBarModel;
 class Foam;
 class WidgetGl;
 class IdBodySelector;
-class PropertyValueBodySelector;
+class ValueBodySelector;
 class Simulation;
 
 /**
@@ -657,12 +657,12 @@ public:
      * @{
      * @name Body selection
      */
-    const BodySelector& GetBodySelector () const
+    boost::shared_ptr<BodySelector> GetBodySelector () const
     {
-	return *m_bodySelector;
+	return m_bodySelector;
     }
     void SetBodySelector (
-	boost::shared_ptr<PropertyValueBodySelector> selector);
+	boost::shared_ptr<ValueBodySelector> selector);
     void SetBodySelector (boost::shared_ptr<IdBodySelector> bodySelector);
     void SetBodySelector (boost::shared_ptr<AllBodySelector> selector, 
 			  BodySelectorType::Enum type);

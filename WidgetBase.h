@@ -135,7 +135,7 @@ protected:
     void addCopyMenu (
         QMenu* menuCopy, const char* nameOp, 
         const boost::shared_ptr<QAction>* actionCopyOp) const;
-    void addCopyCompatibleMenu (
+    QMenu* addCopyCompatibleMenu (
         QMenu* menuCopy, const char* nameOp, 
         const boost::shared_ptr<QAction>* actionCopyOp,
         IsCopyCompatibleType isCopyCompatible) const;

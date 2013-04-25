@@ -81,13 +81,13 @@ private:
  * Selects bodies with a propriety value in an interval from an
  * interval list.
  */
-class PropertyValueBodySelector : public BodySelector
+class ValueBodySelector : public BodySelector
 {
 public:
-    PropertyValueBodySelector (BodyScalar::Enum property, bool is2D,
-			       const ValueIntervals& valueIntervals,
-                               const BinRegions& bins);
-    virtual ~PropertyValueBodySelector ()
+    ValueBodySelector (BodyScalar::Enum property, bool is2D,
+                       const ValueIntervals& valueIntervals,
+                       const BinRegions& bins);
+    virtual ~ValueBodySelector ()
     {
     }
     virtual bool operator () (const boost::shared_ptr<Body>& body) const;
@@ -95,7 +95,7 @@ public:
     {
 	return BodySelectorType::PROPERTY_VALUE;
     }
-    boost::shared_ptr<PropertyValueBodySelector> Clone () const;
+    boost::shared_ptr<ValueBodySelector> Clone () const;
     string ToUserString () const;
     const ValueIntervals& GetIntervals () const
     {
@@ -163,9 +163,10 @@ class CompositeBodySelector : public BodySelector
 public:
     CompositeBodySelector (
 	boost::shared_ptr<IdBodySelector> idSelector,
-	boost::shared_ptr<PropertyValueBodySelector> propertyValueSelector) :
+	boost::shared_ptr<ValueBodySelector> propertyValueSelector) :
+
 	m_idSelector (idSelector),
-	m_propertyValueSelector (propertyValueSelector)
+	m_valueSelector (propertyValueSelector)
     {
     }
     virtual ~CompositeBodySelector ()
@@ -174,20 +175,18 @@ public:
     boost::shared_ptr<CompositeBodySelector> Clone () const;
 
 
-    boost::shared_ptr<PropertyValueBodySelector> 
-    GetPropertyValueSelector () const
+    boost::shared_ptr<ValueBodySelector> GetValueSelector () const
     {
-	return m_propertyValueSelector;
+	return m_valueSelector;
     }
     boost::shared_ptr<IdBodySelector> GetIdSelector () const
     {
 	return m_idSelector;
     }
 
-    void SetSelector (
-	boost::shared_ptr<PropertyValueBodySelector> propertyValueSelector)
+    void SetSelector (boost::shared_ptr<ValueBodySelector> valueSelector)
     {
-	m_propertyValueSelector = propertyValueSelector;
+	m_valueSelector = valueSelector;
     }
 
     void SetSelector (boost::shared_ptr<IdBodySelector> idSelector)
@@ -204,7 +203,7 @@ public:
 
 private:
     boost::shared_ptr<IdBodySelector> m_idSelector;
-    boost::shared_ptr<PropertyValueBodySelector> m_propertyValueSelector;
+    boost::shared_ptr<ValueBodySelector> m_valueSelector;
 };
 
 inline ostream& operator<< (ostream& ostr, const IdBodySelector& selector)

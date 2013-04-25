@@ -358,7 +358,7 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
 	bodies.begin (), bodies.end (),
 	DisplayBody<DisplayFaceBodyScalarColor<PropertySetter>,
 	PropertySetter> (
-	    GetSettings (), vs.GetBodySelector (), 
+	    GetSettings (), *vs.GetBodySelector (), 
 	    PropertySetter (GetSettings (), 
 			    viewNumber, GetSimulation ().Is2D (),
                             m_storeShaderProgram.get (),

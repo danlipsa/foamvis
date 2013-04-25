@@ -30,7 +30,7 @@ boost::shared_ptr<BodySelector> BodySelector::Clone () const
 	return static_cast<const IdBodySelector*> (this)->Clone ();
 	
     case BodySelectorType::PROPERTY_VALUE:
-	return static_cast<const PropertyValueBodySelector*> (this)->Clone ();
+	return static_cast<const ValueBodySelector*> (this)->Clone ();
 	
     case BodySelectorType::COMPOSITE:
 	return static_cast<const CompositeBodySelector*> (this)->Clone ();
@@ -45,12 +45,12 @@ const BinRegions& BodySelector::GetBins () const
     if (GetType  () == BodySelectorType::COMPOSITE ||
         GetType  () == BodySelectorType::PROPERTY_VALUE)
     {
-        const PropertyValueBodySelector* selector = 0; 
+        const ValueBodySelector* selector = 0; 
         if (GetType () == BodySelectorType::COMPOSITE)
             selector = static_cast<const CompositeBodySelector*> (this)
-                ->GetPropertyValueSelector ().get ();
+                ->GetValueSelector ().get ();
         else
-            selector = static_cast<const PropertyValueBodySelector*> (this);    
+            selector = static_cast<const ValueBodySelector*> (this);    
         const BinRegions& v = selector->GetBins ();
         return v;
     }
@@ -67,10 +67,10 @@ const BinRegions& BodySelector::GetBins () const
 boost::shared_ptr<AllBodySelector> AllBodySelector::SELECTOR = 
     boost::shared_ptr<AllBodySelector> (new AllBodySelector ());
 
-// PropertyValueBodySelector
+// ValueBodySelector
 // ======================================================================
 
-PropertyValueBodySelector::PropertyValueBodySelector (
+ValueBodySelector::ValueBodySelector (
     BodyScalar::Enum property, bool is2D, const ValueIntervals& valueIntervals,
     const BinRegions& bins) :
 
@@ -82,7 +82,7 @@ PropertyValueBodySelector::PropertyValueBodySelector (
 }
 
 
-bool PropertyValueBodySelector::operator () (
+bool ValueBodySelector::operator () (
     const boost::shared_ptr<Body>& body) const
 {
     if (body->IsObject ())
@@ -99,7 +99,7 @@ bool PropertyValueBodySelector::operator () (
 	return false;
 }
 
-string PropertyValueBodySelector::ToUserString () const
+string ValueBodySelector::ToUserString () const
 {
     ostringstream ostr;
     ostr << "Selection on " << BodyScalar::ToString (m_property) << endl
@@ -109,12 +109,11 @@ string PropertyValueBodySelector::ToUserString () const
     return ostr.str ();
 }
 
-boost::shared_ptr<PropertyValueBodySelector> PropertyValueBodySelector::Clone (
+boost::shared_ptr<ValueBodySelector> ValueBodySelector::Clone (
     ) const
 {
-    boost::shared_ptr<PropertyValueBodySelector> p (
-	new PropertyValueBodySelector (
-            m_property, m_is2D, m_valueIntervals, m_bins));
+    boost::shared_ptr<ValueBodySelector> p (
+	new ValueBodySelector (m_property, m_is2D, m_valueIntervals, m_bins));
     return p;
 }
 
@@ -200,13 +199,13 @@ boost::shared_ptr<IdBodySelector> IdBodySelector::Clone () const
 bool CompositeBodySelector::operator () (
     const boost::shared_ptr<Body>& body) const
 {
-    return (*m_idSelector) (body) && (*m_propertyValueSelector) (body);
+    return (*m_idSelector) (body) && (*m_valueSelector) (body);
 }
 
 boost::shared_ptr<CompositeBodySelector> CompositeBodySelector::Clone () const
 {
     boost::shared_ptr<CompositeBodySelector> p (
 	new CompositeBodySelector (m_idSelector->Clone (),
-				   m_propertyValueSelector->Clone ()));
+				   m_valueSelector->Clone ()));
     return p;
 }

@@ -72,7 +72,7 @@ void WidgetHistogram::UpdateData (
     ViewNumber::Enum viewNumber, SelectionOperation histogramSelection, 
     MaxValueOperation maxValueOperation)
 {
-    const ViewSettings& vs = GetViewSettings (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
     BodyScalar::Enum property = BodyScalar::FromSizeT (
         vs.GetBodyOrOtherScalar ());
     const Simulation& simulation = GetSimulation (viewNumber);
@@ -104,7 +104,7 @@ void WidgetHistogram::UpdateData (
         m_histogram[viewNumber]->SetDataKeepBinSelection (
             intervalData, maxYValue,
             BodyScalar::ToString (property), 
-            vs.GetBodySelector ().GetBins ());
+            vs.GetBodySelector ()->GetBins ());
     else
         m_histogram[viewNumber]->SetDataAllBinsSelected (
             intervalData, maxYValue, BodyScalar::ToString (property));
@@ -119,8 +119,8 @@ void WidgetHistogram::UpdateSelection (ViewNumber::Enum viewNumber)
         UpdateData (viewNumber, KEEP_SELECTION, KEEP_MAX_VALUE);
     else
     {
-        const ViewSettings& vs = GetViewSettings (viewNumber);
-        histogram.SetSelectedBinsNoSignal (vs.GetBodySelector ().GetBins ());
+        ViewSettings& vs = GetViewSettings (viewNumber);
+        histogram.SetSelectedBinsNoSignal (vs.GetBodySelector ()->GetBins ());
     }
 }
 

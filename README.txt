@@ -271,6 +271,11 @@ Release log
 ===========
 0.9.
         - isosurface added to the average view
+        - added menu action: Copy > Selection > Value to Id. This allows the user
+          to follow bubbles with high velocity. Select first bubbles with high 
+          velocity in a time step, then copy the selection by value to a 
+          selection by id and then remove the selection by value from the 
+          histogram.
 
 0.9.2826
         - add Reset transform/All and Focus to the VTK view (3D average)

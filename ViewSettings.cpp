@@ -327,7 +327,7 @@ void ViewSettings::SetBodySelector (
     case BodySelectorType::COMPOSITE:
 	if (type == BodySelectorType::ID)
 	    m_bodySelector = boost::static_pointer_cast<CompositeBodySelector> (
-		m_bodySelector)->GetPropertyValueSelector ();
+		m_bodySelector)->GetValueSelector ();
 	else
 	    m_bodySelector = boost::static_pointer_cast<CompositeBodySelector> (
 		m_bodySelector)->GetIdSelector ();
@@ -349,7 +349,7 @@ void ViewSettings::SetBodySelector (boost::shared_ptr<IdBodySelector> selector)
 	m_bodySelector = boost::shared_ptr<BodySelector> (
 	    new CompositeBodySelector (
 		selector,
-		boost::static_pointer_cast<PropertyValueBodySelector> (
+		boost::static_pointer_cast<ValueBodySelector> (
 		    m_bodySelector)));
 	break;
     case BodySelectorType::COMPOSITE:
@@ -362,7 +362,7 @@ void ViewSettings::SetBodySelector (boost::shared_ptr<IdBodySelector> selector)
 
 
 void ViewSettings::SetBodySelector (
-    boost::shared_ptr<PropertyValueBodySelector> selector)
+    boost::shared_ptr<ValueBodySelector> selector)
 {
     switch (m_bodySelector->GetType ())
     {
@@ -413,7 +413,7 @@ void ViewSettings::UnionBodySelector (const vector<size_t>& bodyIds)
 	    boost::make_shared<IdBodySelector> (bodyIds);
 	m_bodySelector = boost::make_shared<CompositeBodySelector> (
 	    idSelector,
-	    boost::static_pointer_cast<PropertyValueBodySelector> (
+	    boost::static_pointer_cast<ValueBodySelector> (
 		m_bodySelector));
 	break;
     }
@@ -449,7 +449,7 @@ void ViewSettings::DifferenceBodySelector (
 	    idBodySelectorComplement (foam, bodyIds);
 	m_bodySelector = boost::make_shared<CompositeBodySelector> (
 	    idSelector,
-	    boost::static_pointer_cast<PropertyValueBodySelector> (
+	    boost::static_pointer_cast<ValueBodySelector> (
 		m_bodySelector));
 	break;
     }

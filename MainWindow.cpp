@@ -138,7 +138,7 @@ void MainWindow::configureInterface ()
 {
     horizontalSliderForceSize->setValue (49);
     horizontalSliderTorqueDistance->setValue (49);
-    comboBoxColor->setCurrentIndex (BodyScalar::PRESSURE);
+    comboBoxScalar->setCurrentIndex (BodyScalar::PRESSURE);
     CurrentIndexChangedInteractionMode (InteractionMode::ROTATE);
     CurrentIndexChangedWindowLayout (ViewLayout::HORIZONTAL);
     doubleSpinBoxKernelSigma->setToolTip (
@@ -195,10 +195,10 @@ void MainWindow::configureInterfaceDataDependent (
 	if (simulation.GetRegularGridResolution () == 0)
 	    radioButtonAverage->setDisabled (true);
 	comboBoxAxisOrder->setCurrentIndex (AxisOrderName::THREE_D);
-	comboBoxColor->setItemText (
+	comboBoxScalar->setItemText (
 	    BodyScalar::SIDES_PER_BUBBLE, 
 	    BodyScalar::ToString (BodyScalar::SIDES_PER_BUBBLE));
-	comboBoxColor->setItemText (
+	comboBoxScalar->setItemText (
 	    BodyScalar::DEFORMATION_SIMPLE,
 	    BodyScalar::ToString (BodyScalar::DEFORMATION_SIMPLE));
         horizontalSliderEdgesRadius->setValue (50);
@@ -362,7 +362,7 @@ void MainWindow::setupButtonGroups ()
     buttonGroupViewType->setId (radioButtonEdgesTorus, ViewType::EDGES_TORUS);
     buttonGroupViewType->setId (radioButtonFaceEdgesTorus, 
 				ViewType::FACES_TORUS);
-    buttonGroupViewType->setId (radioButtonFacesNormal, ViewType::FACES);
+    buttonGroupViewType->setId (radioButtonScalar, ViewType::FACES);
     buttonGroupViewType->setId (radioButtonBubblePaths, ViewType::CENTER_PATHS);
     buttonGroupViewType->setId (radioButtonAverage, 
 				ViewType::AVERAGE);
@@ -588,7 +588,7 @@ void MainWindow::updateVtkView (ViewNumber::Enum viewNumber)
 QwtDoubleInterval MainWindow::getScalarInterval (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    const BodySelector& bodySelector = vs.GetBodySelector ();
+    const BodySelector& bodySelector = *vs.GetBodySelector ();
     const ColorBarModel& colorMapScalar = *getColorMapScalar (viewNumber);
     QwtDoubleInterval scalarInterval;
     if (vs.GetViewType () == ViewType::T1_KDE)
@@ -601,7 +601,7 @@ QwtDoubleInterval MainWindow::getScalarInterval (ViewNumber::Enum viewNumber)
         if (bodySelector.GetType () == BodySelectorType::PROPERTY_VALUE)
         {
             const vector<QwtDoubleInterval>& v = 
-                static_cast<const PropertyValueBodySelector&> (bodySelector).
+                static_cast<const ValueBodySelector&> (bodySelector).
                 GetIntervals ();
             scalarInterval = v[0];
         }
@@ -1001,8 +1001,8 @@ void MainWindow::SelectionChangedFromHistogram (int vn)
 	    AllBodySelector::Get (), BodySelectorType::PROPERTY_VALUE);
     else
 	vs.SetBodySelector (
-	    boost::shared_ptr<PropertyValueBodySelector> (
-		new PropertyValueBodySelector (
+	    boost::shared_ptr<ValueBodySelector> (
+		new ValueBodySelector (
                     bodyScalar, simulation.Is2D (),
                     valueIntervals, bins)));
     if (IsGlView (viewNumber))
@@ -1742,8 +1742,10 @@ void MainWindow::updateSliderTimeSteps (
     ViewNumber::Enum viewNumber,
     const vector<QwtDoubleInterval>& valueIntervals)
 {
-    vector<bool> timeStepSelection;
     const ViewSettings& vs = GetViewSettings (viewNumber);
+    if (vs.GetBodyOrOtherScalar () > BodyScalar::COUNT)
+        return;
+    vector<bool> timeStepSelection;
     const Simulation& simulation = GetSimulation (viewNumber);
     BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT (
         vs.GetBodyOrOtherScalar ());
@@ -2220,7 +2222,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     SetCheckedNoSignals (buttonGroupViewType, viewType, true);    
     setStackedWidgetVisualization (viewType);
 
-    SetCurrentIndexNoSignals (comboBoxColor, property);
+    SetCurrentIndexNoSignals (comboBoxScalar, property);
     SetCurrentIndexNoSignals (comboBoxSimulation, simulationIndex);
     SetCurrentIndexNoSignals (comboBoxStatisticsType, vs.GetStatisticsType ());
 
