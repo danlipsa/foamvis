@@ -2110,7 +2110,7 @@ void WidgetGl::compileScalar (ViewNumber::Enum viewNumber) const
     displayVelocityGlyphs (viewNumber);
     displayT1 (viewNumber);
     GetAttributeAverages2D (
-        viewNumber).GetForceAverage ()->DisplayOneTimeStep ();
+        viewNumber).GetForceAverage ()->DisplayOneTimeStep (GetQuadric ());
     glEndList ();
 }
 

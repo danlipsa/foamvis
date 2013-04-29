@@ -234,18 +234,7 @@ void DisplayBodyVelocity::display (boost::shared_ptr<Body> body)
             displayVelocity.xy (), vs.GetVelocityLineWidth (), 
             m_onePixelInObjectSpace, clamped && m_clampingShown);
     else
-    {
-        G3D::Matrix3 rot = GetAxisRotation (
-            displayVelocity, G3D::Vector3::X_AXIS);
-        glPushMatrix ();
-        glTranslate (body->GetCenter ());
-        glMultMatrix (rot);
-        glPushMatrix ();
-        glScale (displayVelocity.length ());
-        DisplayVtkArrow (m_quadric);
-        glPopMatrix ();
-        glPopMatrix ();
-    }
+        DisplaySegmentArrow3D (m_quadric, body->GetCenter (), displayVelocity);
     glPopAttrib ();
 }
 

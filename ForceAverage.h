@@ -29,7 +29,7 @@ public:
 	Average (viewNumber, settings, simulationGroup)
     {
     }
-    void DisplayOneTimeStep () const;
+    void DisplayOneTimeStep (GLUquadricObj* quadric) const;
     virtual void AverageRotateAndDisplay (
 	StatisticsType::Enum displayType = StatisticsType::AVERAGE,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
@@ -45,15 +45,23 @@ protected:
     virtual void removeStep (size_t timeStep, size_t subStep);
 
 private:
-    void displayForceAllObjects (
+    void displayForceAllObjects (GLUquadricObj* quadric,
 	const vector<ForceOneObject>& forces, size_t timeWindow,
 	bool isAverageAroundRotationShown = false) const;
-    void displayForceOneObject (const ForceOneObject& force) const;
-    void displayTorqueOneObject (const ForceOneObject& force) const;
-    void displayForceTorqueOneObject (const ForceOneObject& force) const;
-    void displayForce (QColor color, const G3D::Vector3& center, 
-		       const G3D::Vector3& force) const;
+    void displayForceOneObject (
+        GLUquadricObj* quadric,
+        const ForceOneObject& force) const;
+    void displayTorqueOneObject (
+        GLUquadricObj* quadric,
+        const ForceOneObject& force) const;
+    void displayForceTorqueOneObject (GLUquadricObj* quadric, 
+                                      const ForceOneObject& force) const;
+    void displayForce (
+        GLUquadricObj* quadric,
+        QColor color, const G3D::Vector3& center, 
+        const G3D::Vector3& force) const;
     void displayTorque (
+        GLUquadricObj* quadric,
 	QColor color, const G3D::Vector3& center, 
 	float distance, float angleRadians, float torque) const;
     ForceOneObject getForceDifference (

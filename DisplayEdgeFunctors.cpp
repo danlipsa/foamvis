@@ -69,8 +69,8 @@ void angledEnd (const G3D::Vector3& before,
 // DisplaySegmentArrow2D
 // ======================================================================
 void DisplaySegmentArrow2D (G3D::Vector2 where, G3D::Vector2 v, 
-			  float lineWidth, 
-			  float onePixelInObjectSpace, bool clamped)
+                            float lineWidth, 
+                            float onePixelInObjectSpace, bool clamped)
 {
     const float arrowDegrees = 15.0;
     const float arrowLengthInPixels = 10;
@@ -103,6 +103,21 @@ void DisplaySegmentArrow2D (G3D::Vector2 where, G3D::Vector2 v,
     glPopMatrix ();
     glLineWidth (1.0);
 }
+
+void DisplaySegmentArrow3D (
+    GLUquadricObj* quadric, G3D::Vector3 where, G3D::Vector3 v)
+{
+    G3D::Matrix3 rot = GetAxisRotation (v, G3D::Vector3::X_AXIS);
+    glPushMatrix ();
+    glTranslate (where);
+    glMultMatrix (rot);
+    glPushMatrix ();
+    glScale (v.length ());
+    DisplayVtkArrow (quadric);
+    glPopMatrix ();
+    glPopMatrix ();
+}
+
 
 // DisplayVtkArrow
 // ======================================================================

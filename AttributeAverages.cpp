@@ -26,7 +26,8 @@ AttributeAverages::AttributeAverages (
     boost::shared_ptr<const SimulationGroup> simulationGroup) :
 
     AverageInterface (viewNumber),
-    m_forceAverage (new ForceAverage (viewNumber, settings, simulationGroup))
+    m_forceAverage (
+        new ForceAverage (viewNumber, settings, simulationGroup))
 {
 }
 

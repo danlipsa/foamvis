@@ -24,6 +24,8 @@ void DisplayOrientedEdgeVertices (const boost::shared_ptr<OrientedEdge> oe);
 void DisplaySegmentArrow2D (G3D::Vector2 v, G3D::Vector2 center,
                             float lineWidth, 
                             float onePixelInObjectSpace, bool clamped);
+void DisplaySegmentArrow3D (GLUquadricObj* quadric, 
+                            G3D::Vector3 where, G3D::Vector3 v);
 void DisplayVtkArrow (GLUquadricObj* quadric);
 
 
