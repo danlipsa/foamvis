@@ -37,6 +37,7 @@ public:
     void AverageRelease () {}
     virtual void AverageInit ();
     const vector<ForceOneObject>& GetForces (size_t timeStep) const;
+    const vector<ForceOneObject>& GetForces () const;
     ForceOneObject GetAverageOneObject (size_t i) const;
 
 protected:
@@ -44,21 +45,21 @@ protected:
     virtual void removeStep (size_t timeStep, size_t subStep);
 
 private:
-    void displayForcesAllObjects (
+    void displayForceAllObjects (
 	const vector<ForceOneObject>& forces, size_t timeWindow,
 	bool isAverageAroundRotationShown = false) const;
     void displayForceOneObject (const ForceOneObject& force) const;
     void displayTorqueOneObject (const ForceOneObject& force) const;
-    void displayForcesTorqueOneObject (const ForceOneObject& force) const;
-    void displayForce (QColor color, const G3D::Vector2& center, 
-		       const G3D::Vector2& force) const;
+    void displayForceTorqueOneObject (const ForceOneObject& force) const;
+    void displayForce (QColor color, const G3D::Vector3& center, 
+		       const G3D::Vector3& force) const;
     void displayTorque (
-	QColor color, const G3D::Vector2& center, 
+	QColor color, const G3D::Vector3& center, 
 	float distance, float angleRadians, float torque) const;
     ForceOneObject getForceDifference (
 	const vector<ForceOneObject>& forces) const;
-    pair<G3D::Vector2, G3D::Vector2> calculateTorque (
-	G3D::Vector2 center, float distance, float angle, float torque) const;
+    pair<G3D::Vector3, G3D::Vector3> calculateTorque (
+	G3D::Vector3 center, float distance, float angle, float torque) const;
 
 private:
     // One set of forces for each object

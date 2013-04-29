@@ -21,7 +21,8 @@ class PipelineAverage3D : public PipelineBase
 {
 public:
     PipelineAverage3D (
-        size_t objects, size_t constraintSurfaces, size_t fontSize);
+        size_t objects, bool hasForce,
+        size_t constraintSurfaces, size_t fontSize);
 
     virtual void UpdateColorMapScalar (const ColorBarModel& colorMapScalar);
     virtual void UpdateColorMapVelocity (const ColorBarModel& colorMapVelocity);

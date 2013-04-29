@@ -1522,7 +1522,7 @@ void MainWindow::ButtonClickedTorque (int t)
 {
     ForceType::Enum type =ForceType::FromSizeT (t);
     ViewSettings& vs = GetViewSettings ();
-    vs.SetTorqueShown (type, vs.IsTorqueShown (type));
+    vs.SetTorqueShown (type, ! vs.IsTorqueShown (type));
     widgetGl->CompileUpdate ();
 }
 

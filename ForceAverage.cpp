@@ -66,7 +66,7 @@ void ForceAverage::removeStep (size_t timeStep, size_t subStep)
 
 void ForceAverage::DisplayOneTimeStep () const
 {
-    displayForcesAllObjects (
+    displayForceAllObjects (
 	GetForces (GetSettings ().GetViewTime (GetViewNumber ())), 1, false);
 }
 
@@ -77,13 +77,13 @@ void ForceAverage::AverageRotateAndDisplay (
     (void)displayType;(void)displayType;(void)rotationCenter;(void)angleDegrees;
     bool isAverageAroundRotationShown = 
         GetViewSettings ().IsAverageAroundRotationShown ();
-    displayForcesAllObjects (m_average, 
-			     GetCurrentTimeWindow (), 
-			     isAverageAroundRotationShown);
+    displayForceAllObjects (m_average, 
+                            GetCurrentTimeWindow (), 
+                            isAverageAroundRotationShown);
 }
 
 
-void ForceAverage::displayForcesAllObjects (
+void ForceAverage::displayForceAllObjects (
     const vector<ForceOneObject>& forces, size_t count,
     bool isAverageAroundRotationShown) const
 {
@@ -100,10 +100,10 @@ void ForceAverage::displayForcesAllObjects (
 	}
 	glDisable (GL_DEPTH_TEST);
 	if (vs.IsForceShown (ForceType::DIFFERENCE))
-	    displayForcesTorqueOneObject (getForceDifference (forces) / count);
+	    displayForceTorqueOneObject (getForceDifference (forces) / count);
 	else
 	    BOOST_FOREACH (const ForceOneObject& force, forces)
-		displayForcesTorqueOneObject (force / count);
+		displayForceTorqueOneObject (force / count);
 	if (isAverageAroundRotationShown)
 	    glPopMatrix ();
 	glPopAttrib ();
@@ -124,7 +124,7 @@ ForceOneObject ForceAverage::getForceDifference (
     return forceDifference;
 }
 
-void ForceAverage::displayForcesTorqueOneObject (
+void ForceAverage::displayForceTorqueOneObject (
     const ForceOneObject& forceOneObject) const
 {
     displayForceOneObject (forceOneObject);
@@ -138,7 +138,7 @@ void ForceAverage::displayForceOneObject (
     const Simulation& simulation = GetSimulation ();
     float bubbleSize = simulation.GetBubbleDiameter ();
     float unitForceSize = vs.GetForceSize () * bubbleSize;
-    G3D::Vector2 center = forceOneObject.GetBody ()->GetCenter ().xy ();
+    G3D::Vector3 center = forceOneObject.GetBody ()->GetCenter ();
 
     for (size_t i = ForceType::NETWORK; i <= ForceType::RESULT; ++i)
     {
@@ -147,7 +147,7 @@ void ForceAverage::displayForceOneObject (
 	if (vs.IsForceShown (ft))
 	    displayForce (
                 GetSettings ().GetHighlightColor (GetViewNumber (), h), center,
-                unitForceSize * forceOneObject.GetForce (ft).xy ());
+                unitForceSize * forceOneObject.GetForce (ft));
     }
 }
 
@@ -157,16 +157,16 @@ void ForceAverage::displayTorqueOneObject (
     ViewNumber::Enum viewNumber = GetViewNumber ();
     const ViewSettings& vs = GetViewSettings ();
     const Simulation& simulation = GetSimulation ();
-    G3D::Vector2 center = forceOneObject.GetBody ()->GetCenter ().xy ();
+    G3D::Vector3 center = forceOneObject.GetBody ()->GetCenter ();
     const Foam& foam = GetFoam ();
     float bubbleSize = simulation.GetBubbleDiameter ();
     float unitForceSize = vs.GetForceSize () * bubbleSize;
 
     float onePixel = GetOnePixelInObjectSpace (simulation.Is2D ());
-    boost::array<G3D::Vector2, 3> displacement = {{
-	    G3D::Vector2 (0, 0),
-	    G3D::Vector2 (onePixel, onePixel),
-	    G3D::Vector2 (-onePixel, -onePixel)}};
+    boost::array<G3D::Vector3, 3> displacement = {{
+	    G3D::Vector3 (0, 0, 0),
+	    G3D::Vector3 (onePixel, onePixel, 0),
+	    G3D::Vector3 (-onePixel, -onePixel, 0)}};
     for (size_t i = ForceType::NETWORK; i <= ForceType::RESULT; ++i)
     {
         ForceType::Enum ft = ForceType::Enum (i);
@@ -174,7 +174,7 @@ void ForceAverage::displayTorqueOneObject (
 	if (vs.IsTorqueShown (ft))
 	    displayTorque (
 		GetSettings ().GetHighlightColor (viewNumber, h),
-		center.xy () + displacement[i], 
+		center + displacement[i], 
 		vs.GetTorqueDistance () * bubbleSize,
 		foam.GetDmpObjectPosition ().m_angleRadians,
 		unitForceSize * forceOneObject.GetTorque (ft));
@@ -182,11 +182,11 @@ void ForceAverage::displayTorqueOneObject (
 }
 
 void ForceAverage::displayTorque (
-    QColor color, const G3D::Vector2& center, 
+    QColor color, const G3D::Vector3& center, 
     float distance, float angleRadians, float torque) const
 {
     ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
-    pair<G3D::Vector2, G3D::Vector2> centerTorque = 
+    pair<G3D::Vector3, G3D::Vector3> centerTorque = 
 	calculateTorque (center, distance, angleRadians, torque);
     displayForce (color, centerTorque.first, centerTorque.second);
     glLineWidth (vs.GetForceLineWidth ());
@@ -196,27 +196,29 @@ void ForceAverage::displayTorque (
     glEnd ();    
 }
 
-pair<G3D::Vector2, G3D::Vector2> ForceAverage::calculateTorque (
-    G3D::Vector2 center, float distance, 
+pair<G3D::Vector3, G3D::Vector3> ForceAverage::calculateTorque (
+    G3D::Vector3 center, float distance, 
     float angleRadians, float torque) const
 {
     G3D::Vector2 displacement (0, 1);
     displacement = rotateRadians (displacement, - angleRadians);
     G3D::Vector2 t = rotateRadians (displacement, - M_PI / 2);
     displacement = distance * displacement;
-    return pair<G3D::Vector2, G3D::Vector2> (
-	center + displacement, t * torque / distance);
+    return pair<G3D::Vector3, G3D::Vector3> (
+	G3D::Vector3 (center.xy () + displacement, 0), 
+        G3D::Vector3 (t * torque / distance, 0));
 }
 
 void ForceAverage::displayForce (
-    QColor color, const G3D::Vector2& center, const G3D::Vector2& force) const
+    QColor color, const G3D::Vector3& center, const G3D::Vector3& force) const
 {
     ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
     const Simulation& simulation = GetSimulation ();
     glColor (color);
-    DisplaySegmentArrow2D (
-	center, force, vs.GetForceLineWidth (),
-	GetOnePixelInObjectSpace (simulation.Is2D ()), false);
+    if (simulation.Is2D ())
+        DisplaySegmentArrow2D (
+            center.xy (), force.xy (), vs.GetForceLineWidth (),
+            GetOnePixelInObjectSpace (simulation.Is2D ()), false);
 }
 
 
@@ -225,6 +227,12 @@ const vector<ForceOneObject>& ForceAverage::GetForces (
 {
     return GetFoam (timeStep).GetForces ();
 }
+
+const vector<ForceOneObject>& ForceAverage::GetForces () const
+{
+    return GetForces (GetTime ());
+}
+
 
 ForceOneObject ForceAverage::GetAverageOneObject (size_t i) const
 {

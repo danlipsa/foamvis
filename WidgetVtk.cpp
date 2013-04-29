@@ -160,9 +160,11 @@ void WidgetVtk::Average3dCreatePipeline (
 
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
     {
+        bool hasForce = GetFoam ().GetForces ().size () == objects;
 	m_pipelineAverage3d[i].reset (
             new PipelineAverage3D (
-                objects, constraintSurfaces, fontSize));
+                objects, hasForce,
+                constraintSurfaces, fontSize));
     }
 
     vtkSmartPointer<RenderWindowPaintEnd> sendPaint (

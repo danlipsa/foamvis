@@ -276,8 +276,9 @@ Release log
           velocity in a time step, then copy the selection by value to a 
           selection by id and then remove the selection by value from the 
           histogram.
+        - show torus domain in the average and t1kde views
 
-0.9.2826
+0.9.2826 2013-04-18
         - add Reset transform/All and Focus to the VTK view (3D average)
         - color and overlay bars work in VTK view
         - velocity glyph visualization in the average view.
@@ -298,7 +299,7 @@ Release log
           having the regular grid correctly rendered.
         - voxels are square now (so that Gaussian is spheric)
         - t1s kde for 3D implemented
-0.8.2740
+0.8.2740 2013-03-01
         - update to vtk-6.0-20130125.tgz
         - remove folders inside .foamvis to regenerate regular grid data for 3D
         - bug fix: next step did not update the OpenGL window when both 
@@ -323,7 +324,7 @@ Release log
         - Bug fix: copy selection works only for the same scalar or 
           selection by id.
         - Compute volume for 3D if it is not available in the DMP file
-0.8.2699
+0.8.2699 2013-01-25
         - bug fix: transformations are slow
         - allow keywords inside SCALAR_INTEGRANT (for shearv_35)
         - implement simple form of view transform
@@ -534,39 +535,39 @@ Release log
 	 - added time displacement view for 2D data
 	 - added command line option: -o : show original pressure values
 
-0.3.1682 
+0.3.1682 2011-01-19
 	 - bug fix for coarse100/coarse_01_0100_0407.dmp
 	 - pressures made > 0 and aligned medians between time steps
 	 - added combination brushing: by id and by property value
 
-0.3.1598 
+0.3.1598 2010-11-12
 	 - bug fix for pull2_bi_204_00099.dmp, updated test.pl
 	 - bug fix assert failure for ctnctr timesteps [89]??
 
-0.3.1596 
+0.3.1596 2010-11-11
 	 - bug fixes to the average calculation (fixes for pressure and 
 	   velocity).
 	 - two new datasets tested ellipse_in_flow and sedimenting_discs
 	 - display the center path only if there is at least one segment in focus
 
-0.3.1569 
+0.3.1569 2010-10-29
 	 - per pixel average for bubble attributes values (2D)
 
-0.2.1489 
+0.2.1489 2010-09-14
 	 - Fixes in the parser and new tests added to test.pl
 
-0.2.1487 
+0.2.1487 2010-09-13
 	 - Per property color map with clamping
 	 - Added several color maps: rainbow, black body radiator, 
 	   blue-red diverging
 
-0.1.1476 
+0.1.1476 2010-09-09
 	 - Handle significant space between expressions correctly
 	 - Apply the VIEW_MATRIX rotation, so that foam and evolver produce
 	   the same view
          - added a few test files to test.pl
 
-0.1.1462 
+0.1.1462 2010-09-01
 	 - Added UI feedback for histogram bars that are taller than the 
            height of the histogram. (a red cap)
 	 - Histogram selection is reflected in time step selection,
@@ -578,11 +579,11 @@ Release log
 	   center path selection. Deselected bodies are displayed
 	   transparent in both Face and Center Path views
 
-0.1.1432 
+0.1.1432 2010-08-23
 	 - Added user option to adjust the height of a histogram.
 	 - Fixed histogram for center path
 
-0.1.1427 
+0.1.1427 2010-08-18
 	 - parsing 2D and 3D dmp files
 	 - support for torus model
 	 - support for quadratic model

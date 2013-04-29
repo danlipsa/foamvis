@@ -92,8 +92,8 @@ ParsingData::ParsingData (
     m_dmpObjectInfo (dmpObjectInfo),
     m_keywordsIgnored (false)
 {
-    forceNames.resize (forcesNames.size ());
-    copy (forcesNames.begin (), forcesNames.end (), forceNames.begin ());
+    m_forceNames.resize (forcesNames.size ());
+    copy (forcesNames.begin (), forcesNames.end (), m_forceNames.begin ());
     BinaryFunctionInformation BINARY_FUNCTION_INFORMATION[] = 
     {
 	{"+", plus<double> ()},

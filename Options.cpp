@@ -34,7 +34,7 @@ public:
     }
 private:
     Tokenizer& m_tok;
-    const string& m_errorMessage;
+    string m_errorMessage;
 };
 
 
@@ -516,7 +516,7 @@ po::options_description CommonOptions::getDescription (
          "<networkForceXName>,<networkForceYName>,<networkForceZName>,"
 	 "<pressureForceXName>,<pressureForceYName>,<pressureForceZName>"
 	 "[,<networkTorque>,<pressureTorque>]\" where "
-	 "<bodyId> is the ID of the body the force acts on, "
+	 "<bodyId> is the 1-based ID of the body the force acts on, "
 	 "<networkForce.Name> are the "
 	 "names of the X, Y and Z components of the network force, "
 	 "<pressureForce.Name> are the names of the "

@@ -320,7 +320,7 @@ public:
     }
     const vector<ForceNamesOneObject>& GetForcesNames () const
     {
-	return forceNames;
+	return m_forceNames;
     }
 
     /**
@@ -411,7 +411,7 @@ private:
     bool m_newLineSignificant;
     bool m_useOriginal;
     DmpObjectInfo m_dmpObjectInfo;
-    vector<ForceNamesOneObject> forceNames;
+    vector<ForceNamesOneObject> m_forceNames;
     bool m_keywordsIgnored;
 
 private:

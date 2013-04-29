@@ -26,12 +26,13 @@
 // ======================================================================
 
 PipelineAverage3D::PipelineAverage3D (
-    size_t objectCount, size_t constraintSurfaceCount, size_t fontSize) :
+    size_t objectCount, bool hasForce, 
+    size_t constraintSurfaceCount, size_t fontSize) :
     PipelineBase (fontSize, PipelineType::AVERAGE_3D)
 {
     createScalarAverageActor ();
     createObjectActor (objectCount);
-    createForceActor (objectCount);
+    createForceActor (hasForce ? objectCount : 0);
     createConstraintSurfaceActor (constraintSurfaceCount);
     createVelocityGlyphActor ();
     createOutlineActor ();
@@ -101,7 +102,7 @@ void PipelineAverage3D::createForceActor (size_t objectCount)
             GetRenderer ()->AddViewProp (actor);
             m_forceActor[i][j] = actor;
         }
-    }    
+    }
 }
 
 void PipelineAverage3D::createConstraintSurfaceActor (
@@ -275,7 +276,7 @@ void PipelineAverage3D::UpdateAverageForce (
     const ForceAverage& forceAverage)
 {
     const ViewSettings& vs = forceAverage.GetViewSettings ();
-    size_t objectCount = forceAverage.GetForces (0).size ();
+    size_t objectCount = forceAverage.GetForces ().size ();
     for (size_t i = 0; i < objectCount; ++i)
     {
         const ForceOneObject& forceOneObject = 
