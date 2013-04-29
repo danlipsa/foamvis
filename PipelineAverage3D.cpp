@@ -274,17 +274,16 @@ void PipelineAverage3D::UpdateColorMapVelocity (
 void PipelineAverage3D::UpdateAverageForce (
     const ForceAverage& forceAverage)
 {
-    const Foam& foam = forceAverage.GetFoam ();
     const ViewSettings& vs = forceAverage.GetViewSettings ();
-    const Foam::Bodies& objects = foam.GetObjects ();
-    for (size_t i = 0; i < objects.size (); ++i)
+    size_t objectCount = forceAverage.GetForces (0).size ();
+    for (size_t i = 0; i < objectCount; ++i)
     {
-        G3D::Vector3 position = objects[i]->GetCenter ();
+        const ForceOneObject& forceOneObject = 
+            forceAverage.GetAverageOneObject (i);
+        G3D::Vector3 position = forceOneObject.GetBody ()->GetCenter ();
         __LOG__ (cdbg << "pos: " << position << endl;);
 	if (vs.IsAverageAround ())
 	    position += forceAverage.GetTranslation ();
-        const ForceOneObject& forceOneObject = 
-            forceAverage.GetAverageOneObject (i);
         for (size_t j = ForceType::NETWORK; j <= ForceType::RESULT; ++j)
         {
             ForceType::Enum ft = ForceType::Enum (j);

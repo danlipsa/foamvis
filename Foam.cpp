@@ -830,7 +830,7 @@ G3D::Vector2 Foam::GetAverageAroundAxis (
     return (second->GetCenter () - first->GetCenter ()).xy ();
 }
 
-void Foam::SetForceAllObjectss ()
+void Foam::SetForceAllObjects ()
 {
     const vector<ForceNamesOneObject>& forcesNames = 
 	GetParsingData ().GetForcesNames ();

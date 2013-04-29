@@ -228,7 +228,7 @@ void Simulation::Preprocess ()
     boost::array<FoamParamMethod, 9> methods = {{
 	    boost::bind (&Foam::CreateObjectBody, _1, 
 			 GetDmpObjectInfo ().m_constraintIndex),
-	    boost::bind (&Foam::SetForceAllObjectss, _1),
+	    boost::bind (&Foam::SetForceAllObjects, _1),
 	    boost::bind (&Foam::ReleaseParsingData, _1),
 	    boost::bind (&Foam::CalculateBoundingBox, _1),
 	    boost::bind (&Foam::CalculateDeformationSimple, _1),

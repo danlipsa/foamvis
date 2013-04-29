@@ -267,7 +267,7 @@ public:
     {
 	return m_forces;
     }
-    void SetForceAllObjectss ();
+    void SetForceAllObjects ();
 
     /**
      * Calculate the bounding box for all vertices in this Foam
