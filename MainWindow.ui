@@ -422,7 +422,7 @@
               </widget>
              </item>
              <item row="4" column="0">
-              <widget class="QCheckBox" name="checkBoxBoundingBoxTorusDomain">
+              <widget class="QCheckBox" name="checkBoxTorusDomainShown">
                <property name="text">
                 <string>Box torus domain</string>
                </property>
@@ -2637,7 +2637,6 @@
     <slot>ToggledEnableDirectionalLight(bool)</slot>
     <slot>ToggledBoundingBoxShown(bool)</slot>
     <slot>ToggledLightNumberShown(bool)</slot>
-    <slot>ToggledTorusDomainShown(bool)</slot>
     <slot>ToggledLightingEnabled(bool)</slot>
     <slot>ToggledDirectionalLightEnabled(bool)</slot>
     <slot>ToggledFullColorBarShown(bool)</slot>
@@ -3354,9 +3353,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxBoundingBoxTorusDomain</sender>
+   <sender>checkBoxTorusDomainShown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>MainWindow</receiver>
    <slot>ToggledTorusDomainShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4567,6 +4566,7 @@
   <slot>ToggledT1KDEKernelBoxShown(bool)</slot>
   <slot>ValueChangedT1KDEIsosurfaceValue(double)</slot>
   <slot>ToggledBoundingBoxSimulation(bool)</slot>
+  <slot>ToggledTorusDomainShown(bool)</slot>
   <slot>ToggledScalarContourShown(bool)</slot>
   <slot>ToggledDmpTransformShown(bool)</slot>
  </slots>

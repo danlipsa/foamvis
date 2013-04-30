@@ -132,7 +132,6 @@ const GLfloat WidgetGl::HIGHLIGHT_LINE_WIDTH = 2.0;
 WidgetGl::WidgetGl(QWidget *parent)
     : QGLWidget(parent),
       WidgetBase (this, &Base::IsGlView, &Base::GetGlCount),
-      m_torusDomainShown (false),
       m_edgesShown (true),
       m_bodyCenterShown (false),
       m_bodyNeighborsShown (false),
@@ -1485,7 +1484,8 @@ void WidgetGl::mouseMoveScale (QMouseEvent *event, ViewNumber::Enum viewNumber)
 
 void WidgetGl::displayTorusDomain (ViewNumber::Enum viewNumber) const
 {
-    if (m_torusDomainShown)
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    if (vs.IsTorusDomainShown ())
 	DisplayBox (GetSimulation (viewNumber).
 		    GetFoam(GetTime ()).GetTorusDomain ());
 }
@@ -4249,14 +4249,6 @@ void WidgetGl::ToggledTorusDomainClipped (bool checked)
     GetSettingsPtr ()->GetViewSettings ().SetDomainClipped (checked);
     update ();
 }
-
-void WidgetGl::ToggledTorusDomainShown (bool checked)
-{
-    makeCurrent ();
-    m_torusDomainShown = checked;
-    CompileUpdate ();
-}
-
 
 void WidgetGl::ToggledT1sShown (bool checked)
 {

@@ -232,7 +232,6 @@ public Q_SLOTS:
     void ToggledSelectionContextShown (bool checked);
     void ToggledPartialPathHidden (bool checked);
     void ToggledTorusDomainClipped (bool checked);
-    void ToggledTorusDomainShown (bool checked);
     void ToggledT1sShown (bool checked);
     void ToggledT1sAllTimesteps (bool checked);
     void ToggledT1sShiftLower (bool checked);
@@ -649,10 +648,6 @@ private:
 private:
     Q_OBJECT
 
-    /**
-     * What do we display
-     */
-    bool m_torusDomainShown;
     /**
      * Used for rotation, translation and scale
      */

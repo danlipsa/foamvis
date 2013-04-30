@@ -119,6 +119,7 @@ public Q_SLOTS:
     void ToggledBarLarge (bool large);
     void ToggledAxesShown (bool checked);
     void ToggledBoundingBoxSimulation (bool checked);
+    void ToggledTorusDomainShown (bool checked);
     void ToggledScalarShown (bool shown);
     void ToggledScalarContext (bool context);
     void ToggledViewFocusShown (bool checked);

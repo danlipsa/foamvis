@@ -35,10 +35,11 @@ PipelineAverage3D::PipelineAverage3D (
     createForceActor (hasForce ? objectCount : 0);
     createConstraintSurfaceActor (constraintSurfaceCount);
     createVelocityGlyphActor ();
-    createOutlineActor ();
+    createOutlineSimulationActor ();
+    createOutlineTorusActor ();
 }
 
-void PipelineAverage3D::createOutlineActor ()
+void PipelineAverage3D::createOutlineSimulationActor ()
 {
     VTK_CREATE (vtkOutlineFilter, outline);
     //outline.SetInputConnection(reader.GetOutputPort());
@@ -49,9 +50,26 @@ void PipelineAverage3D::createOutlineActor ()
     outlineActor->GetProperty()->SetColor(0, 0, 0);
     GetRenderer ()->AddViewProp(outlineActor);
 
-    m_outline = outline;
-    m_outlineActor = outlineActor;
+    m_outlineSimulation = outline;
+    m_outlineSimulationActor = outlineActor;
 }
+
+void PipelineAverage3D::createOutlineTorusActor ()
+{
+    VTK_CREATE (vtkOutlineSource, outline);
+    outline->SetBoxTypeToOriented ();
+    //outline.SetInputConnection(reader.GetOutputPort());
+    VTK_CREATE (vtkPolyDataMapper, mapOutline);
+    mapOutline->SetInputConnection(outline->GetOutputPort());
+    VTK_CREATE (vtkActor, outlineActor);
+    outlineActor->SetMapper(mapOutline);
+    outlineActor->GetProperty()->SetColor(0, 0, 0);
+    GetRenderer ()->AddViewProp(outlineActor);
+
+    m_outlineTorus = outline;
+    m_outlineTorusActor = outlineActor;
+}
+
 
 void PipelineAverage3D::createScalarAverageActor ()
 {
@@ -327,11 +345,23 @@ void PipelineAverage3D::UpdateAverageVelocity (
 void PipelineAverage3D::UpdateAverageScalar (const RegularGridAverage& average)
 {
     const Foam& foam = average.GetFoam ();
+    const OOBox td = foam.GetTorusDomain ();
+    boost::array<double, 8*3> corners = {{
+            0, 0, 0,                                       //0,0,0
+            td.GetX ().x, td.GetX ().y, td.GetX ().z,      //1,0,0
+            td.GetY ().x, td.GetY ().y, td.GetY ().z,      //0,1,0
+            td.GetXY ().x, td.GetXY ().y, td.GetXY ().z,   //1,1,0
+            td.GetZ ().x, td.GetZ ().y, td.GetZ ().z,      //0,0,1
+            td.GetXZ ().x, td.GetXZ ().y, td.GetXZ ().z,   //1,0,1
+            td.GetYZ ().x, td.GetYZ ().y, td.GetYZ ().z,   //0,1,1
+            td.GetXYZ ().x, td.GetXYZ ().y, td.GetXYZ ().z //1,1,1
+        }};
     const ViewSettings& vs = average.GetViewSettings ();
     vtkImageData* imageData = const_cast<vtkImageData*> (&average.GetAverage ());
 
     // update outline
-    m_outline->SetInputDataObject (imageData);
+    m_outlineSimulation->SetInputDataObject (imageData);
+    m_outlineTorus->SetCorners (&corners[0]);
 
     // update scalar
     m_scalarThreshold->SetInputDataObject (imageData);
@@ -368,7 +398,8 @@ void PipelineAverage3D::FromView (ViewNumber::Enum viewNumber, const Base& base)
     updateAlpha (vs.GetContextAlpha (), m_constraintSurface);
     updateAlpha (vs.GetObjectAlpha (), m_object);
     fromViewScalar (viewNumber, base);
-    m_outlineActor->SetVisibility (vs.IsBoundingBoxSimulationShown ());
+    m_outlineSimulationActor->SetVisibility (vs.IsBoundingBoxSimulationShown ());
+    m_outlineTorusActor->SetVisibility (vs.IsTorusDomainShown ());
     fromViewVelocityGlyph (viewNumber, base);
 }
 
@@ -391,7 +422,8 @@ void PipelineAverage3D::fromViewVelocityGlyph (
     const ViewSettings& vs = base.GetViewSettings (viewNumber);
     m_velocityGlyphSeeds->SetNumberOfPoints (vs.GetGlyphSeedsCount ());
 
-    G3D::AABox b = base.GetSimulation (viewNumber).GetBoundingBoxAllTimeSteps ();
+    const Simulation& simulation = base.GetSimulation (viewNumber);    
+    G3D::AABox b = simulation.GetBoundingBoxAllTimeSteps ();
     G3D::Vector3 c = b.center ();
     m_velocityGlyphSeeds->SetCenter (c.x, c.y, c.z);
     m_velocityGlyphSeeds->SetRadius (b.extent ().max () / 2);

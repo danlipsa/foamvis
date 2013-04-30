@@ -106,6 +106,7 @@ ViewSettings::ViewSettings () :
     m_onePixelInObjectSpace (0),
     m_axesShown (false),
     m_boundingBoxSimulationShown (false),
+    m_torusDomainShown (false),
     m_scalarContourShown (false),
     m_dmpTransformShown (false)
 {

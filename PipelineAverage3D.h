@@ -42,7 +42,8 @@ private:
     void createForceActor (size_t objectCount);
     void createConstraintSurfaceActor (size_t constraintSurfaceCount);
     void createVelocityGlyphActor ();
-    void createOutlineActor ();
+    void createOutlineSimulationActor ();
+    void createOutlineTorusActor ();
 
     void updateAlpha (
         float alpha, vector<vtkSmartPointer<vtkActor> >& actors);
@@ -74,9 +75,11 @@ private:
     vtkSmartPointer<vtkThresholdPoints> m_velocityGlyphThresholdNorm;
     vtkSmartPointer<vtkGlyph3D> m_velocityGlyph;
     vtkSmartPointer<vtkActor> m_velocityGlyphActor;
-    // axes
-    vtkSmartPointer<vtkOutlineFilter> m_outline;
-    vtkSmartPointer<vtkActor> m_outlineActor;
+    // outlines
+    vtkSmartPointer<vtkOutlineFilter> m_outlineSimulation;
+    vtkSmartPointer<vtkActor> m_outlineSimulationActor;
+    vtkSmartPointer<vtkOutlineSource> m_outlineTorus;
+    vtkSmartPointer<vtkActor> m_outlineTorusActor;
 };
 
 

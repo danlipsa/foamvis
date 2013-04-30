@@ -167,7 +167,7 @@ void MainWindow::configureInterfaceDataDependent (
     }
     if (! simulation.IsTorus ())
     {
-	checkBoxBoundingBoxTorusDomain->setDisabled (true);
+	checkBoxTorusDomainShown->setDisabled (true);
 	checkBoxDomainClipped->setDisabled (true);
         checkBoxDomainTop->setDisabled (true);
         checkBoxDomainBottom->setDisabled (true);
@@ -1155,6 +1155,13 @@ void MainWindow::ToggledAxesShown (bool checked)
 void MainWindow::ToggledBoundingBoxSimulation (bool checked)
 {
     GetViewSettings ().SetBoundingBoxSimulationShown (checked);
+    widgetGl->CompileUpdate ();
+    widgetVtk->FromView ();
+}
+
+void MainWindow::ToggledTorusDomainShown (bool checked)
+{
+    GetViewSettings ().SetTorusDomainShown (checked);
     widgetGl->CompileUpdate ();
     widgetVtk->FromView ();
 }
@@ -2178,6 +2185,8 @@ void MainWindow::settingsViewToUI (ViewNumber::Enum viewNumber)
     SetCheckedNoSignals (checkBoxAxes, vs.AxesShown ());
     SetCheckedNoSignals (
         checkBoxBoundingBoxSimulation, vs.IsBoundingBoxSimulationShown ());
+    SetCheckedNoSignals (
+        checkBoxTorusDomainShown, vs.IsTorusDomainShown ());
     SetValueNoSignals (
         horizontalSliderContextAlpha, 
         ValueToIndex (horizontalSliderContextAlpha, 

@@ -30,6 +30,22 @@ public:
     {
 	return m_vector[2];
     }
+    G3D::Vector3 GetXY () const
+    {
+        return GetX () + GetY ();
+    }
+    G3D::Vector3 GetXZ () const
+    {
+        return GetX () + GetZ ();
+    }
+    G3D::Vector3 GetYZ () const
+    {
+        return GetY () + GetZ ();
+    }
+    G3D::Vector3 GetXYZ () const
+    {
+        return GetX () + GetY () + GetZ ();
+    }
     void Set (const G3D::Vector3& x, const G3D::Vector3& y, 
 	      const G3D::Vector3& z)
     {

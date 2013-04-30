@@ -832,6 +832,14 @@ public:
     {
         m_boundingBoxSimulationShown = shown;
     }
+    bool IsTorusDomainShown () const
+    {
+        return m_torusDomainShown;
+    }
+    void SetTorusDomainShown (bool shown)
+    {
+        m_torusDomainShown = shown;
+    }
     //@}
 
 public:
@@ -958,6 +966,7 @@ private:
     float m_onePixelInObjectSpace;
     bool m_axesShown;
     bool m_boundingBoxSimulationShown;
+    bool m_torusDomainShown;
     bool m_scalarContourShown;
     bool m_dmpTransformShown;
 };
