@@ -145,6 +145,7 @@ public Q_SLOTS:
      * at the current position of the slider.
      */
     void ValueChangedFontSize (int value);
+    void ValueChangedT1Size (int index);
     void ValueChangedHistogramHeight (int value);
     void ValueChangedSliderTimeSteps (int value);
     void ValueChangedAverageTimeWindow (int timeSteps);
@@ -176,8 +177,9 @@ private:
     void settingsViewToUI (ViewNumber::Enum viewNumber);
     void timeViewToUI (ViewNumber::Enum viewNumber);
     void linkedTimeEventsViewToUI (ViewNumber::Enum viewNumber);
-    void deformationViewToUI ();
+    void t1ViewToUI ();
     void velocityViewToUI ();
+    void deformationViewToUI ();
     void forceViewToUI ();
     void t1KDEViewToUI (ViewNumber::Enum viewNumber);
     void bubblePathsViewToUI ();

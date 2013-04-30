@@ -794,7 +794,14 @@ public:
     {
 	m_t1ShiftLower = t1sShiftLower;
     }
-
+    float GetT1Size () const
+    {
+        return m_t1Size;
+    }
+    void SetT1Size (float size)
+    {
+        m_t1Size = size;
+    }
     float AngleDisplay (float angle) const;
 
     void SetSimulation (int i, const Simulation& simulation,
@@ -848,6 +855,7 @@ public:
     const static pair<float,float> ALPHA_RANGE;
     const static pair<float,float> TENSOR_LINE_WIDTH_EXP2;
     const static pair<float,float> FORCE_SIZE_EXP2;
+    const static pair<float,float> T1_SIZE;
 
 Q_SIGNALS:
     void SelectionChanged ();
@@ -963,6 +971,7 @@ private:
     int m_kdeMultiplier;
     bool m_T1KDEKernelBoxShown;
     float m_T1KDESigmaInBubbleDiameter;
+    float m_t1Size;
     float m_onePixelInObjectSpace;
     bool m_axesShown;
     bool m_boundingBoxSimulationShown;

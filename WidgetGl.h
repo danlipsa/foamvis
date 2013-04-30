@@ -287,7 +287,6 @@ public Q_SLOTS:
     void ValueChangedLightSpecularBlue (int sliderValue);
 
     void ValueChangedTimeDisplacement (int timeDisplacement);
-    void ValueChangedT1Size (int index);
     void ValueChangedDeformationSizeExp (int index);
     void ValueChangedDeformationLineWidthExp (int index);
     void ValueChangedVelocityLineWidthExp (int index);
@@ -641,7 +640,6 @@ private:
     
 private:
     // Min, max values for T1s, Context alpha, force length
-    const static pair<float,float> T1S_SIZE;
     const static pair<float,float> CELL_LENGTH_EXP2;
     const static GLfloat HIGHLIGHT_LINE_WIDTH;
 
@@ -708,7 +706,6 @@ private:
     QLabel *m_labelStatusBar;
     bool m_t1sShown;
     bool m_t1sAllTimesteps;
-    double m_t1sSize;
     size_t m_highlightLineWidth;
     bool m_averageAroundMarked;
     bool m_contextBoxShown;

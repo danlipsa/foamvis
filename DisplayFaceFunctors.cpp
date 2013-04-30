@@ -209,7 +209,12 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	}
     }
     else
-	glColor (QColor::fromRgbF(0, 0, 0, vs.GetContextAlpha ()));
+    {
+        boost::shared_ptr<Body> body = of->GetAdjacentBody ().GetBody ();
+	glColor (QColor::fromRgbF(0, 0, 0, 
+                                  body->IsObject () ? vs.GetObjectAlpha () : 
+                                  vs.GetContextAlpha ()));
+    }
 }
 
 

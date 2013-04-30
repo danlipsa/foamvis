@@ -16,6 +16,7 @@ class Settings;
 class SimulationGroup;
 class Simulation;
 class Foam;
+class WidgetGl;
 
 /**
  * Average along time for forces acting on objects interacting with foam.
@@ -29,7 +30,7 @@ public:
 	Average (viewNumber, settings, simulationGroup)
     {
     }
-    void DisplayOneTimeStep (GLUquadricObj* quadric) const;
+    void DisplayOneTimeStep (WidgetGl* widgetGl) const;
     virtual void AverageRotateAndDisplay (
 	StatisticsType::Enum displayType = StatisticsType::AVERAGE,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
@@ -45,23 +46,23 @@ protected:
     virtual void removeStep (size_t timeStep, size_t subStep);
 
 private:
-    void displayForceAllObjects (GLUquadricObj* quadric,
+    void displayForceAllObjects (WidgetGl* widgetGl,
 	const vector<ForceOneObject>& forces, size_t timeWindow,
 	bool isAverageAroundRotationShown = false) const;
     void displayForceOneObject (
-        GLUquadricObj* quadric,
+        WidgetGl* widgetGl,
         const ForceOneObject& force) const;
     void displayTorqueOneObject (
-        GLUquadricObj* quadric,
+        WidgetGl* widgetGl,
         const ForceOneObject& force) const;
-    void displayForceTorqueOneObject (GLUquadricObj* quadric, 
+    void displayForceTorqueOneObject (WidgetGl* widgetGl, 
                                       const ForceOneObject& force) const;
     void displayForce (
-        GLUquadricObj* quadric,
+        WidgetGl* widgetGl,
         QColor color, const G3D::Vector3& center, 
         const G3D::Vector3& force) const;
     void displayTorque (
-        GLUquadricObj* quadric,
+        WidgetGl* widgetGl,
 	QColor color, const G3D::Vector3& center, 
 	float distance, float angleRadians, float torque) const;
     ForceOneObject getForceDifference (

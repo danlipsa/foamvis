@@ -64,10 +64,10 @@ void ForceAverage::removeStep (size_t timeStep, size_t subStep)
 }
 
 
-void ForceAverage::DisplayOneTimeStep (GLUquadricObj* quadric) const
+void ForceAverage::DisplayOneTimeStep (WidgetGl* widgetGl) const
 {
     displayForceAllObjects (
-        quadric,
+        widgetGl,
         GetForces (GetSettings ().GetViewTime (GetViewNumber ())), 1, false);
 }
 
@@ -85,13 +85,14 @@ void ForceAverage::AverageRotateAndDisplay (
 
 
 void ForceAverage::displayForceAllObjects (
-    GLUquadricObj* quadric,
+    WidgetGl* widgetGl,
     const vector<ForceOneObject>& forces, size_t count,
     bool isAverageAroundRotationShown) const
 {
-    const ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
-    if (GetSimulation ().IsForceAvailable ())
+    const Simulation& simulation = GetSimulation ();
+    if (simulation.IsForceAvailable ())
     {
+        const ViewSettings& vs = GetViewSettings ();
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT | GL_LINE_BIT);
 	if (isAverageAroundRotationShown)
 	{
@@ -100,13 +101,14 @@ void ForceAverage::displayForceAllObjects (
 	    vs.RotateAndTranslateAverageAround (
                 vs.GetTime (), -1, ViewSettings::DONT_TRANSLATE);
 	}
-	glDisable (GL_DEPTH_TEST);
+        if (simulation.Is2D ())
+            glDisable (GL_DEPTH_TEST);
 	if (vs.IsForceShown (ForceType::DIFFERENCE))
-	    displayForceTorqueOneObject (quadric,
+	    displayForceTorqueOneObject (widgetGl,
                 getForceDifference (forces) / count);
 	else
 	    BOOST_FOREACH (const ForceOneObject& force, forces)
-		displayForceTorqueOneObject (quadric, force / count);
+		displayForceTorqueOneObject (widgetGl, force / count);
 	if (isAverageAroundRotationShown)
 	    glPopMatrix ();
 	glPopAttrib ();
@@ -128,15 +130,15 @@ ForceOneObject ForceAverage::getForceDifference (
 }
 
 void ForceAverage::displayForceTorqueOneObject (
-    GLUquadricObj* quadric,
+    WidgetGl* widgetGl,
     const ForceOneObject& forceOneObject) const
 {
-    displayForceOneObject (quadric, forceOneObject);
-    displayTorqueOneObject (quadric, forceOneObject);
+    displayForceOneObject (widgetGl, forceOneObject);
+    displayTorqueOneObject (widgetGl, forceOneObject);
 }
 
 void ForceAverage::displayForceOneObject (
-    GLUquadricObj* quadric,
+    WidgetGl* widgetGl,
     const ForceOneObject& forceOneObject) const
 {
     const ViewSettings& vs = GetViewSettings ();
@@ -151,14 +153,14 @@ void ForceAverage::displayForceOneObject (
         HighlightNumber::Enum h = HighlightNumber::Enum (i);
 	if (vs.IsForceShown (ft))
 	    displayForce (
-                quadric,
+                widgetGl,
                 GetSettings ().GetHighlightColor (GetViewNumber (), h), center,
                 unitForceSize * forceOneObject.GetForce (ft));
     }
 }
 
 void ForceAverage::displayTorqueOneObject (
-    GLUquadricObj* quadric,
+    WidgetGl* widgetGl,
     const ForceOneObject& forceOneObject) const
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
@@ -169,7 +171,7 @@ void ForceAverage::displayTorqueOneObject (
     float bubbleSize = simulation.GetBubbleDiameter ();
     float unitForceSize = vs.GetForceSize () * bubbleSize;
 
-    float onePixel = GetOnePixelInObjectSpace (simulation.Is2D ());
+    float onePixel = vs.GetOnePixelInObjectSpace ();
     boost::array<G3D::Vector3, 3> displacement = {{
 	    G3D::Vector3 (0, 0, 0),
 	    G3D::Vector3 (onePixel, onePixel, 0),
@@ -179,7 +181,7 @@ void ForceAverage::displayTorqueOneObject (
         ForceType::Enum ft = ForceType::Enum (i);
         HighlightNumber::Enum h = HighlightNumber::Enum (i);
 	if (vs.IsTorqueShown (ft))
-	    displayTorque (quadric,
+	    displayTorque (widgetGl,
 		GetSettings ().GetHighlightColor (viewNumber, h),
 		center + displacement[i], 
 		vs.GetTorqueDistance () * bubbleSize,
@@ -189,14 +191,14 @@ void ForceAverage::displayTorqueOneObject (
 }
 
 void ForceAverage::displayTorque (
-    GLUquadricObj* quadric,
+    WidgetGl* widgetGl,
     QColor color, const G3D::Vector3& center, 
     float distance, float angleRadians, float torque) const
 {
     ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
     pair<G3D::Vector3, G3D::Vector3> centerTorque = 
 	calculateTorque (center, distance, angleRadians, torque);
-    displayForce (quadric, color, centerTorque.first, centerTorque.second);
+    displayForce (widgetGl, color, centerTorque.first, centerTorque.second);
     glLineWidth (vs.GetForceLineWidth ());
     glBegin (GL_LINES);
     ::glVertex (center);
@@ -218,7 +220,7 @@ pair<G3D::Vector3, G3D::Vector3> ForceAverage::calculateTorque (
 }
 
 void ForceAverage::displayForce (
-    GLUquadricObj* quadric,
+    WidgetGl* widgetGl,
     QColor color, const G3D::Vector3& center, const G3D::Vector3& force) const
 {
     ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
@@ -227,10 +229,11 @@ void ForceAverage::displayForce (
     if (simulation.Is2D ())
         DisplaySegmentArrow2D (
             center.xy (), force.xy (), vs.GetForceLineWidth (),
-            GetOnePixelInObjectSpace (simulation.Is2D ()), false);
+            vs.GetOnePixelInObjectSpace (), false);
     else
-        DisplaySegmentArrow3D (quadric, center, force);
+        DisplaySegmentArrow3D (widgetGl->GetQuadric (), center, force);
 }
+
 
 
 const vector<ForceOneObject>& ForceAverage::GetForces (

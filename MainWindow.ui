@@ -2673,7 +2673,6 @@
     <slot>ToggledT1sShiftLower(bool)</slot>
     <slot>CurrentIndexChangedViewCount(int)</slot>
     <slot>CurrentIndexChangedViewLayout(int)</slot>
-    <slot>ValueChangedT1Size(int)</slot>
     <slot>ToggledZeroedPressureShown(bool)</slot>
     <slot>ToggledTitleShown(bool)</slot>
     <slot>ToggledBodyStationaryMarked(bool)</slot>
@@ -2939,7 +2938,7 @@
   <connection>
    <sender>horizontalSliderT1Size</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>MainWindow</receiver>
    <slot>ValueChangedT1Size(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4565,6 +4564,7 @@
   <slot>ToggledScalarContext(bool)</slot>
   <slot>ToggledT1KDEKernelBoxShown(bool)</slot>
   <slot>ValueChangedT1KDEIsosurfaceValue(double)</slot>
+  <slot>ValueChangedT1Size(int)</slot>
   <slot>ToggledBoundingBoxSimulation(bool)</slot>
   <slot>ToggledTorusDomainShown(bool)</slot>
   <slot>ToggledScalarContourShown(bool)</slot>

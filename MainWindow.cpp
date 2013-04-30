@@ -1383,6 +1383,7 @@ void MainWindow::ValueChangedObjectAlpha (int index)
     GetViewSettings ().SetObjectAlpha (
 	IndexToValue (static_cast<QSlider*> (sender ()),
                      ViewSettings::ALPHA_RANGE));
+    widgetGl->CompileUpdate ();
     widgetVtk->FromView ();
 }
 
@@ -1479,6 +1480,16 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
     widgetVtk->repaint ();
     updateButtons ();
 }
+
+void MainWindow::ValueChangedT1Size (int index)
+{
+    (void)index;
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetT1Size (IndexToValue (static_cast<QSlider*> (sender ()), 
+                                ViewSettings::T1_SIZE));
+    widgetGl->CompileUpdate ();
+}
+
 
 void MainWindow::ValueChangedAverageTimeWindow (int timeSteps)
 {
@@ -2054,6 +2065,16 @@ void MainWindow::velocityViewToUI ()
     setStackedWidgetVelocity (vs.GetVelocityVis ());
 }
 
+void MainWindow::t1ViewToUI ()
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    SetValueNoSignals (
+	horizontalSliderT1Size, 
+        ValueToIndex (horizontalSliderT1Size, 
+                      ViewSettings::T1_SIZE, vs.GetT1Size ()));
+}
+
 void MainWindow::forceViewToUI ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
@@ -2215,6 +2236,8 @@ void MainWindow::histogramViewToUI ()
 	vs.HasHistogramOption(HistogramType::ALL_TIME_STEPS_SHOWN));
 }
 
+
+
 void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
 {
     (void)prevViewNumber;
@@ -2241,6 +2264,7 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     labelAverageColor->setText (OtherScalar::ToString (property));
 
     settingsViewToUI (viewNumber);
+    t1ViewToUI ();
     deformationViewToUI ();
     velocityViewToUI ();
     forceViewToUI ();

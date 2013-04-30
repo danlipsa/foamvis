@@ -40,6 +40,7 @@ const double ViewSettings::STREAMLINE_STEP_LENGTH (0.005);
 const pair<float,float> ViewSettings::ALPHA_RANGE (0.01, 0.2);
 const pair<float,float> ViewSettings::TENSOR_LINE_WIDTH_EXP2 (0, 3);
 const pair<float,float> ViewSettings::FORCE_SIZE_EXP2 (-2, 2);
+const pair<float,float> ViewSettings::T1_SIZE (0.2, 1);
 
 
 // Methods
@@ -103,6 +104,7 @@ ViewSettings::ViewSettings () :
     m_kdeMultiplier (3),
     m_T1KDEKernelBoxShown (false),
     m_T1KDESigmaInBubbleDiameter (1),
+    m_t1Size (T1_SIZE.first),
     m_onePixelInObjectSpace (0),
     m_axesShown (false),
     m_boundingBoxSimulationShown (false),

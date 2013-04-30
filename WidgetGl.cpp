@@ -120,8 +120,6 @@ void sendQuad (const G3D::Rect2D& srcRect, const G3D::Rect2D& srcTexRect)
 // ======================================================================
 
 const size_t WidgetGl::DISPLAY_ALL(numeric_limits<size_t>::max());
-
-const pair<float,float> WidgetGl::T1S_SIZE (0.2, 1);
 const pair<float,float> WidgetGl::TENSOR_SIZE_EXP2 (0, 10);
 const pair<float,float> WidgetGl::TORQUE_SIZE_EXP2 (-4, 4);
 const GLfloat WidgetGl::HIGHLIGHT_LINE_WIDTH = 2.0;
@@ -143,7 +141,6 @@ WidgetGl::WidgetGl(QWidget *parent)
       m_selectBodiesByIdList (new SelectBodiesById (this)),
       m_t1sShown (false),
       m_t1sAllTimesteps (false),
-      m_t1sSize (T1S_SIZE.first),
       m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
       m_averageAroundMarked (true),
       m_contextBoxShown (true),
@@ -1824,8 +1821,8 @@ void WidgetGl::displayT1Timestep2D (
     glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | 
 		  GL_CURRENT_BIT | GL_POLYGON_BIT);
     glDisable (GL_DEPTH_TEST);
-    glPointSize (GetBubbleDiameter (viewNumber) * m_t1sSize / 
-                 GetOnePixelInObjectSpace (true));
+    glPointSize (GetBubbleDiameter (viewNumber) * vs.GetT1Size () / 
+                 vs.GetOnePixelInObjectSpace ());
     glColor (GetSettings ().GetHighlightColor (viewNumber, 
                                                HighlightNumber::H0));
     glBegin (GL_POINTS);
@@ -1854,7 +1851,7 @@ void WidgetGl::displayT1Timestep3D (
         glPushMatrix ();
         glTranslate (tc.GetPosition ());
         gluSphere (GetQuadric (), 
-                   GetBubbleDiameter (viewNumber) * m_t1sSize / 2, 16, 16);
+                   GetBubbleDiameter (viewNumber) * vs.GetT1Size () / 2, 16, 16);
         glPopMatrix ();
     }
     glPopAttrib ();
@@ -2110,7 +2107,8 @@ void WidgetGl::compileScalar (ViewNumber::Enum viewNumber) const
     displayVelocityGlyphs (viewNumber);
     displayT1 (viewNumber);
     GetAttributeAverages2D (
-        viewNumber).GetForceAverage ()->DisplayOneTimeStep (GetQuadric ());
+        viewNumber).GetForceAverage ()->DisplayOneTimeStep (
+            const_cast<WidgetGl*> (this));
     glEndList ();
 }
 
@@ -4291,7 +4289,8 @@ void WidgetGl::CurrentIndexChangedSimulation (int i)
         CalculateViewingVolume (viewNumber, simulation).center ();
     vs.SetSimulation (i, simulation, center);
     allTransform (viewNumber);
-    vs.SetOnePixelInObjectSpace (GetOnePixelInObjectSpace (simulation.Is2D ()));
+    vs.SetOnePixelInObjectSpace (
+        GetOnePixelInObjectSpace (simulation.Is2D ()));
     CompileUpdate ();
 }
 
@@ -4486,14 +4485,6 @@ void WidgetGl::ValueChangedTimeDisplacement (int time)
     GetViewSettings ().SetTimeDisplacement (
         SliderToTimeDisplacement (*static_cast<QSlider*>(sender ()), 
                                   GetSimulation ()));
-    CompileUpdate ();
-}
-
-void WidgetGl::ValueChangedT1Size (int index)
-{
-    makeCurrent ();
-    (void)index;
-    m_t1sSize = IndexToValue (static_cast<QSlider*> (sender ()), T1S_SIZE);
     CompileUpdate ();
 }
 
