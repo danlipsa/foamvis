@@ -110,7 +110,7 @@ public:
     }
 
     void CopyTransformFrom (ViewNumber::Enum viewNumber);
-
+    void CopyForceRatioFrom (ViewNumber::Enum viewNumber);
 
     virtual ViewNumber::Enum GetViewNumber () const;
 

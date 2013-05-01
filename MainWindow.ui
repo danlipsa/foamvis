@@ -2330,7 +2330,7 @@
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_26">
                   <property name="text">
-                   <string>Size</string>
+                   <string>Ratio</string>
                   </property>
                  </widget>
                 </item>

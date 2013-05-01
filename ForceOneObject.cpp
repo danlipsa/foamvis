@@ -7,6 +7,7 @@
  *
  */
 
+#include "Body.h"
 #include "Debug.h"
 #include "ForceOneObject.h"
 #include "Utils.h"
@@ -130,4 +131,22 @@ void ForceOneObject::SetTorque (ForceType::Enum type, float t)
         RuntimeAssert (
             false, "ForceOneObject::SetTorque: Invalid ForceType::Enum: ", type);
     }
+}
+
+string ForceOneObject::ToString () const
+{
+    ostringstream ostr;
+    ostr << "body id: " << m_body->GetId () << endl
+         << "network force: " << m_networkForce 
+         << ", length: " << m_networkForce.length () << endl
+         << "pressure force: " << m_pressureForce 
+         << ", length: " << m_pressureForce.length () << endl
+         << "network torque: " << m_networkTorque << endl
+         << "pressure torque: " << m_pressureTorque << endl;
+    return ostr.str ();
+}
+
+ostream& operator<< (ostream& ostr, const ForceOneObject& foo)
+{
+    return ostr << foo.ToString ();
 }

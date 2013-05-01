@@ -148,9 +148,13 @@ void MainWindow::configureInterface ()
         "Oversample streamlines. A grid square will "
         "contain (2*m + 1)^2 seeds where m is the KDE multiplier.");
     doubleSpinBoxForceRatio->setToolTip (
-        "The ratio between force arrow size and bubble size");
+        "The ratio by which we scale the arrow representing "
+        "a force. A force of 1 is represented using an arrow that "
+        "has bubble length.");
     doubleSpinBoxTorqueDistanceRatio->setToolTip (
-        "The ratio between torque distance size and bubble size");
+        "The ratio by which we scale the torque distance "
+        "A torque distance of 1 is represented with a segment that "
+        "has bubble length.");
     boost::shared_ptr<Application> app = Application::Get ();
     QFont defaultFont = app->font ();
     spinBoxFontSize->setValue (defaultFont.pointSize ());

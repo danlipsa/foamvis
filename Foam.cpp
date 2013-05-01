@@ -1224,6 +1224,14 @@ vtkSmartPointer<vtkPolyData> Foam::GetConstraintFacesPolyData (
     return OrientedFace::GetPolyData (it->second);
 }
 
+string Foam::ToHtml () const
+{
+    ostringstream ostr;
+    ostr << "Forces:" << endl;
+    BOOST_FOREACH (const ForceOneObject& foo, GetForces ())
+        ostr << foo;
+    return ostr.str ();
+}
 
 
 // Static and Friends Methods

@@ -167,6 +167,10 @@ size_t Settings::initViewSettings (ViewNumber::Enum viewNumber,
     connect (vs.get (), SIGNAL (SelectionChanged ()),
              m_signalMapperSelectionChanged.get (), SLOT (map ()));
     m_signalMapperSelectionChanged->setMapping (vs.get (), viewNumber);
+    connect (vs.get (), SIGNAL (ViewChanged ()),
+             m_signalMapperViewChanged.get (), SLOT (map ()));
+    m_signalMapperViewChanged->setMapping (vs.get (), viewNumber);
+
     vs->SetViewType (ViewType::FACES);
     G3D::Vector3 center = CalculateViewingVolume (
         viewNumber, viewCount, simulation, w, h,
@@ -201,6 +205,7 @@ void Settings::initAllViewSettings (
     const SimulationGroup& simulationGroup, float w, float h)
 {
     m_signalMapperSelectionChanged.reset (new QSignalMapper (this));
+    m_signalMapperViewChanged.reset (new QSignalMapper (this));
     size_t maxTimeSteps = 0;
     for (size_t i = 0; i < m_viewSettings.size (); ++i)
     {
@@ -213,12 +218,22 @@ void Settings::initAllViewSettings (
         SIGNAL (mapped (int)),
         this, 
         SLOT (selectionChanged (int)));
+    connect (
+        m_signalMapperViewChanged.get (),
+        SIGNAL (mapped (int)),
+        this, 
+        SLOT (viewChanged (int)));
     SetLinkedTimeWindow (maxTimeSteps);
 }
 
 void Settings::selectionChanged (int viewNumber)
 {
     Q_EMIT SelectionChanged (ViewNumber::FromSizeT (viewNumber));
+}
+
+void Settings::viewChanged (int viewNumber)
+{
+    Q_EMIT ViewChanged (ViewNumber::FromSizeT (viewNumber));
 }
 
 

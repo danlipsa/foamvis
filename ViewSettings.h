@@ -155,7 +155,7 @@ public:
 
     /**
      * @{
-     * @name Attributes
+     * @name Force     
      */
     void SetForceShown (ForceType::Enum type, bool value)
     {
@@ -182,6 +182,7 @@ public:
     void SetForceRatio (float value)
     {
 	m_forceRatio = value;
+        Q_EMIT ViewChanged ();
     }
     float GetTorqueDistanceRatio () const
     {
@@ -190,7 +191,14 @@ public:
     void SetTorqueDistanceRatio (float value)
     {
 	m_torqueDistance = value;
-    }
+    }    
+    // @}
+
+
+    /**
+     * @{
+     * @name Deformation
+     */
     void SetDeformationTensorShown (bool deformationTensorShown)
     {
 	m_deformationShown = deformationTensorShown;
@@ -843,6 +851,7 @@ public:
 
 Q_SIGNALS:
     void SelectionChanged ();
+    void ViewChanged ();
 
 private:
     static G3D::Matrix3 getRotation2DTimeDisplacement ();

@@ -263,6 +263,10 @@ public:
 	return m_dmpObjectPosition;
     }
     G3D::Vector2 GetAverageAroundAxis (size_t bodyId, size_t secondBodyId) const;
+    bool IsForceAvailable () const
+    {
+	return m_forces.size ();
+    }
     const vector<ForceOneObject>& GetForces () const
     {
 	return m_forces;
@@ -317,6 +321,7 @@ public:
     {
         return m_pressureSubtraction;
     }
+    string ToHtml () const;
 
     /**
      * Pretty print the Foam object

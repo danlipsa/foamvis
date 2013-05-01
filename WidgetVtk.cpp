@@ -365,7 +365,8 @@ void WidgetVtk::contextMenuEventView (QMenu* menu) const
 {
     {
         QMenu* menuCopy = menu->addMenu ("Copy");
-        addCopyMenu (menuCopy, "Transformation", &m_actionCopyTransform[0]);
+        addCopyMenu (menuCopy, "Transform", &m_actionCopyTransform[0]);
+        addCopyMenu (menuCopy, "Force ratio", &m_actionCopyForceRatio[0]);
         addCopyCompatibleMenu (menuCopy, "Selection", &m_actionCopySelection[0], 
                                &WidgetBase::IsSelectionCopyCompatible);
     }
@@ -435,4 +436,9 @@ void WidgetVtk::CopyTransformFromSlot (int vn)
     FromViewTransform (viewNumber);
 }
 
-
+void WidgetVtk::CopyForceRatioFromSlot (int vn)
+{
+    ViewNumber::Enum viewNumber = ViewNumber::Enum (vn);
+    CopyForceRatioFrom (viewNumber);
+    FromViewTransform (viewNumber);
+}

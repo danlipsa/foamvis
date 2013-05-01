@@ -152,6 +152,11 @@ protected:
     boost::array<boost::shared_ptr<QAction>, 
 		 ViewNumber::COUNT> m_actionCopyTransform;
     boost::shared_ptr<QSignalMapper> m_signalMapperCopyTransform;
+
+    boost::array<boost::shared_ptr<QAction>, 
+		 ViewNumber::COUNT> m_actionCopyForceRatio;
+    boost::shared_ptr<QSignalMapper> m_signalMapperCopyForceRatio;
+
     
     boost::array<boost::shared_ptr<QAction>, 
                  ViewNumber::COUNT> m_actionCopySelection;
@@ -190,6 +195,10 @@ private:
 	     SIGNAL (mapped (int)),\
 	     this,\
 	     SLOT (CopyTransformFromSlot (int)));\
+    connect (m_signalMapperCopyForceRatio.get (), \
+	     SIGNAL (mapped (int)),\
+	     this,\
+	     SLOT (CopyForceRatioFromSlot (int)));                      \
     connect (m_actionResetTransformAll.get (), SIGNAL(triggered()),\
              this, SLOT(ResetTransformAll ()));\
     connect (m_actionResetTransformFocus.get (), SIGNAL(triggered()),\

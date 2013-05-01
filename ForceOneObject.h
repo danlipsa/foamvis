@@ -48,6 +48,8 @@ public:
     {
         return m_body;
     }
+    string ToString () const;
+    friend ostream& operator<< (ostream& ostr, const ForceOneObject& foo);
 
 private:
     boost::shared_ptr<Body> m_body;

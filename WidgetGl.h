@@ -314,6 +314,7 @@ public Q_SLOTS:
     void InfoEdge ();
     void InfoFace ();
     void InfoBody ();
+    void InfoFoam ();
     void InfoSimulation ();
     void InfoOpenGL ();
     void InfoSelectedBodies ();
@@ -323,6 +324,7 @@ public Q_SLOTS:
     void ShowReset ();
 
     void CopyTransformFromSlot (int viewNumber);
+    void CopyForceRatioFromSlot (int vn);
     void CopySelectionFrom (int viewNumber);
     void CopySelectionValueToId ();
 
@@ -691,6 +693,7 @@ private:
     boost::shared_ptr<QAction> m_actionInfoEdge;
     boost::shared_ptr<QAction> m_actionInfoFace;
     boost::shared_ptr<QAction> m_actionInfoBody;
+    boost::shared_ptr<QAction> m_actionInfoFoam;
     boost::shared_ptr<QAction> m_actionInfoSimulation;
     boost::shared_ptr<QAction> m_actionInfoOpenGL;
     boost::shared_ptr<QAction> m_actionInfoSelectedBodies;

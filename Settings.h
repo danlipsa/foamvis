@@ -405,8 +405,8 @@ public:
     // @}
 
 Q_SIGNALS:
-    void ViewChanged (ViewNumber::Enum prevViewNumber);
     void SelectionChanged (ViewNumber::Enum viewNumber);
+    void ViewChanged (ViewNumber::Enum prevViewNumber);
 
 public:
     const static size_t QUADRIC_SLICES;
@@ -418,6 +418,7 @@ public:
 
 private Q_SLOTS:
     void selectionChanged (int viewNumber);
+    void viewChanged (int viewNumber);
 
 private:
     int calculateViewTime (
@@ -486,7 +487,8 @@ private:
     bool m_barLarge;
     bool m_velocityFieldSaved;
     bool m_barLabelsShown;
-    boost::shared_ptr<QSignalMapper> m_signalMapperSelectionChanged;    
+    boost::shared_ptr<QSignalMapper> m_signalMapperSelectionChanged;
+    boost::shared_ptr<QSignalMapper> m_signalMapperViewChanged;
     InteractionMode::Enum m_interactionMode;
     InteractionObject::Enum m_interactionObject;
 };

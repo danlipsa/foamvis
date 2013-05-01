@@ -355,6 +355,12 @@ void WidgetGl::createActions ()
     connect(m_actionInfoBody.get (), SIGNAL(triggered()), this, 
 	    SLOT(InfoBody ()));
 
+    m_actionInfoFoam = 
+        boost::make_shared<QAction> (tr("&Foam"), this);
+    m_actionInfoFoam->setStatusTip(tr("Info foam"));
+    connect(m_actionInfoFoam.get (), SIGNAL(triggered()), this, 
+	    SLOT(InfoFoam ()));
+
     m_actionInfoSimulation = 
         boost::make_shared<QAction> (tr("&Simulation"), this);
     m_actionInfoSimulation->setStatusTip(tr("Info simulation"));
@@ -2499,7 +2505,8 @@ void WidgetGl::contextMenuEventView (QMenu* menu) const
 	menuContext->addAction (m_actionContextDisplayReset.get ());
     }
     QMenu* menuCopy = menu->addMenu ("Copy");
-    addCopyMenu (menuCopy, "Transformation", &m_actionCopyTransform[0]);
+    addCopyMenu (menuCopy, "Transform", &m_actionCopyTransform[0]);
+    addCopyMenu (menuCopy, "Force ratio", &m_actionCopyForceRatio[0]);
     QMenu* menuSelection = addCopyCompatibleMenu (
         menuCopy, "Selection", &m_actionCopySelection[0], 
         &WidgetBase::IsSelectionCopyCompatible);
@@ -2511,6 +2518,7 @@ void WidgetGl::contextMenuEventView (QMenu* menu) const
 	menuInfo->addAction (m_actionInfoEdge.get ());
 	menuInfo->addAction (m_actionInfoFace.get ());
 	menuInfo->addAction (m_actionInfoBody.get ());
+	menuInfo->addAction (m_actionInfoFoam.get ());
 	menuInfo->addAction (m_actionInfoSimulation.get ());
 	menuInfo->addAction (m_actionInfoOpenGL.get ());
 	menuInfo->addAction (m_actionInfoSelectedBodies.get ());
@@ -3511,6 +3519,12 @@ void WidgetGl::ToggledAverageAroundAllowRotation (bool checked)
     CompileUpdate ();
 }
 
+void WidgetGl::InfoFoam ()
+{
+    makeCurrent ();
+    ShowMessageBox (GetFoam ().ToHtml ().c_str ());
+}
+
 
 void WidgetGl::InfoSimulation ()
 {
@@ -3879,6 +3893,13 @@ void WidgetGl::CopyTransformFromSlot (int viewNumber)
 {
     makeCurrent ();
     CopyTransformFrom (ViewNumber::Enum (viewNumber));
+    update ();
+}
+
+void WidgetGl::CopyForceRatioFromSlot (int viewNumber)
+{
+    makeCurrent ();
+    CopyForceRatioFrom (ViewNumber::Enum (viewNumber));
     update ();
 }
 

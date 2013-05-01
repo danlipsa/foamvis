@@ -149,3 +149,18 @@ void Base::CopyTransformFrom (ViewNumber::Enum viewNumber)
         fromVs.GetOnePixelInObjectSpace ();
     vs.SetScaleRatio (fromBubbleDiameterInPixels / bubbleDiameterInPixels);
 }
+
+
+void Base::CopyForceRatioFrom (ViewNumber::Enum viewNumber)
+{
+    if (GetViewNumber () == viewNumber)
+        return;
+    ViewSettings& vs = GetViewSettings ();
+    const ViewSettings& fromVs = GetViewSettings (viewNumber);
+    float bubbleDiameterInPixels = GetBubbleDiameter () / 
+        vs.GetOnePixelInObjectSpace ();
+    float fromBubbleDiameterInPixels = GetBubbleDiameter (viewNumber) / 
+        fromVs.GetOnePixelInObjectSpace ();
+    vs.SetForceRatio (fromVs.GetForceRatio () * 
+                      fromBubbleDiameterInPixels / bubbleDiameterInPixels);
+}

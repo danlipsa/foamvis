@@ -30,6 +30,7 @@ WidgetBase::WidgetBase (QWidget* widget,
 {
     initCopy (m_actionCopySelection, m_signalMapperCopySelection);
     initCopy (m_actionCopyTransform, m_signalMapperCopyTransform);
+    initCopy (m_actionCopyForceRatio, m_signalMapperCopyForceRatio);
 
     m_actionResetTransformAll = 
         boost::make_shared<QAction> (tr("&All"), m_widget);
