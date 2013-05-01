@@ -134,3 +134,18 @@ float Base::GetBubbleDiameter (ViewNumber::Enum viewNumber) const
     }
     return size;
 }
+
+void Base::CopyTransformFrom (ViewNumber::Enum viewNumber)
+{
+    if (GetViewNumber () == viewNumber)
+        return;
+    ViewSettings& vs = GetViewSettings ();
+    const ViewSettings& fromVs = GetViewSettings (viewNumber);
+    vs.SetRotation (fromVs.GetRotation ());
+    vs.SetTranslation (fromVs.GetTranslation ());
+    float bubbleDiameterInPixels = GetBubbleDiameter () / 
+        vs.GetOnePixelInObjectSpace ();
+    float fromBubbleDiameterInPixels = GetBubbleDiameter (viewNumber) / 
+        fromVs.GetOnePixelInObjectSpace ();
+    vs.SetScaleRatio (fromBubbleDiameterInPixels / bubbleDiameterInPixels);
+}

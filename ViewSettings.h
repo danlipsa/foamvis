@@ -175,29 +175,21 @@ public:
 	return m_torqueShown[type];
     }
 
-    float GetForceSize () const
+    float GetForceRatio () const
     {
-	return m_forceSize;
+	return m_forceRatio;
     }
-    void SetForceSize (float value)
+    void SetForceRatio (float value)
     {
-	m_forceSize = value;
+	m_forceRatio = value;
     }
-    float GetTorqueDistance () const
+    float GetTorqueDistanceRatio () const
     {
 	return m_torqueDistance;
     }
-    void SetTorqueDistance (float value)
+    void SetTorqueDistanceRatio (float value)
     {
 	m_torqueDistance = value;
-    }
-    float GetForceLineWidth () const
-    {
-	return m_forceLineWidth;
-    }
-    void SetForceLineWidth (float value)
-    {
-	m_forceLineWidth = value;
     }
     void SetDeformationTensorShown (bool deformationTensorShown)
     {
@@ -338,21 +330,14 @@ public:
     }
     void CalculateCameraDistance (const G3D::AABox& centeredViewingVolume);
 
-    void CopyTransformation (const ViewSettings& from);
     // pixel in object space
     void InitializeOnePixelInObjectSpace (float pixel)
     {
         if (m_onePixelInObjectSpace == 0)
             m_onePixelInObjectSpace = pixel;
     }
-    void SetOnePixelInObjectSpace (float pixel)
-    {
-        m_onePixelInObjectSpace = pixel;
-    }
-    float GetOnePixelInObjectSpace () const
-    {
-        return m_onePixelInObjectSpace;
-    }
+    void SetOnePixelInObjectSpace (float pixel);
+    float GetOnePixelInObjectSpace () const;
     bool IsDmpTransformShown () const
     {
         return m_dmpTransformShown;
@@ -854,7 +839,6 @@ public:
     static const double STREAMLINE_STEP_LENGTH;
     const static pair<float,float> ALPHA_RANGE;
     const static pair<float,float> TENSOR_LINE_WIDTH_EXP2;
-    const static pair<float,float> FORCE_SIZE_EXP2;
     const static pair<float,float> T1_SIZE;
 
 Q_SIGNALS:
@@ -955,8 +939,7 @@ private:
     float m_deformationLineWidth;
     float m_velocityLineWidth;
     bool m_velocityColorMapped;
-    float m_forceSize;
-    float m_forceLineWidth;
+    float m_forceRatio;
     float m_torqueDistance;
     G3D::Vector2 m_scaleCenter;
     bool m_histogramShown;

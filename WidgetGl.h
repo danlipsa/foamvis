@@ -290,7 +290,6 @@ public Q_SLOTS:
     void ValueChangedDeformationSizeExp (int index);
     void ValueChangedDeformationLineWidthExp (int index);
     void ValueChangedVelocityLineWidthExp (int index);
-    void ValueChangedTorqueDistance (int index);
     void ValueChangedHighlightLineWidth (int newWidth);
     // Actions
     void ResetTransformAll ();
@@ -323,7 +322,7 @@ public Q_SLOTS:
     void ShowVelocity ();
     void ShowReset ();
 
-    void CopyTransformationFrom (int viewNumber);
+    void CopyTransformFromSlot (int viewNumber);
     void CopySelectionFrom (int viewNumber);
     void CopySelectionValueToId ();
 

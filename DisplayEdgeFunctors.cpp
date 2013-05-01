@@ -66,7 +66,7 @@ void angledEnd (const G3D::Vector3& before,
     perpendicularEnd (normal, twelveOclock, threeOclock);
 }
 
-// DisplaySegmentArrow2D
+// DisplayVtkArrow
 // ======================================================================
 void DisplaySegmentArrow2D (G3D::Vector2 where, G3D::Vector2 v, 
                             float lineWidth, 
@@ -104,19 +104,6 @@ void DisplaySegmentArrow2D (G3D::Vector2 where, G3D::Vector2 v,
     glLineWidth (1.0);
 }
 
-void DisplaySegmentArrow3D (
-    GLUquadricObj* quadric, G3D::Vector3 where, G3D::Vector3 v)
-{
-    G3D::Matrix3 rot = GetAxisRotation (v, G3D::Vector3::X_AXIS);
-    glPushMatrix ();
-    glTranslate (where);
-    glMultMatrix (rot);
-    glPushMatrix ();
-    glScale (v.length ());
-    DisplayVtkArrow (quadric);
-    glPopMatrix ();
-    glPopMatrix ();
-}
 
 
 // DisplayVtkArrow
@@ -125,6 +112,47 @@ void DisplayVtkArrow (GLUquadricObj* quadric)
 {
     DisplayArrowQuadric (quadric, 0.1, 0.03, 0.35)
         (G3D::Vector3::zero (), G3D::Vector3 (1.0, 0, 0));
+}
+
+void DisplayVtkArrow ()
+{
+    boost::array<G3D::Vector2, 4> shaft = {{
+            G3D::Vector2 (0, -0.03),
+            G3D::Vector2 (0, 0.03),
+            G3D::Vector2 (0.65, 0.03),
+            G3D::Vector2 (0.65, -0.03),
+        }};
+    boost::array<G3D::Vector2, 3> head = {{
+            G3D::Vector2 (0.65, 0.1),
+            G3D::Vector2 (1.0, 0.0),
+            G3D::Vector2 (0.65, -0.1),
+        }};
+    glBegin (GL_QUADS);
+    BOOST_FOREACH (G3D::Vector2 point, shaft)
+        ::glVertex (point);
+    glEnd ();
+    glBegin (GL_TRIANGLES);
+    BOOST_FOREACH (G3D::Vector2 point, head)
+        ::glVertex (point);
+    glEnd ();
+}
+
+
+void DisplayVtkArrow (
+    G3D::Vector3 where, G3D::Vector3 v, GLUquadricObj* quadric)
+{
+    G3D::Matrix3 rot = GetAxisRotation (v, G3D::Vector3::X_AXIS);
+    glPushMatrix ();
+    glTranslate (where);
+    glMultMatrix (rot);
+    glPushMatrix ();
+    glScale (v.length ());
+    if (quadric)
+        DisplayVtkArrow (quadric);
+    else
+        DisplayVtkArrow ();
+    glPopMatrix ();
+    glPopMatrix ();
 }
 
 
@@ -150,12 +178,10 @@ void DisplaySegmentQuadric::operator() (
     G3D::Matrix3 rotation = GetAxisRotation (begin, end, G3D::Vector3::Z_AXIS);
     G3D::CoordinateFrame frame (rotation, begin);
     glPushMatrix ();
-    {
-	glMultMatrix (frame);
-	gluCylinder (
-	    m_quadric, m_radius, m_radius, (end - begin).length (),
-	    Settings::QUADRIC_SLICES, Settings::QUADRIC_STACKS);
-    }
+    glMultMatrix (frame);
+    gluCylinder (
+        m_quadric, m_radius, m_radius, (end - begin).length (),
+        Settings::QUADRIC_SLICES, Settings::QUADRIC_STACKS);
     glPopMatrix ();
 }
 
@@ -255,23 +281,23 @@ void DisplaySegmentTube::displayTube (const Disk& begin, const Disk& end) const
 }
 
 
-// DisplaySegmentArrow1
+// DisplayThickFirstHalf
 // ======================================================================
 
-DisplaySegmentArrow1::DisplaySegmentArrow1 (
+DisplayThickFirstHalf::DisplayThickFirstHalf (
     GLUquadricObj* quadric,
-    double baseRadius, double topRadius, double height,
+    double arrowHeadRadius, double shaftRadius, double arrowHeadHeight,
     ArrowHeadPosition position) :
 
     m_quadric (quadric),
-    m_baseRadius (baseRadius),
-    m_topRadius(topRadius),
-    m_height (height),
+    m_arrowHeadRadius (arrowHeadRadius),
+    m_arrowHeadHeight (arrowHeadHeight),
+    m_shaftRadius(shaftRadius),
     m_position (position)
 {
 }
 
-void DisplaySegmentArrow1::operator () (
+void DisplayThickFirstHalf::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
     glLineWidth (3.0);
@@ -287,10 +313,11 @@ void DisplaySegmentArrow1::operator () (
 
 DisplayArrowHeadQuadric::DisplayArrowHeadQuadric (
     GLUquadricObj* quadric, 
-    double baseRadius, double topRadius, double height, 
+    double arrowHeadRadius, double shaftRadius, double arrowHeadHeight, 
     ArrowHeadPosition position) :
 
-    DisplaySegmentArrow1 (quadric, baseRadius, topRadius, height, position)
+    DisplayThickFirstHalf (
+        quadric, arrowHeadRadius, shaftRadius, arrowHeadHeight, position)
 {
 }
 
@@ -299,7 +326,7 @@ G3D::Vector3 DisplayArrowHeadQuadric::GetBasePosition (
 {
     return ((m_position == BASE_MIDDLE) ?
             (begin + end) / 2 :
-            (end - (end - begin).direction () * m_height));
+            (end - (end - begin).direction () * m_arrowHeadHeight));
 }
 
 
@@ -312,11 +339,14 @@ void DisplayArrowHeadQuadric::operator () (
     glPushMatrix ();
     {
 	glMultMatrix (objectToWorld);
-	gluCylinder (m_quadric, m_baseRadius, 
-                     m_position == BASE_MIDDLE ? m_topRadius : 0, m_height,
-		     Settings::QUADRIC_SLICES, Settings::QUADRIC_STACKS);
+	gluCylinder (
+            m_quadric, 
+            m_arrowHeadRadius, 
+            m_position == BASE_MIDDLE ? m_shaftRadius : 0, 
+            m_arrowHeadHeight,
+            Settings::QUADRIC_SLICES, Settings::QUADRIC_STACKS);
 	gluQuadricOrientation (m_quadric, GLU_INSIDE);
-	gluDisk (m_quadric, 0, m_baseRadius, Settings::QUADRIC_SLICES,
+	gluDisk (m_quadric, 0, m_arrowHeadRadius, Settings::QUADRIC_SLICES,
 		 Settings::QUADRIC_STACKS);
         gluQuadricOrientation (m_quadric, GLU_OUTSIDE);
     }
@@ -328,19 +358,21 @@ void DisplayArrowHeadQuadric::operator () (
 
 DisplayArrowQuadric::DisplayArrowQuadric (
     GLUquadricObj* quadric,
-    double baseRadius, double topRadius, double height,
+    double arrowHeadRadius, double shaftRadius, double arrowHeadHeight,
     ArrowHeadPosition position) :
-
-    DisplaySegmentArrow1 (quadric, baseRadius, topRadius, height, position)
+    
+    DisplayThickFirstHalf (
+        quadric, arrowHeadRadius, shaftRadius, arrowHeadHeight, position)
 {
 }
 
 void DisplayArrowQuadric::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
-    DisplaySegmentQuadric displayEdge (m_quadric, m_topRadius);
+    DisplaySegmentQuadric displayEdge (m_quadric, m_shaftRadius);
     DisplayArrowHeadQuadric displayArrowHead (
-	m_quadric, m_baseRadius, m_topRadius, m_height, m_position);
+	m_quadric, m_arrowHeadRadius, 
+        m_shaftRadius, m_arrowHeadHeight, m_position);
     displayEdge (begin, m_position == BASE_MIDDLE ? end : 
                  displayArrowHead.GetBasePosition (begin, end));
     displayArrowHead (begin, end);
@@ -353,18 +385,19 @@ void DisplayArrowQuadric::operator () (
 void DisplayOrientedSegmentLine::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
-    DisplaySegmentLine displayEdge (m_quadric, m_topRadius);
-    DisplaySegmentArrow1 displayThickHalf (
-	m_quadric, m_baseRadius, m_topRadius, m_height, m_position);
+    DisplaySegmentLine displayEdge (m_quadric, m_shaftRadius);
+    DisplayThickFirstHalf displayThickHalf (
+	m_quadric, m_arrowHeadRadius, m_shaftRadius, m_arrowHeadHeight, 
+        m_position);
     displayEdge (begin, end);
     displayThickHalf (begin, end);
 }
 
 // DisplayEdgeTorus
 // ======================================================================
-template <typename DisplayEdge, typename DisplaySegmentArrow1, 
+template <typename DisplayEdge, typename DisplayThickFirstHalf, 
 	  bool showDuplicates>
-DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow1, showDuplicates>::
+DisplayEdgeTorus<DisplayEdge, DisplayThickFirstHalf, showDuplicates>::
 DisplayEdgeTorus (
     const Settings& settings, ViewNumber::Enum viewNumber, bool is2D,
     FocusContext focus, bool useZPos, double zPos, 
@@ -373,31 +406,31 @@ DisplayEdgeTorus (
     DisplayElementFocus (settings, viewNumber, is2D, focus, useZPos, zPos),
     m_displayEdge (quadric, m_settings.GetEdgeRadius ()),
     m_displayArrow (quadric,
-		    m_settings.GetArrowBaseRadius (),
+		    m_settings.GetArrowHeadRadius (),
 		    m_settings.GetEdgeRadius (),
-		    m_settings.GetArrowHeight ())
+		    m_settings.GetArrowHeadHeight ())
     {
     }
 
-template <typename DisplayEdge, typename DisplaySegmentArrow1, 
+template <typename DisplayEdge, typename DisplayThickFirstHalf, 
 	  bool showDuplicates>
-void DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow1, showDuplicates>::
+void DisplayEdgeTorus<DisplayEdge, DisplayThickFirstHalf, showDuplicates>::
 operator () (const OrientedEdge& oe)
 {
     operator () (oe.GetEdge ());
 }
 
-template <typename DisplayEdge, typename DisplaySegmentArrow1, 
+template <typename DisplayEdge, typename DisplayThickFirstHalf, 
 	  bool showDuplicates>
-void DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow1, showDuplicates>::
+void DisplayEdgeTorus<DisplayEdge, DisplayThickFirstHalf, showDuplicates>::
 operator() (const boost::shared_ptr<OrientedEdge> oe) 
 {
     operator() (oe->GetEdge());
 }
 
-template <typename DisplayEdge, typename DisplaySegmentArrow1, 
+template <typename DisplayEdge, typename DisplayThickFirstHalf, 
 	  bool showDuplicates>
-void DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow1, showDuplicates>::
+void DisplayEdgeTorus<DisplayEdge, DisplayThickFirstHalf, showDuplicates>::
 operator() (const boost::shared_ptr<Edge>  e)
 {
     if (showDuplicates 
@@ -405,9 +438,9 @@ operator() (const boost::shared_ptr<Edge>  e)
 	display (e);
 }
 
-template <typename DisplayEdge, typename DisplaySegmentArrow1, 
+template <typename DisplayEdge, typename DisplayThickFirstHalf, 
 	  bool showDuplicates>
-void DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow1, showDuplicates>::
+void DisplayEdgeTorus<DisplayEdge, DisplayThickFirstHalf, showDuplicates>::
 display (const boost::shared_ptr<Edge>  e)
 {
     glPushAttrib (GL_CURRENT_BIT);
@@ -523,8 +556,8 @@ void DisplayEdge::operator() (const boost::shared_ptr<OrientedEdge> oe) const
 
 template class DisplayEdgeTorus<DisplaySegmentQuadric, DisplayArrowHeadQuadric, false>;
 template class DisplayEdgeTorus<DisplaySegmentQuadric, DisplayArrowHeadQuadric, true>;
-template class DisplayEdgeTorus<DisplaySegmentLine, DisplaySegmentArrow1, false>;
-template class DisplayEdgeTorus<DisplaySegmentLine, DisplaySegmentArrow1, true>;
+template class DisplayEdgeTorus<DisplaySegmentLine, DisplayThickFirstHalf, false>;
+template class DisplayEdgeTorus<DisplaySegmentLine, DisplayThickFirstHalf, true>;
 
 
 // DisplayEdgePropertyColor

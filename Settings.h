@@ -257,7 +257,7 @@ public:
     void SetArrowParameters (float onePixelInObjectSpace);
     static void SetArrowParameters (
         float onePixelInObjectSpace,
-        float* edgeRadius, float* arrowBaseRadius, float* arrowHeight, 
+        float* edgeRadius, float* arrowHeadRadius, float* arrowHeadHeight, 
         float edgeRadiusRatio = 0,
         float* edgeWidth = 0);
 
@@ -265,13 +265,13 @@ public:
     {
 	return m_edgeWidth;
     }
-    float GetArrowBaseRadius () const 
+    float GetArrowHeadRadius () const 
     {
-	return m_arrowBaseRadius;
+	return m_arrowHeadRadius;
     }
-    float GetArrowHeight () const 
+    float GetArrowHeadHeight () const 
     {
-	return m_arrowHeight;
+	return m_arrowHeadHeight;
     }
     float GetEdgeRadiusRatio () const
     {
@@ -454,8 +454,8 @@ private:
     /**
      * For displaying arrows in the Torus Model edges
      */
-    float m_arrowBaseRadius;
-    float m_arrowHeight;
+    float m_arrowHeadRadius;
+    float m_arrowHeadHeight;
     EndLocationColor m_endTranslationColor;
     bool m_edgesTessellationShown;
     bool m_constraintsShown;

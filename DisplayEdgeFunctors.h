@@ -24,10 +24,13 @@ void DisplayOrientedEdgeVertices (const boost::shared_ptr<OrientedEdge> oe);
 void DisplaySegmentArrow2D (G3D::Vector2 v, G3D::Vector2 center,
                             float lineWidth, 
                             float onePixelInObjectSpace, bool clamped);
-void DisplaySegmentArrow3D (GLUquadricObj* quadric, 
-                            G3D::Vector3 where, G3D::Vector3 v);
-void DisplayVtkArrow (GLUquadricObj* quadric);
-
+/**
+ * Display an arrow from 0,1 along X axis, which shaft = 0.03, 
+ * arrowHeadRadius = 0.1, arrowHeadHeight = 0.35.
+ * if quadric == 0 it draws a 2D arrow.
+ */
+void DisplayVtkArrow (G3D::Vector3 where, G3D::Vector3 v, 
+                      GLUquadricObj* quadric = 0);
 
 // Display segments
 struct Segment
@@ -43,7 +46,7 @@ struct Segment
 	     const G3D::Vector3& begin,
 	     const G3D::Vector3& end,
 	     const G3D::Vector3& afterEnd, bool context) :
-
+        
 	m_perpendicularEnd (perpendicularEnd),
 	m_beforeBegin (beforeBegin),
 	m_begin (begin),
@@ -137,7 +140,7 @@ private:
 	const G3D::Vector3& afterP, const G3D::Vector3& origin) const;
 };
 
-class DisplaySegmentArrow1
+class DisplayThickFirstHalf
 {
 public:
     enum ArrowHeadPosition
@@ -147,7 +150,7 @@ public:
     };
 
 public:
-    DisplaySegmentArrow1 (
+    DisplayThickFirstHalf (
 	GLUquadricObj* quadric = 0,
 	double baseRadius = 0, double topRadius = 0, double height = 0,
 	ArrowHeadPosition position = BASE_MIDDLE);
@@ -158,44 +161,44 @@ protected:
 
 protected:
     GLUquadricObj* m_quadric;
-    double m_baseRadius;
-    double m_topRadius;
-    double m_height;
+    double m_arrowHeadRadius;
+    double m_arrowHeadHeight;
+    double m_shaftRadius;
     ArrowHeadPosition m_position;
 };
 
-class DisplayArrowHeadQuadric : public DisplaySegmentArrow1
+class DisplayArrowHeadQuadric : public DisplayThickFirstHalf
 {
 public:
     DisplayArrowHeadQuadric (
 	GLUquadricObj* quadric,
-	double baseRadius, double topRadius, double height, 
+	double arrowHeadRadius, double shaftRadius, double arrowHeadHeight, 
 	ArrowHeadPosition position = TOP_END);
     void operator () (const G3D::Vector3& begin, const G3D::Vector3& end);
     G3D::Vector3 GetBasePosition (
         const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
-class DisplayOrientedSegmentLine : public DisplaySegmentArrow1
+class DisplayOrientedSegmentLine : public DisplayThickFirstHalf
 {
 public:
     DisplayOrientedSegmentLine (
 	GLUquadricObj* quadric = 0,
 	double baseRadius = 0, double topRadius = 1.0, double height = 0,
 	ArrowHeadPosition position = BASE_MIDDLE) :
-	DisplaySegmentArrow1 (quadric, baseRadius, topRadius, height, position)
+	DisplayThickFirstHalf (quadric, baseRadius, topRadius, height, position)
     {
     }
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
-class DisplayArrowQuadric : public DisplaySegmentArrow1
+class DisplayArrowQuadric : public DisplayThickFirstHalf
 {
 public:
     DisplayArrowQuadric (
 	GLUquadricObj* quadric = 0,
-	double baseRadius = 0, double topRadius = 0, double height = 0,
-	ArrowHeadPosition position = TOP_END);
+	double arrowHeadRadius = 0, double shaftRadius = 0, 
+        double arrowHeadHeight = 0, ArrowHeadPosition position = TOP_END);
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
@@ -203,7 +206,7 @@ public:
 // ======================================================================
 
 template <typename DisplayEdge, 
-	  typename DisplaySegmentArrow1, bool showDuplicates>
+	  typename DisplayThickFirstHalf, bool showDuplicates>
 class DisplayEdgeTorus : public DisplayElementFocus
 {
 public:
@@ -224,7 +227,7 @@ protected:
 
 private:
     DisplayEdge m_displayEdge;
-    DisplaySegmentArrow1 m_displayArrow;
+    DisplayThickFirstHalf m_displayArrow;
 };
 
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay = 

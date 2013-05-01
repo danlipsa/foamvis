@@ -75,8 +75,8 @@ Settings::Settings (
     m_edgeRadius (0),
     m_edgeWidth (0),
     m_edgeRadiusRatio (0),
-    m_arrowBaseRadius (0),
-    m_arrowHeight (0),
+    m_arrowHeadRadius (0),
+    m_arrowHeadHeight (0),
     m_edgesTessellationShown (false),
     m_constraintsShown (true),
     m_constraintPointsShown (false),
@@ -108,21 +108,21 @@ void Settings::SetArrowParameters (float onePixelInObjectSpace)
 {
     SetArrowParameters (
         onePixelInObjectSpace,
-        &m_edgeRadius, &m_arrowBaseRadius, &m_arrowHeight, GetEdgeRadiusRatio (),
+        &m_edgeRadius, &m_arrowHeadRadius, &m_arrowHeadHeight, GetEdgeRadiusRatio (),
         &m_edgeWidth);
 }
 
 void Settings::SetArrowParameters (
     float onePixelInObjectSpace,
-    float* edgeRadius, float* arrowBaseRadius, float* arrowHeight, 
+    float* edgeRadius, float* arrowHeadRadius, float* arrowHeadHeight, 
     float edgeRadiusRatio,float* ew)
 {
     float edgeWidth = (MAX_RADIUS_MULTIPLIER - 1) * edgeRadiusRatio + 1;
     if (ew != 0)
         *ew = edgeWidth;
     *edgeRadius = onePixelInObjectSpace * edgeWidth;
-    *arrowBaseRadius = 4 * (*edgeRadius);
-    *arrowHeight = 11 * (*edgeRadius);
+    *arrowHeadRadius = 4 * (*edgeRadius);
+    *arrowHeadHeight = 11 * (*edgeRadius);
 }
 
 

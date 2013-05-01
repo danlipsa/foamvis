@@ -514,7 +514,9 @@ string Simulation::ToHtml () const
 	"<tr><th>Vertices</th><td>" 
 	 << vertices[0] << "</td><td>" << vertices[1] << "</td></tr>"
 	"</table>"
-        "Bounding box: " << GetBoundingBox () << endl;
+        "<p>"
+        "Bounding box: " << GetBoundingBox () << "<p>" <<
+        "Bubble diameter: " << GetBubbleDiameter () << endl;
     return ostr.str ();
 }
 

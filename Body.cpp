@@ -243,12 +243,12 @@ string Body::ToString (bool is2D) const
     }
 
     ostr << "\nBody center: " << m_center;
-    ostr << "\nDeformation eigen values: " 
-	 << GetDeformationEigenValues ()
-	 << "\nDeformation eigen vectors: "
-	 << GetDeformationEigenVector (0) << ", "
-	 << GetDeformationEigenVector (1) << ", " 
-	 << GetDeformationEigenVector (2);
+    ostr << "\nDeformation eigen values: " << GetDeformationEigenValues ()
+	 << "\nDeformation eigen vectors: " 
+         << GetDeformationEigenVector (0) << ", " 
+         << GetDeformationEigenVector (1) << ", " 
+         << GetDeformationEigenVector (2)
+         << "\nBounding box: " << GetBoundingBox ();
     return ostr.str ();
 }
 

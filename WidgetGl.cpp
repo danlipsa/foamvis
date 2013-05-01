@@ -1538,13 +1538,13 @@ void WidgetGl::displayAxes (ViewNumber::Enum viewNumber)
     if (vs.AxesShown ())
     {
         const Simulation& simulation = GetSimulation (viewNumber);
-        float arrowBaseRadius, edgeRadius, arrowHeight;
+        float arrowHeadRadius, edgeRadius, arrowHeadHeight;
         Settings::SetArrowParameters (
             GetOnePixelInObjectSpace (simulation.Is2D ()),
-            &edgeRadius, &arrowBaseRadius, &arrowHeight);
+            &edgeRadius, &arrowHeadRadius, &arrowHeadHeight);
 	glPushAttrib (GL_CURRENT_BIT);
 	DisplayArrowQuadric displayArrow (
-	    GetQuadric (), arrowBaseRadius, edgeRadius, arrowHeight);
+	    GetQuadric (), arrowHeadRadius, edgeRadius, arrowHeadHeight);
 
 
 	QFont font;
@@ -1993,7 +1993,7 @@ void WidgetGl::displayEdgesTorusLines (ViewNumber::Enum viewNumber) const
     simulation.GetFoam (0).GetEdgeSet (&edgeSet);
     for_each (edgeSet.begin (), edgeSet.end (),
 	      DisplayEdgeTorus<DisplaySegmentLine, 
-	      DisplaySegmentArrow1, false> (
+	      DisplayThickFirstHalf, false> (
 		  GetSettings (), viewNumber, simulation.Is2D (),
                   DisplayElement::FOCUS, false, 0.0, GetQuadric ()));
     glPopAttrib ();
@@ -2081,6 +2081,10 @@ void WidgetGl::displayContextMenuPos (ViewNumber::Enum viewNumber) const
 void WidgetGl::displayScalar (ViewNumber::Enum viewNumber) const
 {
     glCallList (m_listFacesNormal[viewNumber]);
+    displayT1 (viewNumber);
+    GetAttributeAverages2D (
+        viewNumber).GetForceAverage ()->DisplayOneTimeStep (
+            const_cast<WidgetGl*> (this));
 }
 
 
@@ -2105,10 +2109,6 @@ void WidgetGl::compileScalar (ViewNumber::Enum viewNumber) const
     displayStandaloneFaces (viewNumber);    
     displayDeformation (viewNumber);
     displayVelocityGlyphs (viewNumber);
-    displayT1 (viewNumber);
-    GetAttributeAverages2D (
-        viewNumber).GetForceAverage ()->DisplayOneTimeStep (
-            const_cast<WidgetGl*> (this));
     glEndList ();
 }
 
@@ -2337,7 +2337,7 @@ void WidgetGl::displayFacesTorusLines () const
 	      DisplayFaceHighlightColor<HighlightNumber::H0,
 	      DisplayFaceEdges<
 	      DisplayEdgeTorus<DisplaySegmentLine, 
-              DisplaySegmentArrow1, true> > > (
+              DisplayThickFirstHalf, true> > > (
                   GetSettings (), DisplayElement::FOCUS) );
     glPopAttrib ();
 }
@@ -2499,7 +2499,7 @@ void WidgetGl::contextMenuEventView (QMenu* menu) const
 	menuContext->addAction (m_actionContextDisplayReset.get ());
     }
     QMenu* menuCopy = menu->addMenu ("Copy");
-    addCopyMenu (menuCopy, "Transformation", &m_actionCopyTransformation[0]);
+    addCopyMenu (menuCopy, "Transformation", &m_actionCopyTransform[0]);
     QMenu* menuSelection = addCopyCompatibleMenu (
         menuCopy, "Selection", &m_actionCopySelection[0], 
         &WidgetBase::IsSelectionCopyCompatible);
@@ -3875,11 +3875,10 @@ void WidgetGl::RotationCenterFoam ()
     vs.SetRotationCenterType (ViewSettings::ROTATION_CENTER_FOAM);
 }
 
-void WidgetGl::CopyTransformationFrom (int viewNumber)
+void WidgetGl::CopyTransformFromSlot (int viewNumber)
 {
     makeCurrent ();
-    GetViewSettings ().CopyTransformation (
-	GetViewSettings (ViewNumber::Enum (viewNumber)));
+    CopyTransformFrom (ViewNumber::Enum (viewNumber));
     update ();
 }
 
@@ -4520,17 +4519,6 @@ void WidgetGl::ValueChangedDeformationLineWidthExp (int index)
 	IndexExponentToValue (
 	    static_cast<QSlider*> (sender ()), 
             ViewSettings::TENSOR_LINE_WIDTH_EXP2));
-    CompileUpdate ();
-}
-
-void WidgetGl::ValueChangedTorqueDistance (int index)
-{
-    makeCurrent ();
-    (void)index;
-    ViewSettings& vs = GetViewSettings ();
-    vs.SetTorqueDistance (
-	IndexExponentToValue (
-	    static_cast<QSlider*> (sender ()), ViewSettings::FORCE_SIZE_EXP2));
     CompileUpdate ();
 }
 

@@ -225,7 +225,8 @@ void WidgetVtk::UpdateAverageForce ()
     if (! IsVtkView (viewNumber))
         return;
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
-    pipeline.UpdateAverageForce (*m_average[viewNumber]->GetForceAverage ());    
+    pipeline.UpdateAverageForce (
+        *m_average[viewNumber]->GetForceAverage ());
     update ();
 }
 
@@ -364,7 +365,7 @@ void WidgetVtk::contextMenuEventView (QMenu* menu) const
 {
     {
         QMenu* menuCopy = menu->addMenu ("Copy");
-        addCopyMenu (menuCopy, "Transformation", &m_actionCopyTransformation[0]);
+        addCopyMenu (menuCopy, "Transformation", &m_actionCopyTransform[0]);
         addCopyCompatibleMenu (menuCopy, "Selection", &m_actionCopySelection[0], 
                                &WidgetBase::IsSelectionCopyCompatible);
     }
@@ -427,11 +428,10 @@ void WidgetVtk::ResetTransformFocus ()
     FromViewTransform ();
 }
 
-void WidgetVtk::CopyTransformationFrom (int fromViewNumber)
+void WidgetVtk::CopyTransformFromSlot (int vn)
 {
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    GetViewSettings (viewNumber).CopyTransformation (
-	GetViewSettings (ViewNumber::Enum (fromViewNumber)));
+    ViewNumber::Enum viewNumber = ViewNumber::Enum (vn);
+    CopyTransformFrom (viewNumber);
     FromViewTransform (viewNumber);
 }
 

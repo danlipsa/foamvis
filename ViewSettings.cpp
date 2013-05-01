@@ -39,7 +39,6 @@ const double ViewSettings::STREAMLINE_LENGTH (0.2);
 const double ViewSettings::STREAMLINE_STEP_LENGTH (0.005);
 const pair<float,float> ViewSettings::ALPHA_RANGE (0.01, 0.2);
 const pair<float,float> ViewSettings::TENSOR_LINE_WIDTH_EXP2 (0, 3);
-const pair<float,float> ViewSettings::FORCE_SIZE_EXP2 (-2, 2);
 const pair<float,float> ViewSettings::T1_SIZE (0.2, 1);
 
 
@@ -89,8 +88,7 @@ ViewSettings::ViewSettings () :
     m_deformationLineWidth (1),
     m_velocityLineWidth (1),
     m_velocityColorMapped (true),
-    m_forceSize (1),
-    m_forceLineWidth (1),
+    m_forceRatio (1),
     m_torqueDistance (1),
     m_histogramShown (false),
     m_histogramOptions (HistogramType::UNICOLOR_TIME_STEP),
@@ -464,15 +462,6 @@ void ViewSettings::DifferenceBodySelector (
     }
 }
 
-void ViewSettings::CopyTransformation (const ViewSettings& from)
-{
-    m_rotationFocus = from.m_rotationFocus;
-    m_scaleRatio = from.m_scaleRatio;
-    m_translation = from.m_translation;
-    m_axesOrder = from.m_axesOrder;
-}
-
-
 void ViewSettings::CopySelection (const ViewSettings& other)
 {
     m_bodySelector = other.m_bodySelector->Clone ();
@@ -777,4 +766,17 @@ void ViewSettings::AddLinkedTimeEvent (size_t timeEvent)
 void ViewSettings::ResetLinkedTimeEvents ()
 {
     m_linkedTimeEvent.resize (0);
+}
+
+
+void ViewSettings::SetOnePixelInObjectSpace (float pixel)
+{
+    m_onePixelInObjectSpace = pixel;
+    RuntimeAssert (m_scaleRatio == 1, 
+                   "Scale has to be 1 when setting onepixel in object spec");
+}
+
+float ViewSettings::GetOnePixelInObjectSpace () const
+{
+    return m_onePixelInObjectSpace / m_scaleRatio;
 }

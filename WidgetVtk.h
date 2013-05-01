@@ -95,7 +95,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void CopySelectionFrom (int fromViewNumber);
-    void CopyTransformationFrom (int fromViewNumber);
+    void CopyTransformFromSlot (int fromViewNumber);
     void ResetTransformAll ();
     void ResetTransformFocus ();
     void FromView (ViewNumber::Enum viewNumber);

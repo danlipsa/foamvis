@@ -306,8 +306,9 @@ void PipelineAverage3D::UpdateAverageForce (
         for (size_t j = ForceType::NETWORK; j <= ForceType::RESULT; ++j)
         {
             ForceType::Enum ft = ForceType::Enum (j);
-            updateForce (i, ft, forceOneObject.GetForce (ft), position,
-                         vs.IsForceShown (ft));
+            updateForce (
+                i, ft, forceOneObject.GetForce (ft) * vs.GetForceRatio (), 
+                position, vs.IsForceShown (ft));
         }
     }
 }

@@ -278,7 +278,8 @@ Release log
           histogram.
         - show torus domain in the average and t1kde views
         - show forces in scalar view.
-        
+        - copy transforms sets the scale such that the bubble size is the same
+          in the two datasets.
 
 0.9.2826 2013-04-18
         - add Reset transform/All and Focus to the VTK view (3D average)

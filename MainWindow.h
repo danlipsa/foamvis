@@ -153,8 +153,8 @@ public Q_SLOTS:
     void ValueChangedT1KDEIsosurfaceValue (double value);
     void ValueChangedContextAlpha (int sliderValue);
     void ValueChangedObjectAlpha (int sliderValue);
-    void ValueChangedForceSize (int index);
-    void ValueChangedForceLineWidth (int index);
+    void ValueChangedForceRatio (double ratio);
+    void ValueChangedTorqueDistanceRatio (double ratio);
     void ValueChangedGlyphSeedsCount (int index);
     void ViewToUI (ViewNumber::Enum prevViewNumber);
     void SetHistogramColorBarModel (

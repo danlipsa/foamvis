@@ -374,7 +374,7 @@ template class DisplayFaceHighlightColor<HighlightNumber::H0,
 
 template class DisplayFaceHighlightColor<HighlightNumber::H0,
     DisplayFaceEdges<
-	DisplayEdgeTorus<DisplaySegmentLine, DisplaySegmentArrow1, true> >, SetterTextureCoordinate>;
+	DisplayEdgeTorus<DisplaySegmentLine, DisplayThickFirstHalf, true> >, SetterTextureCoordinate>;
 
 template class DisplayFaceHighlightColor<(HighlightNumber::Enum)0, DisplayFaceEdges<DisplayEdge>, SetterTextureCoordinate>;
 
@@ -407,7 +407,7 @@ template class DisplayFaceH0Color<SetterTextureCoordinate>;
 // ======================================================================
 
 template class DisplayFaceEdges<
-    DisplayEdgeTorus <DisplaySegmentLine, DisplaySegmentArrow1, true> >;
+    DisplayEdgeTorus <DisplaySegmentLine, DisplayThickFirstHalf, true> >;
 template class DisplayFaceEdges<
     DisplayEdgeTorus<DisplaySegmentQuadric, DisplayArrowHeadQuadric, true> >;
 template class DisplayFaceEdges<

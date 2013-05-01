@@ -144,7 +144,7 @@ void ForceAverage::displayForceOneObject (
     const ViewSettings& vs = GetViewSettings ();
     const Simulation& simulation = GetSimulation ();
     float bubbleSize = simulation.GetBubbleDiameter ();
-    float unitForceSize = vs.GetForceSize () * bubbleSize;
+    float unitForceSize = vs.GetForceRatio () * bubbleSize;
     G3D::Vector3 center = forceOneObject.GetBody ()->GetCenter ();
 
     for (size_t i = ForceType::NETWORK; i <= ForceType::RESULT; ++i)
@@ -169,7 +169,7 @@ void ForceAverage::displayTorqueOneObject (
     G3D::Vector3 center = forceOneObject.GetBody ()->GetCenter ();
     const Foam& foam = GetFoam ();
     float bubbleSize = simulation.GetBubbleDiameter ();
-    float unitForceSize = vs.GetForceSize () * bubbleSize;
+    float unitForceSize = vs.GetForceRatio () * bubbleSize;
 
     float onePixel = vs.GetOnePixelInObjectSpace ();
     boost::array<G3D::Vector3, 3> displacement = {{
@@ -184,7 +184,7 @@ void ForceAverage::displayTorqueOneObject (
 	    displayTorque (widgetGl,
 		GetSettings ().GetHighlightColor (viewNumber, h),
 		center + displacement[i], 
-		vs.GetTorqueDistance () * bubbleSize,
+		vs.GetTorqueDistanceRatio () * bubbleSize,
 		foam.GetDmpObjectPosition ().m_angleRadians,
 		unitForceSize * forceOneObject.GetTorque (ft));
     }
@@ -195,11 +195,10 @@ void ForceAverage::displayTorque (
     QColor color, const G3D::Vector3& center, 
     float distance, float angleRadians, float torque) const
 {
-    ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
     pair<G3D::Vector3, G3D::Vector3> centerTorque = 
 	calculateTorque (center, distance, angleRadians, torque);
     displayForce (widgetGl, color, centerTorque.first, centerTorque.second);
-    glLineWidth (vs.GetForceLineWidth ());
+    glLineWidth (1);
     glBegin (GL_LINES);
     ::glVertex (center);
     ::glVertex (centerTorque.first);
@@ -223,18 +222,11 @@ void ForceAverage::displayForce (
     WidgetGl* widgetGl,
     QColor color, const G3D::Vector3& center, const G3D::Vector3& force) const
 {
-    ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
     const Simulation& simulation = GetSimulation ();
     glColor (color);
-    if (simulation.Is2D ())
-        DisplaySegmentArrow2D (
-            center.xy (), force.xy (), vs.GetForceLineWidth (),
-            vs.GetOnePixelInObjectSpace (), false);
-    else
-        DisplaySegmentArrow3D (widgetGl->GetQuadric (), center, force);
+    DisplayVtkArrow (center, force,
+                     simulation.Is2D () ? 0 : widgetGl->GetQuadric ());
 }
-
-
 
 const vector<ForceOneObject>& ForceAverage::GetForces (
     size_t timeStep) const

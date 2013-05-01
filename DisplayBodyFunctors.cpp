@@ -234,7 +234,7 @@ void DisplayBodyVelocity::display (boost::shared_ptr<Body> body)
             displayVelocity.xy (), vs.GetVelocityLineWidth (), 
             m_onePixelInObjectSpace, clamped && m_clampingShown);
     else
-        DisplaySegmentArrow3D (m_quadric, body->GetCenter (), displayVelocity);
+        DisplayVtkArrow (body->GetCenter (), displayVelocity, m_quadric);
     glPopAttrib ();
 }
 

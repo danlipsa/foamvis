@@ -136,8 +136,6 @@ MainWindow::MainWindow (
 
 void MainWindow::configureInterface ()
 {
-    horizontalSliderForceSize->setValue (49);
-    horizontalSliderTorqueDistance->setValue (49);
     comboBoxScalar->setCurrentIndex (BodyScalar::PRESSURE);
     CurrentIndexChangedInteractionMode (InteractionMode::ROTATE);
     CurrentIndexChangedWindowLayout (ViewLayout::HORIZONTAL);
@@ -149,6 +147,10 @@ void MainWindow::configureInterface ()
     spinBoxKDEMultiplier->setToolTip (
         "Oversample streamlines. A grid square will "
         "contain (2*m + 1)^2 seeds where m is the KDE multiplier.");
+    doubleSpinBoxForceRatio->setToolTip (
+        "The ratio between force arrow size and bubble size");
+    doubleSpinBoxTorqueDistanceRatio->setToolTip (
+        "The ratio between torque distance size and bubble size");
     boost::shared_ptr<Application> app = Application::Get ();
     QFont defaultFont = app->font ();
     spinBoxFontSize->setValue (defaultFont.pointSize ());
@@ -1339,25 +1341,20 @@ void MainWindow::TimeoutTimer ()
     }
 }
 
-void MainWindow::ValueChangedForceSize (int index)
+void MainWindow::ValueChangedForceRatio (double ratio)
 {
-    (void)index;
+    GetViewSettings ().SetForceRatio (ratio);
+    widgetGl->update ();
+    widgetVtk->UpdateAverageForce ();
+}
+
+void MainWindow::ValueChangedTorqueDistanceRatio (double ratio)
+{
     ViewSettings& vs = GetViewSettings ();
-    vs.SetForceSize (
-	IndexExponentToValue (
-	    static_cast<QSlider*> (sender ()), ViewSettings::FORCE_SIZE_EXP2));
+    vs.SetTorqueDistanceRatio (ratio);
     widgetGl->CompileUpdate ();
 }
 
-void MainWindow::ValueChangedForceLineWidth (int index)
-{
-    (void)index;
-    ViewSettings& vs = GetViewSettings ();
-    vs.SetForceLineWidth (
-	IndexExponentToValue (static_cast<QSlider*> (sender ()),
-			     ViewSettings::TENSOR_LINE_WIDTH_EXP2));
-    widgetGl->CompileUpdate ();
-}
 
 void MainWindow::ValueChangedGlyphSeedsCount (int count)
 {
@@ -2104,18 +2101,8 @@ void MainWindow::forceViewToUI ()
 	checkBoxTorqueResult, 
         vs.IsTorqueShown (ForceType::RESULT), simulation.IsTorqueAvailable ());
     SetValueNoSignals (
-	horizontalSliderTorqueDistance, ValueToExponentIndex (
-            horizontalSliderTorqueDistance,
-            ViewSettings::FORCE_SIZE_EXP2, vs.GetTorqueDistance ()));
-    // size and width
-    SetValueNoSignals (
-	horizontalSliderForceSize, ValueToExponentIndex (
-            horizontalSliderForceSize,
-            ViewSettings::FORCE_SIZE_EXP2, vs.GetForceSize ()));
-    SetValueNoSignals (
-	horizontalSliderForceLineWidth, ValueToExponentIndex (
-            horizontalSliderForceLineWidth,
-            ViewSettings::TENSOR_LINE_WIDTH_EXP2, vs.GetForceLineWidth ()));
+        doubleSpinBoxTorqueDistanceRatio, vs.GetTorqueDistanceRatio ());
+    SetValueNoSignals (doubleSpinBoxForceRatio, vs.GetForceRatio ());
 }
 
 void MainWindow::t1KDEViewToUI (ViewNumber::Enum viewNumber)

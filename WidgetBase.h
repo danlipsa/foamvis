@@ -141,8 +141,8 @@ protected:
         IsCopyCompatibleType isCopyCompatible) const;
     void initCopy (
 	boost::array<boost::shared_ptr<QAction>, 
-	ViewNumber::COUNT>& actionCopyTransformation,
-	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation);
+	ViewNumber::COUNT>& actionCopyTransform,
+	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransform);
     virtual void contextMenuEventView (QMenu* menu) const
     {(void)menu;}
     virtual void contextMenuEventColorMapScalar (QMenu* menu) const;
@@ -150,8 +150,8 @@ protected:
 
 protected:
     boost::array<boost::shared_ptr<QAction>, 
-		 ViewNumber::COUNT> m_actionCopyTransformation;
-    boost::shared_ptr<QSignalMapper> m_signalMapperCopyTransformation;
+		 ViewNumber::COUNT> m_actionCopyTransform;
+    boost::shared_ptr<QSignalMapper> m_signalMapperCopyTransform;
     
     boost::array<boost::shared_ptr<QAction>, 
                  ViewNumber::COUNT> m_actionCopySelection;
@@ -186,10 +186,10 @@ private:
              SIGNAL (mapped (int)),\
              this,\
              SLOT (CopySelectionFrom (int)));\
-    connect (m_signalMapperCopyTransformation.get (),\
+    connect (m_signalMapperCopyTransform.get (),\
 	     SIGNAL (mapped (int)),\
 	     this,\
-	     SLOT (CopyTransformationFrom (int)));\
+	     SLOT (CopyTransformFromSlot (int)));\
     connect (m_actionResetTransformAll.get (), SIGNAL(triggered()),\
              this, SLOT(ResetTransformAll ()));\
     connect (m_actionResetTransformFocus.get (), SIGNAL(triggered()),\

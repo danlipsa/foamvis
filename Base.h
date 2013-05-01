@@ -109,6 +109,7 @@ public:
         return GetBubbleDiameter (GetViewNumber ());
     }
 
+    void CopyTransformFrom (ViewNumber::Enum viewNumber);
 
 
     virtual ViewNumber::Enum GetViewNumber () const;
