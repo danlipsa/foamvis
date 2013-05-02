@@ -379,6 +379,8 @@ void PipelineAverage3D::UpdateAverageScalar (const RegularGridAverage& average)
 	    G3D::Vector3 t = average.GetTranslation ();
 	    m_object[i]->SetPosition (t.x, t.y, t.z);
 	}
+        else
+            m_object[i]->SetPosition (0, 0, 0);
     }
 
     // update constraint surfaces

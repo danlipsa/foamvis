@@ -103,8 +103,7 @@ void RegularGridAverage::opStep (
 	regularFoam->SetOrigin (origin.x, origin.y, origin.z);
 	vtkSmartPointer<vtkImageData> translatedRegularFoam = 
 	    CreateEmptyRegularGrid (
-		GetBodyAttribute (), 
-                &simulation.GetExtentResolution ()[0],
+		attribute, &simulation.GetExtentResolution ()[0],
 		simulation.GetBoundingBoxAllTimeSteps ());
 	VTK_CREATE (vtkProbeFilter, translatedDataProbe);
 	translatedDataProbe->SetSourceData (regularFoam);

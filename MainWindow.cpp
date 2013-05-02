@@ -194,7 +194,6 @@ void MainWindow::configureInterfaceDataDependent (
 		comboBoxViewLayout->setCurrentIndex (ViewLayout::VERTICAL);
 	}
         checkBoxVelocityColorMapped->setChecked (false);
-        doubleSpinBoxT1KDEIsosurfaceValue->setVisible (false);
     }
     else
     {
@@ -2112,6 +2111,8 @@ void MainWindow::forceViewToUI ()
 void MainWindow::t1KDEViewToUI (ViewNumber::Enum viewNumber)
 {
     const Simulation& simulation = GetSimulation (viewNumber);
+    labelKDEIsosurfaceValue->setEnabled (simulation.Is3D ());
+    doubleSpinBoxT1KDEIsosurfaceValue->setEnabled (simulation.Is3D ());
     if (simulation.Is2D ())
     {
         const ViewSettings& vs = GetViewSettings (viewNumber);

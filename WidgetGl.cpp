@@ -130,7 +130,7 @@ const GLfloat WidgetGl::HIGHLIGHT_LINE_WIDTH = 2.0;
 WidgetGl::WidgetGl(QWidget *parent)
     : QGLWidget(parent),
       WidgetBase (this, &Base::IsGlView, &Base::GetGlCount),
-      m_edgesShown (true),
+      m_edgesShown (false),
       m_bodyCenterShown (false),
       m_bodyNeighborsShown (false),
       m_faceCenterShown (false),
