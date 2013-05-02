@@ -113,11 +113,11 @@ float T1KDE2D::getKernelSigma () const
 
 size_t T1KDE2D::GetKernelTextureSize () const
 {
+    const ViewSettings& vs = GetViewSettings ();
     // WARNING: has to be the same as in GaussianInit.frag
     const float STDDEV_COUNT = 5.0;
     // we want our texture to cover 1 sigma
-    return STDDEV_COUNT * getKernelSigma () / 
-        GetOnePixelInObjectSpace (GetSimulation ().Is2D ());
+    return STDDEV_COUNT * getKernelSigma () / vs.GetOnePixelInObjectSpace ();
 }
 
 

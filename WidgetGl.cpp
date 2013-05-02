@@ -753,15 +753,19 @@ void WidgetGl::paintGL ()
 
 void WidgetGl::resizeGL(int w, int h)
 {
-    (void)w;(void)h;
+    
+    __LOG__ (cdbg << "resizeGl: " << w << ", " << h << endl;);
     ForAllViews (boost::bind (&WidgetGl::averageInitStep, this, _1));
     WarnOnOpenGLError ("resizeGl");
 }
 void WidgetGl::averageInitStep (ViewNumber::Enum viewNumber)
 {
     if (GetSimulation (viewNumber).Is2D ())
+    {
+        allTransform (viewNumber);
         GetAttributeAverages2D (viewNumber).AverageInitStep (
             GetViewSettings (viewNumber).GetTimeWindow ());
+    }
 }
 
 void WidgetGl::SetViewTypeAndCameraDistance (ViewNumber::Enum viewNumber)
@@ -825,11 +829,8 @@ void WidgetGl::displayView (ViewNumber::Enum viewNumber)
 {
     //QTime t;t.start ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    const Simulation& simulation = GetSimulation (viewNumber);
     vs.SetGlLightParameters (CalculateCenteredViewingVolume (viewNumber));
     allTransform (viewNumber);
-    vs.SetOnePixelInObjectSpace (GetOnePixelInObjectSpace (simulation.Is2D ()));
-    GetSettingsPtr ()->SetArrowParameters (vs.GetOnePixelInObjectSpace ());
     setTorusDomainClipPlanes (viewNumber);
     displayAllViewTransforms (viewNumber);
     displayViewDecorations (viewNumber);
@@ -862,12 +863,15 @@ void WidgetGl::displayView (ViewNumber::Enum viewNumber)
  */
 void WidgetGl::allTransform (ViewNumber::Enum viewNumber) const
 {
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
     viewportTransform (viewNumber);    
     glMatrixMode (GL_PROJECTION);
     ProjectionTransform (viewNumber);
     glMatrixMode (GL_MODELVIEW);
     modelViewTransform (
         viewNumber, GetTime (viewNumber), ROTATE_FOR_AXIS_ORDER);
+    vs.SetOnePixelInObjectSpace (GetOnePixelInObjectSpace (simulation.Is2D ()));
 }
 
 
@@ -1545,7 +1549,7 @@ void WidgetGl::displayAxes (ViewNumber::Enum viewNumber)
         const Simulation& simulation = GetSimulation (viewNumber);
         float arrowHeadRadius, edgeRadius, arrowHeadHeight;
         Settings::SetArrowParameters (
-            GetOnePixelInObjectSpace (simulation.Is2D ()),
+            vs.GetOnePixelInObjectSpace (),
             &edgeRadius, &arrowHeadRadius, &arrowHeadHeight);
 	glPushAttrib (GL_CURRENT_BIT);
 	DisplayArrowQuadric displayArrow (
@@ -1563,7 +1567,7 @@ void WidgetGl::displayAxes (ViewNumber::Enum viewNumber)
 	G3D::Vector3 first = origin + diagonal.x * G3D::Vector3::unitX ();
 	G3D::Vector3 second = origin + diagonal.y * G3D::Vector3::unitY ();
 	G3D::Vector3 third = origin + diagonal.z * G3D::Vector3::unitZ ();
-	a = fm.height () * GetOnePixelInObjectSpace (simulation.Is2D ());
+	a = fm.height () * vs.GetOnePixelInObjectSpace ();
 
         // Display the X axis
 	glColor (Qt::red);
@@ -1700,7 +1704,7 @@ void WidgetGl::displayVelocityGlyphs (ViewNumber::Enum viewNumber) const
 	    GetSettings (), viewNumber, simulation.Is2D (),
 	    *vs.GetBodySelector (), GetBubbleDiameter (viewNumber), 
 	    GetVelocitySizeInitialRatio (viewNumber),
-	    GetOnePixelInObjectSpace (simulation.Is2D ()), GetQuadric (),
+	    vs.GetOnePixelInObjectSpace (), GetQuadric (),
 	    va.IsSameSize (), va.IsClampingShown ()));
     glPopAttrib ();    
 }
@@ -1750,7 +1754,7 @@ void WidgetGl::displayBodyVelocity (
 	    *vs.GetBodySelector (), 
 	    GetBubbleDiameter (viewNumber), 
 	    GetVelocitySizeInitialRatio (viewNumber),
-	    GetOnePixelInObjectSpace (simulation.Is2D ()), GetQuadric (),
+	    vs.GetOnePixelInObjectSpace (), GetQuadric (),
             va.IsSameSize (), 
 	    va.IsClampingShown ()) (*foam.FindBody (m_showBodyId));
 	glPopAttrib ();
@@ -1876,11 +1880,10 @@ void WidgetGl::DisplayT1Quad (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t t1Index) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    const Simulation& simulation = GetSimulation (viewNumber);
     T1KDE2D& t1sKDE = 
         GetAttributeAverages2D (viewNumber).GetT1KDE ();
     float rectSize = t1sKDE.GetKernelTextureSize () * 
-	GetOnePixelInObjectSpace (simulation.Is2D ());
+	vs.GetOnePixelInObjectSpace ();
     float half = rectSize / 2;
     G3D::Rect2D srcTexRect = G3D::Rect2D::xyxy (0., 0., 1., 1.);
     const G3D::Vector3 t1Pos = 
@@ -2923,6 +2926,7 @@ void WidgetGl::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
 {
     if (direction != 0)
     {
+        makeCurrent ();
         const ViewSettings& vs = GetViewSettings (viewNumber);
         m_average[viewNumber]->AverageStep (direction, vs.GetTimeWindow ());
         if (vs.GetVelocityVis () == VectorVis::STREAMLINE)
@@ -4308,8 +4312,6 @@ void WidgetGl::CurrentIndexChangedSimulation (int i)
         CalculateViewingVolume (viewNumber, simulation).center ();
     vs.SetSimulation (i, simulation, center);
     allTransform (viewNumber);
-    vs.SetOnePixelInObjectSpace (
-        GetOnePixelInObjectSpace (simulation.Is2D ()));
     CompileUpdate ();
 }
 
