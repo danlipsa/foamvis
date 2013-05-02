@@ -339,13 +339,14 @@ public:
     void CalculateCameraDistance (const G3D::AABox& centeredViewingVolume);
 
     // pixel in object space
-    void InitializeOnePixelInObjectSpace (float pixel)
+    void SetOnePixelInObjectSpace (float pixel)
     {
-        if (m_onePixelInObjectSpace == 0)
-            m_onePixelInObjectSpace = pixel;
+        m_onePixelInObjectSpace = pixel;
     }
-    void SetOnePixelInObjectSpace (float pixel);
-    float GetOnePixelInObjectSpace () const;
+    float GetOnePixelInObjectSpace () const
+    {
+        return m_onePixelInObjectSpace;
+    }
     bool IsDmpTransformShown () const
     {
         return m_dmpTransformShown;

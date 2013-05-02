@@ -768,15 +768,3 @@ void ViewSettings::ResetLinkedTimeEvents ()
     m_linkedTimeEvent.resize (0);
 }
 
-
-void ViewSettings::SetOnePixelInObjectSpace (float pixel)
-{
-    m_onePixelInObjectSpace = pixel;
-    RuntimeAssert (m_scaleRatio == 1, 
-                   "Scale has to be 1 when setting onepixel in object spec");
-}
-
-float ViewSettings::GetOnePixelInObjectSpace () const
-{
-    return m_onePixelInObjectSpace / m_scaleRatio;
-}

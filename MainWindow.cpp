@@ -152,7 +152,7 @@ void MainWindow::configureInterface ()
         "a force. A force of 1 is represented using an arrow that "
         "has bubble length.");
     doubleSpinBoxTorqueDistanceRatio->setToolTip (
-        "The ratio by which we scale the torque distance "
+        "The ratio by which we scale the torque distance. "
         "A torque distance of 1 is represented with a segment that "
         "has bubble length.");
     boost::shared_ptr<Application> app = Application::Get ();

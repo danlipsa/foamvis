@@ -828,8 +828,7 @@ void WidgetGl::displayView (ViewNumber::Enum viewNumber)
     const Simulation& simulation = GetSimulation (viewNumber);
     vs.SetGlLightParameters (CalculateCenteredViewingVolume (viewNumber));
     allTransform (viewNumber);
-    vs.InitializeOnePixelInObjectSpace (
-        GetOnePixelInObjectSpace (simulation.Is2D ()));
+    vs.SetOnePixelInObjectSpace (GetOnePixelInObjectSpace (simulation.Is2D ()));
     GetSettingsPtr ()->SetArrowParameters (vs.GetOnePixelInObjectSpace ());
     setTorusDomainClipPlanes (viewNumber);
     displayAllViewTransforms (viewNumber);
