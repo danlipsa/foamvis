@@ -330,7 +330,7 @@ public:
 
 private:
     vtkSmartPointer<vtkUnstructuredGrid> getTetraGrid () const;
-    vtkSmartPointer<vtkImageData> calculateRegularGrid (
+    vtkSmartPointer<vtkImageData> toRegularGrid (
 	size_t regularGridResolution, const G3D::AABox& simulationBB) const;
     vtkSmartPointer<vtkUnstructuredGrid> addCellAttribute (
 	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,

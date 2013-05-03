@@ -759,11 +759,11 @@ void AddValidPointMask (vtkSmartPointer<vtkImageData> data)
 }
 
 
-vtkSmartPointer<vtkImageData> CreateEmptyRegularGrid (
-    size_t bodyAttribute, int extent[6], G3D::AABox bb)
+vtkSmartPointer<vtkImageData> CreateRegularGrid (
+    size_t bodyAttribute, G3D::AABox bb, int extent[6])
 {
     vtkSmartPointer<vtkImageData> regularFoam = 
-	CreateRegularGridNoAttributes (bb, extent);
+	CreateRegularGrid (bb, extent);
     addEmptyPointAttribute (regularFoam, bodyAttribute);
     regularFoam->GetPointData ()->SetActiveAttribute (
 	BodyAttribute::ToString (bodyAttribute),
@@ -771,22 +771,27 @@ vtkSmartPointer<vtkImageData> CreateEmptyRegularGrid (
     return regularFoam;
 }
 
-vtkSmartPointer<vtkImageData> CreateRegularGridNoAttributes (
-    G3D::AABox bb, int extent[6])
+void SetOriginAndSpacing (vtkSmartPointer<vtkImageData> data,
+                          G3D::AABox bb, int extent[6])
 {
     G3D::Vector3 spacing = bb.extent () / 
         G3D::Vector3 (extent[1]-extent[0],
                       extent[3]-extent[2],
                       extent[5]-extent[4]);
     G3D::Vector3 origin = bb.low ();
+    data->SetOrigin (origin.x, origin.y, origin.z);
+    data->SetSpacing (spacing.x, spacing.y, spacing.z);
+}
 
-    VTK_CREATE (vtkImageData, regularFoam);
-    regularFoam->SetExtent (extent[0], extent[1],
-			    extent[2], extent[3],
-			    extent[4], extent[5]);
-    regularFoam->SetOrigin (origin.x, origin.y, origin.z);
-    regularFoam->SetSpacing (spacing.x, spacing.y, spacing.z);
-    return regularFoam;
+vtkSmartPointer<vtkImageData> CreateRegularGrid (
+    G3D::AABox bb, int extent[6])
+{
+    VTK_CREATE (vtkImageData, data);
+    data->SetExtent (extent[0], extent[1],
+                     extent[2], extent[3],
+                     extent[4], extent[5]);
+    SetOriginAndSpacing (data, bb, extent);
+    return data;
 }
 
 void RemoveLayout (QWidget* widget)

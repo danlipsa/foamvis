@@ -30,7 +30,8 @@ public:
                                 size_t scalar);
     void UpdateAverageScalar (const RegularGridAverage& average);
     void UpdateAverageForce (const ForceAverage& forceAverage);
-    void UpdateAverageVelocity (const RegularGridAverage& velocity);
+    void UpdateAverageVelocity (
+        boost::shared_ptr<const RegularGridAverage> velocity);
     void UpdateViewTitle (
         bool titleShown, const G3D::Vector2& postion,
         const string& simulationName, const string& viewTitle);

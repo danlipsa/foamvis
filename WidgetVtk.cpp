@@ -238,7 +238,7 @@ void WidgetVtk::UpdateAverageVelocity ()
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
     pipeline.FromView (viewNumber, *this);    
     pipeline.UpdateAverageVelocity (
-        *m_average[viewNumber]->GetVelocityAverage ());
+        m_average[viewNumber]->GetVelocityAverage ());
     update ();
 }
 
@@ -303,7 +303,7 @@ void WidgetVtk::pipelineUpdateVelocity (
 {
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
     pipeline.UpdateAverageVelocity (
-        *m_average[viewNumber]->GetVelocityAverage ());
+        m_average[viewNumber]->GetVelocityAverage ());
     pipeline.UpdateColorMapVelocity (velocityColorMap);
 }
 
@@ -317,7 +317,7 @@ void WidgetVtk::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
         *m_average[viewNumber]->GetBodyOrOtherScalarAverage ());
     pipeline.UpdateAverageForce (*m_average[viewNumber]->GetForceAverage ());
     pipeline.UpdateAverageVelocity (
-        *m_average[viewNumber]->GetVelocityAverage ());
+        m_average[viewNumber]->GetVelocityAverage ());
     updateViewTitle (viewNumber);
 }
 

@@ -331,13 +331,15 @@ void PipelineAverage3D::updateForce (
 }
 
 void PipelineAverage3D::UpdateAverageVelocity (
-    const RegularGridAverage& velocityAverage)
+    boost::shared_ptr<const RegularGridAverage> velocityAverage)
 {
-    const ViewSettings& vs = velocityAverage.GetViewSettings ();
+    if (velocityAverage == 0)
+        return;
+    const ViewSettings& vs = velocityAverage->GetViewSettings ();
     if (vs.IsVelocityShown () && vs.GetVelocityVis () == VectorVis::GLYPH)
     {
         vtkImageData* imageData = const_cast<vtkImageData*>(
-            &velocityAverage.GetAverage ());
+            &velocityAverage->GetAverage ());
         m_velocityGlyphThresholdOutsideCylinder->SetInputDataObject (imageData);
     }
 }

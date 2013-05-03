@@ -1534,7 +1534,7 @@
          <item>
           <widget class="QStackedWidget" name="stackedWidgetVisualization">
            <property name="currentIndex">
-            <number>1</number>
+            <number>4</number>
            </property>
            <widget class="QWidget" name="pageEmpty"/>
            <widget class="QWidget" name="pageFacesNormal">
@@ -1918,7 +1918,7 @@
              <item row="2" column="1">
               <widget class="QDoubleSpinBox" name="doubleSpinBoxT1KDEIsosurfaceValue">
                <property name="decimals">
-                <number>3</number>
+                <number>10</number>
                </property>
                <property name="maximum">
                 <double>1.000000000000000</double>

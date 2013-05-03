@@ -124,18 +124,18 @@ const char* CACHE_DIR_NAME = ".foamvis";
 vtkSmartPointer<vtkImageData> doubleToFloatArray (
     vtkSmartPointer<vtkImageData> p)
 {
-    vtkDataArray* doubleArray = p->GetPointData ()->GetArray (0);
-    VTK_CREATE (vtkFloatArray, floatArray);
-    floatArray->SetName (OtherScalar::ToString (OtherScalar::T1_KDE));
-    floatArray->SetNumberOfComponents (1);
-    floatArray->SetNumberOfTuples (doubleArray->GetNumberOfTuples ());
-    for (vtkIdType i = 0; i < floatArray->GetNumberOfTuples (); ++i)
+    vtkDataArray* doublePointArray = p->GetPointData ()->GetArray (0);
+    VTK_CREATE (vtkFloatArray, floatPointArray);    
+    floatPointArray->SetName (OtherScalar::ToString (OtherScalar::T1_KDE));
+    floatPointArray->SetNumberOfComponents (1);
+    floatPointArray->SetNumberOfTuples (doublePointArray->GetNumberOfTuples ());
+    for (vtkIdType i = 0; i < floatPointArray->GetNumberOfTuples (); ++i)
     {
-        double value = doubleArray->GetTuple (i)[0];
-        floatArray->SetValue (i, value);
+        double value = doublePointArray->GetTuple (i)[0];
+        floatPointArray->SetValue (i, value);
     }
     p->GetPointData ()->RemoveArray (0);
-    p->GetPointData ()->AddArray (floatArray);
+    p->GetPointData ()->AddArray (floatPointArray);
     return p;
 }
 
@@ -686,22 +686,24 @@ vtkSmartPointer<vtkImageData> Simulation::GetT1KDE (
 {
     float bubbleDiameterInPixels = 
         GetBubbleDiameter () / GetOneVoxelInObjectSpace ();
-    boost::array<int, 6> extentResolution = GetExtentResolution ();
+    boost::array<int, 6> extent = GetExtentResolution ();
     G3D::Vector3 t1Position = GetT1 (timeStep, t1Shift)[subStep].GetPosition ();
-    t1Position -= GetBoundingBoxAllTimeSteps ().low ();
+    G3D::AABox bb = GetBoundingBoxAllTimeSteps ();
+    t1Position -= bb.low ();
     t1Position /= GetOneVoxelInObjectSpace ();
 
     VTK_CREATE (vtkImageGaussianSource, gs);
-    gs->SetWholeExtent (
-        extentResolution[0], extentResolution[1], extentResolution[2],
-        extentResolution[3], extentResolution[4], extentResolution[5]);
+    gs->SetWholeExtent (extent[0], extent[1], extent[2],
+                        extent[3], extent[4], extent[5]);
     gs->SetCenter (t1Position.x, t1Position.y, t1Position.z);
     gs->SetMaximum (1.0);
     gs->SetStandardDeviation (sigmaInBubbleDiameters * bubbleDiameterInPixels);
     gs->Update ();
-    vtkSmartPointer<vtkImageData> t1KDEImageData (gs->GetOutput ());
-    AddValidPointMask (t1KDEImageData);
-    return doubleToFloatArray (t1KDEImageData);
+    vtkSmartPointer<vtkImageData> p (gs->GetOutput ());
+    SetOriginAndSpacing (p, bb, &extent[0]);
+    p = doubleToFloatArray (p);
+    AddValidPointMask (p);
+    return p;
 }
 
 

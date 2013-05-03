@@ -106,7 +106,7 @@ vtkSmartPointer<vtkImageData> ScalarAverage2DTemplate<PropertySetter>::getData (
     int extent[6] = {0, static_cast<int>(windowCoord.width ()) - 1,
                      0, static_cast<int>(windowCoord.height ()) -1,
                      0, 0};
-    vtkSmartPointer<vtkImageData> image = CreateRegularGridNoAttributes (
+    vtkSmartPointer<vtkImageData> image = CreateRegularGrid (
         G3D::AABox (G3D::Vector3 (objectCoord.x0y0 (), 0),
                     G3D::Vector3 (objectCoord.x1y1 (), 0)), extent);
     image->GetPointData ()->SetScalars (scalar);

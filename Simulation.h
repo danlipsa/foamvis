@@ -51,6 +51,11 @@ public:
     {
 	return m_boundingBox;
     }
+    /**
+     * this BB is potentially larger than GetBoundingBox () if it is specified
+     * in the ini file. (it should be, otherwise saving individual time steps is
+     * not done correctly)
+     */
     void SetBoundingBoxAllTimeSteps (const G3D::AABox& box)
     {
         m_boundingBoxAllTimeSteps = box;

@@ -1122,7 +1122,7 @@ void Foam::SaveRegularGrid (size_t resolution,
     cdbg << message;
     if (! QFile (getVtiPath ().c_str ()).exists ())
     {
-	vtkSmartPointer<vtkImageData> data = calculateRegularGrid (
+	vtkSmartPointer<vtkImageData> data = toRegularGrid (
             resolution, simulationBB);
 	VTK_CREATE (vtkXMLImageDataWriter, writer);
 	writer->SetFileName (getVtiPath ().c_str ());
@@ -1155,7 +1155,7 @@ void Foam::subtractFromPressureRegularGrid (
                    std::minus<double> (), BodyScalar::PRESSURE);
 }
 
-vtkSmartPointer<vtkImageData> Foam::calculateRegularGrid (
+vtkSmartPointer<vtkImageData> Foam::toRegularGrid (
     size_t regularGridResolution, const G3D::AABox& simulationBB) const
 {
     // vtkUnstructuredGrid->vtkCellDatatoPointData, vtkImageData->vtkProbeFilter
@@ -1166,7 +1166,7 @@ vtkSmartPointer<vtkImageData> Foam::calculateRegularGrid (
     VTK_CREATE (vtkCellDataToPointData, cellToPoint);
     cellToPoint->SetInputDataObject (tetraFoamCell);
     vtkSmartPointer<vtkImageData> regularFoam = 
-	CreateRegularGridNoAttributes (simulationBB, &extentResolution[0]);
+	CreateRegularGrid (simulationBB, &extentResolution[0]);
 
     VTK_CREATE (vtkProbeFilter, regularProbe);
     regularProbe->SetSourceConnection (cellToPoint->GetOutputPort ());

@@ -240,9 +240,11 @@ void ShowMessageBox (QWidget* parent, const char* message);
  */
 const static size_t INVALID_INDEX = numeric_limits<size_t>::max ();
 void AddValidPointMask (vtkSmartPointer<vtkImageData> data);
-vtkSmartPointer<vtkImageData> CreateEmptyRegularGrid (
-    size_t bodyAttribute, int extent[6], G3D::AABox bb);
-vtkSmartPointer<vtkImageData> CreateRegularGridNoAttributes (
+void SetOriginAndSpacing (vtkSmartPointer<vtkImageData> data,
+                          G3D::AABox bb, int extent[6]);
+vtkSmartPointer<vtkImageData> CreateRegularGrid (
+    size_t bodyAttribute, G3D::AABox bb, int extent[6]);
+vtkSmartPointer<vtkImageData> CreateRegularGrid (
     G3D::AABox bb, int extent[6]);
 double* InterpolateAttribute (
     vtkSmartPointer<vtkImageData> data, double point[3], 
