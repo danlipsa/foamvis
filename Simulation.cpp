@@ -761,10 +761,7 @@ void Simulation::ParseDMPs (
 
 float Simulation::GetBubbleDiameter () const
 {
-    if (Is2D ())
-        return 2 * sqrt (m_meanVolume / M_PI);
-    else
-        return 2 * pow (m_meanVolume * 3 / (4 * M_PI), 1.0 / 3.0);
+    return Body::GetBubbleDiameter (m_meanVolume, Is2D ());
 }
 
 const BodyAlongTime& Simulation::GetBodyAlongTime (size_t id) const

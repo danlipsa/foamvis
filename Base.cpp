@@ -8,7 +8,9 @@
 
 
 #include "Base.h"
+#include "Body.h"
 #include "Debug.h"
+#include "Foam.h"
 #include "Settings.h"
 #include "Simulation.h"
 #include "ViewSettings.h"
@@ -144,10 +146,12 @@ void Base::CopyTransformFrom (ViewNumber::Enum viewNumber)
     vs.SetRotation (fromVs.GetRotation ());
     vs.SetTranslation (fromVs.GetTranslation ());
     float bubbleDiameterInPixels = GetBubbleDiameter () / 
-        vs.GetOnePixelInObjectSpace ();
+        vs.GetOnePixelInObjectSpace ();    
     float fromBubbleDiameterInPixels = GetBubbleDiameter (viewNumber) / 
         fromVs.GetOnePixelInObjectSpace ();
-    vs.SetScaleRatio (fromBubbleDiameterInPixels / bubbleDiameterInPixels);
+    vs.SetScaleRatio (
+        vs.GetScaleRatio () * 
+        fromBubbleDiameterInPixels / bubbleDiameterInPixels);
 }
 
 
@@ -155,12 +159,24 @@ void Base::CopyForceRatioFrom (ViewNumber::Enum viewNumber)
 {
     if (GetViewNumber () == viewNumber)
         return;
+    float objectDiameter = GetFoam ().GetObjects ()[0]->GetBubbleDiameter ();
+    float fromObjectDiameter = 
+        GetFoam (viewNumber).GetObjects ()[0]->GetBubbleDiameter ();
     ViewSettings& vs = GetViewSettings ();
     const ViewSettings& fromVs = GetViewSettings (viewNumber);
-    float bubbleDiameterInPixels = GetBubbleDiameter () / 
-        vs.GetOnePixelInObjectSpace ();
-    float fromBubbleDiameterInPixels = GetBubbleDiameter (viewNumber) / 
+    float bubbleDiameter = GetBubbleDiameter ();
+    float fromBubbleDiameter = GetBubbleDiameter (viewNumber);
+    float bubbleDiameterInPixels = bubbleDiameter / 
+        vs.GetOnePixelInObjectSpace ();    
+    float fromBubbleDiameterInPixels = fromBubbleDiameter / 
         fromVs.GetOnePixelInObjectSpace ();
+    float ratio = objectDiameter / bubbleDiameter;
+    float fromRatio = fromObjectDiameter / fromBubbleDiameter;
+    float scaleRatioSameBubbleDiameter = 
+        vs.GetScaleRatio () * fromBubbleDiameterInPixels / 
+        bubbleDiameterInPixels / fromVs.GetScaleRatio ();
+    float scaleRatio = vs.GetScaleRatio () / fromVs.GetScaleRatio ();
     vs.SetForceRatio (fromVs.GetForceRatio () * 
-                      fromBubbleDiameterInPixels / bubbleDiameterInPixels);
+                      (fromRatio / ratio) *
+                      (scaleRatioSameBubbleDiameter / scaleRatio));
 }

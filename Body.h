@@ -180,6 +180,7 @@ public:
     {
 	return m_area;
     }
+    
     void CalculateDeformationSimple ();
     static const char* GetAttributeKeywordString (BodyScalar::Enum bp);
     void CalculateDeformationTensor (const OOBox& originalDomain);
@@ -253,6 +254,9 @@ public:
 	return m_hasFreeFace;
     }
     float CalculateVolume () const;
+    static float GetBubbleDiameter (float volume, bool is2D);
+    float GetBubbleDiameter () const;
+
 
 private:
     /**

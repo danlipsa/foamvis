@@ -81,7 +81,7 @@ public:
     const Foam& GetFoam (size_t timeStep) const;
     // current viewNumber, current time step
     const Foam& GetFoam () const;
-    // different view number
+    // different view number, current time step
     const Foam& GetFoam (ViewNumber::Enum viewNumber) const;
 
 

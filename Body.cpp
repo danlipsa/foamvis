@@ -287,7 +287,10 @@ bool Body::HasScalarValue (BodyScalar::Enum property,
 	    setPointerValue (deduced, true);
 	    return true;
 	}
-	else
+	else if (property == BodyScalar::ACTUAL_VOLUME ||
+                 property == BodyScalar::TARGET_VOLUME)
+            return true;
+        else
 	    return false;
     }
     switch (property)
@@ -447,6 +450,19 @@ float Body::CalculateVolume () const
     return volume;
 }
 
+float Body::GetBubbleDiameter (float volume, bool is2D)
+{
+    if (is2D)
+        return 2 * sqrt (volume / M_PI);
+    else
+        return 2 * pow (volume * 3 / (4 * M_PI), 1.0 / 3.0);    
+}
+
+float Body::GetBubbleDiameter () const
+{
+    return GetBubbleDiameter (
+        GetScalarValue (BodyScalar::TARGET_VOLUME), Is2D ());
+}
 
 void Body::CalculateDeformationSimple ()
 {
