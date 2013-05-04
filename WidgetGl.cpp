@@ -678,7 +678,7 @@ string WidgetGl::infoSelectedBody ()
     if (bodies.empty ())
 	ostr << "No bodies focused.";
     else
-	ostr << bodies[0]->ToString (GetSimulation ().Is2D ());
+	ostr << bodies[0]->ToString ();
     return ostr.str ();
 }
 

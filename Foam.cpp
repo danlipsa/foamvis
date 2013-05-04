@@ -198,7 +198,7 @@ void Foam::CalculateBoundingBox ()
 void Foam::CalculateDeformationSimple ()
 {
     for_each (m_bodies.begin (), m_bodies.end (),
-	      boost::bind (&Body::CalculateDeformationSimple, _1, Is2D ()));
+	      boost::bind (&Body::CalculateDeformationSimple, _1));
 }
 
 void Foam::calculateBoundingBoxTorus (G3D::Vector3* low, G3D::Vector3* high)
@@ -229,7 +229,7 @@ void Foam::calculateBoundingBoxTorus (G3D::Vector3* low, G3D::Vector3* high)
 void Foam::calculateBodiesCenters ()
 {
     for_each (m_bodies.begin (), m_bodies.end (), 
-	      boost::bind(&Body::CalculateCenter, _1, Is2D ()));
+	      boost::bind(&Body::CalculateCenter, _1));
 }
 
 
@@ -677,7 +677,7 @@ void Foam::bodyTranslate (
 	    GetTorusDomain (), translate, vertexSet, edgeSet, faceSet);
 	of->SetFace (duplicate);
     }
-    body->CalculateCenter (Is2D ());
+    body->CalculateCenter ();
 }
 
 
@@ -897,7 +897,7 @@ void Foam::CreateObjectBody (size_t constraint)
 	size_t lastBodyId = GetLastBodyId ();
 	boost::shared_ptr<Body> body (new Body (face,  lastBodyId + 1));
 	body->UpdateAdjacentBody (body);
-	body->CalculateCenter (Is2D ());
+	body->CalculateCenter ();
 	m_bodies.push_back (body);
     }
 }
@@ -990,7 +990,7 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::addCellAttribute (
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
     {
 	float value[BodyAttribute::MAX_NUMBER_OF_COMPONENTS];
-	body->GetAttributeValue (attribute, value, Is2D ());
+	body->GetAttributeValue (attribute, value);
 	BOOST_FOREACH (const boost::shared_ptr<OrientedFace>& of, 
 		       body->GetOrientedFaces ())
 	{

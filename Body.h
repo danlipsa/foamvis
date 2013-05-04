@@ -97,7 +97,7 @@ public:
     
     bool Is2D () const
     {
-        return m_orientedFaces.size () == 1;
+        return m_orientedFaces.size () <= 1;
     }
     
     size_t GetFaceCount () const
@@ -108,7 +108,7 @@ public:
     /**
      * Calculates the center
      */
-    void CalculateCenter (bool is2D);
+    void CalculateCenter ();
     void CalculateBoundingBox ();
     /**
      * Gets the center
@@ -119,7 +119,7 @@ public:
 	return m_center;
     }
     void UpdateAdjacentBody (const boost::shared_ptr<Body>& body);
-    string ToString (bool is2D) const;
+    string ToString () const;
     void GetVertexSet (VertexSet* vertexSet) const;    
     VertexSet GetVertexSet () const
     {
@@ -141,7 +141,7 @@ public:
      * BodyAttribute::GetNumberOfComponents (attribute) floats have to 
      * be alocated in 'value' for scalars, vectors and tensors
      */
-    void GetAttributeValue (size_t attribute, float* value, bool is2D) const;
+    void GetAttributeValue (size_t attribute, float* value) const;
     G3D::Vector3 GetVelocity () const
     {
 	return m_velocity;
@@ -174,13 +174,13 @@ public:
 	return m_boundingBox;
     }
     
-    size_t GetSidesPerBody (bool is2D) const;
+    size_t GetSidesPerBody () const;
     float GetDeformationSimple () const;
     float GetArea () const
     {
 	return m_area;
     }
-    void CalculateDeformationSimple (bool is2D);
+    void CalculateDeformationSimple ();
     static const char* GetAttributeKeywordString (BodyScalar::Enum bp);
     void CalculateDeformationTensor (const OOBox& originalDomain);
     G3D::Matrix3 GetDeformationTensor (
@@ -188,7 +188,7 @@ public:
     void GetDeformationTensor (float* value, 
 			       const G3D::Matrix3& additionalRotation) const;
 
-    float GetDeformationEigenScalar (bool is2D) const;
+    float GetDeformationEigenScalar () const;
     /**
      * The eigen values are sorted decreasing.
      */
@@ -239,6 +239,9 @@ public:
     }
     /**
      * @pre {Face::CalculateCentroidAndArea}
+     * /home/dlipsa/data/foam/wetfoam_100_0002.dmp stores all 200 liquid channels
+     * in a body.
+     * @todo: handle this correctly
      */
     void CalculateNeighborsAndGrowthRate (
         const OOBox& originalDomain, bool is2D);
@@ -256,7 +259,7 @@ private:
      * Caches edges and vertices
      */
     void calculatePhysicalVertices (
-	bool is2D, vector< boost::shared_ptr<Vertex> >* physicalVertices);
+	vector< boost::shared_ptr<Vertex> >* physicalVertices);
     float calculateArea () const;
 
     /**
@@ -267,7 +270,7 @@ private:
      * @param destPhysical where we store physical objects
      */
     void splitTessellationPhysical (
-        bool is2D, const VertexSet& src,
+        const VertexSet& src,
 	vector< boost::shared_ptr<Vertex> >* destTessellation,
 	vector< boost::shared_ptr<Vertex> >* destPhysical);
     void calculateNeighbors2D (const OOBox& originalDomain);
