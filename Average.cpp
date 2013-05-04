@@ -19,7 +19,7 @@ Average::Average (
     ViewNumber::Enum viewNumber, boost::shared_ptr<Settings> settings, 
     boost::shared_ptr<const SimulationGroup> simulationGroup) :
     AverageInterface (viewNumber), Base (settings, simulationGroup),
-    m_currentTimeWindow (0)
+    m_currentTimeWindow (0),
 {
 }
 
