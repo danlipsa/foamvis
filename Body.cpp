@@ -309,7 +309,7 @@ bool Body::HasScalarValue (BodyScalar::Enum property,
     }
 }
 
-float Body::GetScalarValue (BodyScalar::Enum property, bool is2D) const
+float Body::GetScalarValue (BodyScalar::Enum property) const
 {
     switch (property)
     {
@@ -322,11 +322,11 @@ float Body::GetScalarValue (BodyScalar::Enum property, bool is2D) const
     case BodyScalar::VELOCITY_MAGNITUDE:
 	return GetVelocity ().length ();
     case BodyScalar::SIDES_PER_BUBBLE:
-	return GetSidesPerBody (is2D);
+	return GetSidesPerBody (Is2D ());
     case BodyScalar::DEFORMATION_SIMPLE:
 	return GetDeformationSimple ();
     case BodyScalar::DEFORMATION_EIGEN:
-	return GetDeformationEigenScalar (is2D);
+	return GetDeformationEigenScalar (Is2D ());
     case BodyScalar::PRESSURE:
     case BodyScalar::TARGET_VOLUME:
     case BodyScalar::ACTUAL_VOLUME:
@@ -347,7 +347,7 @@ void Body::GetAttributeValue (size_t attribute, float* value, bool is2D) const
     {
 	BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT(attribute);
 	float v = HasScalarValue (bodyScalar) ? 
-            GetScalarValue (bodyScalar, is2D) : 0;
+            GetScalarValue (bodyScalar) : 0;
 	*value = v;
     }
     else if (BodyAttribute::IsVector (attribute))
@@ -458,13 +458,13 @@ void Body::CalculateDeformationSimple (bool is2D)
 	boost::shared_ptr<OrientedFace> of = GetOrientedFacePtr (0);
 	of->CalculatePerimeter ();
 	m_deformationSimple = of->GetPerimeter () / 
-	    sqrt (GetScalarValue (BodyScalar::TARGET_VOLUME, is2D));
+	    sqrt (GetScalarValue (BodyScalar::TARGET_VOLUME));
     }
     else
     {
 	m_deformationSimple = 
 	    GetArea () / 
-	    pow (GetScalarValue (BodyScalar::TARGET_VOLUME, is2D), 
+	    pow (GetScalarValue (BodyScalar::TARGET_VOLUME), 
 		 static_cast<float>(2.0 / 3.0));
     }
 }
@@ -518,8 +518,8 @@ void Body::calculateNeighbors3D (const OOBox& originalDomain)
 	    // The calculations can be executed on original pressure
 	    // (medians are not aligned) yielding the same results.
 	    m_growthRate += 
-                (GetScalarValue (BodyScalar::PRESSURE, false) - 
-                 body->GetScalarValue (BodyScalar::PRESSURE, false)) * 
+                (GetScalarValue (BodyScalar::PRESSURE) - 
+                 body->GetScalarValue (BodyScalar::PRESSURE)) * 
 		of->GetArea ();
 	    // insert the neighbor into the map
 	    pair< set<size_t>::iterator, bool> p = 
@@ -536,7 +536,7 @@ void Body::calculateNeighbors3D (const OOBox& originalDomain)
 	    // physical face
 	    m_hasFreeFace = true;
 	    // pressure of the outside is 0
-	    m_growthRate += GetScalarValue (BodyScalar::PRESSURE, false) * 
+	    m_growthRate += GetScalarValue (BodyScalar::PRESSURE) * 
 		of->GetArea ();
 	    // @todo reflect for free faces as well?
 	}
@@ -586,8 +586,8 @@ void Body::calculateNeighbors2D (const OOBox& originalDomain)
 	    m_neighbors[j] = Neighbor (body,
 				       Vector3int16Zero - translation);
 	    m_growthRate += 
-                (GetScalarValue (BodyScalar::PRESSURE, true) - 
-                 body->GetScalarValue (BodyScalar::PRESSURE, true)) * 
+                (GetScalarValue (BodyScalar::PRESSURE) - 
+                 body->GetScalarValue (BodyScalar::PRESSURE)) * 
 		oe.GetLength ();
 
 	}
@@ -598,7 +598,7 @@ void Body::calculateNeighbors2D (const OOBox& originalDomain)
 		"OrientedEdge::GetAdjacentOrientedFacesSize != 1:", 
 		oe.GetAdjacentOrientedFacesSize ());
 	    m_hasFreeFace = true;
-	    m_growthRate += GetScalarValue (BodyScalar::PRESSURE, true) * 
+	    m_growthRate += GetScalarValue (BodyScalar::PRESSURE) * 
 		oe.GetLength ();
 	    // @todo reflect for free faces as well?
 	}

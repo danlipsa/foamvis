@@ -416,8 +416,7 @@ valueStep (
 	      (deduced && this->m_settings.IsMissingPropertyShown (property))))
 	     storeFocusSegment (
 		 p.m_body->GetScalarValue (
-                     property, 
-                     this->m_propertySetter.Is2D ()), segment);
+                     property), segment);
 	else
 	    storeFocusSegment (
 		this->m_settings.GetHighlightColor (

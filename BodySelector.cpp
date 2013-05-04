@@ -89,7 +89,7 @@ bool ValueBodySelector::operator () (
 	return true;
     if (body->HasScalarValue (m_property))
     {
-	double value = body->GetScalarValue (m_property, m_is2D);
+	double value = body->GetScalarValue (m_property);
 	ValueIntervals::const_iterator it = find_if (
 	    m_valueIntervals.begin (), m_valueIntervals.end (),
 	    boost::bind (&QwtDoubleInterval::contains, _1, value));

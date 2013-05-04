@@ -49,9 +49,11 @@ typedef acc::accumulator_set<
     double, 
     acc::features<acc::tag::min, 
 		  acc::tag::max, acc::tag::count> > MinMaxStatistics;
-
 typedef acc::accumulator_set<
     double, acc::features<acc::tag::median> > MedianStatistics;
+typedef acc::accumulator_set<
+    double, acc::features<acc::tag::mean> > MeanStatistics;
+
 
 
 #endif //__HISTOGRAM_STATISTICS_H__

@@ -82,14 +82,14 @@ void WidgetHistogram::UpdateData (
     if (vs.HasHistogramOption (HistogramType::ALL_TIME_STEPS_SHOWN))
     {
         const HistogramStatistics& allTimestepsHistogram = 
-            simulation.GetHistogram (property);
+            simulation.GetHistogramScalar (property);
         intervalData = allTimestepsHistogram.ToQwtIntervalData ();
         maxYValue = allTimestepsHistogram.GetMaxCountPerBin ();
     }
     else
     {
         intervalData = simulation.GetFoam (GetSettings ().GetViewTime ()).
-            GetHistogram (property).ToQwtIntervalData ();
+            GetHistogramScalar (property).ToQwtIntervalData ();
         maxYValue = simulation.GetMaxCountPerBinIndividual (property);
     }
     __LOG__ (cdbg << intervalData << endl;);

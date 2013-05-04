@@ -95,11 +95,16 @@ public:
 	return m_orientedFaces;
     }
     
-
-    size_t size () const
+    bool Is2D () const
     {
-	return m_orientedFaces.size ();
+        return m_orientedFaces.size () == 1;
     }
+    
+    size_t GetFaceCount () const
+    {
+        return m_orientedFaces.size ();
+    }
+
     /**
      * Calculates the center
      */
@@ -130,7 +135,7 @@ public:
 	GetEdgeSet (&set);
 	return set;
     }
-    float GetScalarValue (BodyScalar::Enum property, bool is2D) const;
+    float GetScalarValue (BodyScalar::Enum property) const;
     bool HasScalarValue (BodyScalar::Enum property, bool* deduced = 0) const;
     /**
      * BodyAttribute::GetNumberOfComponents (attribute) floats have to 

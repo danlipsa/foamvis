@@ -27,7 +27,7 @@ void SetterTextureCoordinate::operator () (
 {
     BodyScalar::Enum property = BodyScalar::FromSizeT (
 	m_settings.GetViewSettings (m_viewNumber).GetBodyOrOtherScalar ());
-    double value = body->GetScalarValue (property, Is2D ());
+    double value = body->GetScalarValue (property);
     double texCoord = 
 	m_settings.GetViewSettings (m_viewNumber).
 	GetColorMapScalar ()->TexCoord (value);
@@ -60,7 +60,7 @@ void SetterVertexAttribute::operator () (
 {
     BodyScalar::Enum bodyProperty = BodyScalar::FromSizeT (
 	GetBodyOrOtherScalar ());
-    double value = body->GetScalarValue (bodyProperty, Is2D ());
+    double value = body->GetScalarValue (bodyProperty);
     m_program->setAttributeValue (m_attributeLocation, value);
 }
 

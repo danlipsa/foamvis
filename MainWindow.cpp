@@ -656,9 +656,11 @@ void MainWindow::createActions ()
     
     addAction (widgetGl->GetActionResetTransformAll ().get ());    
 
-    connect (widgetGl->GetActionColorMapScalarEdit ().get (), SIGNAL(triggered()), 
+    connect (widgetGl->GetActionColorMapScalarEdit ().get (), 
+             SIGNAL(triggered()), 
              this, SLOT(EditColorMapScalar()));
-    connect (widgetVtk->GetActionColorMapScalarEdit ().get (), SIGNAL(triggered()), 
+    connect (widgetVtk->GetActionColorMapScalarEdit ().get (), 
+             SIGNAL(triggered()), 
              this, SLOT(EditColorMapScalar ()));
     connect (widgetGl->GetActionColorMapScalarClampClear ().get (), 
              SIGNAL (triggered ()), this, SLOT (ClampClearColorMapScalar ()));
@@ -719,8 +721,9 @@ MainWindow::HistogramInfo MainWindow::getHistogramInfo (
     
     case ColorMapScalarType::PROPERTY:
     {
+        BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT (bodyOrFaceScalar);
 	const HistogramStatistics& histogramStatistics = 
-	    simulation.GetHistogram (bodyOrFaceScalar);
+	    simulation.GetHistogramScalar (bodyScalar);
 	return HistogramInfo (histogramStatistics.ToQwtIntervalData (), 
 			      histogramStatistics.GetMaxCountPerBin ());
     }
@@ -849,7 +852,7 @@ void MainWindow::setupColorBarModel (
     colorBarModel.reset (new ColorBarModel ());
     const Simulation& simulation = GetSimulation (simulationIndex);
     colorBarModel->SetTitle (BodyScalar::ToString (property));
-    colorBarModel->SetInterval (simulation.GetRange (property));
+    colorBarModel->SetInterval (simulation.GetRangeScalar (property));
     colorBarModel->SetupPalette (
 	Palette (PaletteType::DIVERGING, PaletteDiverging::BLUE_RED));
 }

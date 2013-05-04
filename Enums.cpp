@@ -103,8 +103,8 @@ boost::array<const char*, BodyScalar::COUNT> BodyScalar::NAME = {{
 	"Deformation simple", // P / sqrt(A) (2D) or A / V^(2/3) (3D)
 	"Deformation eigen",
 	"Pressure",
-	"Target volume",
-	"Actual volume",
+	"Target volume",      // area (2D) or volume (3D)
+	"Actual volume",      // area (2D) or volume (3D)
 	"Growth rate"
     }};
 

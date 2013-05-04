@@ -19,7 +19,7 @@
 
 ProcessBodyTorus::ProcessBodyTorus (const Foam& foam, 
 				    const boost::shared_ptr<Body>& body) : 
-    m_foam (foam), m_body (body), m_traversed (body->size (), false)
+    m_foam (foam), m_body (body), m_traversed (body->GetFaceCount (), false)
 {}
 
 void ProcessBodyTorus::Initialize ()

@@ -1917,8 +1917,8 @@ pair<float, float> WidgetGl::GetRange (ViewNumber::Enum viewNumber) const
 	{
 	    BodyScalar::Enum bodyProperty = 
 		BodyScalar::FromSizeT (vs.GetBodyOrOtherScalar ());
-	    minValue = simulation.GetMin (bodyProperty);
-	    maxValue = simulation.GetMax (bodyProperty);
+	    minValue = simulation.GetMinScalar (bodyProperty);
+	    maxValue = simulation.GetMaxScalar (bodyProperty);
 	}
 	break;
     case ViewType::T1_KDE:
@@ -1934,8 +1934,8 @@ pair<float, float> WidgetGl::GetVelocityMagnitudeRange (
 {
     const Simulation& simulation = GetSimulation (viewNumber);
     BodyScalar::Enum bodyProperty = BodyScalar::VELOCITY_MAGNITUDE;
-    float minValue = simulation.GetMin (bodyProperty);
-    float maxValue = simulation.GetMax (bodyProperty);
+    float minValue = simulation.GetMinScalar (bodyProperty);
+    float maxValue = simulation.GetMaxScalar (bodyProperty);
     return pair<float, float> (minValue, maxValue);
 }
 

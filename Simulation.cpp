@@ -144,8 +144,9 @@ vtkSmartPointer<vtkImageData> doubleToFloatArray (
 // ======================================================================
 
 Simulation::Simulation () :
-    m_histogram (
+    m_histogramScalar (
         BodyScalar::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
+    m_meanVolume (0),
     m_pressureAdjusted (false),
     m_t1Shift (0),
     m_useOriginal (false),
@@ -323,7 +324,7 @@ size_t foamsIndex (
 double GetPressureBody0 (const boost::shared_ptr<Foam>& foam)
 {
     return foam->GetBody (0).GetScalarValue (
-        BodyScalar::PRESSURE, foam->Is2D ());
+        BodyScalar::PRESSURE);
 }
 
 void Simulation::adjustPressureSubtractReference ()
@@ -342,7 +343,7 @@ void Simulation::adjustPressureAlignMedians ()
     QtConcurrent::blockingMap (
 	m_foams.begin (), m_foams.end (),
 	boost::bind (&Foam::SubtractFromPressure, _1, 
-		     boost::bind (&Foam::GetMin, _1, BodyScalar::PRESSURE)));
+		     boost::bind (&Foam::GetMinScalar, _1, BodyScalar::PRESSURE)));
 
     // adjust the pressure by aligning the medians in every time step,
     // with the max median for all time steps
@@ -364,13 +365,13 @@ void Simulation::calculateStatistics ()
 	// statistics for all time-steps
 	BodyScalar::Enum property = BodyScalar::FromSizeT (i);
 	forAllBodiesAccumulateProperty (&minMaxStat, property);
-	m_histogram[property] (acc::min (minMaxStat));
-	m_histogram[property] (acc::max (minMaxStat));
-	forAllBodiesAccumulateProperty (&m_histogram[property], property);
+	m_histogramScalar[property] (acc::min (minMaxStat));
+	m_histogramScalar[property] (acc::max (minMaxStat));
+	forAllBodiesAccumulateProperty (&m_histogramScalar[property], property);
 
 	// statistics per time-step
-	double min = acc::min(m_histogram[property]);
-	double max = acc::max(m_histogram[property]);
+	double min = acc::min(m_histogramScalar[property]);
+	double max = acc::max(m_histogramScalar[property]);
 	QtConcurrent::blockingMap (
 	    m_foams.begin (), m_foams.end (),
 	    boost::bind (&Foam::CalculateHistogramStatistics, _1,
@@ -382,6 +383,11 @@ void Simulation::calculateStatistics ()
 	    &minMaxStat, 
 	    getBodyDeformationEigenValue<0> ());
 	m_maxDeformationEigenValue = acc::max (minMaxStat);
+    }
+    {
+        MeanStatistics meanStat;
+        forAllBodiesAccumulateProperty (&meanStat, BodyScalar::ACTUAL_VOLUME);
+        m_meanVolume = acc::mean (meanStat);
     }
 }
 
@@ -546,7 +552,7 @@ void Simulation::GetTimeStepSelection (
     for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
     {
 	const Foam& foam = GetFoam (timeStep);
-	if (valueInterval.intersects (foam.GetRange (property))
+	if (valueInterval.intersects (foam.GetRangeScalar (property))
 	    && foam.ExistsBodyWithValueIn (property, valueInterval))
 	    (*timeStepSelection)[timeStep] = true;
     }
@@ -564,7 +570,7 @@ size_t Simulation::GetMaxCountPerBinIndividual (
     size_t max = 0;
     for (size_t i = 0; i < size; ++i)
 	max = std::max (
-	    max, GetFoam (i).GetHistogram (property).GetMaxCountPerBin ());
+	    max, GetFoam (i).GetHistogramScalar (property).GetMaxCountPerBin ());
     return max;
 }
 
@@ -755,19 +761,10 @@ void Simulation::ParseDMPs (
 
 float Simulation::GetBubbleDiameter () const
 {
-    const Foam& foam = GetFoam (0);
-    if (foam.GetBodies ().size () == 0)
-    {
-        // return a value != 0 (the program is not functional in this case,
-        // so the value is not used)
-        return 1;
-    }
-    const G3D::AABox& box = foam.GetBody (0).GetBoundingBox ();
-    G3D::Vector3 e = box.extent ();
     if (Is2D ())
-        return (e.x + e.y) / 2;
+        return 2 * sqrt (m_meanVolume / M_PI);
     else
-        return (e.x + e.y + e.z) / 3;
+        return 2 * pow (m_meanVolume * 3 / (4 * M_PI), 1.0 / 3.0);
 }
 
 const BodyAlongTime& Simulation::GetBodyAlongTime (size_t id) const

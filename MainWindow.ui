@@ -1534,7 +1534,7 @@
          <item>
           <widget class="QStackedWidget" name="stackedWidgetVisualization">
            <property name="currentIndex">
-            <number>4</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="pageEmpty"/>
            <widget class="QWidget" name="pageFacesNormal">
@@ -1578,7 +1578,7 @@
                </item>
                <item>
                 <property name="text">
-                 <string>Deformation P / sqrt(A)</string>
+                 <string>Deformation simple</string>
                 </property>
                </item>
                <item>

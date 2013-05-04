@@ -87,7 +87,7 @@ Foam::Foam (bool useOriginal,
     m_viewMatrix (new G3D::Matrix4 (G3D::Matrix4::identity ())),
     m_parsingData (new ParsingData (
 		       useOriginal, dmpObjectInfo, forcesNames)),
-    m_histogram (
+    m_histogramScalar (
 	BodyScalar::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
     m_properties (dataProperties),
     m_parametersOperation (paramsOp),
@@ -103,7 +103,7 @@ void Foam::AccumulateProperty (Accumulator* acc,
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
     {
 	if (body->HasScalarValue (property))
-	    (*acc) (body->GetScalarValue (property, Is2D ()));
+	    (*acc) (body->GetScalarValue (property));
     }
 }
 
@@ -117,16 +117,11 @@ void Foam::Accumulate (Accumulator* acc, GetBodyScalar getBodyScalar) const
     }
 }
 
-template <typename Accumulator>
-void Foam::Acc (Accumulator* acc, 
-		boost::function<float (
-		    const boost::shared_ptr<Body>& body)> getBodyScalar) const
+double Foam::CalculateMedian (BodyScalar::Enum property)
 {
-    BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
-    {
-	if (! body->IsObject ())
-	    (*acc) (getBodyScalar (body));
-    }
+    MedianStatistics median;
+    AccumulateProperty (&median, property);
+    return acc::median (median);
 }
 
 
@@ -623,7 +618,7 @@ void Foam::SubtractFromPressure (double adjustment)
 	if (body->HasScalarValue (BodyScalar::PRESSURE))
 	{
 	    double newPressure =
-		body->GetScalarValue (BodyScalar::PRESSURE, Is2D ()) - 
+		body->GetScalarValue (BodyScalar::PRESSURE) - 
                 adjustment;
 	    body->SetPressureValue (newPressure);
 	}
@@ -631,17 +626,6 @@ void Foam::SubtractFromPressure (double adjustment)
     m_min[BodyScalar::PRESSURE] -= adjustment;
     m_max[BodyScalar::PRESSURE] -= adjustment;
     m_pressureSubtraction += adjustment;
-}
-
-double Foam::CalculateMedian (BodyScalar::Enum property)
-{
-    MedianStatistics median;
-    BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
-    {
-	if (body->HasScalarValue (property))
-	    median (body->GetScalarValue (property, Is2D ()));
-    }
-    return acc::median (median);
 }
 
 void Foam::AddAttributeInfo (
@@ -781,7 +765,7 @@ void Foam::calculateMinMaxStatistics (BodyScalar::Enum property)
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
 	if (body->HasScalarValue (property))
-	    minMax (body->GetScalarValue (property, Is2D ()));
+	    minMax (body->GetScalarValue (property));
     }
     m_min[property] = acc::min (minMax);
     m_max[property] = acc::max (minMax);
@@ -790,12 +774,12 @@ void Foam::calculateMinMaxStatistics (BodyScalar::Enum property)
 void Foam::CalculateHistogramStatistics (BodyScalar::Enum property,
 					 double min, double max)
 {
-    m_histogram[property](min);
-    m_histogram[property](max);
+    m_histogramScalar[property](min);
+    m_histogramScalar[property](max);
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
 	if (body->HasScalarValue (property))
-	    m_histogram[property] (body->GetScalarValue (property, Is2D ()));
+	    m_histogramScalar[property] (body->GetScalarValue (property));
     }
 }
 
@@ -805,7 +789,7 @@ bool Foam::ExistsBodyWithValueIn (
     BOOST_FOREACH (boost::shared_ptr<Body> body, m_bodies)
     {
         if (body->HasScalarValue (property) &&
-            interval.contains (body->GetScalarValue (property, Is2D ())))
+            interval.contains (body->GetScalarValue (property)))
             return true;
     }
     return false;
@@ -1264,6 +1248,8 @@ template void Foam::AccumulateProperty<HistogramStatistics> (
     HistogramStatistics* acc, BodyScalar::Enum property) const;
 template void Foam::AccumulateProperty<MinMaxStatistics> (
     MinMaxStatistics* acc, BodyScalar::Enum property) const;
+template void Foam::AccumulateProperty<MeanStatistics> (
+    MeanStatistics* acc, BodyScalar::Enum property) const;
 
 template void Foam::Accumulate<
     MinMaxStatistics, 

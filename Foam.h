@@ -225,10 +225,6 @@ public:
 	Accumulator* acc, BodyScalar::Enum property) const;
     template <typename Accumulator, typename GetBodyScalar>
     void Accumulate (Accumulator* acc, GetBodyScalar getBodyScalar) const;
-    template <typename Accumulator>
-    void Acc (Accumulator* acc, 
-	      boost::function<float (
-		  const boost::shared_ptr<Body>& body)> getBodyScalar) const;
 
     void SubtractFromPressure (double adjustment);
 
@@ -236,24 +232,24 @@ public:
 				       double min, double max);
     double CalculateMedian (BodyScalar::Enum property);
 
-    const HistogramStatistics& GetHistogram (BodyScalar::Enum property) const
+    const HistogramStatistics& GetHistogramScalar (BodyScalar::Enum property) const
     {
-	return m_histogram[property];
+	return m_histogramScalar[property];
     }
 
-    double GetMin (BodyScalar::Enum property) const
+    double GetMinScalar (BodyScalar::Enum property) const
     {
 	return m_min[property];
     }
 
-    double GetMax (BodyScalar::Enum property) const
+    double GetMaxScalar (BodyScalar::Enum property) const
     {
 	return m_max[property];
     }
 
-    QwtDoubleInterval GetRange (BodyScalar::Enum property) const
+    QwtDoubleInterval GetRangeScalar (BodyScalar::Enum property) const
     {
-	return QwtDoubleInterval (GetMin (property), GetMax (property));
+	return QwtDoubleInterval (GetMinScalar (property), GetMaxScalar (property));
     }
     
     void CalculateMinMaxStatistics ();
@@ -451,7 +447,7 @@ private:
 
     double m_min[BodyScalar::COUNT];
     double m_max[BodyScalar::COUNT];
-    vector<HistogramStatistics> m_histogram;
+    vector<HistogramStatistics> m_histogramScalar;
     ObjectPosition m_dmpObjectPosition;
     vector<ForceOneObject> m_forces;
     /*

@@ -102,29 +102,30 @@ public:
     bool IsQuadratic () const;
 
 
-    const HistogramStatistics& GetHistogram (size_t property) const
+    const HistogramStatistics& GetHistogramScalar (
+        BodyScalar::Enum property) const
     {
-	return m_histogram[property];
+	return m_histogramScalar[property];
     }
 
-    double GetMin (BodyScalar::Enum property) const
+    double GetMinScalar (BodyScalar::Enum property) const
     {
-	return acc::min (GetHistogram (property));
+	return acc::min (GetHistogramScalar (property));
     }
 
-    double GetMax (BodyScalar::Enum property) const
+    double GetMaxScalar (BodyScalar::Enum property) const
     {
-	return acc::max (GetHistogram (property));
+	return acc::max (GetHistogramScalar (property));
     }
     float GetMaxDeformationEigenValue () const
     {
 	return m_maxDeformationEigenValue;
     }
-    QwtDoubleInterval GetRange (BodyScalar::Enum property) const
+    QwtDoubleInterval GetRangeScalar (BodyScalar::Enum property) const
     {
-	return QwtDoubleInterval (GetMin (property), GetMax (property));
+	return QwtDoubleInterval (
+            GetMinScalar (property), GetMaxScalar (property));
     }
-
 
     /**
      * For the histogram associated with each foam this is the maximum of 
@@ -296,7 +297,8 @@ private:
      * This is the name specified in the ini file.
      */
     string m_name;
-    vector<HistogramStatistics> m_histogram;
+    vector<HistogramStatistics> m_histogramScalar;
+    double m_meanVolume;
     bool m_pressureAdjusted;
     vector< vector<T1> > m_t1;
     int m_t1Shift;

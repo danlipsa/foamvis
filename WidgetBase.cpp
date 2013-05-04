@@ -327,7 +327,7 @@ float WidgetBase::GetVelocitySizeInitialRatio (
 {
     float bubbleDiameter = GetBubbleDiameter (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
-    float velocityRange = simulation.GetMax (BodyScalar::VELOCITY_MAGNITUDE);
+    float velocityRange = simulation.GetMaxScalar (BodyScalar::VELOCITY_MAGNITUDE);
     // min velocity is 0.
     return bubbleDiameter / velocityRange;
 }
