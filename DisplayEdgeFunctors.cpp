@@ -404,11 +404,12 @@ DisplayEdgeTorus (
     GLUquadricObj* quadric) : 
     
     DisplayElementFocus (settings, viewNumber, is2D, focus, useZPos, zPos),
-    m_displayEdge (quadric, m_settings.GetEdgeRadius ()),
+    m_displayEdge (
+        quadric, GetViewSettings ().GetEdgeRadius ()),
     m_displayArrow (quadric,
-		    m_settings.GetArrowHeadRadius (),
-		    m_settings.GetEdgeRadius (),
-		    m_settings.GetArrowHeadHeight ())
+		    GetViewSettings ().GetArrowHeadRadius (),
+		    GetViewSettings ().GetEdgeRadius (),
+		    GetViewSettings ().GetArrowHeadHeight ())
     {
     }
 

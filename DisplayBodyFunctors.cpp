@@ -330,7 +330,7 @@ display (boost::shared_ptr<Body> b)
 template<typename PropertySetter, typename DisplaySegment>
 DisplayBubblePaths<PropertySetter, DisplaySegment>::
 DisplayBubblePaths (
-    const Settings& settings, ViewNumber::Enum view, bool is2D,
+    const Settings& settings, ViewNumber::Enum viewNumber, bool is2D,
     const BodySelector& bodySelector, GLUquadricObj* quadric,
     const Simulation& simulation, size_t timeBegin, size_t timeEnd,
     bool useTimeDisplacement,
@@ -338,12 +338,13 @@ DisplayBubblePaths (
 
     DisplayBodyBase<PropertySetter> (
 	settings, bodySelector, 
-        PropertySetter (settings, view, is2D),
+        PropertySetter (settings, viewNumber, is2D),
 	useTimeDisplacement, timeDisplacement),
-    m_displaySegment (quadric,
-		      this->m_settings.IsBubblePathsLineUsed () ?
-		      this->m_settings.GetEdgeWidth () :
-		      this->m_settings.GetEdgeRadius ()),
+    m_displaySegment (
+        quadric,
+        this->GetViewSettings ().IsBubblePathsLineUsed () ?
+        this->GetViewSettings ().GetEdgeWidth () :
+        this->GetViewSettings ().GetEdgeRadius ()),
     m_simulation (simulation),
     m_timeBegin (timeBegin),
     m_timeEnd (timeEnd)

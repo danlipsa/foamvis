@@ -68,15 +68,9 @@ const size_t Settings::QUADRIC_STACKS = 1;
 const size_t Settings::BAR_MARGIN_DISTANCE = 15;
 const size_t Settings::BAR_WIDTH = 10;
 const size_t Settings::BAR_IN_BETWEEN_DISTANCE = 5;
-const size_t Settings::MAX_RADIUS_MULTIPLIER = 5;
 
 Settings::Settings (
     boost::shared_ptr<const SimulationGroup> simulationGroup, float w, float h) :
-    m_edgeRadius (0),
-    m_edgeWidth (0),
-    m_edgeRadiusRatio (0),
-    m_arrowHeadRadius (0),
-    m_arrowHeadHeight (0),
     m_edgesTessellationShown (false),
     m_constraintsShown (true),
     m_constraintPointsShown (false),
@@ -89,8 +83,6 @@ Settings::Settings (
     m_missingPressureShown (true),
     m_missingVolumeShown (true),
     m_objectVelocityShown (false),
-    m_centerPathTubeUsed (true),
-    m_centerPathLineUsed (false),
     m_splitHalfView (false),
     m_titleShown (true),
     m_viewFocusShown (true),
@@ -103,28 +95,6 @@ Settings::Settings (
     initAllViewSettings (*simulationGroup, w, h);
     initEndTranslationColor ();
 }
-
-void Settings::SetArrowParameters (float onePixelInObjectSpace)
-{
-    SetArrowParameters (
-        onePixelInObjectSpace,
-        &m_edgeRadius, &m_arrowHeadRadius, &m_arrowHeadHeight, GetEdgeRadiusRatio (),
-        &m_edgeWidth);
-}
-
-void Settings::SetArrowParameters (
-    float onePixelInObjectSpace,
-    float* edgeRadius, float* arrowHeadRadius, float* arrowHeadHeight, 
-    float edgeRadiusRatio,float* ew)
-{
-    float edgeWidth = (MAX_RADIUS_MULTIPLIER - 1) * edgeRadiusRatio + 1;
-    if (ew != 0)
-        *ew = edgeWidth;
-    *edgeRadius = onePixelInObjectSpace * edgeWidth;
-    *arrowHeadRadius = 4 * (*edgeRadius);
-    *arrowHeadHeight = 11 * (*edgeRadius);
-}
-
 
 const QColor& Settings::GetEndTranslationColor (
     const G3D::Vector3int16& di) const
@@ -176,8 +146,7 @@ size_t Settings::initViewSettings (ViewNumber::Enum viewNumber,
         viewNumber, viewCount, simulation, w, h,
         ViewingVolumeOperation::DONT_ENCLOSE2D).center ();
     vs->SetSimulation (simulationIndex, simulation, center);
-    if (simulation.Is3D ())
-        vs->SetLightEnabled (LightNumber::LIGHT0, true);
+    vs->SetDimension (simulation.GetDimension ());
 
     boost::array<GLfloat, 4> ambientLight = {{0, 0, 0, 1}};
     boost::array<GLfloat, 4> diffuseLight = {{1, 1, 1, 1}};

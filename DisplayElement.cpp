@@ -7,7 +7,10 @@
  */
 
 #include "DisplayElement.h"
+#include "Settings.h"
 
+// DisplayElementProperty
+//======================================================================
 template<typename PropertySetter>
 ViewNumber::Enum DisplayElementProperty<PropertySetter>::GetViewNumber () const
 {
@@ -15,9 +18,22 @@ ViewNumber::Enum DisplayElementProperty<PropertySetter>::GetViewNumber () const
 }
 
 template<typename PropertySetter>
+const ViewSettings& DisplayElementProperty<PropertySetter>::GetViewSettings () const
+{
+    return m_settings.GetViewSettings (GetViewNumber ());
+}
+
+template<typename PropertySetter>
 bool DisplayElementProperty<PropertySetter>::Is2D () const
 {
     return m_propertySetter.Is2D ();
+}
+
+// DisplayElementFocus
+//======================================================================
+const ViewSettings& DisplayElementFocus::GetViewSettings () const
+{
+    return m_settings.GetViewSettings (GetViewNumber ());
 }
 
 

@@ -7,22 +7,23 @@
 #ifndef __DATA_PROPERTIES_H__
 #define __DATA_PROPERTIES_H__
 
+#include "Enums.h"
 class DataProperties
 {
 public:
     DataProperties () :
-	m_spaceDimension (3),
+	m_dimension (Dimension::D3D),
 	m_quadratic (false)
     {
     }
 
-    size_t GetSpaceDimension () const
+    Dimension::Enum GetDimension () const
     {
-	return m_spaceDimension;
+        return m_dimension;
     }
     bool Is2D () const
     {
-	return m_spaceDimension == 2;
+	return m_dimension == Dimension::D2D;
     }
     bool Is3D () const
     {
@@ -36,15 +37,11 @@ public:
     {
 	m_quadratic = quadratic;
     }
-    void SetSpaceDimension (size_t spaceDimension) 
-    {
-	m_spaceDimension = spaceDimension;
-    }
-
+    void SetDimension (size_t dimension);
 
     bool operator== (const DataProperties& other)
     {
-	return m_spaceDimension == other.m_spaceDimension &&
+	return m_dimension == other.m_dimension &&
 	    m_quadratic == other.m_quadratic;
     }
 
@@ -54,7 +51,7 @@ public:
     }
 
 private:
-    size_t m_spaceDimension;
+    Dimension::Enum m_dimension;
     bool m_quadratic;
 };
 

@@ -283,6 +283,7 @@ public:
     void StoreObjects ();
     void CalculateBodyDeformationTensor ();
     void CreateObjectBody (size_t constraint);
+    Dimension::Enum GetDimension () const;
     bool Is2D () const;
     bool IsQuadratic () const;
     /**
@@ -293,7 +294,7 @@ public:
     {
 	return m_properties;
     }
-    void SetSpaceDimension (size_t spaceDimension);
+    void SetDimension (size_t spaceDimension);
     void SetQuadratic (bool quadratic);
     vtkSmartPointer<vtkImageData> GetRegularGrid (size_t bodyAttribute) const;
 

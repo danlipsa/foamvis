@@ -12,6 +12,7 @@
 #include "Enums.h"
 #include "PropertySetter.h"
 class Settings;
+class ViewSettings;
 class Foam;
 
 class DisplayElement
@@ -71,6 +72,7 @@ public:
     {
         return m_is2D;
     }
+    const ViewSettings& GetViewSettings () const;
 
 protected:
     ViewNumber::Enum m_viewNumber;
@@ -95,6 +97,8 @@ public:
     }
     ViewNumber::Enum GetViewNumber () const;
     bool Is2D () const;
+    const ViewSettings& GetViewSettings () const;
+
 
 protected:
     PropertySetter m_propertySetter;

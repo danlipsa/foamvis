@@ -38,6 +38,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	Base.cpp Body.cpp BodyAlongTime.cpp \
 	BodySelector.cpp BrowseSimulations.cpp \
 	ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
+	DataProperties.cpp \
 	Debug.cpp Disk.cpp DisplayBodyFunctors.cpp DisplayElement.cpp\
 	ImageBasedAverage.cpp DisplayFaceFunctors.cpp \
 	DisplayEdgeFunctors.cpp	\

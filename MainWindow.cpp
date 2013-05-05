@@ -206,7 +206,6 @@ void MainWindow::configureInterfaceDataDependent (
 	comboBoxScalar->setItemText (
 	    BodyScalar::DEFORMATION_SIMPLE,
 	    BodyScalar::ToString (BodyScalar::DEFORMATION_SIMPLE));
-        horizontalSliderEdgesRadius->setValue (50);
     }
     size_t viewCount = min (simulationGroup.size (), 
 			    size_t (ViewCount::COUNT - 1));
@@ -2211,11 +2210,20 @@ void MainWindow::settingsViewToUI (ViewNumber::Enum viewNumber)
         horizontalSliderObjectAlpha, 
         ValueToIndex (horizontalSliderObjectAlpha, 
                       ViewSettings::ALPHA_RANGE, vs.GetObjectAlpha ()));
+    SetValueNoSignals (
+        horizontalSliderEdgeRadiusRatio,
+        ValueToIndex (
+            horizontalSliderEdgeRadiusRatio, 
+            ViewSettings::EDGE_RADIUS_RATIO, vs.GetEdgeRadiusRatio ()));
     SetCheckedNoSignals (checkBoxScalarShown, vs.IsScalarShown ());
     SetCheckedNoSignals (checkBoxScalarContext, vs.IsScalarContext ());
     SetCheckedNoSignals (checkBoxSelectionContextShown, 
 			 vs.IsSelectionContextShown ());
     SetCurrentIndexNoSignals (comboBoxAxisOrder, vs.GetAxisOrder ());
+    SetCheckedNoSignals (
+        checkBoxBubblePathsLineUsed, vs.IsBubblePathsLineUsed ());
+    SetCheckedNoSignals (
+        checkBoxBubblePathsTubeUsed, vs.IsBubblePathsTubeUsed ());
 }
 
 void MainWindow::histogramViewToUI ()

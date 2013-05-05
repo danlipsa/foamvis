@@ -456,6 +456,11 @@ void Simulation::CacheBodiesAlongTime ()
     m_bodiesAlongTime.AssertDeadBubblesStayDead ();
 }
 
+Dimension::Enum Simulation::GetDimension () const
+{
+    return GetFoam (0).GetDimension ();
+}
+
 bool Simulation::Is2D () const
 {
     return GetFoam (0).Is2D ();

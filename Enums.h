@@ -622,6 +622,15 @@ private:
     T1Type::Enum m_type;
 };
 
+class Dimension
+{
+public:
+    enum Enum
+    {
+        D2D = 2,
+        D3D
+    };
+};
 
 #endif //__ENUMS_H__
 

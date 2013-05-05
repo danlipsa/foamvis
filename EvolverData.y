@@ -701,7 +701,7 @@ constraint_tolerance
 space_dimension
 : SPACE_DIMENSION const_expr
 {
-    foam->SetSpaceDimension ($2);
+    foam->SetDimension ($2);
 }
 
 /* 2D or 3D */

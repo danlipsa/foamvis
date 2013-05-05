@@ -247,77 +247,6 @@ public:
     // @}
 
 
-    /**
-     * @{
-     * @name Arrow display
-     */
-    /**
-     * These afect the bubble paths as well.
-     */
-    void SetArrowParameters (float onePixelInObjectSpace);
-    static void SetArrowParameters (
-        float onePixelInObjectSpace,
-        float* edgeRadius, float* arrowHeadRadius, float* arrowHeadHeight, 
-        float edgeRadiusRatio = 0,
-        float* edgeWidth = 0);
-
-    float GetEdgeWidth () const 
-    {
-	return m_edgeWidth;
-    }
-    float GetArrowHeadRadius () const 
-    {
-	return m_arrowHeadRadius;
-    }
-    float GetArrowHeadHeight () const 
-    {
-	return m_arrowHeadHeight;
-    }
-    float GetEdgeRadiusRatio () const
-    {
-	return m_edgeRadiusRatio;
-    }
-    void SetEdgeRadiusRatio (float edgeRadiusRatio)
-    {
-	m_edgeRadiusRatio = edgeRadiusRatio;
-    }
-    // @}
-
-
-    /**
-     * @{
-     * @name Bubble paths
-     */
-    /**
-     * Switches between line and tube/quadric
-     */
-    float GetEdgeRadius () const 
-    {
-	return m_edgeRadius;
-    }
-    bool IsBubblePathsLineUsed () const
-    {
-	return m_centerPathLineUsed;
-    }
-    void SetBubblePathsLineUsed (bool used)
-    {
-	m_centerPathLineUsed = used;
-    }
-    /**
-     * Switches between tube and quadric
-     */
-    bool IsBubblePathsTubeUsed () const
-    {
-	return m_centerPathTubeUsed;
-    }
-    void SetBubblePathsTubeUsed (bool used)
-    {
-	m_centerPathTubeUsed = used;
-    }
-    // @}
-
-
-
 
     /**
      * @{
@@ -447,16 +376,8 @@ private:
 private:
     Q_OBJECT
     /**
-     * For displaying edges as tubes
-     */
-    float m_edgeRadius;
-    float m_edgeWidth;
-    float m_edgeRadiusRatio;
-    /**
      * For displaying arrows in the Torus Model edges
      */
-    float m_arrowHeadRadius;
-    float m_arrowHeadHeight;
     EndLocationColor m_endTranslationColor;
     bool m_edgesTessellationShown;
     bool m_constraintsShown;
@@ -479,8 +400,6 @@ private:
     bool m_missingPressureShown;
     bool m_missingVolumeShown;
     bool m_objectVelocityShown;
-    bool m_centerPathTubeUsed;
-    bool m_centerPathLineUsed;
     bool m_splitHalfView;
     bool m_titleShown;
     bool m_viewFocusShown;

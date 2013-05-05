@@ -907,17 +907,24 @@ bool Foam::Is2D () const
     return m_properties.Is2D ();
 }
 
+Dimension::Enum Foam::GetDimension () const
+{
+    return m_properties.GetDimension ();
+}
+
+
 bool Foam::IsQuadratic () const
 {
     return m_properties.IsQuadratic ();
 }
 
-void Foam::SetSpaceDimension (size_t spaceDimension)
+void Foam::SetDimension (size_t spaceDimension)
 {
     if (m_parametersOperation == SET_DATA_PROPERTIES)
-	m_properties.SetSpaceDimension (spaceDimension);
+	m_properties.SetDimension (spaceDimension);
     else
-	if (m_properties.GetSpaceDimension () != spaceDimension)
+	if (m_properties.GetDimension () != 
+            Dimension::Enum (spaceDimension))
 	    ThrowException (
 		"Space dimension has to be the same for all time steps");
 }

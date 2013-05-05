@@ -37,6 +37,7 @@ public:
      * Foam objects
      */
     void CalculateBoundingBox ();
+    Dimension::Enum GetDimension () const;
     bool Is2D () const;
     bool Is3D () const
     {

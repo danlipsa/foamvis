@@ -40,6 +40,8 @@ const double ViewSettings::STREAMLINE_STEP_LENGTH (0.005);
 const pair<float,float> ViewSettings::ALPHA_RANGE (0.01, 0.2);
 const pair<float,float> ViewSettings::TENSOR_LINE_WIDTH_EXP2 (0, 3);
 const pair<float,float> ViewSettings::T1_SIZE (0.2, 1);
+const pair<float,float> ViewSettings::EDGE_RADIUS_RATIO (0.0, 1.0);
+const size_t ViewSettings::MAX_RADIUS_MULTIPLIER = 5;
 
 
 // Methods
@@ -108,7 +110,14 @@ ViewSettings::ViewSettings () :
     m_boundingBoxSimulationShown (false),
     m_torusDomainShown (false),
     m_scalarContourShown (false),
-    m_dmpTransformShown (false)
+    m_dmpTransformShown (false),
+    m_edgeWidth (0),
+    m_edgeRadius (0),
+    m_edgeRadiusRatio (0),
+    m_arrowHeadRadius (0),
+    m_arrowHeadHeight (0),
+    m_centerPathTubeUsed (true),
+    m_centerPathLineUsed (false)
 {
     setInitialLightParameters ();
     for (size_t i = 0; i < m_averageAroundBodyId.size (); ++i)
@@ -768,3 +777,31 @@ void ViewSettings::ResetLinkedTimeEvents ()
     m_linkedTimeEvent.resize (0);
 }
 
+void ViewSettings::SetArrowParameters (float onePixelInObjectSpace)
+{
+    SetArrowParameters (
+        onePixelInObjectSpace,
+        &m_edgeRadius, &m_arrowHeadRadius, &m_arrowHeadHeight, 
+        GetEdgeRadiusRatio (),
+        &m_edgeWidth);
+}
+
+void ViewSettings::SetArrowParameters (
+    float onePixelInObjectSpace,
+    float* edgeRadius, float* arrowHeadRadius, float* arrowHeadHeight, 
+    float edgeRadiusRatio,float* ew)
+{
+    float edgeWidth = (MAX_RADIUS_MULTIPLIER - 1) * edgeRadiusRatio + 1;
+    if (ew != 0)
+        *ew = edgeWidth;
+    *edgeRadius = onePixelInObjectSpace * edgeWidth;
+    *arrowHeadRadius = 4 * (*edgeRadius);
+    *arrowHeadHeight = 11 * (*edgeRadius);
+}
+
+void ViewSettings::SetDimension (Dimension::Enum dimension)
+{
+    SetLightEnabled (LightNumber::LIGHT0, dimension == Dimension::D3D);
+    SetEdgeRadiusRatio (dimension == Dimension::D3D? 0.5 : 0);
+    Q_EMIT ViewChanged ();
+}

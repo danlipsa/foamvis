@@ -810,7 +810,9 @@ void WidgetGl::displayAllViewTransforms (ViewNumber::Enum viewNumber)
 
     const ViewSettings& vs = GetViewSettings (viewNumber);
     enableTorusDomainClipPlanes (viewNumber);    
+    WarnOnOpenGLError ("displayAllViewTransforms b");
     (this->*(m_display[vs.GetViewType ()])) (viewNumber);
+    WarnOnOpenGLError ("displayAllViewTransforms e");
     for (size_t i = 0; i < m_duplicateDomain.size (); ++i)
     {
         if (m_duplicateDomain[i])
@@ -872,6 +874,7 @@ void WidgetGl::allTransform (ViewNumber::Enum viewNumber) const
     modelViewTransform (
         viewNumber, GetTime (viewNumber), ROTATE_FOR_AXIS_ORDER);
     vs.SetOnePixelInObjectSpace (GetOnePixelInObjectSpace (simulation.Is2D ()));
+    vs.SetArrowParameters (vs.GetOnePixelInObjectSpace ());
 }
 
 
@@ -1548,7 +1551,7 @@ void WidgetGl::displayAxes (ViewNumber::Enum viewNumber)
     {
         const Simulation& simulation = GetSimulation (viewNumber);
         float arrowHeadRadius, edgeRadius, arrowHeadHeight;
-        Settings::SetArrowParameters (
+        vs.SetArrowParameters (
             vs.GetOnePixelInObjectSpace (),
             &edgeRadius, &arrowHeadRadius, &arrowHeadHeight);
 	glPushAttrib (GL_CURRENT_BIT);
@@ -1959,8 +1962,8 @@ pair<float, float> WidgetGl::GetRangeT1sKDE (ViewNumber::Enum viewNumber) const
 
 void WidgetGl::displayEdgesTorus (ViewNumber::Enum viewNumber) const
 {
-    (void)viewNumber;
-    if (GetSettings ().GetEdgeRadiusRatio () > 0)
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    if (vs.GetEdgeRadiusRatio () > 0)
 	displayEdgesTorusTubes (viewNumber);
     else
 	displayEdgesTorusLines (viewNumber);
@@ -1968,7 +1971,8 @@ void WidgetGl::displayEdgesTorus (ViewNumber::Enum viewNumber) const
 
 void WidgetGl::displayFacesTorus (ViewNumber::Enum viewNumber) const
 {
-    if (GetSettings ().GetEdgeRadiusRatio () > 0)
+    const ViewSettings&vs = GetViewSettings (viewNumber);
+    if (vs.GetEdgeRadiusRatio () > 0)
 	displayFacesTorusTubes (viewNumber);
     else
 	displayFacesTorusLines ();
@@ -2354,6 +2358,7 @@ void WidgetGl::displayBubblePathsBody (ViewNumber::Enum viewNumber) const
 {
     if (IsBubblePathsBodyShown ())
     {
+        WarnOnOpenGLError ("displayBubblePathsBody begin");
         const ViewSettings& vs = GetViewSettings (viewNumber);
         const BodySelector& bodySelector = *vs.GetBodySelector ();
         const Simulation& simulation = GetSimulation (viewNumber);
@@ -2369,6 +2374,7 @@ void WidgetGl::displayBubblePathsBody (ViewNumber::Enum viewNumber) const
 		GetSettings (), simulation.Is2D (), bodySelector, false,
                 DisplayElement::USER_DEFINED_CONTEXT,
 		viewNumber, vs.IsTimeDisplacementUsed (), zPos));
+        WarnOnOpenGLError ("displayBubblePathsBody end");
     }
 }
 
@@ -2379,7 +2385,7 @@ void WidgetGl::displayBubblePathsWithBodies (ViewNumber::Enum viewNumber) const
     size_t currentTime = GetTime (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
     displayBubblePaths (viewNumber);
-    
+    WarnOnOpenGLError ("displayBubblePathsWithBodies a");    
     glPushAttrib (GL_ENABLE_BIT);
     if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
@@ -2401,7 +2407,8 @@ void WidgetGl::displayBubblePathsWithBodies (ViewNumber::Enum viewNumber) const
 
 void WidgetGl::displayBubblePaths (ViewNumber::Enum viewNumber) const
 {
-    glCallList (m_listBubblePaths[viewNumber]);
+    //glCallList (m_listBubblePaths[viewNumber]);
+    compileBubblePaths (viewNumber);
 }
 
 void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
@@ -2409,7 +2416,7 @@ void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
     const Simulation& simulation = GetSimulation (viewNumber);
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const BodySelector& bodySelector = *vs.GetBodySelector ();
-    glNewList (m_listBubblePaths[viewNumber], GL_COMPILE);
+    //glNewList (m_listBubblePaths[viewNumber], GL_COMPILE);
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT | 
 		  GL_POLYGON_BIT | GL_LINE_BIT);
     glEnable(GL_TEXTURE_1D);
@@ -2420,18 +2427,16 @@ void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
     //texture mapping?
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     const BodiesAlongTime::BodyMap& bats = 
-	GetSimulation ().GetBodiesAlongTime ().GetBodyMap ();
-    if (GetSettings ().GetEdgeRadiusRatio () > 0 && 
-	! GetSettings ().IsBubblePathsLineUsed ())
-     {
-	if (GetSettings ().IsBubblePathsTubeUsed ())
+	simulation.GetBodiesAlongTime ().GetBodyMap ();
+    if (vs.GetEdgeRadiusRatio () > 0 && ! vs.IsBubblePathsLineUsed ())
+    {
+        if (vs.IsBubblePathsTubeUsed ())
 	    for_each (
 		bats.begin (), bats.end (),
 		DisplayBubblePaths<
 		SetterTextureCoordinate, DisplaySegmentTube> (
-		    GetSettings (), GetViewNumber (), simulation.Is2D (),
-                    bodySelector, GetQuadric (),
-		    GetSimulation (viewNumber),
+		    GetSettings (), viewNumber, simulation.Is2D (),
+                    bodySelector, GetQuadric (), simulation,
                     vs.GetBubblePathsTimeBegin (), vs.GetBubblePathsTimeEnd (),
 		    vs.IsTimeDisplacementUsed (), vs.GetTimeDisplacement ()));
 	else
@@ -2439,23 +2444,25 @@ void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
 		bats.begin (), bats.end (),
 		DisplayBubblePaths<
 		SetterTextureCoordinate, DisplaySegmentQuadric> (
-		    GetSettings (), GetViewNumber (), simulation.Is2D (),
-                    bodySelector, GetQuadric (),
-		    GetSimulation (viewNumber),
+		    GetSettings (), viewNumber, simulation.Is2D (),
+                    bodySelector, GetQuadric (), simulation,
                     vs.GetBubblePathsTimeBegin (), vs.GetBubblePathsTimeEnd (),
 		    vs.IsTimeDisplacementUsed (), vs.GetTimeDisplacement ()));
     }
     else
+    {
+        WarnOnOpenGLError ("compileBubblePaths begin");
 	for_each (bats.begin (), bats.end (),
 		  DisplayBubblePaths<SetterTextureCoordinate, 
 		  DisplaySegmentLine> (
-		      GetSettings (), GetViewNumber (), simulation.Is2D (),
-                      bodySelector, GetQuadric (),
-		      GetSimulation (viewNumber),
+		      GetSettings (), viewNumber, simulation.Is2D (),
+                      bodySelector, GetQuadric (), simulation,
                       vs.GetBubblePathsTimeBegin (), vs.GetBubblePathsTimeEnd (),
 		      vs.IsTimeDisplacementUsed (), vs.GetTimeDisplacement ()));
+        WarnOnOpenGLError ("compileBubblePaths end");
+    }
     glPopAttrib ();
-    glEndList ();
+    //glEndList ();
 }
 
 void WidgetGl::setLight (int sliderValue, int maximumValue, 
@@ -4252,14 +4259,14 @@ void WidgetGl::ToggledEdgesTessellationShown (bool checked)
 void WidgetGl::ToggledBubblePathsTubeUsed (bool checked)
 {
     makeCurrent ();
-    GetSettingsPtr ()->SetBubblePathsTubeUsed (checked);
+    GetViewSettings ().SetBubblePathsTubeUsed (checked);
     CompileUpdateAll ();
 }
 
 void WidgetGl::ToggledBubblePathsLineUsed (bool checked)
 {
     makeCurrent ();
-    GetSettingsPtr ()->SetBubblePathsLineUsed (checked);
+    GetViewSettings ().SetBubblePathsLineUsed (checked);
     CompileUpdateAll ();
 }
 
@@ -4311,7 +4318,7 @@ void WidgetGl::CurrentIndexChangedSimulation (int i)
     G3D::Vector3 center = 
         CalculateViewingVolume (viewNumber, simulation).center ();
     vs.SetSimulation (i, simulation, center);
-    vs.SetLightEnabled (LightNumber::LIGHT0, simulation.Is3D ());
+    vs.SetDimension (simulation.GetDimension ());
     allTransform (viewNumber);
     CompileUpdate ();
 }
@@ -4564,14 +4571,15 @@ void WidgetGl::ValueChangedHighlightLineWidth (int newWidth)
     CompileUpdate ();
 }
 
-void WidgetGl::ValueChangedEdgesRadius (int sliderValue)
+void WidgetGl::ValueChangedEdgesRadius (int value)
 {
+    (void)value;
     ViewSettings& vs = GetViewSettings ();
     makeCurrent ();
-    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
-    GetSettingsPtr ()->SetEdgeRadiusRatio (
-        static_cast<double>(sliderValue) / maximum);
-    GetSettingsPtr ()->SetArrowParameters (vs.GetOnePixelInObjectSpace ());
+    vs.SetEdgeRadiusRatio (
+        IndexToValue (static_cast<QSlider*> (sender ()),
+                      ViewSettings::EDGE_RADIUS_RATIO));
+    vs.SetArrowParameters (vs.GetOnePixelInObjectSpace ());
     CompileUpdateAll ();
 }
 

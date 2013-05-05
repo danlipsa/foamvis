@@ -8,6 +8,7 @@
 #ifndef __VIEW_SETTINGS_H__
 #define __VIEW_SETTINGS_H__
 
+#include "DataProperties.h"
 #include "Enums.h"
 #include "ObjectPosition.h"
 class AllBodySelector;
@@ -841,7 +842,78 @@ public:
     {
         m_torusDomainShown = shown;
     }
+    void SetDimension (Dimension::Enum dimension);
     //@}
+
+    /**
+     * @{
+     * @name Arrow display
+     */
+    /**
+     * These afect the bubble paths as well.
+     */
+    void SetArrowParameters (float onePixelInObjectSpace);
+    static void SetArrowParameters (
+        float onePixelInObjectSpace,
+        float* edgeRadius, float* arrowHeadRadius, float* arrowHeadHeight, 
+        float edgeRadiusRatio = 0,
+        float* edgeWidth = 0);
+
+    float GetEdgeWidth () const 
+    {
+	return m_edgeWidth;
+    }
+    float GetEdgeRadius () const 
+    {
+	return m_edgeRadius;
+    }
+    float GetEdgeRadiusRatio () const
+    {
+	return m_edgeRadiusRatio;
+    }
+    void SetEdgeRadiusRatio (float edgeRadiusRatio)
+    {
+	m_edgeRadiusRatio = edgeRadiusRatio;
+    }
+    float GetArrowHeadRadius () const 
+    {
+	return m_arrowHeadRadius;
+    }
+    float GetArrowHeadHeight () const 
+    {
+	return m_arrowHeadHeight;
+    }
+    // @}
+
+    /**
+     * @{
+     * @name Bubble paths
+     */
+    /**
+     * Switches between line and tube/quadric
+     */
+    bool IsBubblePathsLineUsed () const
+    {
+	return m_centerPathLineUsed;
+    }
+    void SetBubblePathsLineUsed (bool used)
+    {
+	m_centerPathLineUsed = used;
+    }
+    /**
+     * Switches between tube and quadric
+     */
+    bool IsBubblePathsTubeUsed () const
+    {
+	return m_centerPathTubeUsed;
+    }
+    void SetBubblePathsTubeUsed (bool used)
+    {
+	m_centerPathTubeUsed = used;
+    }
+    // @}
+
+
 
 public:
     static const double STREAMLINE_LENGTH;
@@ -849,6 +921,8 @@ public:
     const static pair<float,float> ALPHA_RANGE;
     const static pair<float,float> TENSOR_LINE_WIDTH_EXP2;
     const static pair<float,float> T1_SIZE;
+    const static pair<float,float> EDGE_RADIUS_RATIO;
+    const static size_t MAX_RADIUS_MULTIPLIER;
 
 Q_SIGNALS:
     void SelectionChanged ();
@@ -971,6 +1045,14 @@ private:
     bool m_torusDomainShown;
     bool m_scalarContourShown;
     bool m_dmpTransformShown;
+    float m_edgeWidth;
+    float m_edgeRadius;
+    float m_edgeRadiusRatio;
+    float m_arrowHeadRadius;
+    float m_arrowHeadHeight;
+
+    bool m_centerPathTubeUsed;
+    bool m_centerPathLineUsed;
 };
 
 
