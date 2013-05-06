@@ -105,6 +105,8 @@ ViewSettings::ViewSettings () :
     m_T1KDEKernelBoxShown (false),
     m_T1KDESigmaInBubbleDiameter (1),
     m_t1Size (T1_SIZE.first),
+    m_t1Shown (false),
+    m_t1AllTimesteps (false),
     m_onePixelInObjectSpace (0),
     m_axesShown (false),
     m_boundingBoxSimulationShown (false),
@@ -117,7 +119,8 @@ ViewSettings::ViewSettings () :
     m_arrowHeadRadius (0),
     m_arrowHeadHeight (0),
     m_centerPathTubeUsed (true),
-    m_centerPathLineUsed (false)
+    m_centerPathLineUsed (false),
+    m_edgeVis (EdgeVis::EDGE_NORMAL)
 {
     setInitialLightParameters ();
     for (size_t i = 0; i < m_averageAroundBodyId.size (); ++i)

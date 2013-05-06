@@ -76,6 +76,14 @@ public:
     {
 	m_statisticsType = statisticsType;
     }
+    EdgeVis::Enum GetEdgeVis () const
+    {
+        return m_edgeVis;
+    }
+    void SetEdgeVis (EdgeVis::Enum vis)
+    {
+        m_edgeVis = vis;
+    }
     // @}
 
     /**
@@ -797,6 +805,22 @@ public:
     {
         m_t1Size = size;
     }
+    bool IsT1Shown () const
+    {
+        return m_t1Shown;
+    }
+    void SetT1Shown (bool shown)
+    {
+        m_t1Shown = shown;
+    }
+    bool IsT1AllTimesteps () const
+    {
+        return m_t1AllTimesteps;
+    }
+    void SetT1AllTimesteps (bool all)
+    {
+        m_t1AllTimesteps = all;
+    }
     float AngleDisplay (float angle) const;
 
     void SetSimulation (int i, const Simulation& simulation,
@@ -1039,6 +1063,8 @@ private:
     bool m_T1KDEKernelBoxShown;
     float m_T1KDESigmaInBubbleDiameter;
     float m_t1Size;
+    bool m_t1Shown;
+    bool m_t1AllTimesteps;
     float m_onePixelInObjectSpace;
     bool m_axesShown;
     bool m_boundingBoxSimulationShown;
@@ -1050,9 +1076,9 @@ private:
     float m_edgeRadiusRatio;
     float m_arrowHeadRadius;
     float m_arrowHeadHeight;
-
     bool m_centerPathTubeUsed;
     bool m_centerPathLineUsed;
+    EdgeVis::Enum m_edgeVis;
 };
 
 

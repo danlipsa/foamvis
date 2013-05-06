@@ -53,7 +53,7 @@ void WidgetSave::ToggledSaveMovie (bool checked)
 
 QSize WidgetSave::sizeHint () const
 {
-    return QSize (720, 480);
+    return QSize (360, 240);
 }
 
 QSize WidgetSave::minimumSizeHint () const

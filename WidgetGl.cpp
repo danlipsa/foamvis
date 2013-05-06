@@ -139,8 +139,6 @@ WidgetGl::WidgetGl(QWidget *parent)
       m_boundingBoxBodyShown (false),
       m_standaloneElementsShown (true),
       m_selectBodiesByIdList (new SelectBodiesById (this)),
-      m_t1sShown (false),
-      m_t1sAllTimesteps (false),
       m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
       m_averageAroundMarked (true),
       m_contextBoxShown (true),
@@ -418,9 +416,7 @@ void WidgetGl::initDisplayView ()
 {
     // WARNING: This has to be in the same order as ViewType::Enum
     boost::array<ViewTypeDisplay, ViewType::COUNT> displayView =
-	{{&WidgetGl::displayEdgesNormal,
-	  &WidgetGl::displayEdgesTorus,
-	  &WidgetGl::displayFacesTorus,
+	{{&WidgetGl::displayEdges,
 	  &WidgetGl::displayScalar,
 	  &WidgetGl::displayBubblePathsWithBodies,
 	  &WidgetGl::displayFacesAverage,
@@ -1645,6 +1641,24 @@ void WidgetGl::displayStandaloneEdges (
     }
 }
 
+void WidgetGl::displayEdges (ViewNumber::Enum viewNumber) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);    
+    switch (vs.GetEdgeVis ())
+    {
+    case EdgeVis::EDGE_NORMAL:
+        displayEdgesNormal (viewNumber);
+        break;
+    case EdgeVis::EDGE_TORUS:
+        displayEdgesTorus (viewNumber);
+        break;
+    case EdgeVis::EDGE_TORUS_FACE:
+        displayFacesTorus (viewNumber);
+        break;
+    }
+}
+
+
 void WidgetGl::displayEdgesNormal (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);    
@@ -1807,9 +1821,10 @@ void WidgetGl::displayBodiesNeighbors () const
 
 void WidgetGl::displayT1 (ViewNumber::Enum viewNumber) const
 {
-    if (m_t1sShown)
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    if (vs.IsT1Shown ())
     {
-        if (m_t1sAllTimesteps)
+        if (vs.IsT1AllTimesteps ())
             displayT1AllTimesteps (viewNumber);
         else
             displayT1Timestep (
@@ -2358,7 +2373,6 @@ void WidgetGl::displayBubblePathsBody (ViewNumber::Enum viewNumber) const
 {
     if (IsBubblePathsBodyShown ())
     {
-        WarnOnOpenGLError ("displayBubblePathsBody begin");
         const ViewSettings& vs = GetViewSettings (viewNumber);
         const BodySelector& bodySelector = *vs.GetBodySelector ();
         const Simulation& simulation = GetSimulation (viewNumber);
@@ -2374,7 +2388,6 @@ void WidgetGl::displayBubblePathsBody (ViewNumber::Enum viewNumber) const
 		GetSettings (), simulation.Is2D (), bodySelector, false,
                 DisplayElement::USER_DEFINED_CONTEXT,
 		viewNumber, vs.IsTimeDisplacementUsed (), zPos));
-        WarnOnOpenGLError ("displayBubblePathsBody end");
     }
 }
 
@@ -2385,6 +2398,7 @@ void WidgetGl::displayBubblePathsWithBodies (ViewNumber::Enum viewNumber) const
     size_t currentTime = GetTime (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
     displayBubblePaths (viewNumber);
+    displayT1 (viewNumber);
     WarnOnOpenGLError ("displayBubblePathsWithBodies a");    
     glPushAttrib (GL_ENABLE_BIT);
     if (vs.IsLightingEnabled ())
@@ -2407,8 +2421,7 @@ void WidgetGl::displayBubblePathsWithBodies (ViewNumber::Enum viewNumber) const
 
 void WidgetGl::displayBubblePaths (ViewNumber::Enum viewNumber) const
 {
-    //glCallList (m_listBubblePaths[viewNumber]);
-    compileBubblePaths (viewNumber);
+    glCallList (m_listBubblePaths[viewNumber]);
 }
 
 void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
@@ -2416,7 +2429,7 @@ void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
     const Simulation& simulation = GetSimulation (viewNumber);
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const BodySelector& bodySelector = *vs.GetBodySelector ();
-    //glNewList (m_listBubblePaths[viewNumber], GL_COMPILE);
+    glNewList (m_listBubblePaths[viewNumber], GL_COMPILE);
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT | 
 		  GL_POLYGON_BIT | GL_LINE_BIT);
     glEnable(GL_TEXTURE_1D);
@@ -2462,7 +2475,7 @@ void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
         WarnOnOpenGLError ("compileBubblePaths end");
     }
     glPopAttrib ();
-    //glEndList ();
+    glEndList ();
 }
 
 void WidgetGl::setLight (int sliderValue, int maximumValue, 
@@ -2626,7 +2639,7 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
         else if (vs.GetVelocityVis () == VectorVis::GLYPH && ! va.IsSameSize ())
             displayColorBarVelocity (viewNumber, barRect);
     }
-    if (m_t1sShown && simulation.Is3D ())
+    if (vs.IsT1Shown () && simulation.Is3D ())
         displayT1Legend (settings.GetT1LegendRect (GetViewRect (viewNumber)));
     displayViewTitle (viewNumber);
     if (viewNumber == GetViewNumber () && 
@@ -4281,14 +4294,14 @@ void WidgetGl::ToggledTorusDomainClipped (bool checked)
 void WidgetGl::ToggledT1sShown (bool checked)
 {
     makeCurrent ();
-    m_t1sShown = checked;
+    GetViewSettings ().SetT1Shown (checked);
     CompileUpdate ();
 }
 
 void WidgetGl::ToggledT1sAllTimesteps (bool checked)
 {
     makeCurrent ();
-    m_t1sAllTimesteps = checked;
+    GetViewSettings ().SetT1AllTimesteps (checked);
     CompileUpdate ();
 }
 

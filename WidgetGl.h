@@ -500,6 +500,7 @@ private:
     void displayAverageAroundBodyTwo (ViewNumber::Enum viewNumber) const;
 
     void displayEdgesNormal (ViewNumber::Enum view) const;
+    void displayEdges (ViewNumber::Enum view) const;
     template<typename displayEdge>
     void displayStandaloneEdges (
 	const Foam& foam, ViewNumber::Enum viewNumber = ViewNumber::VIEW0, 
@@ -706,8 +707,6 @@ private:
 
     boost::shared_ptr<SelectBodiesById> m_selectBodiesByIdList;
     QLabel *m_labelStatusBar;
-    bool m_t1sShown;
-    bool m_t1sAllTimesteps;
     size_t m_highlightLineWidth;
     bool m_averageAroundMarked;
     bool m_contextBoxShown;

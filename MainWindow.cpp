@@ -168,7 +168,7 @@ void MainWindow::configureInterfaceDataDependent (
     setupSliderData (simulation);
     if (simulation.IsT1Available ())
     {
-	checkBoxT1sShown->setEnabled (true);	
+	checkBoxT1Shown->setEnabled (true);	
 	radioButtonT1sKDE->setEnabled (true);
     }
     if (! simulation.IsTorus ())
@@ -179,8 +179,8 @@ void MainWindow::configureInterfaceDataDependent (
         checkBoxDomainBottom->setDisabled (true);
         checkBoxDomainLeft->setDisabled (true);
         checkBoxDomainRight->setDisabled (true);
-	radioButtonEdgesTorus->setDisabled (true);
-	radioButtonFaceEdgesTorus->setDisabled (true);
+	radioButtonEdgeTorus->setDisabled (true);
+	radioButtonEdgeTorusFace->setDisabled (true);
     }
     if (simulation.Is2D ())
     {
@@ -362,10 +362,12 @@ void MainWindow::connectColorBarHistogram (bool connected)
 
 void MainWindow::setupButtonGroups ()
 {        
-    buttonGroupViewType->setId (radioButtonEdgesNormal, ViewType::EDGES);
-    buttonGroupViewType->setId (radioButtonEdgesTorus, ViewType::EDGES_TORUS);
-    buttonGroupViewType->setId (radioButtonFaceEdgesTorus, 
-				ViewType::FACES_TORUS);
+    buttonGroupEdgeVis->setId (radioButtonEdgeNormal, EdgeVis::EDGE_NORMAL);
+    buttonGroupEdgeVis->setId (radioButtonEdgeTorus, EdgeVis::EDGE_TORUS);
+    buttonGroupEdgeVis->setId (radioButtonEdgeTorusFace, 
+                               EdgeVis::EDGE_TORUS_FACE);
+
+    buttonGroupViewType->setId (radioButtonEdge, ViewType::EDGES);
     buttonGroupViewType->setId (radioButtonScalar, ViewType::FACES);
     buttonGroupViewType->setId (radioButtonBubblePaths, ViewType::CENTER_PATHS);
     buttonGroupViewType->setId (radioButtonAverage, 
@@ -951,11 +953,8 @@ void MainWindow::setStackedWidgetVisualization (ViewType::Enum viewType)
     // WARNING: Has to match ViewType::Enum order
     QWidget* pages[] = 
 	{
-	    pageEmpty,
-	    pageEmpty,
-	    pageEmpty,
-	    pageFacesNormal,
-
+	    pageEdges,
+	    pageScalar,
 	    pageBubblePaths,
 	    pageAverage,
 	    pageT1sProbabilityDensity
@@ -1520,6 +1519,19 @@ void MainWindow::ButtonClickedVelocityVis (int vv)
     widgetGl->update ();
 }
 
+void MainWindow::ButtonClickedEdgeVis (int ev)
+{
+    EdgeVis::Enum edgeVis = EdgeVis::Enum (ev);
+    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+        ViewNumber::Enum viewNumber = vn[i];
+        ViewSettings& vs = GetViewSettings (viewNumber);
+        vs.SetEdgeVis (edgeVis);
+    }
+    widgetGl->update ();
+}
+
 void MainWindow::ButtonClickedForce (int t)
 {
     ForceType::Enum type =ForceType::FromSizeT (t);
@@ -2075,6 +2087,8 @@ void MainWindow::t1ViewToUI ()
 	horizontalSliderT1Size, 
         ValueToIndex (horizontalSliderT1Size, 
                       ViewSettings::T1_SIZE, vs.GetT1Size ()));
+    SetCheckedNoSignals (checkBoxT1Shown, vs.IsT1Shown ());
+    SetCheckedNoSignals (checkBoxT1AllTimesteps, vs.IsT1Shown ());
 }
 
 void MainWindow::forceViewToUI ()

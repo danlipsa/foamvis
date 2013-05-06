@@ -273,10 +273,7 @@ public:
      */
     enum Enum {
         EDGES,
-	EDGES_TORUS,
-	FACES_TORUS,
         FACES,
-
 	CENTER_PATHS,
 	AVERAGE,
 	T1_KDE,
@@ -287,6 +284,16 @@ public:
     static const char* ToString (ViewType::Enum viewType);
 };
 
+class EdgeVis
+{
+public:
+    enum Enum
+    {
+        EDGE_NORMAL,
+        EDGE_TORUS,
+        EDGE_TORUS_FACE
+    };
+};
 
 class StatisticsType
 {

@@ -331,10 +331,6 @@ const char* ViewType::ToString (ViewType::Enum t)
     {
     case EDGES:
 	return "Edges";
-    case EDGES_TORUS:
-	return "Edges torus";
-    case FACES_TORUS:
-	return "Faces torus";
     case FACES:
 	return "Faces";	
     case CENTER_PATHS:

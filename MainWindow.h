@@ -60,6 +60,7 @@ Q_SIGNALS:
 public Q_SLOTS:
     void ButtonClickedInteractionObject (int id);
     void ButtonClickedViewType (int viewType);
+    void ButtonClickedEdgeVis (int edgeVis);
     void ButtonClickedForce (int type);
     void ButtonClickedTorque (int type);
     void ButtonClickedVelocityVis (int velocityVis);
