@@ -39,7 +39,7 @@ const double ViewSettings::STREAMLINE_LENGTH (0.2);
 const double ViewSettings::STREAMLINE_STEP_LENGTH (0.005);
 const pair<float,float> ViewSettings::ALPHA_RANGE (0.01, 0.2);
 const pair<float,float> ViewSettings::TENSOR_LINE_WIDTH_EXP2 (0, 3);
-const pair<float,float> ViewSettings::T1_SIZE (0.2, 1);
+const pair<float,float> ViewSettings::T1_SIZE (0.05, 1);
 const pair<float,float> ViewSettings::EDGE_RADIUS_RATIO (0.0, 1.0);
 const size_t ViewSettings::MAX_RADIUS_MULTIPLIER = 5;
 
@@ -104,7 +104,7 @@ ViewSettings::ViewSettings () :
     m_kdeMultiplier (3),
     m_T1KDEKernelBoxShown (false),
     m_T1KDESigmaInBubbleDiameter (1),
-    m_t1Size (T1_SIZE.first),
+    m_t1Size ((T1_SIZE.first + T1_SIZE.second) / 4),
     m_t1Shown (false),
     m_t1AllTimesteps (false),
     m_onePixelInObjectSpace (0),

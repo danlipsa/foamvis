@@ -419,8 +419,8 @@ void WidgetGl::initDisplayView ()
 	{{&WidgetGl::displayEdges,
 	  &WidgetGl::displayScalar,
 	  &WidgetGl::displayBubblePathsWithBodies,
-	  &WidgetGl::displayFacesAverage,
-	  &WidgetGl::displayFacesAverage,
+	  &WidgetGl::displayAverage,
+	  &WidgetGl::displayAverage,
 	    }};
     copy (displayView.begin (), displayView.end (), m_display.begin ());
 }
@@ -2171,7 +2171,7 @@ void WidgetGl::calculateRotationParams (
 
 
 
-void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayAverage (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);

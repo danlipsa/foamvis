@@ -513,7 +513,7 @@ private:
     void displayScalar (ViewNumber::Enum view) const;
     void compileScalar (ViewNumber::Enum view) const;
     void displayFacesTorus (ViewNumber::Enum view) const;
-    void displayFacesAverage (ViewNumber::Enum view) const;
+    void displayAverage (ViewNumber::Enum view) const;
     void displayFacesTorusTubes (ViewNumber::Enum viewNumber) const;
     void displayFacesTorusLines () const;
 

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1089</width>
+    <width>1086</width>
     <height>686</height>
    </rect>
   </property>
@@ -341,7 +341,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="tabSettings">
         <attribute name="title">
@@ -1514,7 +1514,7 @@
          <item>
           <widget class="QStackedWidget" name="stackedWidgetVisualization">
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="pageEdges">
             <layout class="QFormLayout" name="formLayout_11">
