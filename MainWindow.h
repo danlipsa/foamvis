@@ -141,10 +141,8 @@ public Q_SLOTS:
      */
     void TimeoutTimer ();
     
-    /**
-     * Invoqued by the UI when  the slider changes to display the data
-     * at the current position of the slider.
-     */
+
+    void ValueChangedIsosurfaceAlpha (int value);
     void ValueChangedFontSize (int value);
     void ValueChangedT1Size (int index);
     void ValueChangedHistogramHeight (int value);

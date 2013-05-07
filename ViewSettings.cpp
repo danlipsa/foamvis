@@ -37,7 +37,7 @@ boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
 // ======================================================================
 const double ViewSettings::STREAMLINE_LENGTH (0.2);
 const double ViewSettings::STREAMLINE_STEP_LENGTH (0.005);
-const pair<float,float> ViewSettings::ALPHA_RANGE (0.01, 0.2);
+const pair<float,float> ViewSettings::ALPHA_RANGE (0, 1);
 const pair<float,float> ViewSettings::TENSOR_LINE_WIDTH_EXP2 (0, 3);
 const pair<float,float> ViewSettings::T1_SIZE (0.05, 1);
 const pair<float,float> ViewSettings::EDGE_RADIUS_RATIO (0.0, 1.0);
@@ -78,8 +78,9 @@ ViewSettings::ViewSettings () :
     m_velocityVis (VectorVis::GLYPH),
     m_bodySelector (AllBodySelector::Get ()),
     m_selectionContextShown (true),
-    m_contextAlpha (ALPHA_RANGE.first),
-    m_objectAlpha (ALPHA_RANGE.first),
+    m_contextAlpha (0.01),
+    m_objectAlpha (0.01),
+    m_isosurfaceAlpha (1),
     m_centerPathHidden (false),
     m_simulationIndex (0),
     m_time (0),

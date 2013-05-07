@@ -53,7 +53,7 @@ struct FocusContextInfo
 {
     Foam::Bodies::const_iterator m_begin;
     Foam::Bodies::const_iterator m_end;
-    bool m_isContext;	
+    Context::Enum m_context;	
 };
 
 G3D::AABox ExtendMaxXY (const G3D::AABox& box)
@@ -2124,7 +2124,7 @@ void WidgetGl::compileScalar (ViewNumber::Enum viewNumber) const
     glNewList (m_listFacesNormal[viewNumber], GL_COMPILE);
     if (vs.IsScalarShown ())
     {
-        if (EdgesShown () && ! vs.IsScalarContext ())
+        if (EdgesShown ())
             displayFacesContour (bodies, viewNumber);
         displayFacesInterior (bodies, viewNumber);
         if (! vs.IsScalarContext ())
@@ -2240,6 +2240,7 @@ void WidgetGl::displayFacesContour (
     GLfloat lineWidth) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     const BodySelector& bodySelector = 
 	*GetViewSettings (viewNumber).GetBodySelector ();
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
@@ -2248,8 +2249,9 @@ void WidgetGl::displayFacesContour (
 	      DisplayBody<
 	      DisplayFaceHighlightColor<HighlightNumber::H0,
 	      DisplayFaceEdges<DisplayEdge> > > (
-                  GetSettings (), simulation.Is2D (), bodySelector, false, 
-                  DisplayElement::USER_DEFINED_CONTEXT, viewNumber));
+                  GetSettings (), simulation.Is2D (), bodySelector, 
+                  vs.IsScalarContext () ? Context::ALL : Context::UNSELECTED, 
+                  ContextInvisible::USER_DEFINED, viewNumber));
     glPopAttrib ();
 }
 
@@ -2310,19 +2312,19 @@ void WidgetGl::displayFacesInteriorFocusContext (
     const BodySelector& bodySelector = *vs.GetBodySelector ();
     boost::array<FocusContextInfo, 2> beginEnd =
         {{
-                {b.begin (), contextBodiesBegin, false},
-                {contextBodiesBegin, b.end (), true}
+                {b.begin (), contextBodiesBegin, Context::UNSELECTED},
+                {contextBodiesBegin, b.end (), Context::ALL}
             }};
     for (size_t i = 0; i < beginEnd.size (); ++i)
     {
-	if (beginEnd[i].m_isContext)
+	if (beginEnd[i].m_context == Context::ALL)
 	    DisplayBodyBase<>::BeginContext ();
 	for_each (beginEnd[i].m_begin, beginEnd[i].m_end,
 		  DisplayBody<DisplayFaceBodyScalarColor<> > (
 		      GetSettings (), simulation.Is2D (), bodySelector, 
-		      beginEnd[i].m_isContext, 
-                      DisplayElement::USER_DEFINED_CONTEXT, viewNumber));
-	if (beginEnd[i].m_isContext)
+		      beginEnd[i].m_context, 
+                      ContextInvisible::USER_DEFINED, viewNumber));
+	if (beginEnd[i].m_context == Context::ALL)
 	    DisplayBodyBase<>::EndContext ();
     }
 }
@@ -2385,8 +2387,8 @@ void WidgetGl::displayBubblePathsBody (ViewNumber::Enum viewNumber) const
 	    DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H0,
 	    DisplayFaceEdges<DisplayEdgePropertyColor<
 	    DisplayElement::DONT_DISPLAY_TESSELLATION_EDGES> > > > (
-		GetSettings (), simulation.Is2D (), bodySelector, false,
-                DisplayElement::USER_DEFINED_CONTEXT,
+		GetSettings (), simulation.Is2D (), bodySelector, 
+                Context::UNSELECTED, ContextInvisible::USER_DEFINED,
 		viewNumber, vs.IsTimeDisplacementUsed (), zPos));
     }
 }

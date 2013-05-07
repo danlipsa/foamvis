@@ -88,13 +88,13 @@ template <typename PropertySetter>
 DisplayBodyBase<PropertySetter>::
 DisplayBodyBase (
     const Settings& settings, const BodySelector& bodySelector,
-    PropertySetter propertySetter, bool forceContext, 
+    PropertySetter propertySetter, Context::Enum context, 
     bool useZPos, double zPos) :
 
     DisplayElementProperty<PropertySetter> (
         settings, propertySetter, useZPos, zPos),
     m_bodySelector (bodySelector),
-    m_forceContext (forceContext)
+    m_context (context)
 {
 }
 
@@ -115,11 +115,17 @@ EndContext ()
 }
 
 template <typename PropertySetter>
+bool DisplayBodyBase<PropertySetter>::IsFocus (boost::shared_ptr<Body> b) const
+{
+    return m_bodySelector (b) && m_context == Context::UNSELECTED;
+}
+
+
+template <typename PropertySetter>
 void DisplayBodyBase<PropertySetter>::
 operator () (boost::shared_ptr<Body> b)
 {
-    bool focus = m_bodySelector (b) && ! m_forceContext;
-    if (focus)
+    if (IsFocus (b))
 	display (b);
     else
     {
@@ -141,7 +147,7 @@ DisplayBodyDeformation::DisplayBodyDeformation (
     
     DisplayBodyBase<> (
 	settings, bodySelector,
-	SetterTextureCoordinate(settings, viewNumber, is2D), false,
+	SetterTextureCoordinate(settings, viewNumber, is2D), Context::UNSELECTED,
         useZPos, zPos),
     m_deformationSizeInitialRatio (deformationSizeInitialRatio)
 {}
@@ -183,8 +189,8 @@ DisplayBodyVelocity::DisplayBodyVelocity (
     
     DisplayBodyBase<> (
 	settings, bodySelector,
-	SetterTextureCoordinate(settings, viewNumber, is2D), false, 
-        useZPos, zPos),
+	SetterTextureCoordinate(settings, viewNumber, is2D), 
+        Context::UNSELECTED, useZPos, zPos),
     m_bubbleDiameter (bubbleSize),
     m_onePixelInObjectSpace (onePixelInObjectSpace),
     m_velocitySizeInitialRatio (velocitySizeInitialRatio),
@@ -249,7 +255,7 @@ DisplayBodyCenter::DisplayBodyCenter (
 	settings, bodySelector,
         // the setter is not used
 	SetterTextureCoordinate(settings, ViewNumber::VIEW0, true), 
-        useZPos, zPos)
+        Context::UNSELECTED, useZPos, zPos)
 {}
 
 
@@ -272,15 +278,15 @@ template<typename displayFace, typename PropertySetter>
 DisplayBody<displayFace, PropertySetter>::
 DisplayBody (
     const Settings& settings, bool is2D, const BodySelector& bodySelector,
-    bool forceContext,
-    typename DisplayElement::ContextType contextDisplay, 
+    Context::Enum context,
+    ContextInvisible::Enum contextDisplay, 
     ViewNumber::Enum viewNumber, bool useZPos, double zPos) :
 
     DisplayBodyBase<PropertySetter> (
 	settings, bodySelector, 
-        PropertySetter (settings, viewNumber, is2D), forceContext, 
+        PropertySetter (settings, viewNumber, is2D), context, 
         useZPos, zPos),
-    m_contextDisplay (contextDisplay)
+    m_contextInvisible (contextDisplay)
 {
 }
 
@@ -289,13 +295,13 @@ DisplayBody<displayFace, PropertySetter>::
 DisplayBody (
     const Settings& settings, 
     const BodySelector& bodySelector, 
-    PropertySetter setter, bool forceContext,
-    typename DisplayElement::ContextType contextDisplay,
+    PropertySetter setter, Context::Enum context,
+    ContextInvisible::Enum contextDisplay,
     bool useZPos, double zPos) :
 
     DisplayBodyBase<PropertySetter> (
-        settings, bodySelector, setter, forceContext, useZPos, zPos),
-    m_contextDisplay (contextDisplay)
+        settings, bodySelector, setter, context, useZPos, zPos),
+    m_contextInvisible (contextDisplay)
 {
 }
 
@@ -308,8 +314,8 @@ display (boost::shared_ptr<Body> b)
     DisplayElement::FocusContext bodyFc = 
 	DisplayBodyBase<PropertySetter>::GetFocusContext (b);
     if (bodyFc == DisplayElement::CONTEXT &&
-	(m_contextDisplay == DisplayElement::INVISIBLE_CONTEXT ||
-	 (m_contextDisplay == DisplayElement::USER_DEFINED_CONTEXT && 
+	(m_contextInvisible == ContextInvisible::ALWAYS ||
+	 (m_contextInvisible == ContextInvisible::USER_DEFINED && 
 	  ! vs.IsSelectionContextShown ()))
 	)
 	return;
@@ -338,7 +344,7 @@ DisplayBubblePaths (
 
     DisplayBodyBase<PropertySetter> (
 	settings, bodySelector, 
-        PropertySetter (settings, viewNumber, is2D),
+        PropertySetter (settings, viewNumber, is2D), Context::UNSELECTED,
 	useTimeDisplacement, timeDisplacement),
     m_displaySegment (
         quadric,

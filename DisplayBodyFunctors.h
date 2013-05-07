@@ -36,21 +36,16 @@ public:
      */
     DisplayBodyBase (const Settings& settings, 
 		     const BodySelector& bodySelector, 
-		     PropertySetter propertySetter, bool forceContext,
+		     PropertySetter propertySetter, Context::Enum context,
 		     bool useZPos = false, double zPos = 0);
 
     static void BeginContext ();
     static void EndContext ();
-    bool IsFocus (boost::shared_ptr<Body> b) const
-    {
-	return m_bodySelector (b);
-    }
-
+    bool IsFocus (boost::shared_ptr<Body> b) const;
     DisplayElement::FocusContext GetFocusContext (
-	boost::shared_ptr<Body> b) const
+        boost::shared_ptr<Body> b) const
     {
-	return  IsFocus (b) ? 
-	    DisplayElement::FOCUS : DisplayElement::CONTEXT;
+	return  IsFocus (b) ? DisplayElement::FOCUS : DisplayElement::CONTEXT;
     }
     void operator () (boost::shared_ptr<Body> b);
 
@@ -59,7 +54,7 @@ protected:
 
 private:
     const BodySelector& m_bodySelector;
-    bool m_forceContext;
+    Context::Enum m_context;
 };
 
 
@@ -133,25 +128,24 @@ public:
      */
     DisplayBody (
 	const Settings& settings, bool is2D, const BodySelector& bodySelector,
-        bool forceContext = false,
-	typename DisplayElement::ContextType 
-	contextDisplay = DisplayElement::USER_DEFINED_CONTEXT,
+        Context::Enum context = Context::UNSELECTED,
+	ContextInvisible::Enum
+	contextDisplay = ContextInvisible::USER_DEFINED,
 	ViewNumber::Enum viewNumber = ViewNumber::VIEW0,
 	bool useZPos = false, double zPos = 0);
 
     DisplayBody (
 	const Settings& settings, const BodySelector& bodySelector,
 	PropertySetter setter,
-        bool forceContext = false,
-	typename DisplayElement::ContextType 
-	    contextDisplay = DisplayElement::USER_DEFINED_CONTEXT,
+        Context::Enum context = Context::UNSELECTED,
+	ContextInvisible::Enum contextDisplay = ContextInvisible::USER_DEFINED,
 	bool useZPos = false, double zPos = 0);
 
 protected:
     virtual void display (boost::shared_ptr<Body> b);
 			
 private:
-    typename DisplayElement::ContextType m_contextDisplay;
+    ContextInvisible::Enum m_contextInvisible;
 };
 
 

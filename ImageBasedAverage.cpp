@@ -181,7 +181,7 @@ void ImageBasedAverage<PropertySetter>::AverageRelease ()
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::addStep (size_t timeStep, size_t subStep)
 {
-    __ENABLE_LOGGING__;
+    //__ENABLE_LOGGING__;
     pair<float,float> minMax = GetWidgetGl ().GetRange (GetViewNumber ());
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (timeStep, subStep);
@@ -360,11 +360,12 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
 	DisplayBody<DisplayFaceBodyScalarColor<PropertySetter>,
 	PropertySetter> (
 	    GetSettings (), *vs.GetBodySelector (), 
-	    PropertySetter (GetSettings (), 
-			    viewNumber, GetSimulation ().Is2D (),
-                            m_storeShaderProgram.get (),
-			    m_storeShaderProgram->GetVValueLocation ()), false,
-	    DisplayElement::INVISIBLE_CONTEXT));
+	    PropertySetter (
+                GetSettings (), 
+                viewNumber, GetSimulation ().Is2D (),
+                m_storeShaderProgram.get (),
+                m_storeShaderProgram->GetVValueLocation ()), Context::UNSELECTED,
+	    ContextInvisible::ALWAYS));
     glPopAttrib ();
     m_storeShaderProgram->release ();
     WarnOnOpenGLError ("ImageBasedAverage::writeStepValues:" + m_id);

@@ -402,6 +402,7 @@ void PipelineAverage3D::FromView (ViewNumber::Enum viewNumber, const Base& base)
     const ViewSettings& vs = base.GetViewSettings (viewNumber);
     updateAlpha (vs.GetContextAlpha (), m_constraintSurface);
     updateAlpha (vs.GetObjectAlpha (), m_object);
+    updateAlpha (vs.GetIsosurfaceAlpha (), m_scalarAverageActor);
     fromViewScalar (viewNumber, base);
     m_outlineSimulationActor->SetVisibility (vs.IsBoundingBoxSimulationShown ());
     m_outlineTorusActor->SetVisibility (vs.IsTorusDomainShown ());
@@ -465,5 +466,11 @@ void PipelineAverage3D::updateAlpha (
     float alpha, vector<vtkSmartPointer<vtkActor> >& actors)
 {
     BOOST_FOREACH (vtkSmartPointer<vtkActor> actor, actors)
-	actor->GetProperty ()->SetOpacity (alpha);
+	updateAlpha (alpha, actor);
+}
+
+void PipelineAverage3D::updateAlpha (
+    float alpha, vtkSmartPointer<vtkActor> actor)
+{
+    actor->GetProperty ()->SetOpacity (alpha);
 }

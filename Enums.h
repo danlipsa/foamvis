@@ -639,6 +639,27 @@ public:
     };
 };
 
+class Context
+{
+public:
+    enum Enum
+    {
+        UNSELECTED,
+        ALL
+    };
+};
+
+class ContextInvisible
+{
+public:
+    enum Enum
+    {
+	USER_DEFINED,
+        ALWAYS
+    };
+};
+
+
 #endif //__ENUMS_H__
 
 // Local Variables:

@@ -23,11 +23,6 @@ public:
 	FOCUS,
 	CONTEXT
     };
-    enum ContextType
-    {
-	USER_DEFINED_CONTEXT,
-	INVISIBLE_CONTEXT
-    };
 
     enum TessellationEdgesDisplay
     {

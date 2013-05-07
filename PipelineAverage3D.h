@@ -46,8 +46,9 @@ private:
     void createOutlineSimulationActor ();
     void createOutlineTorusActor ();
 
-    void updateAlpha (
-        float alpha, vector<vtkSmartPointer<vtkActor> >& actors);
+    void updateAlpha (float alpha, vector<vtkSmartPointer<vtkActor> >& actors);
+    void updateAlpha (float alpha, vtkSmartPointer<vtkActor> actor);
+
     template <typename Iterator>
     void setPolyActors (Iterator begin, Iterator end);
     void updateForce (size_t objectIndex, ForceType::Enum forceType,

@@ -498,6 +498,35 @@ public:
     {
 	m_contextScaleRatio = contextScaleRatio;
     }    
+    void AddContextDisplayBody (size_t bodyId)
+    {
+	m_contextBody.insert (bodyId);
+    }
+    void ContextDisplayReset ()
+    {
+	m_contextBody.clear ();
+    }
+    bool IsContextDisplayBody (size_t bodyId) const;
+    size_t GetContextDisplayBodySize () const
+    {
+	return m_contextBody.size ();
+    }
+    float GetObjectAlpha () const
+    {
+	return m_objectAlpha;
+    }
+    void SetObjectAlpha (float alpha)
+    {
+	m_objectAlpha = alpha;
+    }
+    float GetIsosurfaceAlpha () const
+    {
+        return m_isosurfaceAlpha;
+    }
+    void SetIsosurfaceAlpha (float alpha)
+    {
+        m_isosurfaceAlpha = alpha;
+    }
     // @}
 
     /**
@@ -631,30 +660,6 @@ public:
         size_t timeStep, int direction, RotateAndTranslateOperation op) const;
     // @}
 
-
-    // Context
-    void AddContextDisplayBody (size_t bodyId)
-    {
-	m_contextBody.insert (bodyId);
-    }
-    void ContextDisplayReset ()
-    {
-	m_contextBody.clear ();
-    }
-    bool IsContextDisplayBody (size_t bodyId) const;
-    size_t GetContextDisplayBodySize () const
-    {
-	return m_contextBody.size ();
-    }
-    float GetObjectAlpha () const
-    {
-	return m_objectAlpha;
-    }
-    void SetObjectAlpha (float alpha)
-    {
-	m_objectAlpha = alpha;
-    }
-    // @}
     
     /**
      * @{
@@ -1032,6 +1037,7 @@ private:
     bool m_selectionContextShown;
     float m_contextAlpha;
     float m_objectAlpha;
+    float m_isosurfaceAlpha;
     bool m_centerPathHidden;
     // Simulation related variables
     size_t m_simulationIndex;

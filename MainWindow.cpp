@@ -1345,6 +1345,7 @@ void MainWindow::TimeoutTimer ()
     }
 }
 
+
 void MainWindow::ValueChangedForceRatio (double ratio)
 {
     GetViewSettings ().SetForceRatio (ratio);
@@ -1387,6 +1388,17 @@ void MainWindow::ValueChangedObjectAlpha (int index)
     widgetGl->CompileUpdate ();
     widgetVtk->FromView ();
 }
+
+void MainWindow::ValueChangedIsosurfaceAlpha (int value)
+{
+    (void)value;
+    GetViewSettings ().SetIsosurfaceAlpha (
+	IndexToValue (static_cast<QSlider*> (sender ()),
+                      ViewSettings::ALPHA_RANGE));
+    widgetGl->CompileUpdate ();
+    widgetVtk->FromView ();
+}
+
 
 void MainWindow::ValueChangedHistogramHeight (int s)
 {
@@ -2126,21 +2138,20 @@ void MainWindow::forceViewToUI ()
 
 void MainWindow::t1KDEViewToUI (ViewNumber::Enum viewNumber)
 {
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
+    SetCheckedNoSignals (checkBoxTextureShown, vs.IsT1KDEKernelBoxShown ());
+    SetValueNoSignals (
+        doubleSpinBoxKernelSigma, vs.GetT1KDESigmaInBubbleDiameter ());
+    SetValueNoSignals (
+        horizontalSliderIsosurfaceAlpha, 
+        ValueToIndex (horizontalSliderIsosurfaceAlpha, 
+                      ViewSettings::ALPHA_RANGE, vs.GetIsosurfaceAlpha ()));
     labelKDEIsosurfaceValue->setEnabled (simulation.Is3D ());
     doubleSpinBoxT1KDEIsosurfaceValue->setEnabled (simulation.Is3D ());
-    if (simulation.Is2D ())
-    {
-        const ViewSettings& vs = GetViewSettings (viewNumber);
-        bool kernelTextureShown = false;
-	kernelTextureShown = vs.IsT1KDEKernelBoxShown ();
-        SetCheckedNoSignals (checkBoxTextureShown, kernelTextureShown);
-        SetValueNoSignals (
-            doubleSpinBoxKernelSigma, vs.GetT1KDESigmaInBubbleDiameter ());
-        const Simulation& simulation = GetSimulation (viewNumber);
-        radioButtonT1sKDE->setEnabled (
-            simulation.IsT1Available ());
-    }
+    labelIsosurfaceAlpha->setEnabled (simulation.Is3D ());
+    horizontalSliderIsosurfaceAlpha->setEnabled (simulation.Is3D ());
+    radioButtonT1sKDE->setEnabled (simulation.IsT1Available ());
 }
 
 void MainWindow::bubblePathsViewToUI ()
