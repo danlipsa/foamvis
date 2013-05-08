@@ -130,7 +130,7 @@ public Q_SLOTS:
     void ToggledHistogramGridShown (bool checked);
     void ToggledHistogramShown (bool checked);
     void ToggledHistogramColor (bool checked);
-    void ToggledHistogramAllTimesteps (bool checked);
+    void ToggledHistogramAllTimeSteps (bool checked);
     void ToggledVelocitySameSize (bool checked);
     void ToggledTwoHalvesView (bool checked);
 

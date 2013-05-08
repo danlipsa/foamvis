@@ -45,7 +45,7 @@ RestrictedRangeSlider::RestrictedRangeSlider (QWidget *parent) :
     scale->setAlignment (QwtScaleDraw::TopScale);
     updateLabelTime (minimum ());
     updateLabelSelected ();
-    updateLabelTimesteps ();
+    updateLabelTimeSteps ();
 }
 
 void RestrictedRangeSlider::setupScale (int minimum, int maximum)
@@ -65,7 +65,7 @@ void RestrictedRangeSlider::setupScale (int minimum, int maximum)
     SliderDimensionsQuery sliderQuery (Application::Get ().get ());
     QRect r = sliderQuery.GetHandleRect ();
     scale->setBorderDist (r.width () / 2, r.width () / 2);
-    updateLabelTimesteps ();
+    updateLabelTimeSteps ();
 }
 
 void RestrictedRangeSlider::setupColorMap (const vector<bool>* selected)
@@ -179,11 +179,11 @@ void RestrictedRangeSlider::updateLabelSelected ()
     }
 }
 
-void RestrictedRangeSlider::updateLabelTimesteps ()
+void RestrictedRangeSlider::updateLabelTimeSteps ()
 {
     ostringstream ostr;
     ostr << (maximum () - minimum () + 1);
-    labelTimesteps->setText (ostr.str ().c_str ());
+    labelTimeSteps->setText (ostr.str ().c_str ());
 }
 
 void RestrictedRangeSlider::updateLabelTime (int value)

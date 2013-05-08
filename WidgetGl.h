@@ -219,7 +219,7 @@ public Q_SLOTS:
     void ToggledPartialPathHidden (bool checked);
     void ToggledTorusDomainClipped (bool checked);
     void ToggledT1sShown (bool checked);
-    void ToggledT1sAllTimesteps (bool checked);
+    void ToggledT1sAllTimeSteps (bool checked);
     void ToggledT1sShiftLower (bool checked);
     void ToggledMissingPressureShown (bool checked);
     void ToggledMissingVolumeShown (bool checked);
@@ -517,12 +517,12 @@ private:
     void displayDeformation (ViewNumber::Enum viewNumber) const;
     void displayVelocityGlyphs (ViewNumber::Enum viewNumber) const;
     void displayT1 (ViewNumber::Enum view) const;
-    void displayT1AllTimesteps (ViewNumber::Enum view) const;
-    void displayT1Timestep (
+    void displayT1AllTimeSteps (ViewNumber::Enum view) const;
+    void displayT1TimeStep (
         ViewNumber::Enum view, size_t timeStep) const;    
-    void displayT1Timestep2D (
+    void displayT1TimeStep2D (
         ViewNumber::Enum view, size_t timeStep) const;    
-    void displayT1Timestep3D (
+    void displayT1TimeStep3D (
         ViewNumber::Enum view, size_t timeStep) const;
     void displayBubblePaths (ViewNumber::Enum view) const;
     void compileBubblePaths (ViewNumber::Enum view) const;

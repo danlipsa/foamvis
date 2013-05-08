@@ -88,7 +88,7 @@ private:
      * range.
      */
     size_t getMinimumWidth (size_t size);
-    void updateLabelTimesteps ();
+    void updateLabelTimeSteps ();
     void updateLabelSelected ();
     void updateLabelTime (int value);    
     void setupScale (int min, int max);

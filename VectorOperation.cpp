@@ -96,8 +96,10 @@ void VectorOpVector::operator() (DataAndValidFlag left, DataAndValidFlag right)
         left.m_data->GetTupleValue (i, &leftData[0]);
         right.m_data->GetTupleValue (i, &rightData[0]);
         for (size_t j = 0; j < components; ++j)
+        {
             leftData[j] = 
                 GetBinaryOperation () (leftData[j], rightData[j]);
+        }
         left.m_data->SetTupleValue (i, &leftData[0]);
     }
 }

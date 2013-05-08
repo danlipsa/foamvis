@@ -592,7 +592,7 @@ size_t Simulation::GetT1TimeSteps () const
     return m_t1.size ();
 }
 
-size_t Simulation::GetT1CountAllTimesteps () const
+size_t Simulation::GetT1CountAllTimeSteps () const
 {
     size_t size = 0;
     BOOST_FOREACH (const vector<T1>& tc, m_t1)
@@ -602,7 +602,7 @@ size_t Simulation::GetT1CountAllTimesteps () const
     return size;
 }
 
-size_t Simulation::GetMaxT1CountPerTimestep () const
+size_t Simulation::GetMaxT1CountPerTimeStep () const
 {
     size_t maxCount = 0;
     BOOST_FOREACH (const vector<T1>& tc, m_t1)

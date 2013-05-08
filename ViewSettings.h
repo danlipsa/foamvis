@@ -129,6 +129,14 @@ public:
     {
         m_T1KDESigmaInBubbleDiameter = sigma;
     }
+    float GetT1KDEIsosurfaceValue () const
+    {
+        return m_T1KDEIsosurfaceValue;
+    }
+    void SetT1KDEIsosurfaceValue (float value)
+    {
+        m_T1KDEIsosurfaceValue = value;
+    }
     // @}
 
     /**
@@ -818,13 +826,13 @@ public:
     {
         m_t1Shown = shown;
     }
-    bool IsT1AllTimesteps () const
+    bool IsT1AllTimeSteps () const
     {
-        return m_t1AllTimesteps;
+        return m_t1AllTimeSteps;
     }
-    void SetT1AllTimesteps (bool all)
+    void SetT1AllTimeSteps (bool all)
     {
-        m_t1AllTimesteps = all;
+        m_t1AllTimeSteps = all;
     }
     float AngleDisplay (float angle) const;
 
@@ -1068,9 +1076,10 @@ private:
     int m_kdeMultiplier;
     bool m_T1KDEKernelBoxShown;
     float m_T1KDESigmaInBubbleDiameter;
+    float m_T1KDEIsosurfaceValue;
     float m_t1Size;
     bool m_t1Shown;
-    bool m_t1AllTimesteps;
+    bool m_t1AllTimeSteps;
     float m_onePixelInObjectSpace;
     bool m_axesShown;
     bool m_boundingBoxSimulationShown;

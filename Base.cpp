@@ -232,5 +232,5 @@ pair<float, float> Base::GetRangeCount () const
 pair<float, float> Base::GetRangeT1KDE (ViewNumber::Enum viewNumber) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
-    return pair<float, float> (0.0, simulation.GetMaxT1CountPerTimestep ());
+    return pair<float, float> (0.0, simulation.GetMaxT1CountPerTimeStep ());
 }

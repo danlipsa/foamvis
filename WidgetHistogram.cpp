@@ -81,10 +81,10 @@ void WidgetHistogram::UpdateData (
     QwtIntervalData intervalData;
     if (vs.HasHistogramOption (HistogramType::ALL_TIME_STEPS_SHOWN))
     {
-        const HistogramStatistics& allTimestepsHistogram = 
+        const HistogramStatistics& allTimeStepsHistogram = 
             simulation.GetHistogramScalar (property);
-        intervalData = allTimestepsHistogram.ToQwtIntervalData ();
-        maxYValue = allTimestepsHistogram.GetMaxCountPerBin ();
+        intervalData = allTimeStepsHistogram.ToQwtIntervalData ();
+        maxYValue = allTimeStepsHistogram.GetMaxCountPerBin ();
     }
     else
     {

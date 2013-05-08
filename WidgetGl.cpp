@@ -1824,23 +1824,23 @@ void WidgetGl::displayT1 (ViewNumber::Enum viewNumber) const
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsT1Shown ())
     {
-        if (vs.IsT1AllTimesteps ())
-            displayT1AllTimesteps (viewNumber);
+        if (vs.IsT1AllTimeSteps ())
+            displayT1AllTimeSteps (viewNumber);
         else
-            displayT1Timestep (
+            displayT1TimeStep (
                 viewNumber, GetTime (viewNumber));
     }
 }
 
-void WidgetGl::displayT1AllTimesteps (
+void WidgetGl::displayT1AllTimeSteps (
     ViewNumber::Enum viewNumber) const
 {
     for (size_t i = 0; 
          i < GetSimulation (viewNumber).GetT1TimeSteps (); ++i)
-	displayT1Timestep (viewNumber, i);
+	displayT1TimeStep (viewNumber, i);
 }
 
-void WidgetGl::displayT1Timestep2D (
+void WidgetGl::displayT1TimeStep2D (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -1861,7 +1861,7 @@ void WidgetGl::displayT1Timestep2D (
     glPopAttrib ();
 }
 
-void WidgetGl::displayT1Timestep3D (
+void WidgetGl::displayT1TimeStep3D (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -1884,14 +1884,14 @@ void WidgetGl::displayT1Timestep3D (
     glPopAttrib ();
 }
 
-void WidgetGl::displayT1Timestep (
+void WidgetGl::displayT1TimeStep (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
     if (simulation.Is2D ())
-        displayT1Timestep2D (viewNumber, timeStep);
+        displayT1TimeStep2D (viewNumber, timeStep);
     else
-        displayT1Timestep3D (viewNumber, timeStep);
+        displayT1TimeStep3D (viewNumber, timeStep);
 }
 
 void WidgetGl::DisplayT1Quad (
@@ -4250,10 +4250,10 @@ void WidgetGl::ToggledT1sShown (bool checked)
     CompileUpdate ();
 }
 
-void WidgetGl::ToggledT1sAllTimesteps (bool checked)
+void WidgetGl::ToggledT1sAllTimeSteps (bool checked)
 {
     makeCurrent ();
-    GetViewSettings ().SetT1AllTimesteps (checked);
+    GetViewSettings ().SetT1AllTimeSteps (checked);
     CompileUpdate ();
 }
 

@@ -250,9 +250,9 @@ void MainWindow::translatedBodyInit ()
 vector<QWidget*> MainWindow::getHistogramWidgets () const
 {
     boost::array<QWidget*, 6> a = {{
-            checkBoxHistogramShown, checkBoxHistogramAllTimesteps,
+            checkBoxHistogramShown, checkBoxHistogramAllTimeSteps,
             checkBoxHistogramColorMapped, 
-	    checkBoxHistogramAllTimesteps, checkBoxHistogramGridShown,
+	    checkBoxHistogramAllTimeSteps, checkBoxHistogramGridShown,
             spinBoxHistogramHeight}};
     vector<QWidget*> v (a.begin (), a.end ());
     return v;
@@ -599,8 +599,9 @@ QwtDoubleInterval MainWindow::getScalarInterval (ViewNumber::Enum viewNumber)
     QwtDoubleInterval scalarInterval;
     if (vs.GetViewType () == ViewType::T1_KDE)
     {
-        scalarInterval.setMinValue (doubleSpinBoxT1KDEIsosurfaceValue->value ());
-        scalarInterval.setMaxValue (1);
+        scalarInterval.setMinValue (vs.GetT1KDEIsosurfaceValue ());
+        scalarInterval.setMaxValue (
+            doubleSpinBoxT1KDEIsosurfaceValue->maximum ());
     }
     else
     {
@@ -731,7 +732,7 @@ MainWindow::HistogramInfo MainWindow::getHistogramInfo (
     
     case ColorMapScalarType::T1_KDE:
 	return createHistogramInfo (
-	    GetRangeT1KDE (), simulation.GetT1CountAllTimesteps ());
+	    GetRangeT1KDE (), simulation.GetT1CountAllTimeSteps ());
 
     default:
 	ThrowException ("Invalid call to getHistogramInfo");
@@ -1272,7 +1273,7 @@ void MainWindow::ToggledHistogramColor (bool checked)
         WidgetHistogram::KEEP_MAX_VALUE);
 }
 
-void MainWindow::ToggledHistogramAllTimesteps (bool checked)
+void MainWindow::ToggledHistogramAllTimeSteps (bool checked)
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -1441,8 +1442,9 @@ void MainWindow::valueChangedT1KDEKernelSigma (ViewNumber::Enum viewNumber)
 
 void MainWindow::ValueChangedT1KDEIsosurfaceValue (double value)
 {
-    QwtDoubleInterval interval (value, 1);
-    widgetVtk->UpdateThresholdScalar (interval);
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetT1KDEIsosurfaceValue (value);
+    widgetVtk->UpdateThresholdScalar (getScalarInterval (GetViewNumber ()));
 }
 
 
@@ -2100,7 +2102,7 @@ void MainWindow::t1ViewToUI ()
         ValueToIndex (horizontalSliderT1Size, 
                       ViewSettings::T1_SIZE, vs.GetT1Size ()));
     SetCheckedNoSignals (checkBoxT1Shown, vs.IsT1Shown ());
-    SetCheckedNoSignals (checkBoxT1AllTimesteps, vs.IsT1Shown ());
+    SetCheckedNoSignals (checkBoxT1AllTimeSteps, vs.IsT1Shown ());
 }
 
 void MainWindow::forceViewToUI ()
@@ -2149,6 +2151,9 @@ void MainWindow::t1KDEViewToUI (ViewNumber::Enum viewNumber)
                       ViewSettings::ALPHA_RANGE, vs.GetIsosurfaceAlpha ()));
     labelKDEIsosurfaceValue->setEnabled (simulation.Is3D ());
     doubleSpinBoxT1KDEIsosurfaceValue->setEnabled (simulation.Is3D ());
+    doubleSpinBoxT1KDEIsosurfaceValue->setMaximum (
+        simulation.GetMaxT1CountPerTimeStep ());
+    doubleSpinBoxT1KDEIsosurfaceValue->setValue (vs.GetT1KDEIsosurfaceValue ());
     labelIsosurfaceAlpha->setEnabled (simulation.Is3D ());
     horizontalSliderIsosurfaceAlpha->setEnabled (simulation.Is3D ());
     radioButtonT1sKDE->setEnabled (simulation.IsT1Available ());
@@ -2260,7 +2265,7 @@ void MainWindow::histogramViewToUI ()
 	checkBoxHistogramColorMapped, 
 	vs.HasHistogramOption(HistogramType::COLOR_MAPPED));
     SetCheckedNoSignals (
-	checkBoxHistogramAllTimesteps,
+	checkBoxHistogramAllTimeSteps,
 	vs.HasHistogramOption(HistogramType::ALL_TIME_STEPS_SHOWN));
 }
 

@@ -242,8 +242,8 @@ public:
         size_t timeStep, size_t subStep, int t1Shift,
         float sigmaInBubbleDiameters) const;
 
-    size_t GetT1CountAllTimesteps () const;
-    size_t GetMaxT1CountPerTimestep () const;
+    size_t GetT1CountAllTimeSteps () const;
+    size_t GetMaxT1CountPerTimeStep () const;
     size_t GetT1TimeSteps () const;
     /**
      * Parse topological changes from the file.

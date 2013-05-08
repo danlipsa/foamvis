@@ -1528,7 +1528,7 @@
          <item>
           <widget class="QStackedWidget" name="stackedWidgetVisualization">
            <property name="currentIndex">
-            <number>1</number>
+            <number>4</number>
            </property>
            <widget class="QWidget" name="pageEdges">
             <layout class="QFormLayout" name="formLayout_11">
@@ -1890,7 +1890,7 @@
              <item row="2" column="1">
               <widget class="QDoubleSpinBox" name="doubleSpinBoxT1KDEIsosurfaceValue">
                <property name="decimals">
-                <number>10</number>
+                <number>3</number>
                </property>
                <property name="maximum">
                 <double>1.000000000000000</double>
@@ -1968,7 +1968,7 @@
               </widget>
              </item>
              <item row="1" column="0">
-              <widget class="QCheckBox" name="checkBoxT1AllTimesteps">
+              <widget class="QCheckBox" name="checkBoxT1AllTimeSteps">
                <property name="text">
                 <string>All timesteps</string>
                </property>
@@ -2524,7 +2524,7 @@
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QCheckBox" name="checkBoxHistogramAllTimesteps">
+          <widget class="QCheckBox" name="checkBoxHistogramAllTimeSteps">
            <property name="text">
             <string>All timesteps</string>
            </property>
@@ -2642,7 +2642,7 @@
     <slot>ValueChangedStatisticsHistory(int)</slot>
     <slot>ToggledFacesDomainHistogram(bool)</slot>
     <slot>ToggledT1sShown(bool)</slot>
-    <slot>ToggledT1sBeforeTimestep(bool)</slot>
+    <slot>ToggledT1sBeforeTimeStep(bool)</slot>
     <slot>ToggledT1sShiftLower(bool)</slot>
     <slot>CurrentIndexChangedViewCount(int)</slot>
     <slot>CurrentIndexChangedViewLayout(int)</slot>
@@ -2730,7 +2730,7 @@
     <slot>ValueChangedStreamlineLength(double)</slot>
     <slot>ValueChangedStreamlineStepLength(int)</slot>
     <slot>ValueChangedStreamlineStepLength(double)</slot>
-    <slot>ToggledT1sAllTimesteps(bool)</slot>
+    <slot>ToggledT1sAllTimeSteps(bool)</slot>
     <slot>ToggledBubblePathsDisplayBody(bool)</slot>
     <slot>ToggledBubblePathsUnselected(bool)</slot>
     <slot>ToggledBubblePathsDisplayUnselectedPaths(bool)</slot>
@@ -3901,10 +3901,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxHistogramAllTimesteps</sender>
+   <sender>checkBoxHistogramAllTimeSteps</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>ToggledHistogramAllTimesteps(bool)</slot>
+   <slot>ToggledHistogramAllTimeSteps(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>864</x>
@@ -4029,10 +4029,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxT1AllTimesteps</sender>
+   <sender>checkBoxT1AllTimeSteps</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledT1sAllTimesteps(bool)</slot>
+   <slot>ToggledT1sAllTimeSteps(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>788</x>
@@ -4515,7 +4515,7 @@
   <slot>ToggledHistogramGridShown(bool)</slot>
   <slot>ToggledStatusBarShown(bool)</slot>
   <slot>CurrentIndexChangedSelectedLight(int)</slot>
-  <slot>ButtonClickedAllTimestepsHistogram(int)</slot>
+  <slot>ButtonClickedAllTimeStepsHistogram(int)</slot>
   <slot>ToggledAverageTimeWindowEnabled(bool)</slot>
   <slot>CurrentIndexChangedStatisticsType(int)</slot>
   <slot>CurrentIndexChangedOtherScalar(int)</slot>
@@ -4534,7 +4534,7 @@
   <slot>ToggledTwoHalvesView(bool)</slot>
   <slot>ToggledHistogramShown(bool)</slot>
   <slot>ToggledHistogramColor(bool)</slot>
-  <slot>ToggledHistogramAllTimesteps(bool)</slot>
+  <slot>ToggledHistogramAllTimeSteps(bool)</slot>
   <slot>CurrentIndexChangedWindowLayout(int)</slot>
   <slot>ToggledViewFocusShown(bool)</slot>
   <slot>ToggledWindowProportional(bool)</slot>

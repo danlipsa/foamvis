@@ -47,12 +47,12 @@
       <item>
        <widget class="QLabel" name="label_1">
         <property name="text">
-         <string>Timesteps:</string>
+         <string>TimeSteps:</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="labelTimesteps">
+       <widget class="QLabel" name="labelTimeSteps">
         <property name="text">
          <string>9999</string>
         </property>
