@@ -185,12 +185,6 @@ size_t T1KDE2D::getStepSize (size_t timeStep) const
 				    vs.T1sShiftLower ()).size ();
 }
 
-float T1KDE2D::GetPeakHeight () const
-{
-    //return 1 / (getKernelSigma () * getKernelSigma () * 2 * M_PI);
-    return 1;
-}
-
 void T1KDE2D::CacheData (boost::shared_ptr<AverageCache> averageCache) const
 {
     vtkSmartPointer<vtkImageData> data = getData (GetId ());

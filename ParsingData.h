@@ -12,6 +12,7 @@
 #include "DataProperties.h"
 #include "ForceOneObject.h"
 #include "ParsingDriver.h"
+#include "T1.h"
 
 class AttributesInfo;
 class ExpressionTree;

@@ -34,8 +34,6 @@ public:
     T1KDE2D (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl);
     virtual void AverageInit ();
 
-    float GetPeakHeight () const;
-
     size_t GetKernelTextureSize () const;
 
     void DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep, 

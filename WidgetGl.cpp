@@ -1920,60 +1920,6 @@ void WidgetGl::DisplayT1Quad (
     glPopAttrib ();
 }
 
-// Three types of minMax (and ColorBarModels)
-pair<float, float> WidgetGl::GetRange (ViewNumber::Enum viewNumber) const
-{
-    const Simulation& simulation = GetSimulation (viewNumber);
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    float minValue = 0.0, maxValue = 0.0;
-    switch (vs.GetViewType ())
-    {
-    case ViewType::AVERAGE:
-	if (vs.GetStatisticsType () == StatisticsType::COUNT)
-	    return GetRangeCount (viewNumber);
-	else
-	{
-	    BodyScalar::Enum bodyProperty = 
-		BodyScalar::FromSizeT (vs.GetBodyOrOtherScalar ());
-	    minValue = simulation.GetMinScalar (bodyProperty);
-	    maxValue = simulation.GetMaxScalar (bodyProperty);
-	}
-	break;
-    case ViewType::T1_KDE:
-	return GetRangeT1sKDE (viewNumber);
-    default:
-	break;
-    }
-    return pair<float, float> (minValue, maxValue);
-}
-
-pair<float, float> WidgetGl::GetVelocityMagnitudeRange (
-    ViewNumber::Enum viewNumber) const
-{
-    const Simulation& simulation = GetSimulation (viewNumber);
-    BodyScalar::Enum bodyProperty = BodyScalar::VELOCITY_MAGNITUDE;
-    float minValue = simulation.GetMinScalar (bodyProperty);
-    float maxValue = simulation.GetMaxScalar (bodyProperty);
-    return pair<float, float> (minValue, maxValue);
-}
-
-
-pair<float, float> WidgetGl::GetRangeCount (ViewNumber::Enum viewNumber) const
-{
-    return pair<float, float> (0, GetSimulation (viewNumber).GetTimeSteps ());
-}
-
-pair<float, float> WidgetGl::GetRangeCount () const
-{
-    return GetRangeCount (GetViewNumber ());
-}
-
-pair<float, float> WidgetGl::GetRangeT1sKDE (ViewNumber::Enum viewNumber) const
-{
-    return pair<float, float> (
-        0.0, GetAttributeAverages2D (
-            viewNumber).GetT1KDE ().GetPeakHeight ());
-}
 
 void WidgetGl::displayEdgesTorus (ViewNumber::Enum viewNumber) const
 {
@@ -3547,14 +3493,18 @@ void WidgetGl::ToggledAverageAroundAllowRotation (bool checked)
 void WidgetGl::InfoFoam ()
 {
     makeCurrent ();
-    ShowMessageBox (GetFoam ().ToHtml ().c_str ());
+    const ViewSettings& vs = GetViewSettings ();
+    ostringstream ostr;
+    ostr << GetFoam ().GetInfo () << endl 
+         << GetSimulation ().GetT1Info (GetTime (), vs.T1sShiftLower ());
+    ShowMessageBox (ostr.str ().c_str ());
 }
 
 
 void WidgetGl::InfoSimulation ()
 {
     makeCurrent ();
-    ShowMessageBox (GetSimulation ().ToHtml ().c_str ());
+    ShowMessageBox (GetSimulation ().GetInfo ().c_str ());
 }
 
 void WidgetGl::InfoPoint ()

@@ -318,7 +318,7 @@ public:
     {
         return m_pressureSubtraction;
     }
-    string ToHtml () const;
+    string GetInfo () const;
 
     /**
      * Pretty print the Foam object

@@ -488,7 +488,7 @@ string Simulation::ToString () const
     return ostr.str ();
 }
 
-string Simulation::ToHtml () const
+string Simulation::GetInfo () const
 {
     const Foam& firstFoam = GetFoam (0);
     size_t timeSteps = GetTimeSteps ();
@@ -592,7 +592,7 @@ size_t Simulation::GetT1TimeSteps () const
     return m_t1.size ();
 }
 
-size_t Simulation::GetT1Size () const
+size_t Simulation::GetT1CountAllTimesteps () const
 {
     size_t size = 0;
     BOOST_FOREACH (const vector<T1>& tc, m_t1)
@@ -601,6 +601,17 @@ size_t Simulation::GetT1Size () const
     }
     return size;
 }
+
+size_t Simulation::GetMaxT1CountPerTimestep () const
+{
+    size_t maxCount = 0;
+    BOOST_FOREACH (const vector<T1>& tc, m_t1)
+    {
+	maxCount = max (maxCount, tc.size ());
+    }
+    return maxCount;
+}
+
 
 void Simulation::ParseT1s (
     const char* arrayName, const char* countName)
@@ -690,6 +701,17 @@ const vector<T1>& Simulation::GetT1 (
     else
 	return m_t1[t];
 }
+
+string Simulation::GetT1Info (size_t timeStep, int t1sShift) const
+{
+    const vector<T1>& t1s = GetT1 (timeStep, t1sShift);
+    ostringstream ostr;
+    ostr << "t1 count: " << t1s.size () << endl;
+    BOOST_FOREACH (T1 t1, t1s)
+        ostr << t1 << endl;
+    return ostr.str ();
+}
+
 
 vtkSmartPointer<vtkImageData> Simulation::GetT1KDE (
     size_t timeStep, size_t subStep, int t1Shift, 

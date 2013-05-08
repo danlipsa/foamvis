@@ -112,6 +112,22 @@ public:
     void CopyTransformFrom (ViewNumber::Enum viewNumber);
     void CopyForceRatioFrom (ViewNumber::Enum viewNumber);
 
+    pair<float, float> GetRange (ViewNumber::Enum viewNumber) const;
+    pair<float, float> GetRange () const
+    {
+        return GetRange (GetViewNumber ());
+    }
+    pair<float, float> GetVelocityMagnitudeRange (
+	ViewNumber::Enum viewNumber) const;
+    pair<float, float> GetRangeCount (ViewNumber::Enum viewNumber) const;
+    pair<float, float> GetRangeCount () const;
+    pair<float, float> GetRangeT1KDE (ViewNumber::Enum viewNumber) const;
+    pair<float, float> GetRangeT1KDE () const
+    {
+	return GetRangeT1KDE (GetViewNumber ());
+    }
+
+
     virtual ViewNumber::Enum GetViewNumber () const;
 
 

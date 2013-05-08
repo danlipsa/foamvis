@@ -133,20 +133,6 @@ public:
 			     G3D::Rect2D& srcRect) const;
     void DisplayT1Quad (ViewNumber::Enum view, 
 			size_t timeStep, size_t t1Index) const;
-    pair<float, float> GetRange (ViewNumber::Enum viewNumber) const;
-    pair<float, float> GetRange () const
-    {
-        return GetRange (GetViewNumber ());
-    }
-    pair<float, float> GetVelocityMagnitudeRange (
-	ViewNumber::Enum viewNumber) const;
-    pair<float, float> GetRangeCount (ViewNumber::Enum viewNumber) const;
-    pair<float, float> GetRangeCount () const;
-    pair<float, float> GetRangeT1sKDE (ViewNumber::Enum viewNumber) const;
-    pair<float, float> GetRangeT1sKDE () const
-    {
-	return GetRangeT1sKDE (GetViewNumber ());
-    }
     AttributeAverages2D& GetAttributeAverages2D (
         ViewNumber::Enum viewNumber) const
     {

@@ -14,6 +14,7 @@
 #include "ObjectPosition.h"
 #include "ForceOneObject.h"
 #include "Utils.h"
+#include "T1.h"
 
 class Foam;
 class OOBox;
@@ -164,7 +165,7 @@ public:
 
     void SetTimeSteps (size_t timeSteps);
     string ToString () const;
-    string ToHtml () const;
+    string GetInfo () const;
     void SetPressureAdjusted (bool adjustPressure)
     {
 	m_pressureAdjusted = adjustPressure;
@@ -236,11 +237,13 @@ public:
 	return m_t1Shift == 1;
     }
     const vector<T1>& GetT1 (size_t timeStep, int t1sShift) const;
+    string GetT1Info (size_t timeStep, int t1sShift) const;
     vtkSmartPointer<vtkImageData> GetT1KDE (
         size_t timeStep, size_t subStep, int t1Shift,
         float sigmaInBubbleDiameters) const;
 
-    size_t GetT1Size () const;
+    size_t GetT1CountAllTimesteps () const;
+    size_t GetMaxT1CountPerTimestep () const;
     size_t GetT1TimeSteps () const;
     /**
      * Parse topological changes from the file.

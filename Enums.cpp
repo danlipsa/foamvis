@@ -524,3 +524,4 @@ QColor T1Type::ToColor (
 		   "Invalid T1Type: ", type);
     return COLOR[type];
 }
+

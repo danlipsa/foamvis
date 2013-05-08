@@ -718,7 +718,7 @@ MainWindow::HistogramInfo MainWindow::getHistogramInfo (
     switch (colorBarType)
     {
     case ColorMapScalarType::STATISTICS_COUNT:
-	return createHistogramInfo (widgetGl->GetRangeCount (), 1);
+	return createHistogramInfo (GetRangeCount (), 1);
     
     case ColorMapScalarType::PROPERTY:
     {
@@ -731,11 +731,11 @@ MainWindow::HistogramInfo MainWindow::getHistogramInfo (
     
     case ColorMapScalarType::T1_KDE:
 	return createHistogramInfo (
-	    widgetGl->GetRangeT1sKDE (), simulation.GetT1Size ());
+	    GetRangeT1KDE (), simulation.GetT1CountAllTimesteps ());
 
     default:
 	ThrowException ("Invalid call to getHistogramInfo");
-	return createHistogramInfo (widgetGl->GetRangeCount (), 1);
+	return createHistogramInfo (GetRangeCount (), 1);
     }
 }
 
@@ -804,7 +804,7 @@ void MainWindow::setupColorBarModelT1sKDE (
     colorBarModel.reset (new ColorBarModel ());
     colorBarModel->SetTitle ("T1s KDE");
     colorBarModel->SetInterval (
-	toQwtDoubleInterval (widgetGl->GetRangeT1sKDE (viewNumber)));
+	toQwtDoubleInterval (GetRangeT1KDE (viewNumber)));
     colorBarModel->SetupPalette (
 	Palette (PaletteType::SEQUENTIAL, PaletteSequential::BREWER_BLUES9));
 }
@@ -819,7 +819,7 @@ void MainWindow::setupColorBarModelDomainHistogram (
     colorBarModel.reset (new ColorBarModel ());
     colorBarModel->SetTitle ("Count per area");
     colorBarModel->SetInterval (
-	toQwtDoubleInterval (widgetGl->GetRangeCount ()));
+	toQwtDoubleInterval (GetRangeCount ()));
     colorBarModel->SetupPalette (
 	Palette (PaletteType::SEQUENTIAL, PaletteSequential::BLACK_BODY));
 }

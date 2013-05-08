@@ -597,38 +597,6 @@ private:
 };
 
 
-struct T1
-{
-public:
-    T1 () : 
-        m_type (T1Type::COUNT)
-    {}
-    T1 (G3D::Vector3 position, T1Type::Enum type) :
-        m_position (position), m_type (type)
-    {}
-
-    void SetPosition (const G3D::Vector3& v)
-    {
-        m_position = v;
-    }
-    const G3D::Vector3& GetPosition () const
-    {
-        return m_position;
-    }
-    void SetType (T1Type::Enum tct)
-    {
-        m_type = tct;
-    }
-    T1Type::Enum GetType () const
-    {
-        return m_type;
-    }
-
-private:
-    G3D::Vector3 m_position;
-    T1Type::Enum m_type;
-};
-
 class Dimension
 {
 public:

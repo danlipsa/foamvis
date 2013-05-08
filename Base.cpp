@@ -180,3 +180,57 @@ void Base::CopyForceRatioFrom (ViewNumber::Enum viewNumber)
                       (fromRatio / ratio) *
                       (scaleRatioSameBubbleDiameter / scaleRatio));
 }
+
+// Three types of minMax (and ColorBarModels)
+pair<float, float> Base::GetRange (ViewNumber::Enum viewNumber) const
+{
+    const Simulation& simulation = GetSimulation (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    float minValue = 0.0, maxValue = 0.0;
+    switch (vs.GetViewType ())
+    {
+    case ViewType::AVERAGE:
+	if (vs.GetStatisticsType () == StatisticsType::COUNT)
+	    return GetRangeCount (viewNumber);
+	else
+	{
+	    BodyScalar::Enum bodyProperty = 
+		BodyScalar::FromSizeT (vs.GetBodyOrOtherScalar ());
+	    minValue = simulation.GetMinScalar (bodyProperty);
+	    maxValue = simulation.GetMaxScalar (bodyProperty);
+	}
+	break;
+    case ViewType::T1_KDE:
+	return GetRangeT1KDE (viewNumber);
+    default:
+	break;
+    }
+    return pair<float, float> (minValue, maxValue);
+}
+
+pair<float, float> Base::GetVelocityMagnitudeRange (
+    ViewNumber::Enum viewNumber) const
+{
+    const Simulation& simulation = GetSimulation (viewNumber);
+    BodyScalar::Enum bodyProperty = BodyScalar::VELOCITY_MAGNITUDE;
+    float minValue = simulation.GetMinScalar (bodyProperty);
+    float maxValue = simulation.GetMaxScalar (bodyProperty);
+    return pair<float, float> (minValue, maxValue);
+}
+
+
+pair<float, float> Base::GetRangeCount (ViewNumber::Enum viewNumber) const
+{
+    return pair<float, float> (0, GetSimulation (viewNumber).GetTimeSteps ());
+}
+
+pair<float, float> Base::GetRangeCount () const
+{
+    return GetRangeCount (GetViewNumber ());
+}
+
+pair<float, float> Base::GetRangeT1KDE (ViewNumber::Enum viewNumber) const
+{
+    const Simulation& simulation = GetSimulation (viewNumber);
+    return pair<float, float> (0.0, simulation.GetMaxT1CountPerTimestep ());
+}
