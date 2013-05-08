@@ -145,12 +145,17 @@ LIBS += "-lvtkRenderingCore-6.0"
 LIBS += "-lvtkCommonMath-6.0"
 LIBS += "-lvtkCommonCore-6.0"
 LIBS += "-lvtkCommonDataModel-6.0"
+LIBS += "-lvtkCommonMisc-6.0"
 LIBS += "-lvtkCommonExecutionModel-6.0"
 LIBS += "-lvtkInteractionStyle-6.0"
 LIBS += "-lvtkFiltersCore-6.0"
+LIBS += "-lvtkFiltersSources-6.0"
+LIBS += "-lvtkFiltersModeling-6.0"
+LIBS += "-lvtkImagingSources-6.0"
 LIBS += "-lvtkRenderingAnnotation-6.0"
 LIBS += "-lvtkRenderingFreeTypeOpenGL-6.0"
 LIBS += "-lvtkRenderingFreeType-6.0"
+
 
 # Qt3D
 LIBS += "-lQt3D"
