@@ -525,3 +525,18 @@ QColor T1Type::ToColor (
     return COLOR[type];
 }
 
+vtkSmartPointer<vtkLookupTable> T1Type::GetLookupTable ()
+{
+    VTK_CREATE (vtkLookupTable, map);
+    map->IndexedLookupOn ();
+    map->SetNumberOfTableValues (T1Type::COUNT);
+    for (size_t i = 0; i < T1Type::COUNT; ++i)
+    {
+        T1Type::Enum type = T1Type::Enum (i);
+        QColor color = ToColor (type);
+        map->SetTableValue (type, 
+                            color.redF (), color.greenF (), color.blueF ());
+        map->SetAnnotation (type, ToString (type));
+    }
+    return map;
+}

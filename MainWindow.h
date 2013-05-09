@@ -116,6 +116,7 @@ public Q_SLOTS:
 
     void ToggledDmpTransformShown (bool checked);
     void ToggledT1KDEKernelBoxShown (bool checked);
+    void ToggledT1Shown (bool checked);
     void ToggledScalarContourShown (bool checked);
     void ToggledBarLarge (bool large);
     void ToggledAxesShown (bool checked);

@@ -35,6 +35,7 @@ PipelineAverage3D::PipelineAverage3D (
     createForceActor (hasForce ? objectCount : 0);
     createConstraintSurfaceActor (constraintSurfaceCount);
     createVelocityGlyphActor ();
+    createT1GlyphActor ();
     createOutlineSimulationActor ();
     createOutlineTorusActor ();
 }
@@ -193,6 +194,28 @@ void PipelineAverage3D::createVelocityGlyphActor ()
     m_velocityGlyphActor = actor;
 }
 
+void PipelineAverage3D::createT1GlyphActor ()
+{
+    VTK_CREATE (vtkSphereSource, sphere);
+    
+    VTK_CREATE (vtkGlyph3D, glyph);
+    glyph->SetSourceConnection(sphere->GetOutputPort());
+    //glyph->SetInputConnection(thresholdNorm->GetOutputPort());
+    glyph->SetColorModeToColorByScalar ();
+    glyph->SetScaleModeToDataScalingOff ();
+
+    VTK_CREATE (vtkPolyDataMapper, mapper);
+    mapper->SetInputConnection (glyph->GetOutputPort ());
+    VTK_CREATE (vtkActor, actor);
+    actor->SetMapper (mapper);
+    actor->GetMapper ()->SetLookupTable (T1Type::GetLookupTable ());
+    GetRenderer ()->AddViewProp (actor);
+    
+    m_t1Sphere = sphere;
+    m_t1Glyph = glyph;
+    m_t1GlyphActor = actor;
+}
+
 
 template <typename Iterator>
 void PipelineAverage3D::setPolyActors (Iterator begin, Iterator end)
@@ -290,6 +313,8 @@ void PipelineAverage3D::UpdateColorMapVelocity (
     m_velocityGlyphActor->GetMapper ()->SetLookupTable (vtkColorMap);
 }
 
+
+
 void PipelineAverage3D::UpdateAverageForce (
     const ForceAverage& forceAverage)
 {
@@ -329,6 +354,14 @@ void PipelineAverage3D::updateForce (
              " rotY: " << rotYDegrees << " rotZ: " << rotZDegrees << endl;);
     actor.SetVisibility (shown);
 }
+
+void PipelineAverage3D::UpdateT1 (
+    vtkSmartPointer<vtkPolyData> t1s, G3D::Vector3 translate)
+{
+    m_t1Glyph->SetInputData(t1s);
+    m_t1GlyphActor->SetPosition (translate.x, translate.y, translate.z);
+}
+
 
 void PipelineAverage3D::UpdateAverageVelocity (
     boost::shared_ptr<const RegularGridAverage> velocityAverage)
@@ -407,6 +440,7 @@ void PipelineAverage3D::FromView (ViewNumber::Enum viewNumber, const Base& base)
     m_outlineSimulationActor->SetVisibility (vs.IsBoundingBoxSimulationShown ());
     m_outlineTorusActor->SetVisibility (vs.IsTorusDomainShown ());
     fromViewVelocityGlyph (viewNumber, base);
+    fromViewT1Glyph (viewNumber, base);
 }
 
 void PipelineAverage3D::fromViewScalar (
@@ -461,6 +495,16 @@ void PipelineAverage3D::fromViewVelocityGlyph (
         }
     }
 }
+
+void PipelineAverage3D::fromViewT1Glyph (
+    ViewNumber::Enum viewNumber, const Base& base)
+{
+    const ViewSettings& vs = base.GetViewSettings (viewNumber);
+    m_t1GlyphActor->SetVisibility (vs.IsT1Shown ());
+    m_t1Sphere->SetRadius (
+        base.GetBubbleDiameter (viewNumber) * vs.GetT1Size () / 2);
+}
+
 
 void PipelineAverage3D::updateAlpha (
     float alpha, vector<vtkSmartPointer<vtkActor> >& actors)

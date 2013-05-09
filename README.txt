@@ -72,6 +72,15 @@ make
 make install
 
 ----------------------------------------------------------------------
+## Needed by VTK ##
+Copy http://csgalati.swansea.ac.uk/foam/build/cmake-2.8.10.2.tar.gz to ~
+cd ~
+tar xzf cmake-2.8.10.2.tar.gz
+cd cmake-2.8.10.2
+./bootstrap
+make
+make install
+----------------------------------------------------------------------
 Copy http://csgalati.swansea.ac.uk/foam/build/vtk-6.0-20130125.tgz to ~
 tar xzf vtk-6.0-20130125.tgz
 mkdir VTK-build

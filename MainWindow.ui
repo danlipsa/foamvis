@@ -2641,7 +2641,6 @@
     <slot>ToggledIsContextHidden(bool)</slot>
     <slot>ValueChangedStatisticsHistory(int)</slot>
     <slot>ToggledFacesDomainHistogram(bool)</slot>
-    <slot>ToggledT1sShown(bool)</slot>
     <slot>ToggledT1sBeforeTimeStep(bool)</slot>
     <slot>ToggledT1sShiftLower(bool)</slot>
     <slot>CurrentIndexChangedViewCount(int)</slot>
@@ -2879,8 +2878,8 @@
   <connection>
    <sender>checkBoxT1Shown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledT1sShown(bool)</slot>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledT1Shown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>788</x>
@@ -4551,6 +4550,7 @@
   <slot>ToggledVelocitySameSize(bool)</slot>
   <slot>ToggledScalarContext(bool)</slot>
   <slot>ToggledT1KDEKernelBoxShown(bool)</slot>
+  <slot>ToggledT1Shown(bool)</slot>
   <slot>ValueChangedT1KDEIsosurfaceValue(double)</slot>
   <slot>ValueChangedT1Size(int)</slot>
   <slot>ToggledBoundingBoxSimulation(bool)</slot>

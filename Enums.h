@@ -590,6 +590,7 @@ struct T1Type
     static Enum FromSizeT (size_t i);
     static QColor ToColor (T1Type::Enum);
     static const char* ToString (T1Type::Enum type);
+    static vtkSmartPointer<vtkLookupTable> GetLookupTable ();
 
 private:
     static boost::array<const char*, COUNT> NAME;

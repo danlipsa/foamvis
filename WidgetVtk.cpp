@@ -261,9 +261,12 @@ void WidgetVtk::UpdateView (
     m_average[viewNumber]->ComputeAverage ();
 
     pipelineUpdateScalar (viewNumber, scalarColorMap, scalarInterval);
-    // force
     pipeline.UpdateAverageForce (*m_average[viewNumber]->GetForceAverage ());
-    pipelineUpdateVelocity (viewNumber, velocityColorMap);
+    pipeline.UpdateT1 (
+        simulation.GetT1Vtk (GetTime (viewNumber), vs.T1sShiftLower ()),
+        vs.IsAverageAround () ? 
+        scalarAverage->GetTranslation (GetTime ()): G3D::Vector3::zero ());
+    pipelineUpdateVelocity (viewNumber, velocityColorMap);    
     // other
     pipeline.FromView (viewNumber, *this);
     pipeline.UpdateFocus (GetViewNumber () == viewNumber);
@@ -311,6 +314,9 @@ void WidgetVtk::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
 {
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
     const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
+    boost::shared_ptr<RegularGridAverage> scalarAverage = 
+        m_average[viewNumber]->GetScalarAverage ();
     m_average[viewNumber]->AverageStep (direction, vs.GetTimeWindow ());
     m_average[viewNumber]->ComputeAverage ();
     pipeline.UpdateAverageScalar (
@@ -318,6 +324,10 @@ void WidgetVtk::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
     pipeline.UpdateAverageForce (*m_average[viewNumber]->GetForceAverage ());
     pipeline.UpdateAverageVelocity (
         m_average[viewNumber]->GetVelocityAverage ());
+    pipeline.UpdateT1 (
+        simulation.GetT1Vtk (GetTime (viewNumber), vs.T1sShiftLower ()),
+        vs.IsAverageAround () ? 
+        scalarAverage->GetTranslation (GetTime ()): G3D::Vector3::zero ());
     updateViewTitle (viewNumber);
 }
 

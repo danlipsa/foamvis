@@ -702,6 +702,33 @@ const vector<T1>& Simulation::GetT1 (
 	return m_t1[t];
 }
 
+vtkSmartPointer<vtkPolyData> Simulation::GetT1Vtk (
+    size_t timeStep, int t1sShift) const
+{
+    int t = int(timeStep) + t1sShift;
+    const vector<T1>& t1s = (t < 0 || size_t (t) >= m_t1.size ()) ? 
+        vector<T1> () : m_t1[t];
+
+    VTK_CREATE (vtkPolyData, t1sVtk);
+    VTK_CREATE (vtkPoints, points);
+    VTK_CREATE (vtkCellArray, verts);
+    VTK_CREATE (vtkIntArray, scalars);
+    // one cell that has all the points
+    verts->InsertNextCell (t1s.size ());
+    for (size_t i = 0; i < t1s.size (); ++i)
+    {
+        T1 t1 = t1s[i];
+        G3D::Vector3 p = t1.GetPosition ();
+        points->InsertPoint (i, p.x, p.y, p.z);
+        verts->InsertCellPoint (i);
+        scalars->InsertTuple1 (i, t1.GetType ());
+    }
+    t1sVtk->SetPoints (points);
+    t1sVtk->SetVerts (verts);
+    t1sVtk->GetPointData ()->SetScalars (scalars);
+    return t1sVtk;
+}
+
 string Simulation::GetT1Info (size_t timeStep, int t1sShift) const
 {
     const vector<T1>& t1s = GetT1 (timeStep, t1sShift);

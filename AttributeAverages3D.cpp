@@ -24,12 +24,10 @@ AttributeAverages3D::AttributeAverages3D (
         new RegularGridAverage (viewNumber, settings, simulationGroup));
     boost::shared_ptr<RegularGridAverage> average;
 
-/*
     average.reset (
         new RegularGridAverage (viewNumber, settings, simulationGroup));
     average->SetBodyAttribute (BodyAttribute::VELOCITY);
     m_velocityAverage = average;
-*/
 
     average.reset (
         new RegularGridAverage (viewNumber, settings, simulationGroup));

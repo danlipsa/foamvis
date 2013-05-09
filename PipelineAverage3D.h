@@ -30,6 +30,7 @@ public:
                                 size_t scalar);
     void UpdateAverageScalar (const RegularGridAverage& average);
     void UpdateAverageForce (const ForceAverage& forceAverage);
+    void UpdateT1 (vtkSmartPointer<vtkPolyData> t1s, G3D::Vector3 translate);
     void UpdateAverageVelocity (
         boost::shared_ptr<const RegularGridAverage> velocity);
     void UpdateViewTitle (
@@ -43,6 +44,7 @@ private:
     void createForceActor (size_t objectCount);
     void createConstraintSurfaceActor (size_t constraintSurfaceCount);
     void createVelocityGlyphActor ();
+    void createT1GlyphActor ();
     void createOutlineSimulationActor ();
     void createOutlineTorusActor ();
 
@@ -54,6 +56,7 @@ private:
     void updateForce (size_t objectIndex, ForceType::Enum forceType,
                       G3D::Vector3 force, G3D::Vector3 position, bool shown);
     void fromViewVelocityGlyph (ViewNumber::Enum viewNumber, const Base& base);
+    void fromViewT1Glyph (ViewNumber::Enum viewNumber, const Base& base);
     void fromViewScalar (ViewNumber::Enum viewNumber, const Base& base);
     void updateContourColor ();
 
@@ -77,6 +80,10 @@ private:
     vtkSmartPointer<vtkThresholdPoints> m_velocityGlyphThresholdNorm;
     vtkSmartPointer<vtkGlyph3D> m_velocityGlyph;
     vtkSmartPointer<vtkActor> m_velocityGlyphActor;
+    // t1 glyphs
+    vtkSmartPointer<vtkSphereSource> m_t1Sphere;
+    vtkSmartPointer<vtkGlyph3D> m_t1Glyph;
+    vtkSmartPointer<vtkActor> m_t1GlyphActor;
     // outlines
     vtkSmartPointer<vtkOutlineFilter> m_outlineSimulation;
     vtkSmartPointer<vtkActor> m_outlineSimulationActor;

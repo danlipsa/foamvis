@@ -1145,6 +1145,12 @@ void MainWindow::toggledT1KDEKernelBoxShown (ViewNumber::Enum viewNumber)
     GetViewSettings (viewNumber).SetT1KDEKernelBoxShown (checked);
 }
 
+void MainWindow::ToggledT1Shown (bool checked)
+{
+    GetViewSettings ().SetT1Shown (checked);
+    widgetVtk->FromView ();
+    widgetGl->CompileUpdate ();
+}
 
 void MainWindow::ToggledBarLarge (bool large)
 {
@@ -1502,6 +1508,7 @@ void MainWindow::ValueChangedT1Size (int index)
     ViewSettings& vs = GetViewSettings ();
     vs.SetT1Size (IndexToValue (static_cast<QSlider*> (sender ()), 
                                 ViewSettings::T1_SIZE));
+    widgetVtk->FromView ();
     widgetGl->CompileUpdate ();
 }
 

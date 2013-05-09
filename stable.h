@@ -140,6 +140,7 @@
 #include <vtkInteractorStyle.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkLight.h>
+#include <vtkLookupTable.h>
 #include <vtkMath.h>
 #include <vtkMatrix4x4.h>
 #include <vtkObjectFactory.h>
@@ -160,6 +161,7 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkScalarBarActor.h>
 #include <vtkStreamTracer.h>
+#include <vtkSphereSource.h>
 #include <vtkSmartPointer.h>
 #include <vtkShrinkFilter.h>
 #include <vtkStripper.h>

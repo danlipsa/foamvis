@@ -1851,7 +1851,7 @@ void WidgetGl::displayT1TimeStep2D (
     glPointSize (GetBubbleDiameter (viewNumber) * vs.GetT1Size () / 
                  vs.GetOnePixelInObjectSpace ());
     glColor (GetSettings ().GetHighlightColor (viewNumber, 
-                                               HighlightNumber::H0));
+                                               HighlightNumber::H1));
     glBegin (GL_POINTS);
     BOOST_FOREACH (
         const T1 tc, 
@@ -4241,13 +4241,6 @@ void WidgetGl::ToggledTorusDomainClipped (bool checked)
     makeCurrent ();
     GetSettingsPtr ()->GetViewSettings ().SetDomainClipped (checked);
     update ();
-}
-
-void WidgetGl::ToggledT1sShown (bool checked)
-{
-    makeCurrent ();
-    GetViewSettings ().SetT1Shown (checked);
-    CompileUpdate ();
 }
 
 void WidgetGl::ToggledT1sAllTimeSteps (bool checked)

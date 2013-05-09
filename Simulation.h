@@ -228,15 +228,12 @@ public:
      * @name T1
      */
     bool IsT1Available () const;
-    int GetT1Shift () const
-    {
-	return m_t1Shift;
-    }
     bool GetT1ShiftLower () const
     {
 	return m_t1Shift == 1;
     }
     const vector<T1>& GetT1 (size_t timeStep, int t1sShift) const;
+    vtkSmartPointer<vtkPolyData> GetT1Vtk (size_t timeStep, int t1sShift) const;
     string GetT1Info (size_t timeStep, int t1sShift) const;
     vtkSmartPointer<vtkImageData> GetT1KDE (
         size_t timeStep, size_t subStep, int t1Shift,
