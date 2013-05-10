@@ -267,6 +267,7 @@ void Simulation::Preprocess ()
                     &m_t1[i][j], originalDomain);
         }
     }
+    calculateT1TypeCount ();
 }
 
 boost::array<int, 6> Simulation::GetExtentResolution () const
@@ -528,6 +529,14 @@ string Simulation::GetInfo () const
         "<p>"
         "Bounding box: " << GetBoundingBox () << "<p>" <<
         "Bubble diameter: " << GetBubbleDiameter () << endl;
+    ostr <<
+        "<table border>"
+        "<tr><th>T1 Type</th><th>Count</th></tr>";
+    for (size_t i = 0; i < m_t1TypeCount.size (); ++i)
+        if (m_t1TypeCount[i] != 0)
+            ostr << "<tr><td>" << i << "</td><td>" << m_t1TypeCount[i] << 
+                "</td></tr>";
+    ostr << "</table>";
     return ostr.str ();
 }
 
@@ -834,6 +843,21 @@ bool Simulation::IsTorqueAvailable () const
     return torque;
 }
 
+void Simulation::calculateT1TypeCount ()
+{
+    boost::array<
+    acc::accumulator_set<size_t, acc::features<acc::tag::count> >, 
+        T1Type::COUNT> a;
+    for (size_t i = 0; i < m_t1.size (); ++i)
+        for (size_t j = 0; j < m_t1[i].size (); ++j)
+        {
+            T1 t1 = m_t1[i][j];
+            a[t1.GetType ()] (1);
+        }
+    for (size_t i = 0; i < a.size (); ++i)
+        m_t1TypeCount[i] = acc::count (a[i]);
+}
+
 // Members: SimulationGroup
 // ======================================================================
 
@@ -881,3 +905,4 @@ size_t SimulationGroup::getIndexSimulation (size_t spaceDimension) const
             return i;
     return INVALID_INDEX;
 }
+

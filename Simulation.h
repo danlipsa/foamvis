@@ -266,6 +266,7 @@ private:
     void calculateVelocityBody (
 	pair< size_t, boost::shared_ptr<BodyAlongTime> > p);
     void calculateStatistics ();
+    void calculateT1TypeCount ();
     void storeVelocity (
 	const StripIteratorPoint& beforeBegin,
 	const StripIteratorPoint& begin,
@@ -280,6 +281,7 @@ private:
 	Accumulator* acc, GetBodyScalar getBodyScalar);
     void moveInsideOriginalDomain (
         T1* tc, const OOBox& originalDomain);
+
 
 private:
     /**
@@ -310,6 +312,7 @@ private:
     size_t m_reflectAxis;
     float m_maxDeformationEigenValue;
     size_t m_regularGridResolution;
+    boost::array<size_t, T1Type::COUNT> m_t1TypeCount;
 };
 
 class SimulationGroup

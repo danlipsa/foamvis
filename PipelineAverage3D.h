@@ -30,7 +30,7 @@ public:
                                 size_t scalar);
     void UpdateAverageScalar (const RegularGridAverage& average);
     void UpdateAverageForce (const ForceAverage& forceAverage);
-    void UpdateT1 (vtkSmartPointer<vtkPolyData> t1s, G3D::Vector3 translate);
+    void UpdateT1 (vtkSmartPointer<vtkPolyData> t1s);
     void UpdateAverageVelocity (
         boost::shared_ptr<const RegularGridAverage> velocity);
     void UpdateViewTitle (

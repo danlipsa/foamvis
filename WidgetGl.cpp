@@ -1852,13 +1852,18 @@ void WidgetGl::displayT1TimeStep2D (
                  vs.GetOnePixelInObjectSpace ());
     glColor (GetSettings ().GetHighlightColor (viewNumber, 
                                                HighlightNumber::H1));
+    glMatrixMode (GL_MODELVIEW);
+    glPushMatrix ();
+    modelViewTransform (viewNumber, timeStep, ROTATE_FOR_AXIS_ORDER);
     glBegin (GL_POINTS);
     BOOST_FOREACH (
         const T1 tc, 
         simulation.GetT1 (timeStep, vs.T1sShiftLower ()))
 	::glVertex (tc.GetPosition ());
     glEnd ();
+    glPopMatrix ();
     glPopAttrib ();
+
 }
 
 void WidgetGl::displayT1TimeStep3D (
@@ -2346,7 +2351,6 @@ void WidgetGl::displayBubblePathsWithBodies (ViewNumber::Enum viewNumber) const
     size_t currentTime = GetTime (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
     displayBubblePaths (viewNumber);
-    displayT1 (viewNumber);
     WarnOnOpenGLError ("displayBubblePathsWithBodies a");    
     glPushAttrib (GL_ENABLE_BIT);
     if (vs.IsLightingEnabled ())
@@ -2582,8 +2586,8 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
             viewNumber, viewRect) + G3D::Vector2 (xTranslateBar, 0);
         if (va.IsColorMapped ())
             displayColorBarScalar (
-                m_colorBarVelocityTexture[viewNumber], *vs.GetColorMapVelocity (),
-                barRect);
+                m_colorBarVelocityTexture[viewNumber], 
+                *vs.GetColorMapVelocity (), barRect);
         else if (vs.GetVelocityVis () == VectorVis::GLYPH && ! va.IsSameSize ())
             displayColorBarVelocity (viewNumber, barRect);
     }

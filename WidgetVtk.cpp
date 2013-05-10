@@ -262,10 +262,7 @@ void WidgetVtk::UpdateView (
 
     pipelineUpdateScalar (viewNumber, scalarColorMap, scalarInterval);
     pipeline.UpdateAverageForce (*m_average[viewNumber]->GetForceAverage ());
-    pipeline.UpdateT1 (
-        simulation.GetT1Vtk (GetTime (viewNumber), vs.T1sShiftLower ()),
-        vs.IsAverageAround () ? 
-        scalarAverage->GetTranslation (GetTime ()): G3D::Vector3::zero ());
+    pipeline.UpdateT1 (getT1Vtk (viewNumber));
     pipelineUpdateVelocity (viewNumber, velocityColorMap);    
     // other
     pipeline.FromView (viewNumber, *this);
@@ -314,7 +311,6 @@ void WidgetVtk::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
 {
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    const Simulation& simulation = GetSimulation (viewNumber);
     boost::shared_ptr<RegularGridAverage> scalarAverage = 
         m_average[viewNumber]->GetScalarAverage ();
     m_average[viewNumber]->AverageStep (direction, vs.GetTimeWindow ());
@@ -324,11 +320,47 @@ void WidgetVtk::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
     pipeline.UpdateAverageForce (*m_average[viewNumber]->GetForceAverage ());
     pipeline.UpdateAverageVelocity (
         m_average[viewNumber]->GetVelocityAverage ());
-    pipeline.UpdateT1 (
-        simulation.GetT1Vtk (GetTime (viewNumber), vs.T1sShiftLower ()),
-        vs.IsAverageAround () ? 
-        scalarAverage->GetTranslation (GetTime ()): G3D::Vector3::zero ());
+    pipeline.UpdateT1 (getT1Vtk (viewNumber));
     updateViewTitle (viewNumber);
+}
+
+vtkSmartPointer<vtkPolyData> WidgetVtk::getT1Vtk (ViewNumber::Enum viewNumber)
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
+    if (vs.IsT1Shown ())
+    {
+        if (vs.IsT1AllTimeSteps ())
+        {
+            for (size_t i = 0; i < simulation.GetTimeSteps (); ++i)
+                ;
+        }
+        else
+        {
+            return getT1Vtk (viewNumber, GetTime (viewNumber));
+        }
+    }
+}
+
+vtkSmartPointer<vtkPolyData> WidgetVtk::getT1Vtk (
+    ViewNumber::Enum viewNumber, size_t time)
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
+    vtkSmartPointer<vtkPolyData> t1Vtk = 
+        simulation.GetT1Vtk (time, vs.T1sShiftLower ());
+    if (! vs.IsAverageAround ())
+        return t1Vtk;
+    boost::shared_ptr<RegularGridAverage> scalarAverage = 
+        m_average[viewNumber]->GetScalarAverage ();
+    G3D::Vector3 t = scalarAverage->GetTranslation (time);
+    VTK_CREATE (vtkTransform, transform);
+    transform->Translate (t.x, t.y, t.z);
+    VTK_CREATE (vtkTransformPolyDataFilter, transformFilter);
+    transformFilter->SetTransform (transform);
+    transformFilter->SetInputData (t1Vtk);
+    transformFilter->Update ();
+    return vtkPolyData::SafeDownCast (transformFilter->GetOutput ());
 }
 
 

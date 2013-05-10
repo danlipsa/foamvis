@@ -356,10 +356,9 @@ void PipelineAverage3D::updateForce (
 }
 
 void PipelineAverage3D::UpdateT1 (
-    vtkSmartPointer<vtkPolyData> t1s, G3D::Vector3 translate)
+    vtkSmartPointer<vtkPolyData> t1s)
 {
     m_t1Glyph->SetInputData(t1s);
-    m_t1GlyphActor->SetPosition (translate.x, translate.y, translate.z);
 }
 
 

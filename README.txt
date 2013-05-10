@@ -56,6 +56,13 @@ su <password>
 make install
 
 ----------------------------------------------------------------------
+Copy http://csgalati.swansea.ac.uk/foam/build/qwt-5.2.1.tgz to ~
+cd ~
+qmake
+make
+make install
+
+----------------------------------------------------------------------
 Copy
 http://csgalati.swansea.ac.uk/foam/build/G3D-8.00-src.zip to ~
 cd ~
@@ -63,14 +70,6 @@ unzip /G3D-8.00-src.zip
 cd source
 ./buildg3d --install lib
 rm -rf source
-
-----------------------------------------------------------------------
-Copy http://csgalati.swansea.ac.uk/foam/build/qwt-5.2.1.tgz to ~
-cd ~
-qmake
-make
-make install
-
 ----------------------------------------------------------------------
 ## Needed by VTK ##
 Copy http://csgalati.swansea.ac.uk/foam/build/cmake-2.8.10.2.tar.gz to ~

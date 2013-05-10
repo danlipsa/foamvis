@@ -118,6 +118,9 @@ private:
         const ColorBarModel& scalarColorMap, QwtDoubleInterval interval);
     void pipelineUpdateVelocity (
         ViewNumber::Enum viewNumber, const ColorBarModel& velocityColorMap);
+    vtkSmartPointer<vtkPolyData> getT1Vtk (ViewNumber::Enum viewNumber);
+    vtkSmartPointer<vtkPolyData> getT1Vtk (ViewNumber::Enum viewNumber, 
+                                           size_t timeStep);
 
 private:
     Q_OBJECT
