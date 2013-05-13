@@ -117,6 +117,7 @@ public Q_SLOTS:
     void ToggledDmpTransformShown (bool checked);
     void ToggledT1KDEKernelBoxShown (bool checked);
     void ToggledT1Shown (bool checked);
+    void ToggledT1AllTimeSteps (bool checked);
     void ToggledScalarContourShown (bool checked);
     void ToggledBarLarge (bool large);
     void ToggledAxesShown (bool checked);
@@ -150,7 +151,7 @@ public Q_SLOTS:
     void ValueChangedSliderTimeSteps (int value);
     void ValueChangedAverageTimeWindow (int timeSteps);
     void ValueChangedT1KDEKernelSigma (double value);
-    void ValueChangedT1KDEIsosurfaceValue (double value);
+    void ValueChangedIsosurfaceValue (double value);
     void ValueChangedContextAlpha (int sliderValue);
     void ValueChangedObjectAlpha (int sliderValue);
     void ValueChangedForceRatio (double ratio);

@@ -105,7 +105,7 @@ ViewSettings::ViewSettings () :
     m_kdeMultiplier (3),
     m_T1KDEKernelBoxShown (false),
     m_T1KDESigmaInBubbleDiameter (1),
-    m_T1KDEIsosurfaceValue (0.1),
+    m_isosurfaceValue (0.1),
     m_t1Size ((T1_SIZE.first + T1_SIZE.second) / 4),
     m_t1Shown (false),
     m_t1AllTimeSteps (false),

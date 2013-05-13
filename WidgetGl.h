@@ -218,7 +218,6 @@ public Q_SLOTS:
     void ToggledSelectionContextShown (bool checked);
     void ToggledPartialPathHidden (bool checked);
     void ToggledTorusDomainClipped (bool checked);
-    void ToggledT1sAllTimeSteps (bool checked);
     void ToggledT1sShiftLower (bool checked);
     void ToggledMissingPressureShown (bool checked);
     void ToggledMissingVolumeShown (bool checked);

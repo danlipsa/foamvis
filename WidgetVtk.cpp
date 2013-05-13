@@ -242,6 +242,13 @@ void WidgetVtk::UpdateAverageVelocity ()
     update ();
 }
 
+void WidgetVtk::UpdateT1 ()
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
+    pipeline.UpdateT1 (getT1Vtk (viewNumber));
+}
+
 void WidgetVtk::UpdateView (
     ViewNumber::Enum viewNumber,
     const ColorBarModel& scalarColorMap, QwtDoubleInterval scalarInterval,
@@ -332,13 +339,23 @@ vtkSmartPointer<vtkPolyData> WidgetVtk::getT1Vtk (ViewNumber::Enum viewNumber)
     {
         if (vs.IsT1AllTimeSteps ())
         {
+            VTK_CREATE (vtkAppendPoints, append);
             for (size_t i = 0; i < simulation.GetTimeSteps (); ++i)
-                ;
+                append->AddInputData (getT1Vtk (viewNumber, i));
+            append->Update ();
+            vtkSmartPointer<vtkPolyData> t1Vtk = 
+                vtkPolyData::SafeDownCast (append->GetOutput ());
+            t1Vtk->GetPointData ()->SetActiveScalars (
+                simulation.GetT1VtkName ());
+            return t1Vtk;
         }
         else
-        {
             return getT1Vtk (viewNumber, GetTime (viewNumber));
-        }
+    }
+    else
+    {
+        VTK_CREATE (vtkPolyData, data);
+        return data;
     }
 }
 

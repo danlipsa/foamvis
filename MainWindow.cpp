@@ -599,9 +599,9 @@ QwtDoubleInterval MainWindow::getScalarInterval (ViewNumber::Enum viewNumber)
     QwtDoubleInterval scalarInterval;
     if (vs.GetViewType () == ViewType::T1_KDE)
     {
-        scalarInterval.setMinValue (vs.GetT1KDEIsosurfaceValue ());
+        scalarInterval.setMinValue (vs.GetIsosurfaceValue ());
         scalarInterval.setMaxValue (
-            doubleSpinBoxT1KDEIsosurfaceValue->maximum ());
+            doubleSpinBoxIsosurfaceValue->maximum ());
     }
     else
     {
@@ -1149,8 +1149,18 @@ void MainWindow::ToggledT1Shown (bool checked)
 {
     GetViewSettings ().SetT1Shown (checked);
     widgetVtk->FromView ();
+    widgetVtk->UpdateT1 ();
     widgetGl->CompileUpdate ();
 }
+
+void MainWindow::ToggledT1AllTimeSteps (bool checked)
+{
+    GetViewSettings ().SetT1AllTimeSteps (checked);
+    widgetVtk->FromView ();
+    widgetVtk->UpdateT1 ();
+    widgetGl->CompileUpdate ();
+}
+
 
 void MainWindow::ToggledBarLarge (bool large)
 {
@@ -1446,10 +1456,10 @@ void MainWindow::valueChangedT1KDEKernelSigma (ViewNumber::Enum viewNumber)
 }
 
 
-void MainWindow::ValueChangedT1KDEIsosurfaceValue (double value)
+void MainWindow::ValueChangedIsosurfaceValue (double value)
 {
     ViewSettings& vs = GetViewSettings ();
-    vs.SetT1KDEIsosurfaceValue (value);
+    vs.SetIsosurfaceValue (value);
     widgetVtk->UpdateThresholdScalar (getScalarInterval (GetViewNumber ()));
 }
 
@@ -2157,10 +2167,10 @@ void MainWindow::t1KDEViewToUI (ViewNumber::Enum viewNumber)
         ValueToIndex (horizontalSliderIsosurfaceAlpha, 
                       ViewSettings::ALPHA_RANGE, vs.GetIsosurfaceAlpha ()));
     labelKDEIsosurfaceValue->setEnabled (simulation.Is3D ());
-    doubleSpinBoxT1KDEIsosurfaceValue->setEnabled (simulation.Is3D ());
-    doubleSpinBoxT1KDEIsosurfaceValue->setMaximum (
+    doubleSpinBoxIsosurfaceValue->setEnabled (simulation.Is3D ());
+    doubleSpinBoxIsosurfaceValue->setMaximum (
         simulation.GetMaxT1CountPerTimeStep ());
-    doubleSpinBoxT1KDEIsosurfaceValue->setValue (vs.GetT1KDEIsosurfaceValue ());
+    doubleSpinBoxIsosurfaceValue->setValue (vs.GetIsosurfaceValue ());
     labelIsosurfaceAlpha->setEnabled (simulation.Is3D ());
     horizontalSliderIsosurfaceAlpha->setEnabled (simulation.Is3D ());
     radioButtonT1sKDE->setEnabled (simulation.IsT1Available ());

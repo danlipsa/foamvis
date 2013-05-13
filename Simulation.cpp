@@ -722,6 +722,7 @@ vtkSmartPointer<vtkPolyData> Simulation::GetT1Vtk (
     VTK_CREATE (vtkPoints, points);
     VTK_CREATE (vtkCellArray, verts);
     VTK_CREATE (vtkIntArray, scalars);
+    scalars->SetName (GetT1VtkName ());
     // one cell that has all the points
     verts->InsertNextCell (t1s.size ());
     for (size_t i = 0; i < t1s.size (); ++i)

@@ -85,6 +85,7 @@ public:
     void UpdateAverage (ViewNumber::Enum viewNumber, int direction);
     void UpdateAverageForce ();
     void UpdateAverageVelocity ();
+    void UpdateT1 ();
     void Average3dCreatePipeline (size_t objects, size_t constraintSurfaces, 
                                   size_t fontSize);
     void UpdateAverage3dTitle ();

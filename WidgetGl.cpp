@@ -1836,7 +1836,7 @@ void WidgetGl::displayT1AllTimeSteps (
     ViewNumber::Enum viewNumber) const
 {
     for (size_t i = 0; 
-         i < GetSimulation (viewNumber).GetT1TimeSteps (); ++i)
+         i < GetSimulation (viewNumber).GetTimeSteps (); ++i)
 	displayT1TimeStep (viewNumber, i);
 }
 
@@ -4245,13 +4245,6 @@ void WidgetGl::ToggledTorusDomainClipped (bool checked)
     makeCurrent ();
     GetSettingsPtr ()->GetViewSettings ().SetDomainClipped (checked);
     update ();
-}
-
-void WidgetGl::ToggledT1sAllTimeSteps (bool checked)
-{
-    makeCurrent ();
-    GetViewSettings ().SetT1AllTimeSteps (checked);
-    CompileUpdate ();
 }
 
 void WidgetGl::ToggledT1sShiftLower (bool checked)

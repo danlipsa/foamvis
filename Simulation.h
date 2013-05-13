@@ -234,6 +234,10 @@ public:
     }
     const vector<T1>& GetT1 (size_t timeStep, int t1sShift) const;
     vtkSmartPointer<vtkPolyData> GetT1Vtk (size_t timeStep, int t1sShift) const;
+    const char* GetT1VtkName () const
+    {
+        return "T1";
+    }
     string GetT1Info (size_t timeStep, int t1sShift) const;
     vtkSmartPointer<vtkImageData> GetT1KDE (
         size_t timeStep, size_t subStep, int t1Shift,

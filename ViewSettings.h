@@ -129,13 +129,13 @@ public:
     {
         m_T1KDESigmaInBubbleDiameter = sigma;
     }
-    float GetT1KDEIsosurfaceValue () const
+    float GetIsosurfaceValue () const
     {
-        return m_T1KDEIsosurfaceValue;
+        return m_isosurfaceValue;
     }
-    void SetT1KDEIsosurfaceValue (float value)
+    void SetIsosurfaceValue (float value)
     {
-        m_T1KDEIsosurfaceValue = value;
+        m_isosurfaceValue = value;
     }
     // @}
 
@@ -1076,7 +1076,7 @@ private:
     int m_kdeMultiplier;
     bool m_T1KDEKernelBoxShown;
     float m_T1KDESigmaInBubbleDiameter;
-    float m_T1KDEIsosurfaceValue;
+    float m_isosurfaceValue;
     float m_t1Size;
     bool m_t1Shown;
     bool m_t1AllTimeSteps;
