@@ -289,7 +289,7 @@ bool Body::HasScalarValue (BodyScalar::Enum property,
 	}
 	else if (property == BodyScalar::ACTUAL_VOLUME ||
                  property == BodyScalar::TARGET_VOLUME)
-            return true;
+            return HasAttribute (property - BodyScalar::DMP_BEGIN);
         else
 	    return false;
     }
