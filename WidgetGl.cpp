@@ -2254,7 +2254,7 @@ void WidgetGl::displayFacesInterior (
 }
 
 void WidgetGl::displayFacesInteriorFocusContext (
-    const vector<boost::shared_ptr<Body> >& bodies, 
+    const vector<boost::shared_ptr<Body> >& b, 
     vector<boost::shared_ptr<Body> >::const_iterator contextBodiesBegin,
     ViewNumber::Enum viewNumber) const
 {
