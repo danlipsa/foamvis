@@ -144,14 +144,14 @@ public Q_SLOTS:
     void TimeoutTimer ();
     
 
-    void ValueChangedIsosurfaceAlpha (int value);
+    void ValueChangedT1KDEIsosurfaceAlpha (int value);
     void ValueChangedFontSize (int value);
     void ValueChangedT1Size (int index);
     void ValueChangedHistogramHeight (int value);
     void ValueChangedSliderTimeSteps (int value);
     void ValueChangedAverageTimeWindow (int timeSteps);
     void ValueChangedT1KDEKernelSigma (double value);
-    void ValueChangedIsosurfaceValue (double value);
+    void ValueChangedT1KDEIsosurfaceValue (double value);
     void ValueChangedContextAlpha (int sliderValue);
     void ValueChangedObjectAlpha (int sliderValue);
     void ValueChangedForceRatio (double ratio);

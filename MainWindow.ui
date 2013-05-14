@@ -341,7 +341,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tabSettings">
         <attribute name="title">
@@ -1845,7 +1845,7 @@
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QDoubleSpinBox" name="doubleSpinBoxIsosurfaceValue">
+              <widget class="QDoubleSpinBox" name="doubleSpinBoxT1KDEIsosurfaceValue">
                <property name="decimals">
                 <number>3</number>
                </property>
@@ -1916,7 +1916,7 @@
          <item>
           <widget class="QTabWidget" name="tabWidgetShow">
            <property name="currentIndex">
-            <number>3</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="tabT1">
             <attribute name="title">
@@ -4398,10 +4398,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>doubleSpinBoxIsosurfaceValue</sender>
+   <sender>doubleSpinBoxT1KDEIsosurfaceValue</sender>
    <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
-   <slot>ValueChangedIsosurfaceValue(double)</slot>
+   <slot>ValueChangedT1KDEIsosurfaceValue(double)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>1056</x>
@@ -4538,7 +4538,7 @@
   <slot>ToggledT1KDEKernelBoxShown(bool)</slot>
   <slot>ToggledT1Shown(bool)</slot>
   <slot>ToggledT1AllTimeSteps(bool)</slot>
-  <slot>ValueChangedIsosurfaceValue(double)</slot>
+  <slot>ValueChangedT1KDEIsosurfaceValue(double)</slot>
   <slot>ValueChangedT1Size(int)</slot>
   <slot>ToggledBoundingBoxSimulation(bool)</slot>
   <slot>ToggledTorusDomainShown(bool)</slot>

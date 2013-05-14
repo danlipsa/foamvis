@@ -434,7 +434,7 @@ void PipelineAverage3D::FromView (ViewNumber::Enum viewNumber, const Base& base)
     const ViewSettings& vs = base.GetViewSettings (viewNumber);
     updateAlpha (vs.GetContextAlpha (), m_constraintSurface);
     updateAlpha (vs.GetObjectAlpha (), m_object);
-    updateAlpha (vs.GetIsosurfaceAlpha (), m_scalarAverageActor);
+    updateAlpha (vs.GetT1KDEIsosurfaceAlpha (), m_scalarAverageActor);
     fromViewScalar (viewNumber, base);
     m_outlineSimulationActor->SetVisibility (vs.IsBoundingBoxSimulationShown ());
     m_outlineTorusActor->SetVisibility (vs.IsTorusDomainShown ());

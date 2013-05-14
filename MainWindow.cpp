@@ -599,9 +599,9 @@ QwtDoubleInterval MainWindow::getScalarInterval (ViewNumber::Enum viewNumber)
     QwtDoubleInterval scalarInterval;
     if (vs.GetViewType () == ViewType::T1_KDE)
     {
-        scalarInterval.setMinValue (vs.GetIsosurfaceValue ());
+        scalarInterval.setMinValue (vs.GetT1KDEIsosurfaceValue ());
         scalarInterval.setMaxValue (
-            doubleSpinBoxIsosurfaceValue->maximum ());
+            doubleSpinBoxT1KDEIsosurfaceValue->maximum ());
     }
     else
     {
@@ -1406,10 +1406,10 @@ void MainWindow::ValueChangedObjectAlpha (int index)
     widgetVtk->FromView ();
 }
 
-void MainWindow::ValueChangedIsosurfaceAlpha (int value)
+void MainWindow::ValueChangedT1KDEIsosurfaceAlpha (int value)
 {
     (void)value;
-    GetViewSettings ().SetIsosurfaceAlpha (
+    GetViewSettings ().SetT1KDEIsosurfaceAlpha (
 	IndexToValue (static_cast<QSlider*> (sender ()),
                       ViewSettings::ALPHA_RANGE));
     widgetGl->CompileUpdate ();
@@ -1456,10 +1456,10 @@ void MainWindow::valueChangedT1KDEKernelSigma (ViewNumber::Enum viewNumber)
 }
 
 
-void MainWindow::ValueChangedIsosurfaceValue (double value)
+void MainWindow::ValueChangedT1KDEIsosurfaceValue (double value)
 {
     ViewSettings& vs = GetViewSettings ();
-    vs.SetIsosurfaceValue (value);
+    vs.SetT1KDEIsosurfaceValue (value);
     widgetVtk->UpdateThresholdScalar (getScalarInterval (GetViewNumber ()));
 }
 
@@ -2036,34 +2036,16 @@ void MainWindow::linkedTimeEventsViewToUI (ViewNumber::Enum viewNumber)
     }
 }
 
-void MainWindow::deformationViewToUI ()
+void MainWindow::t1ViewToUI ()
 {
-    const ViewSettings& vs = GetViewSettings ();
-    const Simulation& simulation = GetSimulation ();
-    SetCheckedNoSignals (checkBoxDeformationShown, 
-			 vs.IsDeformationShown ());
-    bool gridShown = false;
-    bool gridCellCenterShown = false;
-    if (simulation.Is2D ())
-    {
-	AttributeAverages2D& va = widgetGl->GetAttributeAverages2D ();
-	gridShown = va.GetDeformationAverage ().IsGridShown ();
-	gridCellCenterShown = 
-	    va.GetDeformationAverage ().IsGridCellCenterShown ();
-    }
-
-    SetCheckedNoSignals (checkBoxDeformationGridShown, gridShown);
-    SetCheckedNoSignals (checkBoxDeformationGridCellCenterShown, 
-			 gridCellCenterShown);
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     SetValueNoSignals (
-	horizontalSliderDeformationSize, 
-	ValueToExponentIndex (horizontalSliderDeformationSize, 
-		    WidgetGl::TENSOR_SIZE_EXP2, vs.GetDeformationSize ()));
-    SetValueNoSignals (
-	horizontalSliderDeformationLineWidth, 
-	ValueToExponentIndex (horizontalSliderDeformationLineWidth,
-		     ViewSettings::TENSOR_LINE_WIDTH_EXP2,
-		     vs.GetDeformationLineWidth ()));
+	horizontalSliderT1Size, 
+        ValueToIndex (horizontalSliderT1Size, 
+                      ViewSettings::T1_SIZE, vs.GetT1Size ()));
+    SetCheckedNoSignals (checkBoxT1Shown, vs.IsT1Shown ());
+    SetCheckedNoSignals (checkBoxT1AllTimeSteps, vs.IsT1AllTimeSteps ());
 }
 
 void MainWindow::velocityViewToUI ()
@@ -2110,16 +2092,34 @@ void MainWindow::velocityViewToUI ()
     setStackedWidgetVelocity (vs.GetVelocityVis ());
 }
 
-void MainWindow::t1ViewToUI ()
+void MainWindow::deformationViewToUI ()
 {
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings ();
+    const Simulation& simulation = GetSimulation ();
+    SetCheckedNoSignals (checkBoxDeformationShown, 
+			 vs.IsDeformationShown ());
+    bool gridShown = false;
+    bool gridCellCenterShown = false;
+    if (simulation.Is2D ())
+    {
+	AttributeAverages2D& va = widgetGl->GetAttributeAverages2D ();
+	gridShown = va.GetDeformationAverage ().IsGridShown ();
+	gridCellCenterShown = 
+	    va.GetDeformationAverage ().IsGridCellCenterShown ();
+    }
+
+    SetCheckedNoSignals (checkBoxDeformationGridShown, gridShown);
+    SetCheckedNoSignals (checkBoxDeformationGridCellCenterShown, 
+			 gridCellCenterShown);
     SetValueNoSignals (
-	horizontalSliderT1Size, 
-        ValueToIndex (horizontalSliderT1Size, 
-                      ViewSettings::T1_SIZE, vs.GetT1Size ()));
-    SetCheckedNoSignals (checkBoxT1Shown, vs.IsT1Shown ());
-    SetCheckedNoSignals (checkBoxT1AllTimeSteps, vs.IsT1Shown ());
+	horizontalSliderDeformationSize, 
+	ValueToExponentIndex (horizontalSliderDeformationSize, 
+		    WidgetGl::TENSOR_SIZE_EXP2, vs.GetDeformationSize ()));
+    SetValueNoSignals (
+	horizontalSliderDeformationLineWidth, 
+	ValueToExponentIndex (horizontalSliderDeformationLineWidth,
+		     ViewSettings::TENSOR_LINE_WIDTH_EXP2,
+		     vs.GetDeformationLineWidth ()));
 }
 
 void MainWindow::forceViewToUI ()
@@ -2160,19 +2160,24 @@ void MainWindow::t1KDEViewToUI (ViewNumber::Enum viewNumber)
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
     SetCheckedNoSignals (checkBoxTextureShown, vs.IsT1KDEKernelBoxShown ());
+
     SetValueNoSignals (
         doubleSpinBoxKernelSigma, vs.GetT1KDESigmaInBubbleDiameter ());
+
     SetValueNoSignals (
-        horizontalSliderIsosurfaceAlpha, 
-        ValueToIndex (horizontalSliderIsosurfaceAlpha, 
-                      ViewSettings::ALPHA_RANGE, vs.GetIsosurfaceAlpha ()));
+        horizontalSliderT1KDEIsosurfaceAlpha, 
+        ValueToIndex (horizontalSliderT1KDEIsosurfaceAlpha, 
+                      ViewSettings::ALPHA_RANGE, vs.GetT1KDEIsosurfaceAlpha ()));
+    labelT1KDEIsosurfaceAlpha->setEnabled (simulation.Is3D ());
+    horizontalSliderT1KDEIsosurfaceAlpha->setEnabled (simulation.Is3D ());
+
+
     labelKDEIsosurfaceValue->setEnabled (simulation.Is3D ());
-    doubleSpinBoxIsosurfaceValue->setEnabled (simulation.Is3D ());
-    doubleSpinBoxIsosurfaceValue->setMaximum (
+    doubleSpinBoxT1KDEIsosurfaceValue->setEnabled (simulation.Is3D ());
+    doubleSpinBoxT1KDEIsosurfaceValue->setMaximum (
         simulation.GetMaxT1CountPerTimeStep ());
-    doubleSpinBoxIsosurfaceValue->setValue (vs.GetIsosurfaceValue ());
-    labelIsosurfaceAlpha->setEnabled (simulation.Is3D ());
-    horizontalSliderIsosurfaceAlpha->setEnabled (simulation.Is3D ());
+    doubleSpinBoxT1KDEIsosurfaceValue->setValue (vs.GetT1KDEIsosurfaceValue ());
+
     radioButtonT1sKDE->setEnabled (simulation.IsT1Available ());
 }
 

@@ -129,13 +129,13 @@ public:
     {
         m_T1KDESigmaInBubbleDiameter = sigma;
     }
-    float GetIsosurfaceValue () const
+    float GetT1KDEIsosurfaceValue () const
     {
-        return m_isosurfaceValue;
+        return m_t1KDEIsosurfaceValue;
     }
-    void SetIsosurfaceValue (float value)
+    void SetT1KDEIsosurfaceValue (float value)
     {
-        m_isosurfaceValue = value;
+        m_t1KDEIsosurfaceValue = value;
     }
     // @}
 
@@ -527,13 +527,13 @@ public:
     {
 	m_objectAlpha = alpha;
     }
-    float GetIsosurfaceAlpha () const
+    float GetT1KDEIsosurfaceAlpha () const
     {
-        return m_isosurfaceAlpha;
+        return m_t1KDEIsosurfaceAlpha;
     }
-    void SetIsosurfaceAlpha (float alpha)
+    void SetT1KDEIsosurfaceAlpha (float alpha)
     {
-        m_isosurfaceAlpha = alpha;
+        m_t1KDEIsosurfaceAlpha = alpha;
     }
     // @}
 
@@ -1045,7 +1045,7 @@ private:
     bool m_selectionContextShown;
     float m_contextAlpha;
     float m_objectAlpha;
-    float m_isosurfaceAlpha;
+    float m_t1KDEIsosurfaceAlpha;
     bool m_centerPathHidden;
     // Simulation related variables
     size_t m_simulationIndex;
@@ -1076,7 +1076,7 @@ private:
     int m_kdeMultiplier;
     bool m_T1KDEKernelBoxShown;
     float m_T1KDESigmaInBubbleDiameter;
-    float m_isosurfaceValue;
+    float m_t1KDEIsosurfaceValue;
     float m_t1Size;
     bool m_t1Shown;
     bool m_t1AllTimeSteps;
