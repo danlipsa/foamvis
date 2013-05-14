@@ -2254,8 +2254,8 @@ void WidgetGl::displayFacesInterior (
 }
 
 void WidgetGl::displayFacesInteriorFocusContext (
-    const Foam::Bodies& b, 
-    Foam::Bodies::const_iterator contextBodiesBegin,
+    const vector<boost::shared_ptr<Body> >& bodies, 
+    vector<boost::shared_ptr<Body> >::const_iterator contextBodiesBegin,
     ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);

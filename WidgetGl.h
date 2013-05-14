@@ -546,11 +546,10 @@ private:
 	ViewNumber::Enum viewNumber, GLfloat lineWidth = 1) const;
     void displayFacesContour (
 	const vector< boost::shared_ptr<Face> >& faces, bool is2D) const;
-    /**
+    /*
      * Displays   the   content   of   faces.   Used   together   with
      * displayFacesContour  and  with  GL_POLYGON_OFFSET_FILL  to  get
      * continuous contours for polygons.
-     * @param bodies displays all the faces in these bodies
      */
     void displayFacesInterior (
 	const vector<boost::shared_ptr<Body> >& bodies, 
