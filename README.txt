@@ -34,9 +34,11 @@ cd qt-everywhere-opensource-src-4.7.0
 make -j <number_of_processors>
 su <password>
 make install
-# this is needed for qt3d
+## Needed by qt3d ##
 cd /usr/local/Trolltech/Qt-4.7.0; mv include include_
 ln -s ~/qt-everywhere-opensource-src-4.7.0/include include
+Make sure you type the path correctly: ls include
+should list a bunch of files. If it does not: 'rm include' and start again.
 
 Add the following line at the end of ~/.bash_profile
 PATH=/usr/local/Trolltech/Qt-4.7.0/bin:$PATH;export PATH
