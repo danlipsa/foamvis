@@ -1,6 +1,6 @@
 Release log
 ===========
-1.0.2885 2013-05-14
+1.0.2888 2013-05-14
         - isosurface added to the average view
         - added menu action: Copy > Selection > Value to Id. This allows the user
           to follow bubbles with high velocity. Select first bubbles with high 
