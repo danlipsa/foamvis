@@ -280,7 +280,7 @@ cd xxx-private/src/
 
 Release log
 ===========
-0.9.
+1.0.
         - isosurface added to the average view
         - added menu action: Copy > Selection > Value to Id. This allows the user
           to follow bubbles with high velocity. Select first bubbles with high 
@@ -291,7 +291,9 @@ Release log
         - show forces in scalar view.
         - copy transforms sets the scale such that the bubble size is the same
           in the two datasets.
-
+        - Add Copy > Force ratio that sets up forces in two simulations so that
+          are comparable on the screen.
+        - Show T1s around a following object for all time steps.
 0.9.2826 2013-04-18
         - add Reset transform/All and Focus to the VTK view (3D average)
         - color and overlay bars work in VTK view
