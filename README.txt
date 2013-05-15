@@ -418,6 +418,10 @@ cd cmake-2.8.10.2
 ./bootstrap
 make
 make install
+Add the following line at the end of ~/.bash_profile
+PATH=/usr/local/bin:$PATH;export PATH
+Execute '. .bash_profile'.
+Make sure the path is set correctly: which cmake
 ----------------------------------------------------------------------
 Copy http://csgalati.swansea.ac.uk/foam/build/vtk-6.0-20130125.tgz to ~
 tar xzf vtk-6.0-20130125.tgz
