@@ -353,18 +353,6 @@ void WidgetGl::createActions ()
     connect(m_actionInfoBody.get (), SIGNAL(triggered()), this, 
 	    SLOT(InfoBody ()));
 
-    m_actionInfoFoam = 
-        boost::make_shared<QAction> (tr("&Foam"), this);
-    m_actionInfoFoam->setStatusTip(tr("Info foam"));
-    connect(m_actionInfoFoam.get (), SIGNAL(triggered()), this, 
-	    SLOT(InfoFoam ()));
-
-    m_actionInfoSimulation = 
-        boost::make_shared<QAction> (tr("&Simulation"), this);
-    m_actionInfoSimulation->setStatusTip(tr("Info simulation"));
-    connect(m_actionInfoSimulation.get (), SIGNAL(triggered()), this, 
-	    SLOT(InfoSimulation ()));
-
     m_actionInfoOpenGL = boost::make_shared<QAction> (
 	tr("&OpenGL"), this);
     m_actionInfoOpenGL->setStatusTip(tr("Info OpenGL"));
@@ -408,7 +396,7 @@ void WidgetGl::createActions ()
 	    this, SLOT(CopySelectionValueToId ()));
 
 
-    // actions for the color and overlay bar
+    // actions for the color and overlay bar and info
     MAKE_COMMON_CONNECTIONS;
 }
 
@@ -3492,23 +3480,6 @@ void WidgetGl::ToggledAverageAroundAllowRotation (bool checked)
     ViewSettings& vs = GetViewSettings ();
     vs.SetAverageAroundRotationShown (checked);
     CompileUpdate ();
-}
-
-void WidgetGl::InfoFoam ()
-{
-    makeCurrent ();
-    const ViewSettings& vs = GetViewSettings ();
-    ostringstream ostr;
-    ostr << GetFoam ().GetInfo () << endl 
-         << GetSimulation ().GetT1Info (GetTime (), vs.T1sShiftLower ());
-    ShowMessageBox (ostr.str ().c_str ());
-}
-
-
-void WidgetGl::InfoSimulation ()
-{
-    makeCurrent ();
-    ShowMessageBox (GetSimulation ().GetInfo ().c_str ());
 }
 
 void WidgetGl::InfoPoint ()

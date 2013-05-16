@@ -13,7 +13,8 @@
 string T1::ToString () const
 {
     ostringstream ostr;
-    ostr << "type: " << m_type << ", position: " << m_position;
+    ostr << "type: " << T1Type::ToString (m_type) 
+         << ", position: " << m_position;
     return ostr.str ();
 }
 

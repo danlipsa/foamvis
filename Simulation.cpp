@@ -534,8 +534,8 @@ string Simulation::GetInfo () const
         "<tr><th>T1 Type</th><th>Count</th></tr>";
     for (size_t i = 0; i < m_t1TypeCount.size (); ++i)
         if (m_t1TypeCount[i] != 0)
-            ostr << "<tr><td>" << i << "</td><td>" << m_t1TypeCount[i] << 
-                "</td></tr>";
+            ostr << "<tr><td>" << T1Type::ToString (T1Type::Enum (i)) 
+                 << "</td><td>" << m_t1TypeCount[i] << "</td></tr>";
     ostr << "</table>";
     return ostr.str ();
 }

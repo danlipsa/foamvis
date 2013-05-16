@@ -101,6 +101,9 @@ public Q_SLOTS:
     void ResetTransformAll ();
     void ResetTransformFocus ();
     void FromView (ViewNumber::Enum viewNumber);
+    void InfoFoam () {infoFoam ();}
+    void InfoSimulation () {infoSimulation ();}
+
 
 protected:
     virtual void resizeEvent (QResizeEvent * event);

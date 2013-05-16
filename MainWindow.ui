@@ -4481,7 +4481,7 @@
    <sender>horizontalSliderT1KDEIsosurfaceAlpha</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>ValueChangedIsosurfaceAlpha(int)</slot>
+   <slot>ValueChangedT1KDEIsosurfaceAlpha(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>1014</x>
@@ -4546,7 +4546,7 @@
   <slot>ToggledDmpTransformShown(bool)</slot>
   <slot>ValueChangedForceRatio(double)</slot>
   <slot>ValueChangedTorqueDistanceRatio(double)</slot>
-  <slot>ValueChangedIsosurfaceAlpha(int)</slot>
+  <slot>ValueChangedT1KDEIsosurfaceAlpha(int)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupEdgeVis"/>

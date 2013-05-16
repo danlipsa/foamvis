@@ -143,6 +143,9 @@ protected:
 	boost::array<boost::shared_ptr<QAction>, 
 	ViewNumber::COUNT>& actionCopyTransform,
 	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransform);
+    void infoFoam ();
+    void infoSimulation ();
+
     virtual void contextMenuEventView (QMenu* menu) const
     {(void)menu;}
     virtual void contextMenuEventColorMapScalar (QMenu* menu) const;
@@ -179,6 +182,9 @@ protected:
     boost::shared_ptr<QAction> m_actionColorMapVelocityClampClear;
     boost::shared_ptr<QAction> m_actionColorMapVelocityCopyVelocityMagnitude;
 
+    boost::shared_ptr<QAction> m_actionInfoFoam;
+    boost::shared_ptr<QAction> m_actionInfoSimulation;
+
 private:
     AverageCaches* m_averageCache;
     QWidget* m_widget;
@@ -202,7 +208,13 @@ private:
     connect (m_actionResetTransformAll.get (), SIGNAL(triggered()),\
              this, SLOT(ResetTransformAll ()));\
     connect (m_actionResetTransformFocus.get (), SIGNAL(triggered()),\
-	    this, SLOT(ResetTransformFocus ()));
+	    this, SLOT(ResetTransformFocus ()));\
+    connect(m_actionInfoFoam.get (), SIGNAL(triggered()), this,\
+	    SLOT(InfoFoam ()));\
+    connect(m_actionInfoSimulation.get (), SIGNAL(triggered()), this,   \
+	    SLOT(InfoSimulation ()));
+
+
 
 #endif //__WIDGET_BASE_H__
 

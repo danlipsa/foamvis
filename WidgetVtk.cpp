@@ -423,6 +423,11 @@ void WidgetVtk::mousePressEvent (QMouseEvent *event)
 void WidgetVtk::contextMenuEventView (QMenu* menu) const
 {
     {
+	QMenu* menuInfo = menu->addMenu ("Info");
+	menuInfo->addAction (m_actionInfoFoam.get ());
+	menuInfo->addAction (m_actionInfoSimulation.get ());
+    }
+    {
         QMenu* menuCopy = menu->addMenu ("Copy");
         addCopyMenu (menuCopy, "Transform", &m_actionCopyTransform[0]);
         addCopyMenu (menuCopy, "Force ratio", &m_actionCopyForceRatio[0]);

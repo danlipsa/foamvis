@@ -9,6 +9,7 @@
 #include "BodySelector.h"
 #include "ColorBarModel.h"
 #include "Debug.h"
+#include "Foam.h"
 #include "Settings.h"
 #include "Simulation.h"
 #include "Utils.h"
@@ -61,6 +62,13 @@ WidgetBase::WidgetBase (QWidget* widget,
 	new QAction (tr("&Copy velocity magnitude"), m_widget));
     m_actionColorMapVelocityCopyVelocityMagnitude->setStatusTip(
         tr("Copy velocity magnitude"));
+
+    m_actionInfoFoam = boost::make_shared<QAction> (tr("&Foam"), m_widget);
+    m_actionInfoFoam->setStatusTip(tr("Info foam"));
+
+    m_actionInfoSimulation = 
+        boost::make_shared<QAction> (tr("&Simulation"), m_widget);
+    m_actionInfoSimulation->setStatusTip(tr("Info simulation"));
 }
 
 
@@ -330,4 +338,19 @@ float WidgetBase::GetVelocitySizeInitialRatio (
     float velocityRange = simulation.GetMaxScalar (BodyScalar::VELOCITY_MAGNITUDE);
     // min velocity is 0.
     return bubbleDiameter / velocityRange;
+}
+
+void WidgetBase::infoFoam ()
+{
+    const ViewSettings& vs = GetViewSettings ();
+    ostringstream ostr;
+    ostr << GetFoam ().GetInfo () << endl 
+         << GetSimulation ().GetT1Info (GetTime (), vs.T1sShiftLower ());
+    ShowMessageBox (m_widget, ostr.str ().c_str ());
+}
+
+
+void WidgetBase::infoSimulation ()
+{
+    ShowMessageBox (m_widget, GetSimulation ().GetInfo ().c_str ());
 }
