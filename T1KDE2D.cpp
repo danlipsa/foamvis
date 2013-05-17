@@ -154,7 +154,6 @@ void T1KDE2D::InitKernel ()
 void T1KDE2D::writeStepValues (ViewNumber::Enum viewNumber, size_t timeStep, 
 			      size_t subStep)
 {
-    WarnOnOpenGLError ("a - T1KDE2D::writeStepValues");
     // activate texture unit 1
     glActiveTexture (
 	TextureEnum (m_gaussianStoreShaderProgram->GetGaussianTexUnit ()));
@@ -164,7 +163,6 @@ void T1KDE2D::writeStepValues (ViewNumber::Enum viewNumber, size_t timeStep,
     m_gaussianStoreShaderProgram->release ();
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);    
-    WarnOnOpenGLError ("b - T1KDE2D::writeStepValues");
 }
 
 void T1KDE2D::DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep, 

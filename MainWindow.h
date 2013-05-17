@@ -318,7 +318,7 @@ private:
 		     ViewNumber::COUNT> > m_colorMapDomainHistogram;
     // index order: simulation index, view number
     vector <boost::array<boost::shared_ptr<ColorBarModel>,
-			 ViewNumber::COUNT> > m_colorMapT1sKDE;
+			 ViewNumber::COUNT> > m_colorMapT1KDE;
     boost::shared_ptr<EditColorMap> m_editColorMap;
     /**
      * True if the program displays data in a loop, false

@@ -245,6 +245,8 @@ void WidgetVtk::UpdateAverageVelocity ()
 void WidgetVtk::UpdateT1 ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
+    if (! IsVtkView (viewNumber))
+        return;
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
     pipeline.UpdateT1 (getT1Vtk (viewNumber));
 }

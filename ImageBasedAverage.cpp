@@ -144,6 +144,7 @@ G3D::Rect2D ImageBasedAverage<PropertySetter>::GetWindowCoord () const
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::clear ()
 {
+    __ENABLE_LOGGING__;
     pair<float,float> minMax = 
 	GetWidgetGl ().GetRange (GetViewNumber ());
     m_fbos.m_step->bind ();
@@ -181,7 +182,7 @@ void ImageBasedAverage<PropertySetter>::AverageRelease ()
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::addStep (size_t timeStep, size_t subStep)
 {
-    //__ENABLE_LOGGING__;
+    __ENABLE_LOGGING__;
     pair<float,float> minMax = GetWidgetGl ().GetRange (GetViewNumber ());
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (timeStep, subStep);

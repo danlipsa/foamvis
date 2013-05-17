@@ -761,7 +761,7 @@ void MainWindow::setupColorBarModels ()
     m_colorMapScalar.resize (simulationCount);
     m_colorMapVelocity.resize (simulationCount);
     m_colorMapDomainHistogram.resize (simulationCount);
-    m_colorMapT1sKDE.resize (simulationCount);
+    m_colorMapT1KDE.resize (simulationCount);
     for (size_t simulationIndex = 0; simulationIndex < simulationCount; 
 	 ++simulationIndex)
 	for (size_t vn = 0; vn < ViewNumber::COUNT; ++vn)
@@ -801,7 +801,7 @@ void MainWindow::setupColorBarModelT1sKDE (
     ViewNumber::Enum viewNumber)
 {
     boost::shared_ptr<ColorBarModel>& colorBarModel = 
-	m_colorMapT1sKDE[simulationIndex][viewNumber];
+	m_colorMapT1KDE[simulationIndex][viewNumber];
     colorBarModel.reset (new ColorBarModel ());
     colorBarModel->SetTitle ("T1s KDE");
     colorBarModel->SetInterval (
@@ -907,7 +907,7 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorMapScalar (
 	return m_colorMapDomainHistogram[simulationIndex][viewNumber];
         
     case ColorMapScalarType::T1_KDE:
-	return m_colorMapT1sKDE[simulationIndex][viewNumber];
+	return m_colorMapT1KDE[simulationIndex][viewNumber];
         
     default:
 	return boost::shared_ptr<ColorBarModel> ();

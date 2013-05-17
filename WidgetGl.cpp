@@ -162,8 +162,10 @@ WidgetGl::~WidgetGl()
     m_quadric = 0;
     glDeleteLists (m_listBubblePaths[0], m_listBubblePaths.size ());
     glDeleteLists (m_listFacesNormal[0], m_listFacesNormal.size ());
-    glDeleteTextures (m_colorBarScalarTexture.size (), &m_colorBarScalarTexture[0]);
-    glDeleteTextures (m_colorBarVelocityTexture.size (), &m_colorBarVelocityTexture[0]);
+    glDeleteTextures (
+        m_colorBarScalarTexture.size (), &m_colorBarScalarTexture[0]);
+    glDeleteTextures (
+        m_colorBarVelocityTexture.size (), &m_colorBarVelocityTexture[0]);
 }
 
 
@@ -1246,7 +1248,8 @@ void WidgetGl::displayContextBodies (ViewNumber::Enum viewNumber) const
 	displayFacesContour (contextBodies, viewNumber, 
 			     GetHighlightLineWidth ());
 	glEnable (GL_DEPTH_TEST);
-	displayFacesInterior (contextBodies, viewNumber);
+        if (vs.GetBodyOrOtherScalar () < BodyScalar::COUNT)
+            displayFacesInterior (contextBodies, viewNumber);
 	glPopAttrib ();
     }
 }
