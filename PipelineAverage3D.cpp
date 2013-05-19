@@ -316,18 +316,20 @@ void PipelineAverage3D::UpdateColorMapVelocity (
 
 
 void PipelineAverage3D::UpdateAverageForce (
-    const ForceAverage& forceAverage)
+    boost::shared_ptr<const ForceAverage> forceAverage)
 {
-    const ViewSettings& vs = forceAverage.GetViewSettings ();
-    size_t objectCount = forceAverage.GetForces ().size ();
+    if (forceAverage == 0)
+        return;
+    const ViewSettings& vs = forceAverage->GetViewSettings ();
+    size_t objectCount = forceAverage->GetForces ().size ();
     for (size_t i = 0; i < objectCount; ++i)
     {
         const ForceOneObject& forceOneObject = 
-            forceAverage.GetAverageOneObject (i);
+            forceAverage->GetAverageOneObject (i);
         G3D::Vector3 position = forceOneObject.GetBody ()->GetCenter ();
         __LOG__ (cdbg << "pos: " << position << endl;);
 	if (vs.IsAverageAround ())
-	    position += forceAverage.GetTranslation ();
+	    position += forceAverage->GetTranslation ();
         for (size_t j = ForceType::NETWORK; j <= ForceType::RESULT; ++j)
         {
             ForceType::Enum ft = ForceType::Enum (j);

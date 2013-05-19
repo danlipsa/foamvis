@@ -29,10 +29,10 @@ public:
     void UpdateThresholdScalar (QwtDoubleInterval interval, 
                                 size_t scalar);
     void UpdateAverageScalar (const RegularGridAverage& average);
-    void UpdateAverageForce (const ForceAverage& forceAverage);
-    void UpdateT1 (vtkSmartPointer<vtkPolyData> t1s);
+    void UpdateAverageForce (boost::shared_ptr<const ForceAverage> force);
     void UpdateAverageVelocity (
         boost::shared_ptr<const RegularGridAverage> velocity);
+    void UpdateT1 (vtkSmartPointer<vtkPolyData> t1s);
     void UpdateViewTitle (
         bool titleShown, const G3D::Vector2& postion,
         const string& simulationName, const string& viewTitle);

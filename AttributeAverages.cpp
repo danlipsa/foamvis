@@ -68,6 +68,7 @@ void AttributeAverages::AverageInit ()
         
     case ViewType::T1_KDE:
         CALL_IF_NOT_NULL(m_t1KDE,AverageInit) ();
+        m_forceAverage->AverageInit ();
         CALL_IF_NOT_NULL(m_velocityAverage,AverageInit) ();
         m_initViewType = ViewType::T1_KDE;
         break;

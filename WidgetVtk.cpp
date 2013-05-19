@@ -226,7 +226,7 @@ void WidgetVtk::UpdateAverageForce ()
         return;
     PipelineAverage3D& pipeline = *m_pipelineAverage3d[viewNumber];
     pipeline.UpdateAverageForce (
-        *m_average[viewNumber]->GetForceAverage ());
+        m_average[viewNumber]->GetForceAverage ());
     update ();
 }
 
@@ -270,7 +270,7 @@ void WidgetVtk::UpdateView (
     m_average[viewNumber]->ComputeAverage ();
 
     pipelineUpdateScalar (viewNumber, scalarColorMap, scalarInterval);
-    pipeline.UpdateAverageForce (*m_average[viewNumber]->GetForceAverage ());
+    pipeline.UpdateAverageForce (m_average[viewNumber]->GetForceAverage ());
     pipeline.UpdateT1 (getT1Vtk (viewNumber));
     pipelineUpdateVelocity (viewNumber, velocityColorMap);    
     // other
@@ -326,7 +326,7 @@ void WidgetVtk::UpdateAverage (ViewNumber::Enum viewNumber, int direction)
     m_average[viewNumber]->ComputeAverage ();
     pipeline.UpdateAverageScalar (
         *m_average[viewNumber]->GetBodyOrOtherScalarAverage ());
-    pipeline.UpdateAverageForce (*m_average[viewNumber]->GetForceAverage ());
+    pipeline.UpdateAverageForce (m_average[viewNumber]->GetForceAverage ());
     pipeline.UpdateAverageVelocity (
         m_average[viewNumber]->GetVelocityAverage ());
     pipeline.UpdateT1 (getT1Vtk (viewNumber));
