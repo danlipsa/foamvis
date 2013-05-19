@@ -77,6 +77,7 @@ ImageBasedAverage<PropertySetter>::ImageBasedAverage (
 	     widgetGl.GetSettingsPtr (), widgetGl.GetSimulationGroupPtr ()), 
     m_countFbos (countFbos), 
     m_countIndex (countIndex),
+    m_countType (CountType::LOCAL),
     m_id (id),
     m_stepClearColor (stepClearColor),
     m_widgetGl (widgetGl)
@@ -144,7 +145,7 @@ G3D::Rect2D ImageBasedAverage<PropertySetter>::GetWindowCoord () const
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::clear ()
 {
-    __ENABLE_LOGGING__;
+    //__ENABLE_LOGGING__;
     pair<float,float> minMax = 
 	GetWidgetGl ().GetRange (GetViewNumber ());
     m_fbos.m_step->bind ();
@@ -182,7 +183,7 @@ void ImageBasedAverage<PropertySetter>::AverageRelease ()
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::addStep (size_t timeStep, size_t subStep)
 {
-    __ENABLE_LOGGING__;
+    //__ENABLE_LOGGING__;
     pair<float,float> minMax = GetWidgetGl ().GetRange (GetViewNumber ());
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (timeStep, subStep);
@@ -338,7 +339,7 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
 		   GetWidgetGl ().GetColorMapScalarTexture (GetViewNumber ()));
     pair<float,float> minMax = GetWidgetGl ().GetRange (GetViewNumber ());
     rotateAndDisplay (
-	minMax.first, minMax.second, displayType, 
+	minMax.first, minMax.second, displayType, m_countType,
 	FbosCountFbos (m_fbos.m_current, m_countFbos.m_current, m_countIndex), 
 	ViewingVolumeOperation::DONT_ENCLOSE2D, rotationCenter, angleDegrees);
 }
@@ -352,7 +353,7 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
     const Foam& foam = GetFoam (timeStep);
     const Foam::Bodies& bodies = foam.GetBodies ();
     m_storeShaderProgram->Bind ();
-    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT );
+    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
     glEnable (GL_STENCIL_TEST);
     glDisable (GL_DEPTH_TEST);
 
@@ -443,7 +444,7 @@ void ImageBasedAverage<PropertySetter>::save (
     // render to the debug buffer
     m_fbos.m_debug->bind ();
     ClearColorBuffer (Qt::white);
-    rotateAndDisplay (minValue, maxValue, displayType, fbo, 
+    rotateAndDisplay (minValue, maxValue, displayType, m_countType, fbo, 
                       ViewingVolumeOperation::ENCLOSE2D);
     m_fbos.m_debug->release ();
     ostringstream ostr;

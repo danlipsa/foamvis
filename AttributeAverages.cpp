@@ -27,7 +27,8 @@ AttributeAverages::AttributeAverages (
 
     AverageInterface (viewNumber),
     m_forceAverage (
-        new ForceAverage (viewNumber, settings, simulationGroup))
+        new ForceAverage (viewNumber, settings, simulationGroup)),
+    m_initViewType (ViewType::COUNT)
 {
 }
 
@@ -54,11 +55,26 @@ const Foam& AttributeAverages::GetFoam (ViewNumber::Enum viewNumber) const
 
 void AttributeAverages::AverageInit ()
 {
-    m_scalarAverage->AverageInit ();
-    m_forceAverage->AverageInit ();
-    CALL_IF_NOT_NULL(m_velocityAverage,AverageInit) ();
-    CALL_IF_NOT_NULL(m_deformationAverage,AverageInit) ();
-    CALL_IF_NOT_NULL(m_t1KDE,AverageInit) ();
+    const ViewSettings& vs = GetViewSettings ();
+    switch (vs.GetViewType ())
+    {
+    case ViewType::AVERAGE:
+        m_scalarAverage->AverageInit ();
+        m_forceAverage->AverageInit ();
+        CALL_IF_NOT_NULL(m_velocityAverage,AverageInit) ();
+        CALL_IF_NOT_NULL(m_deformationAverage,AverageInit) ();
+        m_initViewType = ViewType::AVERAGE;
+        break;
+        
+    case ViewType::T1_KDE:
+        CALL_IF_NOT_NULL(m_t1KDE,AverageInit) ();
+        CALL_IF_NOT_NULL(m_velocityAverage,AverageInit) ();
+        m_initViewType = ViewType::T1_KDE;
+        break;
+    default:
+        m_initViewType = ViewType::COUNT;
+        break;
+    }
 }
 
 void AttributeAverages::AverageRelease ()

@@ -61,12 +61,15 @@ ScalarAverage2DTemplate<PropertySetter>::ScalarAverage2DTemplate (
 template<typename PropertySetter>
 void ScalarAverage2DTemplate<PropertySetter>::rotateAndDisplay (
     GLfloat minValue, GLfloat maxValue,
-    StatisticsType::Enum displayType, 
+    StatisticsType::Enum displayType, CountType::Enum countType,
     typename ImageBasedAverage<PropertySetter>::FbosCountFbos srcFbo,
     ViewingVolumeOperation::Enum enclose,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
-    m_displayShaderProgram->Bind (minValue, maxValue, displayType);
+    size_t timeWindow = this->GetCurrentTimeWindow ();
+    timeWindow = (timeWindow == 0 ? 1 : timeWindow);
+    m_displayShaderProgram->Bind (
+        minValue, maxValue, displayType, countType, timeWindow);
     // activate texture unit 1 - scalar average
     this->glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetScalarAverageTexUnit ()));

@@ -796,9 +796,7 @@ void WidgetGl::displayAllViewTransforms (ViewNumber::Enum viewNumber)
 
     const ViewSettings& vs = GetViewSettings (viewNumber);
     enableTorusDomainClipPlanes (viewNumber);    
-    WarnOnOpenGLError ("displayAllViewTransforms b");
     (this->*(m_display[vs.GetViewType ()])) (viewNumber);
-    WarnOnOpenGLError ("displayAllViewTransforms e");
     for (size_t i = 0; i < m_duplicateDomain.size (); ++i)
     {
         if (m_duplicateDomain[i])
@@ -2119,7 +2117,7 @@ void WidgetGl::displayAverage (ViewNumber::Enum viewNumber) const
     const Simulation& simulation = GetSimulation (viewNumber);
     const Foam& foam = simulation.GetFoam (0);
     const AttributeAverages2D& aa = GetAttributeAverages2D (viewNumber);
-    if (simulation.Is3D ())
+    if (simulation.Is3D () || vs.GetViewType () != aa.GetInitViewType ())
 	return;
     glPushAttrib (GL_ENABLE_BIT);    
     glDisable (GL_DEPTH_TEST);
@@ -3078,7 +3076,9 @@ void WidgetGl::updateStreamlineSeeds (ViewNumber::Enum viewNumber)
 
 void WidgetGl::CacheUpdateSeedsCalculateStreamline (ViewNumber::Enum viewNumber)
 {
-    if (! GetSimulation (viewNumber).Is2D ())
+    const AttributeAverages2D& aa = GetAttributeAverages2D (viewNumber);
+    if (! GetSimulation (viewNumber).Is2D () ||
+        aa.GetInitViewType () == ViewType::COUNT)
         return;
     makeCurrent ();
     glMatrixMode (GL_PROJECTION);
@@ -3087,14 +3087,12 @@ void WidgetGl::CacheUpdateSeedsCalculateStreamline (ViewNumber::Enum viewNumber)
     glPushMatrix ();
 
     AllTransformAverage (viewNumber, 0, DONT_ROTATE_FOR_AXIS_ORDER);
-    m_average[viewNumber]->GetVelocityAverage ().CacheData (
-        GetAverageCache (viewNumber));
+    aa.GetVelocityAverage ().CacheData (GetAverageCache (viewNumber));
     saveVelocity (viewNumber, GetAverageCache (viewNumber)->GetVelocity ());
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsKDESeedEnabled () && vs.GetViewType () == ViewType::T1_KDE)
     {
-        m_average[viewNumber]->GetT1KDE ().CacheData (
-            GetAverageCache (viewNumber));
+        aa.GetT1KDE ().CacheData (GetAverageCache (viewNumber));
     }
     updateStreamlineSeeds (viewNumber);
     CalculateStreamline (viewNumber);
@@ -4267,7 +4265,9 @@ void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
 	    {
 		ViewSettings& vs = GetViewSettings (viewNumber);
 		ViewType::Enum newViewType = vs.GetViewType ();
-		if (oldViewType == newViewType)
+		if ((newViewType != ViewType::AVERAGE &&
+                     newViewType != ViewType::T1_KDE) ||
+                    oldViewType == newViewType)
 		    continue;
 		GetAttributeAverages2D (viewNumber).AverageRelease ();
                 averageInitStep (viewNumber);
@@ -4276,7 +4276,7 @@ void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
 	}
     	setVisible (true);
     }
-    CompileUpdate ();
+    update ();
 }
 
 void WidgetGl::ButtonClickedDuplicateDomain (int index)

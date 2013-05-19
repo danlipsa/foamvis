@@ -64,7 +64,7 @@ public:
 	const WidgetGl& widgetGl, string id, QColor stepClearColor,
 	FramebufferObjects& countFbos, size_t countIndex);
     void AverageRelease ();
-    void AverageRotateAndDisplay (	
+    void AverageRotateAndDisplay (
 	StatisticsType::Enum displayType = StatisticsType::AVERAGE,	
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
@@ -102,7 +102,8 @@ protected:
     virtual void removeStep (size_t timeStep, size_t subStep);
     virtual void rotateAndDisplay (
 	GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType, FbosCountFbos fbo,
+	StatisticsType::Enum displayType, CountType::Enum countType,
+        FbosCountFbos fbo,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const = 0;
@@ -145,6 +146,9 @@ private:
     void copyCurrentToPrevious ();
     void initFramebuffer (const boost::shared_ptr<QGLFramebufferObject>& fbo);
     
+protected:
+    CountType::Enum m_countType;
+
 private:
     string m_id;
     QColor m_stepClearColor;

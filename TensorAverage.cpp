@@ -155,13 +155,13 @@ TensorAverageTemplate<Setter>::TensorAverageTemplate (
 template<typename Setter>
 void TensorAverageTemplate<Setter>::rotateAndDisplay (
     GLfloat minValue, GLfloat maxValue,
-    StatisticsType::Enum displayType, 
+    StatisticsType::Enum displayType, CountType::Enum countType,
     typename ImageBasedAverage<Setter>::FbosCountFbos srcFbo,
     ViewingVolumeOperation::Enum enclose,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
-    (void)minValue;(void)maxValue;(void)displayType;
-
+    (void)minValue;(void)maxValue;(void)displayType;(void)countType;
+    glPushAttrib (GL_TEXTURE_BIT);
     const WidgetGl& widgetGl = this->GetWidgetGl ();
     G3D::Vector2 gridTranslation;float gridCellLength; float lineWidth;
     float sizeRatio;G3D::Rect2D enclosingRect;float onePixelInObjectSpace;
@@ -199,8 +199,8 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
 
     widgetGl.ActivateViewShader (this->GetViewNumber (), enclose,
 				 rotationCenter, angleDegrees);
-
     m_displayShaderProgram->release ();
+    glPopAttrib ();
     WarnOnOpenGLError ("TensorAverage::rotateAndDisplay");
 }
 

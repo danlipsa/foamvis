@@ -307,6 +307,16 @@ public:
     };
 };
 
+struct CountType
+{
+    enum Enum
+    {
+        LOCAL,
+        GLOBAL
+    };
+};
+
+
 struct AxisOrderName
 {
     enum Enum

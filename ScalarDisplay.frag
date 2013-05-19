@@ -2,9 +2,13 @@
  * Displays a color-mapped scalar average, min, max or count.
  */
 
-// This should match StatisticsType::Enum
-// displayType possible values: 0=average, 1=min, 2=max, 3=count
+// Should match StatisticsType::Enum
+// 0=average, 1=min, 2=max, 3=count
 uniform int u_displayType;
+// Should match CountType::Enum
+// 0 = local, 1=global
+uniform int u_countType;
+uniform float u_globalCount;
 uniform float u_minValue;
 uniform float u_maxValue;
 uniform sampler1D u_colorBarTexUnit;
@@ -18,9 +22,15 @@ void main(void)
         gl_FragColor = vec4 (1.0, 1.0, 1.0, 1.0);
     else
     {
+        float count;
+        // local or global count
+        if (u_countType == 0)
+            count = result.g;
+        else
+            count = u_globalCount;
         float value;
         if (u_displayType == 0)
-	    value = result.r / result.g;
+	    value = result.r / count;
         else if (u_displayType == 1)
 	    value = result.b;
         else if (u_displayType == 2)

@@ -1,5 +1,9 @@
 Release log
 ===========
+1.0.
+        - fixed bug where the color map from velocity was interfering with color
+          map from T1KDE
+        - 
 1.0.2888 2013-05-14
         - isosurface added to the average view
         - added menu action: Copy > Selection > Value to Id. This allows the user

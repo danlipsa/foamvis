@@ -35,6 +35,10 @@ public:
     const ViewSettings& GetViewSettings () const;
     const Foam& GetFoam (ViewNumber::Enum viewNumber) const;
     const Simulation& GetSimulation () const;
+    ViewType::Enum GetInitViewType () const
+    {
+        return m_initViewType;
+    }
 
     virtual void AverageInit ();
     virtual void AverageStep (int direction, size_t timeWindow);
@@ -51,6 +55,7 @@ protected:
     boost::shared_ptr<Average> m_velocityAverage;
     boost::shared_ptr<Average> m_deformationAverage;
     boost::shared_ptr<Average> m_t1KDE;
+    ViewType::Enum m_initViewType;
 };
 
 #endif //__ATTRIBUTE_AVERAGES_H__
