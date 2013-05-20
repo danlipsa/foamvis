@@ -441,15 +441,18 @@ void ImageBasedAverage<PropertySetter>::save (
     FbosCountFbos fbo, const char* postfix, size_t timeStep, size_t subStep,
     GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
 {
+    ostringstream ostr;
+    ostr << "images/" << ViewNumber::ToString (GetViewNumber ());
+    QDir dir (".");
+    dir.mkdir (ostr.str ().c_str ());
     // render to the debug buffer
     m_fbos.m_debug->bind ();
     ClearColorBuffer (Qt::white);
     rotateAndDisplay (minValue, maxValue, displayType, m_countType, fbo, 
                       ViewingVolumeOperation::ENCLOSE2D);
     m_fbos.m_debug->release ();
-    ostringstream ostr;
-    ostr << "images/" 
-	 << m_id << setfill ('0') << setw (4) << timeStep << "-" 
+
+    ostr << "/" << m_id << setfill ('0') << setw (4) << timeStep << "-" 
 	 << setw (2) << subStep << postfix << ".png";
     m_fbos.m_debug->toImage ().save (ostr.str ().c_str ());
     WarnOnOpenGLError ("ImageBasedAverage::save");

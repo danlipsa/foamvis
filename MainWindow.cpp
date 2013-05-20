@@ -1480,8 +1480,6 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
         ViewSettings& vs = GetViewSettings (viewNumber);
         const Simulation& simulation = GetSimulation (viewNumber);
         ViewType::Enum viewType = vs.GetViewType ();
-        if (vs.GetTime () < GetSettings ().GetLinkedTime ())
-            continue;
         if (viewType != ViewType::T1_KDE)
         {
             widgetHistogram->UpdateColorMap (

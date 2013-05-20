@@ -303,6 +303,19 @@ ViewNumber::Enum ViewNumber::FromSizeT (size_t i)
     return ViewNumber::Enum (i);
 }
 
+const char* ViewNumber::ToString (ViewNumber::Enum viewNumber)
+{
+    const char* name[] = 
+    {
+        "view0",
+        "view1",
+        "view2",
+        "view3"
+    };
+    return name[viewNumber];
+}
+
+
 // Methods ViewType
 // ======================================================================
 

@@ -307,6 +307,12 @@ public:
     };
 };
 
+/**
+ * We have two type of averages. For the LOCAL type, a count is stored in each
+ * voxel. This is used for average of attributes where a voxel is not covered
+ * in each time step. For the GLOBAL type, a global count is used, equal with
+ * the number of steps in Average::GetCurrentTimeWindow. This is used for T1KDE.
+ */
 struct CountType
 {
     enum Enum
@@ -418,6 +424,7 @@ struct ViewNumber
 	COUNT
     };
     static Enum FromSizeT (size_t count);
+    static const char* ToString (ViewNumber::Enum viewNumber);
 };
 
 struct HighlightNumber
