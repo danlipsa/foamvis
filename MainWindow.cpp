@@ -293,23 +293,23 @@ void MainWindow::connectSignals ()
     connect (
 	this, 
 	SIGNAL (ColorMapScalarChanged (ViewNumber::Enum, 
-				      boost::shared_ptr<ColorBarModel>)),
+                                       boost::shared_ptr<ColorBarModel>)),
 	widgetGl, 
 	SLOT (SetColorMapScalar (ViewNumber::Enum, 
-				boost::shared_ptr<ColorBarModel>)));
+                                 boost::shared_ptr<ColorBarModel>)));
     connect (
 	this, 
 	SIGNAL (ColorMapScalarChanged (ViewNumber::Enum, 
-				      boost::shared_ptr<ColorBarModel>)),
+                                       boost::shared_ptr<ColorBarModel>)),
 	widgetVtk, 
 	SLOT (FromView (ViewNumber::Enum)));
     connect (
 	this, 
 	SIGNAL (ColorMapVelocityChanged (ViewNumber::Enum, 
-					boost::shared_ptr<ColorBarModel>)),
+                                         boost::shared_ptr<ColorBarModel>)),
 	widgetGl, 
 	SLOT (SetColorMapVelocity (ViewNumber::Enum, 
-					  boost::shared_ptr<ColorBarModel>)));
+                                   boost::shared_ptr<ColorBarModel>)));
     connect (
 	this, 
 	SIGNAL (ColorMapVelocityChanged (ViewNumber::Enum, 
@@ -1215,10 +1215,9 @@ void MainWindow::ToggledViewFocusShown (bool checked)
 
 void MainWindow::initColorMapVelocity ()
 {
-    vector<ViewNumber::Enum> vn = GetSettings ().GetTwoHalvesViewNumbers ();
-    for (size_t i = 0; i < vn.size (); ++i)
+    for (size_t i = 0; i < GetSettings ().GetViewCount (); ++i)
     {
-	ViewNumber::Enum viewNumber = vn[i];
+	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
 	size_t simulationIndex = vs.GetSimulationIndex ();
 	boost::shared_ptr<ColorBarModel> overlayBarModel = 
