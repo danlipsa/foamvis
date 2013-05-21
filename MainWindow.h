@@ -188,7 +188,7 @@ private:
 	const ViewSettings& vs, LightNumber::Enum lightNumber);
     void histogramViewToUI ();
     HistogramInfo createHistogramInfo (
-	pair<float, float> minMax, size_t count) const;    
+	QwtDoubleInterval interval, size_t count) const;    
     void setStackedWidgetVisualization (ViewType::Enum viewType);
     void setStackedWidgetVelocity (VectorVis::Enum vis);
     void connectSignals ();

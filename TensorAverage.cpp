@@ -154,13 +154,12 @@ TensorAverageTemplate<Setter>::TensorAverageTemplate (
 
 template<typename Setter>
 void TensorAverageTemplate<Setter>::rotateAndDisplay (
-    GLfloat minValue, GLfloat maxValue,
-    StatisticsType::Enum displayType, CountType::Enum countType,
+    QwtDoubleInterval interval, StatisticsType::Enum displayType,
     typename ImageBasedAverage<Setter>::FbosCountFbos srcFbo,
     ViewingVolumeOperation::Enum enclose,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
-    (void)displayType;(void)countType;
+    (void)displayType;
     glPushAttrib (GL_TEXTURE_BIT);
     const WidgetGl& widgetGl = this->GetWidgetGl ();
     G3D::Vector2 gridTranslation;float gridCellLength; float lineWidth;
@@ -174,7 +173,8 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
 	m_noiseStart, m_noiseFrequency,
 	m_noiseAmplitude,
 	sizeRatio, enclosingRect, rotationCenter, this->m_countIndex,
-	minValue, maxValue, m_gridShown, m_clampingShown, m_gridCellCenterShown,
+	interval.minValue (), interval.maxValue (), 
+        m_gridShown, m_clampingShown, m_gridCellCenterShown,
 	onePixelInObjectSpace, m_glyphShown);
 
     // bind "tensor average" to texture unit 1

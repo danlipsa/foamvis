@@ -101,9 +101,8 @@ protected:
     virtual void addStep (size_t timeStep, size_t subStep);
     virtual void removeStep (size_t timeStep, size_t subStep);
     virtual void rotateAndDisplay (
-	GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType, CountType::Enum countType,
-        FbosCountFbos fbo,
+	QwtDoubleInterval interval,
+	StatisticsType::Enum displayType, FbosCountFbos fbo,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const = 0;
@@ -125,8 +124,7 @@ protected:
     static boost::shared_ptr<AddShaderProgram> m_removeShaderProgram;
     void save (FbosCountFbos fbo, 
 	       const char* fileName, size_t timeStep, size_t subStep,
-	       GLfloat minValue, 
-	       GLfloat maxValue, StatisticsType::Enum displayType);
+	       QwtDoubleInterval interval, StatisticsType::Enum displayType);
     void save (vtkSmartPointer<vtkFloatArray> data, 
                const G3D::Rect2D& windowCoord, 
                size_t components, float maxValue) const;

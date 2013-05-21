@@ -181,9 +181,9 @@ void Base::CopyForceRatioFrom (ViewNumber::Enum viewNumber)
                       (scaleRatioSameBubbleDiameter / scaleRatio));
 }
 
-// Three types of minMax (and ColorBarModels)
-pair<float, float> Base::GetRange (AverageType::Enum averageType, 
-                                   ViewNumber::Enum viewNumber) const
+
+QwtDoubleInterval Base::GetRange (AverageType::Enum averageType, 
+                                  ViewNumber::Enum viewNumber) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -211,27 +211,27 @@ pair<float, float> Base::GetRange (AverageType::Enum averageType,
     default:
 	break;
     }
-    return pair<float, float> (minValue, maxValue);
+    return QwtDoubleInterval (minValue, maxValue);
 }
 
-pair<float, float> Base::GetRangeVelocityMagnitude (
+QwtDoubleInterval Base::GetRangeVelocityMagnitude (
     ViewNumber::Enum viewNumber) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
     BodyScalar::Enum bodyProperty = BodyScalar::VELOCITY_MAGNITUDE;
     float minValue = simulation.GetMinScalar (bodyProperty);
     float maxValue = simulation.GetMaxScalar (bodyProperty);
-    return pair<float, float> (minValue, maxValue);
+    return QwtDoubleInterval (minValue, maxValue);
 }
 
 
-pair<float, float> Base::GetRangeCount (ViewNumber::Enum viewNumber) const
+QwtDoubleInterval Base::GetRangeCount (ViewNumber::Enum viewNumber) const
 {
-    return pair<float, float> (0, GetSimulation (viewNumber).GetTimeSteps ());
+    return QwtDoubleInterval (0, GetSimulation (viewNumber).GetTimeSteps ());
 }
 
-pair<float, float> Base::GetRangeT1KDE (ViewNumber::Enum viewNumber) const
+QwtDoubleInterval Base::GetRangeT1KDE (ViewNumber::Enum viewNumber) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
-    return pair<float, float> (0.0, simulation.GetMaxT1CountPerTimeStep ());
+    return QwtDoubleInterval (0.0, simulation.GetMaxT1CountPerTimeStep ());
 }

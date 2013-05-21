@@ -80,7 +80,7 @@ vtkSmartPointer<vtkImageData> VectorAverage::getData () const
                      0, windowCoord.height () -1,
                      0, 0};
     __LOG__ (save (velocity, windowCoord, 3, 
-                   GetWidgetGl ().GetRange (GetAverageType ()).second););
+                   GetWidgetGl ().GetRange (GetAverageType ()).maxValue ()););
     vtkSmartPointer<vtkImageData> image = CreateRegularGrid (
         G3D::AABox (G3D::Vector3 (objectCoord.x0y0 (), 0),
                     G3D::Vector3 (objectCoord.x1y1 (), 0)), extent);

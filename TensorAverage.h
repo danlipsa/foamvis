@@ -152,8 +152,7 @@ public:
 
 protected:
     virtual void rotateAndDisplay (
-	GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType, CountType::Enum countType,
+	QwtDoubleInterval interval, StatisticsType::Enum displayType, 
 	typename ImageBasedAverage<Setter>::FbosCountFbos srcFbo,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 

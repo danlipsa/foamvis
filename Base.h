@@ -112,22 +112,23 @@ public:
     void CopyTransformFrom (ViewNumber::Enum viewNumber);
     void CopyForceRatioFrom (ViewNumber::Enum viewNumber);
 
-    pair<float, float> GetRange (AverageType::Enum averageType, 
+    QwtDoubleInterval GetRange (AverageType::Enum averageType, 
                                  ViewNumber::Enum viewNumber) const;
-    pair<float, float> GetRange (AverageType::Enum averageType) const
+    QwtDoubleInterval GetRange (AverageType::Enum averageType) const
     {
         return GetRange (averageType, GetViewNumber ());
     }
-    pair<float, float> GetRangeVelocityMagnitude (
+    QwtDoubleInterval GetRangeVelocityMagnitude (
 	ViewNumber::Enum viewNumber) const;
-    pair<float, float> GetRangeCount (ViewNumber::Enum viewNumber) const;
-    pair<float, float> GetRangeCount () const
+
+    QwtDoubleInterval GetRangeCount (ViewNumber::Enum viewNumber) const;
+    QwtDoubleInterval GetRangeCount () const
     {
         return GetRangeCount (GetViewNumber ());
     }
 
-    pair<float, float> GetRangeT1KDE (ViewNumber::Enum viewNumber) const;
-    pair<float, float> GetRangeT1KDE () const
+    QwtDoubleInterval GetRangeT1KDE (ViewNumber::Enum viewNumber) const;
+    QwtDoubleInterval GetRangeT1KDE () const
     {
 	return GetRangeT1KDE (GetViewNumber ());
     }

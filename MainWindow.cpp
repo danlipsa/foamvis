@@ -741,12 +741,13 @@ MainWindow::HistogramInfo MainWindow::getHistogramInfo (
 }
 
 MainWindow::HistogramInfo MainWindow::createHistogramInfo (
-    pair<float, float> minMax, size_t count) const
+    QwtDoubleInterval interval, size_t count) const
 {
     QwtArray<QwtDoubleInterval> a (HISTOGRAM_INTERVALS);
     QwtArray<double> d (HISTOGRAM_INTERVALS);
-    double intervalSize = (minMax.second - minMax.first) / HISTOGRAM_INTERVALS;
-    double begin = minMax.first;
+    double intervalSize = 
+        (interval.maxValue () - interval.minValue ()) / HISTOGRAM_INTERVALS;
+    double begin = interval.minValue ();
     for (int i = 0; i < a.size (); ++i, begin += intervalSize)
     {
 	a[i] = QwtDoubleInterval (begin, begin + intervalSize);
@@ -804,8 +805,7 @@ void MainWindow::setupColorBarModelT1sKDE (
 	m_colorMapT1KDE[simulationIndex][viewNumber];
     colorBarModel.reset (new ColorBarModel ());
     colorBarModel->SetTitle ("T1s KDE");
-    colorBarModel->SetInterval (
-	toQwtDoubleInterval (GetRangeT1KDE (viewNumber)));
+    colorBarModel->SetInterval (GetRangeT1KDE (viewNumber));
     colorBarModel->SetupPalette (
 	Palette (PaletteType::SEQUENTIAL, PaletteSequential::BREWER_BLUES9));
 }
@@ -819,8 +819,7 @@ void MainWindow::setupColorBarModelDomainHistogram (
 	m_colorMapDomainHistogram[simulationIndex][viewNumber];
     colorBarModel.reset (new ColorBarModel ());
     colorBarModel->SetTitle ("Count per area");
-    colorBarModel->SetInterval (
-	toQwtDoubleInterval (GetRangeCount ()));
+    colorBarModel->SetInterval (GetRangeCount ());
     colorBarModel->SetupPalette (
 	Palette (PaletteType::SEQUENTIAL, PaletteSequential::BLACK_BODY));
 }

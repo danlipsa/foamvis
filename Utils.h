@@ -150,11 +150,6 @@ string ColorToHtml (const QColor& color, const char* text);
 // Qt <-> stl
 QStringList ToQStringList (const vector<string>& v);
 
-// Qwt <-> stl
-inline QwtDoubleInterval toQwtDoubleInterval (pair<float, float> p)
-{
-    return QwtDoubleInterval (p.first, p.second);
-}
 // @}
 
 /**

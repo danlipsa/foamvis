@@ -146,26 +146,26 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::clear ()
 {
     //__ENABLE_LOGGING__;
-    pair<float,float> minMax = GetWidgetGl ().GetRange (GetAverageType ());
+    QwtDoubleInterval interval = GetWidgetGl ().GetRange (GetAverageType ());
     m_fbos.m_step->bind ();
     ClearColorStencilBuffers (getStepClearColor (), 0);
     m_fbos.m_step->release ();
     __LOG__ (save (FbosCountFbos (m_fbos.m_step, m_countFbos.m_step, 
                                   m_countIndex),
                    "step", FAKE_TIMESTEP, 0,
-                   minMax.first, minMax.second, StatisticsType::AVERAGE););
+                   interval, StatisticsType::AVERAGE););
 
     initFramebuffer (m_fbos.m_current);
     __LOG__ (save (FbosCountFbos (m_fbos.m_current, m_countFbos.m_current, 
                                   m_countIndex), 
                    "current", FAKE_TIMESTEP, 0,
-                   minMax.first, minMax.second, StatisticsType::AVERAGE););
+                   interval, StatisticsType::AVERAGE););
     
     initFramebuffer (m_fbos.m_previous);
     __LOG__ (save (FbosCountFbos (m_fbos.m_previous, m_countFbos.m_previous, 
                                   m_countIndex), 
                    "previous", FAKE_TIMESTEP + 1, 0,
-                   minMax.first, minMax.second, StatisticsType::AVERAGE);)
+                   interval, StatisticsType::AVERAGE);)
     WarnOnOpenGLError ("ImageBasedAverage::clear");
 }
 
@@ -183,27 +183,27 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::addStep (size_t timeStep, size_t subStep)
 {
     __ENABLE_LOGGING__;
-    pair<float,float> minMax = GetWidgetGl ().GetRange (GetAverageType ());
+    QwtDoubleInterval interval = GetWidgetGl ().GetRange (GetAverageType ());
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (timeStep, subStep);
     __LOG__ (save 
              (FbosCountFbos (m_fbos.m_step, m_countFbos.m_step, m_countIndex), 
               "step", timeStep, subStep, 
-              minMax.first, minMax.second, StatisticsType::AVERAGE);)
+              interval, StatisticsType::AVERAGE);)
 
     currentIsPreviousPlusStep ();
     __LOG__ (
         save (FbosCountFbos (m_fbos.m_current, m_countFbos.m_current, 
                              m_countIndex), 
               "current", timeStep, subStep,
-              minMax.first, minMax.second, StatisticsType::AVERAGE););
+              interval, StatisticsType::AVERAGE););
         
     copyCurrentToPrevious ();
     __LOG__ (save (
                  FbosCountFbos (m_fbos.m_previous, m_countFbos.m_previous, 
                                 m_countIndex), 
                  "previous", timeStep + 1, subStep,
-                 minMax.first, minMax.second, StatisticsType::AVERAGE););
+                 interval, StatisticsType::AVERAGE););
     glPopAttrib ();
     WarnOnOpenGLError ("ImageBasedAverage::addStep:" + m_averageType);
 }
@@ -212,26 +212,26 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::removeStep (
     size_t timeStep, size_t subStep)
 {
-    pair<float,float> minMax = GetWidgetGl ().GetRange (GetAverageType ());
+    QwtDoubleInterval interval = GetWidgetGl ().GetRange (GetAverageType ());
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (timeStep, subStep);
     __LOG__(save (FbosCountFbos (m_fbos.m_step, m_countFbos.m_step, 
                                  m_countIndex), 
-                  "step", timeStep, subStep, minMax.first, minMax.second, 
+                  "step", timeStep, subStep, interval, 
                   StatisticsType::AVERAGE););
 
     currentIsPreviousMinusStep ();
     __LOG__ (save (FbosCountFbos (m_fbos.m_current, m_countFbos.m_current, 
                                   m_countIndex), 
                    "current", timeStep, subStep,
-                   minMax.first, minMax.second, StatisticsType::AVERAGE);
+                   interval, StatisticsType::AVERAGE);
              cdbg << "removeStep: " << timeStep << "-" << subStep << endl;);
 
     copyCurrentToPrevious ();
     __LOG__ (save (FbosCountFbos (m_fbos.m_previous, m_countFbos.m_previous, 
                                   m_countIndex), 
                    "previous", timeStep + 1, subStep,
-                   minMax.first, minMax.second, StatisticsType::AVERAGE););
+                   interval, StatisticsType::AVERAGE););
 
     glPopAttrib ();
     WarnOnOpenGLError ("ImageBasedAverage::removeStep:" + m_averageType);
@@ -336,9 +336,9 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
 {    
     glBindTexture (GL_TEXTURE_1D, 
 		   GetWidgetGl ().GetColorMapScalarTexture (GetViewNumber ()));
-    pair<float,float> minMax = GetWidgetGl ().GetRange (GetAverageType ());
+    QwtDoubleInterval interval = GetWidgetGl ().GetRange (GetAverageType ());
     rotateAndDisplay (
-	minMax.first, minMax.second, displayType, m_countType,
+	interval, displayType,
 	FbosCountFbos (m_fbos.m_current, m_countFbos.m_current, m_countIndex), 
 	ViewingVolumeOperation::DONT_ENCLOSE2D, rotationCenter, angleDegrees);
 }
@@ -438,7 +438,7 @@ void ImageBasedAverage<PropertySetter>::save (
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::save (
     FbosCountFbos fbo, const char* postfix, size_t timeStep, size_t subStep,
-    GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
+    QwtDoubleInterval interval, StatisticsType::Enum displayType)
 {
     ostringstream ostr;
     ostr << "images/" << ViewNumber::ToString (GetViewNumber ());
@@ -447,7 +447,7 @@ void ImageBasedAverage<PropertySetter>::save (
     // render to the debug buffer
     m_fbos.m_debug->bind ();
     ClearColorBuffer (Qt::white);
-    rotateAndDisplay (minValue, maxValue, displayType, m_countType, fbo, 
+    rotateAndDisplay (interval, displayType, fbo, 
                       ViewingVolumeOperation::ENCLOSE2D);
     m_fbos.m_debug->release ();
 
