@@ -81,7 +81,7 @@ public:
 public:
     TensorAverageTemplate (
         ViewNumber::Enum viewNumber,
-        const WidgetGl& widgetGl, string id,
+        const WidgetGl& widgetGl, AverageType::Enum averageType,
         WidgetGlFloatFunction sizeInitialRatio,
 	ViewSettingsFloatFunction sizeRatio, 
         ViewSettingsFloatFunction lineWidthRatio,

@@ -645,6 +645,19 @@ public:
     };
 };
 
+struct AverageType
+{
+    enum Enum
+    {
+        SCALAR,
+        T1KDE,
+        VECTOR,
+        TENSOR,
+        COUNT
+    };
+    static const char* ToString (AverageType::Enum type);
+};
+
 
 #endif //__ENUMS_H__
 

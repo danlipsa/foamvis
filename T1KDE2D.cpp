@@ -99,8 +99,8 @@ void T1KDE2D::InitShaders ()
 const float s_kernelSigmaInBubbleDiameters = 3;
 
 T1KDE2D::T1KDE2D (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
-    ScalarAverage2DTemplate<SetterNop> (viewNumber, widgetGl, 
-                                        "t1sKDE", QColor (0, 255, 0, 0))
+    ScalarAverage2DTemplate<SetterNop> (
+        viewNumber, widgetGl, AverageType::T1KDE, QColor (0, 255, 0, 0))
 {
     this->m_countType = CountType::GLOBAL;
 }
@@ -142,8 +142,10 @@ void T1KDE2D::InitKernel ()
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, 
 	    GL_RGBA32F));
-    RuntimeAssert (m_kernel->isValid (), 
-		   string ("Framebuffer initialization failed:") + GetId ());
+    RuntimeAssert (
+        m_kernel->isValid (), 
+        string ("Framebuffer initialization failed:") + 
+        AverageType::ToString (GetAverageType ()));
     m_kernel->bind ();    
     m_gaussianInitShaderProgram->Bind (getKernelSigma ());
     ActivateShader (
@@ -186,6 +188,6 @@ size_t T1KDE2D::getStepSize (size_t timeStep) const
 
 void T1KDE2D::CacheData (boost::shared_ptr<AverageCache> averageCache) const
 {
-    vtkSmartPointer<vtkImageData> data = getData (GetId ());
+    vtkSmartPointer<vtkImageData> data = getData (GetAverageType ());
     averageCache->SetT1KDE (data);
 }

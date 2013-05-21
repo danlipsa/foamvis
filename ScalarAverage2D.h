@@ -30,8 +30,8 @@ public:
     static void InitShaders ();
 
     ScalarAverage2DTemplate (ViewNumber::Enum viewNumber, 
-			   const WidgetGl& widgetGl, string id, 
-			   QColor stepClearColor);
+                             const WidgetGl& widgetGl, AverageType::Enum type, 
+                             QColor stepClearColor);
 
 protected:
     virtual void rotateAndDisplay (
@@ -44,7 +44,7 @@ protected:
 
 protected:
     static boost::shared_ptr<ScalarDisplay> m_displayShaderProgram;
-    vtkSmartPointer<vtkImageData> getData (const char* name) const;
+    vtkSmartPointer<vtkImageData> getData (AverageType::Enum averageType) const;
 };
 
 class ScalarAverage2D : public ScalarAverage2DTemplate<SetterVertexAttribute>
@@ -52,7 +52,7 @@ class ScalarAverage2D : public ScalarAverage2DTemplate<SetterVertexAttribute>
 public:
     ScalarAverage2D (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
 	ScalarAverage2DTemplate<SetterVertexAttribute> (
-	    viewNumber, widgetGl, "scalar", QColor (0, 0, 0, 0))
+	    viewNumber, widgetGl, AverageType::SCALAR, QColor (0, 0, 0, 0))
     {
     }
 };

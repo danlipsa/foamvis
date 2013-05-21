@@ -2939,12 +2939,12 @@ void WidgetGl::updateKDESeeds (
 {
     //__ENABLE_LOGGING__;
     const ViewSettings& vs = GetViewSettings (viewNumber);
+    const AttributeAverages2D& aa = GetAttributeAverages2D (viewNumber);
     vector<double> v(1);
     double p[3] = {cellCenter.x, cellCenter.y, 0};
     double kdeValue = *InterpolateAttribute (
         GetAverageCache (viewNumber)->GetT1KDE (),
-        p, GetAttributeAverages2D (
-            viewNumber).GetT1KDE ().GetId (), &v);
+        p, AverageType::ToString (aa.GetT1KDE ().GetAverageType ()), &v);
     if (kdeValue > vs.GetKDEValue ())
     {
         VTK_CREATE (vtkIdList, cell);

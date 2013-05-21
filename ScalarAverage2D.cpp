@@ -49,11 +49,11 @@ void ScalarAverage2DTemplate<PropertySetter>::InitShaders ()
 template<typename PropertySetter>
 ScalarAverage2DTemplate<PropertySetter>::ScalarAverage2DTemplate (
     ViewNumber::Enum viewNumber, 
-    const WidgetGl& widgetGl, string id, 
+    const WidgetGl& widgetGl, AverageType::Enum averageType, 
     QColor stepClearColor) :
 
     ImageBasedAverage<PropertySetter> (
-        viewNumber, widgetGl, id, stepClearColor, this->m_fbos, 1)
+        viewNumber, widgetGl, averageType, stepClearColor, this->m_fbos, 1)
 {
 }
 
@@ -84,8 +84,9 @@ void ScalarAverage2DTemplate<PropertySetter>::rotateAndDisplay (
 
 template<typename PropertySetter>
 vtkSmartPointer<vtkImageData> ScalarAverage2DTemplate<PropertySetter>::getData (
-    const char* name) const
+    AverageType::Enum averageType) const
 {
+    const char* name = AverageType::ToString (averageType);
     G3D::Rect2D windowCoord = this->GetWindowCoord ();
     G3D::Rect2D objectCoord = gluUnProject (
         windowCoord, GluUnProjectZOperation::SET0);

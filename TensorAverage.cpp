@@ -127,7 +127,7 @@ void TensorAverageTemplate<Setter>::InitShaders ()
 template<typename Setter>
 TensorAverageTemplate<Setter>::TensorAverageTemplate (
     ViewNumber::Enum viewNumber,
-    const WidgetGl& widgetGl, string id,
+    const WidgetGl& widgetGl, AverageType::Enum averageType,
     WidgetGlFloatFunction sizeInitialRatio,
     ViewSettingsFloatFunction sizeRatio, 
     ViewSettingsFloatFunction lineWidthRatio,
@@ -135,7 +135,7 @@ TensorAverageTemplate<Setter>::TensorAverageTemplate (
     
     ImageBasedAverage<Setter> (
         viewNumber,
-        widgetGl, id, QColor (0, 0, 0, 0), countFbos, countIndex),
+        widgetGl, averageType, QColor (0, 0, 0, 0), countFbos, countIndex),
     m_gridShown (false),
     m_clampingShown (false),
     m_gridCellCenterShown (false),
@@ -160,13 +160,11 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
     ViewingVolumeOperation::Enum enclose,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
-    (void)minValue;(void)maxValue;(void)displayType;(void)countType;
+    (void)displayType;(void)countType;
     glPushAttrib (GL_TEXTURE_BIT);
     const WidgetGl& widgetGl = this->GetWidgetGl ();
     G3D::Vector2 gridTranslation;float gridCellLength; float lineWidth;
     float sizeRatio;G3D::Rect2D enclosingRect;float onePixelInObjectSpace;
-    pair<float,float> minMax = 
-	widgetGl.GetVelocityMagnitudeRange (this->GetViewNumber ());
     calculateShaderParameters (
 	rotationCenter, &gridTranslation, 
 	&gridCellLength, &lineWidth, &sizeRatio, &enclosingRect, 
@@ -176,8 +174,7 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
 	m_noiseStart, m_noiseFrequency,
 	m_noiseAmplitude,
 	sizeRatio, enclosingRect, rotationCenter, this->m_countIndex,
-	minMax.first, minMax.second,
-	m_gridShown, m_clampingShown, m_gridCellCenterShown,
+	minValue, maxValue, m_gridShown, m_clampingShown, m_gridCellCenterShown,
 	onePixelInObjectSpace, m_glyphShown);
 
     // bind "tensor average" to texture unit 1
@@ -244,7 +241,7 @@ TensorAverage::TensorAverage (ViewNumber::Enum viewNumber,
 			      FramebufferObjects& countFbos) :
 
     TensorAverageTemplate<SetterDeformation> (
-	viewNumber, widgetGl, "tensor",
+	viewNumber, widgetGl, AverageType::TENSOR,
 	&WidgetGl::GetDeformationSizeInitialRatio,
 	&ViewSettings::GetDeformationSize,
 	&ViewSettings::GetDeformationLineWidth,

@@ -496,7 +496,6 @@ ForceType::Enum ForceType::FromSizeT (size_t i)
 
 // Methods T1Type
 // ======================================================================
-
 boost::array<const char*, 
              T1Type::COUNT> T1Type::NAME = {{
         "quad_to_quad",
@@ -552,4 +551,18 @@ vtkSmartPointer<vtkLookupTable> T1Type::GetLookupTable ()
         map->SetAnnotation (type, ToString (type));
     }
     return map;
+}
+
+// Methods AverageType
+// ======================================================================
+const char* AverageType::ToString (AverageType::Enum type)
+{
+    const char* name[] = 
+    {
+        "scalar",
+        "t1KDE",
+        "vector",
+        "tensor"
+    };
+    return name[type];
 }

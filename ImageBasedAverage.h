@@ -61,7 +61,7 @@ class ImageBasedAverage : public Average
 public:
     ImageBasedAverage (
 	ViewNumber::Enum viewNumber,
-	const WidgetGl& widgetGl, string id, QColor stepClearColor,
+	const WidgetGl& widgetGl, AverageType::Enum type, QColor stepClearColor,
 	FramebufferObjects& countFbos, size_t countIndex);
     void AverageRelease ();
     void AverageRotateAndDisplay (
@@ -73,10 +73,10 @@ public:
 	return m_fbos;
     }
     virtual void AverageInit ();
-    const char* GetId () const
+    AverageType::Enum GetAverageType () const
     {
-	return m_id.c_str ();
-    }    
+	return m_averageType;
+    }
     const WidgetGl& GetWidgetGl () const
     {
 	return m_widgetGl;
@@ -150,7 +150,7 @@ protected:
     CountType::Enum m_countType;
 
 private:
-    string m_id;
+    AverageType::Enum m_averageType;
     QColor m_stepClearColor;
     const WidgetGl& m_widgetGl;
 };

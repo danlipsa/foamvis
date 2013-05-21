@@ -70,15 +70,15 @@ ImageBasedAverage<PropertySetter>::m_removeShaderProgram;
 template<typename PropertySetter>
 ImageBasedAverage<PropertySetter>::ImageBasedAverage (
     ViewNumber::Enum viewNumber,
-    const WidgetGl& widgetGl, string id, QColor stepClearColor,
+    const WidgetGl& widgetGl, AverageType::Enum type, QColor stepClearColor,
     FramebufferObjects& countFbos, size_t countIndex) :
-
+    
     Average (viewNumber, 
 	     widgetGl.GetSettingsPtr (), widgetGl.GetSimulationGroupPtr ()), 
     m_countFbos (countFbos), 
     m_countIndex (countIndex),
     m_countType (CountType::LOCAL),
-    m_id (id),
+    m_averageType (type),
     m_stepClearColor (stepClearColor),
     m_widgetGl (widgetGl)
 {
@@ -100,26 +100,26 @@ void ImageBasedAverage<PropertySetter>::AverageInit ()
 		size, QGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_2D, 
 		GL_RGBA32F));
 	RuntimeAssert (m_fbos.m_step->isValid (), 
-		       "Framebuffer initialization failed:" + m_id);
+		       "Framebuffer initialization failed:" + m_averageType);
 	RuntimeAssert (m_fbos.m_step->attachment () == 
 		       QGLFramebufferObject::CombinedDepthStencil,
-		       "No stencil attachement available:" + m_id);
+		       "No stencil attachement available:" + m_averageType);
 
 	m_fbos.m_current.reset (
 	    new QGLFramebufferObject (
 		size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D,
 		GL_RGBA32F));
 	RuntimeAssert (m_fbos.m_current->isValid (), 
-		       "Framebuffer initialization failed:" + m_id);
+		       "Framebuffer initialization failed:" + m_averageType);
 	m_fbos.m_previous.reset (
 	    new QGLFramebufferObject (
 		size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D,
 		GL_RGBA32F));
 	RuntimeAssert (m_fbos.m_previous->isValid (), 
-		       "Framebuffer initialization failed:" + m_id);
+		       "Framebuffer initialization failed:" + m_averageType);
 	m_fbos.m_debug.reset (new QGLFramebufferObject (size));
 	RuntimeAssert (m_fbos.m_debug->isValid (), 
-		       "Framebuffer initialization failed:" + m_id);
+		       "Framebuffer initialization failed:" + m_averageType);
 	glPopAttrib ();
 	clear ();
 	WarnOnOpenGLError ("ImageBasedAverage::init");
@@ -146,8 +146,7 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::clear ()
 {
     //__ENABLE_LOGGING__;
-    pair<float,float> minMax = 
-	GetWidgetGl ().GetRange (GetViewNumber ());
+    pair<float,float> minMax = GetWidgetGl ().GetRange (GetAverageType ());
     m_fbos.m_step->bind ();
     ClearColorStencilBuffers (getStepClearColor (), 0);
     m_fbos.m_step->release ();
@@ -184,7 +183,7 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::addStep (size_t timeStep, size_t subStep)
 {
     __ENABLE_LOGGING__;
-    pair<float,float> minMax = GetWidgetGl ().GetRange (GetViewNumber ());
+    pair<float,float> minMax = GetWidgetGl ().GetRange (GetAverageType ());
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (timeStep, subStep);
     __LOG__ (save 
@@ -206,14 +205,14 @@ void ImageBasedAverage<PropertySetter>::addStep (size_t timeStep, size_t subStep
                  "previous", timeStep + 1, subStep,
                  minMax.first, minMax.second, StatisticsType::AVERAGE););
     glPopAttrib ();
-    WarnOnOpenGLError ("ImageBasedAverage::addStep:" + m_id);
+    WarnOnOpenGLError ("ImageBasedAverage::addStep:" + m_averageType);
 }
 
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::removeStep (
     size_t timeStep, size_t subStep)
 {
-    pair<float,float> minMax = GetWidgetGl ().GetRange (GetViewNumber ());
+    pair<float,float> minMax = GetWidgetGl ().GetRange (GetAverageType ());
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (timeStep, subStep);
     __LOG__(save (FbosCountFbos (m_fbos.m_step, m_countFbos.m_step, 
@@ -235,7 +234,7 @@ void ImageBasedAverage<PropertySetter>::removeStep (
                    minMax.first, minMax.second, StatisticsType::AVERAGE););
 
     glPopAttrib ();
-    WarnOnOpenGLError ("ImageBasedAverage::removeStep:" + m_id);
+    WarnOnOpenGLError ("ImageBasedAverage::removeStep:" + m_averageType);
 }
 
 template<typename PropertySetter>
@@ -258,7 +257,7 @@ void ImageBasedAverage<PropertySetter>::renderToStep (
     glPopMatrix ();
     glMatrixMode (GL_MODELVIEW);
     glPopMatrix ();
-    WarnOnOpenGLError ("ImageBasedAverage::renderToStep:" + m_id);
+    WarnOnOpenGLError ("ImageBasedAverage::renderToStep:" + m_averageType);
 }
 
 template<typename PropertySetter>
@@ -281,7 +280,7 @@ void ImageBasedAverage<PropertySetter>::currentIsPreviousPlusStep ()
     GetWidgetGl ().ActivateViewShader (GetViewNumber ());
     m_addShaderProgram->release ();
     m_fbos.m_current->release ();
-    WarnOnOpenGLError ("ImageBasedAverage::currentIsPreviousPlusStep:" + m_id);
+    WarnOnOpenGLError ("ImageBasedAverage::currentIsPreviousPlusStep:" + m_averageType);
 }
 
 template<typename PropertySetter>
@@ -304,7 +303,7 @@ void ImageBasedAverage<PropertySetter>::currentIsPreviousMinusStep ()
     GetWidgetGl ().ActivateViewShader (GetViewNumber ());
     m_removeShaderProgram->release ();
     m_fbos.m_current->release ();
-    WarnOnOpenGLError ("ImageBasedAverage::currentIsPreviousMinusStep:" + m_id);
+    WarnOnOpenGLError ("ImageBasedAverage::currentIsPreviousMinusStep:" + m_averageType);
 }
 
 template<typename PropertySetter>
@@ -337,7 +336,7 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
 {    
     glBindTexture (GL_TEXTURE_1D, 
 		   GetWidgetGl ().GetColorMapScalarTexture (GetViewNumber ()));
-    pair<float,float> minMax = GetWidgetGl ().GetRange (GetViewNumber ());
+    pair<float,float> minMax = GetWidgetGl ().GetRange (GetAverageType ());
     rotateAndDisplay (
 	minMax.first, minMax.second, displayType, m_countType,
 	FbosCountFbos (m_fbos.m_current, m_countFbos.m_current, m_countIndex), 
@@ -370,7 +369,7 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
 	    ContextInvisible::ALWAYS));
     glPopAttrib ();
     m_storeShaderProgram->release ();
-    WarnOnOpenGLError ("ImageBasedAverage::writeStepValues:" + m_id);
+    WarnOnOpenGLError ("ImageBasedAverage::writeStepValues:" + m_averageType);
 }
 
 
@@ -452,7 +451,7 @@ void ImageBasedAverage<PropertySetter>::save (
                       ViewingVolumeOperation::ENCLOSE2D);
     m_fbos.m_debug->release ();
 
-    ostr << "/" << m_id << setfill ('0') << setw (4) << timeStep << "-" 
+    ostr << "/" << m_averageType << setfill ('0') << setw (4) << timeStep << "-" 
 	 << setw (2) << subStep << postfix << ".png";
     m_fbos.m_debug->toImage ().save (ostr.str ().c_str ());
     WarnOnOpenGLError ("ImageBasedAverage::save");
