@@ -247,9 +247,10 @@ public:
 	return m_max[property];
     }
 
-    QwtDoubleInterval GetRangeScalar (BodyScalar::Enum property) const
+    QwtDoubleInterval GetIntervalScalar (BodyScalar::Enum property) const
     {
-	return QwtDoubleInterval (GetMinScalar (property), GetMaxScalar (property));
+	return QwtDoubleInterval (
+            GetMinScalar (property), GetMaxScalar (property));
     }
     
     void CalculateMinMaxStatistics ();

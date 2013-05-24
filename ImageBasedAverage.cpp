@@ -77,7 +77,7 @@ ImageBasedAverage<PropertySetter>::ImageBasedAverage (
 	     widgetGl.GetSettingsPtr (), widgetGl.GetSimulationGroupPtr ()), 
     m_countFbos (countFbos), 
     m_countIndex (countIndex),
-    m_countType (CountType::LOCAL),
+    m_countType (AverageCountType::LOCAL),
     m_averageType (type),
     m_stepClearColor (stepClearColor),
     m_widgetGl (widgetGl)
@@ -146,7 +146,7 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::clear ()
 {
     //__ENABLE_LOGGING__;
-    QwtDoubleInterval interval = GetWidgetGl ().GetRange (GetAverageType ());
+    QwtDoubleInterval interval = GetWidgetGl ().GetInterval (GetAverageType ());
     m_fbos.m_step->bind ();
     ClearColorStencilBuffers (getStepClearColor (), 0);
     m_fbos.m_step->release ();
@@ -183,7 +183,7 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::addStep (size_t timeStep, size_t subStep)
 {
     __ENABLE_LOGGING__;
-    QwtDoubleInterval interval = GetWidgetGl ().GetRange (GetAverageType ());
+    QwtDoubleInterval interval = GetWidgetGl ().GetInterval (GetAverageType ());
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (timeStep, subStep);
     __LOG__ (save 
@@ -212,7 +212,7 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::removeStep (
     size_t timeStep, size_t subStep)
 {
-    QwtDoubleInterval interval = GetWidgetGl ().GetRange (GetAverageType ());
+    QwtDoubleInterval interval = GetWidgetGl ().GetInterval (GetAverageType ());
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (timeStep, subStep);
     __LOG__(save (FbosCountFbos (m_fbos.m_step, m_countFbos.m_step, 
@@ -336,7 +336,7 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
 {    
     glBindTexture (GL_TEXTURE_1D, 
 		   GetWidgetGl ().GetColorMapScalarTexture (GetViewNumber ()));
-    QwtDoubleInterval interval = GetWidgetGl ().GetRange (GetAverageType ());
+    QwtDoubleInterval interval = GetWidgetGl ().GetInterval (GetAverageType ());
     rotateAndDisplay (
 	interval, displayType,
 	FbosCountFbos (m_fbos.m_current, m_countFbos.m_current, m_countIndex), 

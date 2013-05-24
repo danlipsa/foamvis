@@ -123,7 +123,7 @@ public:
     {
 	return m_maxDeformationEigenValue;
     }
-    QwtDoubleInterval GetRangeScalar (BodyScalar::Enum property) const
+    QwtDoubleInterval GetIntervalScalar (BodyScalar::Enum property) const
     {
 	return QwtDoubleInterval (
             GetMinScalar (property), GetMaxScalar (property));

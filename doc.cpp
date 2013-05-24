@@ -106,4 +106,9 @@ while (no more items in the queue)
  * @todo bug: Translate grid does not work with streamlines.
  * @todo fix the (slow) movement of the focus in context view for the GL view
  * @todo replace glScale with camera movement for GL view
+ * @todo implement clamping such that the number of colors are not reduced
+ *       for small clamp intervals
+ * @todo add an option for 3D RegularGridAverage for AverageCountType::LOCAL. 
+ *       This would be useful for shear160dumps_3b where a voxel does not have
+*        a value in every time steps.
  */

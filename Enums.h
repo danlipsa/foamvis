@@ -313,7 +313,7 @@ public:
  * in each time step. For the GLOBAL type, a global count is used, equal with
  * the number of steps in Average::GetCurrentTimeWindow. This is used for T1KDE.
  */
-struct CountType
+struct AverageCountType
 {
     enum Enum
     {

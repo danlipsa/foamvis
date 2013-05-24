@@ -182,7 +182,7 @@ void Base::CopyForceRatioFrom (ViewNumber::Enum viewNumber)
 }
 
 
-QwtDoubleInterval Base::GetRange (AverageType::Enum averageType, 
+QwtDoubleInterval Base::GetInterval (AverageType::Enum averageType, 
                                   ViewNumber::Enum viewNumber) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
@@ -192,7 +192,7 @@ QwtDoubleInterval Base::GetRange (AverageType::Enum averageType,
     {
     case AverageType::SCALAR:
 	if (vs.GetStatisticsType () == StatisticsType::COUNT)
-	    return GetRangeCount (viewNumber);
+	    return GetIntervalCount (viewNumber);
 	else
 	{
 	    BodyScalar::Enum bodyProperty = 
@@ -203,10 +203,10 @@ QwtDoubleInterval Base::GetRange (AverageType::Enum averageType,
 	break;
 
     case AverageType::T1KDE:
-	return GetRangeT1KDE (viewNumber);
+	return GetIntervalT1KDE (viewNumber);
         
     case AverageType::VECTOR:
-        return GetRangeVelocityMagnitude (viewNumber);
+        return GetIntervalVelocityMagnitude (viewNumber);
 
     default:
 	break;
@@ -214,7 +214,7 @@ QwtDoubleInterval Base::GetRange (AverageType::Enum averageType,
     return QwtDoubleInterval (minValue, maxValue);
 }
 
-QwtDoubleInterval Base::GetRangeVelocityMagnitude (
+QwtDoubleInterval Base::GetIntervalVelocityMagnitude (
     ViewNumber::Enum viewNumber) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
@@ -225,12 +225,12 @@ QwtDoubleInterval Base::GetRangeVelocityMagnitude (
 }
 
 
-QwtDoubleInterval Base::GetRangeCount (ViewNumber::Enum viewNumber) const
+QwtDoubleInterval Base::GetIntervalCount (ViewNumber::Enum viewNumber) const
 {
     return QwtDoubleInterval (0, GetSimulation (viewNumber).GetTimeSteps ());
 }
 
-QwtDoubleInterval Base::GetRangeT1KDE (ViewNumber::Enum viewNumber) const
+QwtDoubleInterval Base::GetIntervalT1KDE (ViewNumber::Enum viewNumber) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
     return QwtDoubleInterval (0.0, simulation.GetMaxT1CountPerTimeStep ());

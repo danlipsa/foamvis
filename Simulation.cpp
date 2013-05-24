@@ -566,7 +566,7 @@ void Simulation::GetTimeStepSelection (
     for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
     {
 	const Foam& foam = GetFoam (timeStep);
-	if (valueInterval.intersects (foam.GetRangeScalar (property))
+	if (valueInterval.intersects (foam.GetIntervalScalar (property))
 	    && foam.ExistsBodyWithValueIn (property, valueInterval))
 	    (*timeStepSelection)[timeStep] = true;
     }
@@ -611,14 +611,19 @@ size_t Simulation::GetT1CountAllTimeSteps () const
     return size;
 }
 
+// @todo: return the real value here. It would work if clamping would not
+// reduce the number of colors that are displayed. Until then use 1 instead.
 size_t Simulation::GetMaxT1CountPerTimeStep () const
 {
+    return 1;
+/*
     size_t maxCount = 0;
     BOOST_FOREACH (const vector<T1>& tc, m_t1)
     {
 	maxCount = max (maxCount, tc.size ());
     }
     return maxCount;
+*/
 }
 
 

@@ -145,7 +145,7 @@ private:
     void initFramebuffer (const boost::shared_ptr<QGLFramebufferObject>& fbo);
     
 protected:
-    CountType::Enum m_countType;
+    AverageCountType::Enum m_countType;
 
 private:
     AverageType::Enum m_averageType;

@@ -719,7 +719,7 @@ MainWindow::HistogramInfo MainWindow::getHistogramInfo (
     switch (colorBarType)
     {
     case ColorMapScalarType::STATISTICS_COUNT:
-	return createHistogramInfo (GetRangeCount (), 1);
+	return createHistogramInfo (GetIntervalCount (), 1);
     
     case ColorMapScalarType::PROPERTY:
     {
@@ -732,11 +732,11 @@ MainWindow::HistogramInfo MainWindow::getHistogramInfo (
     
     case ColorMapScalarType::T1_KDE:
 	return createHistogramInfo (
-	    GetRangeT1KDE (), simulation.GetT1CountAllTimeSteps ());
+	    GetIntervalT1KDE (), simulation.GetT1CountAllTimeSteps ());
 
     default:
 	ThrowException ("Invalid call to getHistogramInfo");
-	return createHistogramInfo (GetRangeCount (), 1);
+	return createHistogramInfo (GetIntervalCount (), 1);
     }
 }
 
@@ -805,7 +805,7 @@ void MainWindow::setupColorBarModelT1sKDE (
 	m_colorMapT1KDE[simulationIndex][viewNumber];
     colorBarModel.reset (new ColorBarModel ());
     colorBarModel->SetTitle ("T1s KDE");
-    colorBarModel->SetInterval (GetRangeT1KDE (viewNumber));
+    colorBarModel->SetInterval (GetIntervalT1KDE (viewNumber));
     colorBarModel->SetupPalette (
 	Palette (PaletteType::SEQUENTIAL, PaletteSequential::BREWER_BLUES9));
 }
@@ -819,7 +819,7 @@ void MainWindow::setupColorBarModelDomainHistogram (
 	m_colorMapDomainHistogram[simulationIndex][viewNumber];
     colorBarModel.reset (new ColorBarModel ());
     colorBarModel->SetTitle ("Count per area");
-    colorBarModel->SetInterval (GetRangeCount ());
+    colorBarModel->SetInterval (GetIntervalCount ());
     colorBarModel->SetupPalette (
 	Palette (PaletteType::SEQUENTIAL, PaletteSequential::BLACK_BODY));
 }
@@ -853,7 +853,7 @@ void MainWindow::setupColorBarModel (
     colorBarModel.reset (new ColorBarModel ());
     const Simulation& simulation = GetSimulation (simulationIndex);
     colorBarModel->SetTitle (BodyScalar::ToString (property));
-    colorBarModel->SetInterval (simulation.GetRangeScalar (property));
+    colorBarModel->SetInterval (simulation.GetIntervalScalar (property));
     colorBarModel->SetupPalette (
 	Palette (PaletteType::DIVERGING, PaletteDiverging::BLUE_RED));
 }

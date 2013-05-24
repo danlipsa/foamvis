@@ -112,25 +112,25 @@ public:
     void CopyTransformFrom (ViewNumber::Enum viewNumber);
     void CopyForceRatioFrom (ViewNumber::Enum viewNumber);
 
-    QwtDoubleInterval GetRange (AverageType::Enum averageType, 
+    QwtDoubleInterval GetInterval (AverageType::Enum averageType, 
                                  ViewNumber::Enum viewNumber) const;
-    QwtDoubleInterval GetRange (AverageType::Enum averageType) const
+    QwtDoubleInterval GetInterval (AverageType::Enum averageType) const
     {
-        return GetRange (averageType, GetViewNumber ());
+        return GetInterval (averageType, GetViewNumber ());
     }
-    QwtDoubleInterval GetRangeVelocityMagnitude (
+    QwtDoubleInterval GetIntervalVelocityMagnitude (
 	ViewNumber::Enum viewNumber) const;
 
-    QwtDoubleInterval GetRangeCount (ViewNumber::Enum viewNumber) const;
-    QwtDoubleInterval GetRangeCount () const
+    QwtDoubleInterval GetIntervalCount (ViewNumber::Enum viewNumber) const;
+    QwtDoubleInterval GetIntervalCount () const
     {
-        return GetRangeCount (GetViewNumber ());
+        return GetIntervalCount (GetViewNumber ());
     }
 
-    QwtDoubleInterval GetRangeT1KDE (ViewNumber::Enum viewNumber) const;
-    QwtDoubleInterval GetRangeT1KDE () const
+    QwtDoubleInterval GetIntervalT1KDE (ViewNumber::Enum viewNumber) const;
+    QwtDoubleInterval GetIntervalT1KDE () const
     {
-	return GetRangeT1KDE (GetViewNumber ());
+	return GetIntervalT1KDE (GetViewNumber ());
     }
 
 

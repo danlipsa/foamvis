@@ -102,7 +102,7 @@ T1KDE2D::T1KDE2D (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
     ScalarAverage2DTemplate<SetterNop> (
         viewNumber, widgetGl, AverageType::T1KDE, QColor (0, 255, 0, 0))
 {
-    this->m_countType = CountType::GLOBAL;
+    this->m_countType = AverageCountType::GLOBAL;
 }
 
 float T1KDE2D::getKernelSigma () const
