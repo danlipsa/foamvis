@@ -2119,7 +2119,7 @@ void WidgetGl::displayAverage (ViewNumber::Enum viewNumber) const
     const AttributeAverages2D& aa = GetAttributeAverages2D (viewNumber);
     if (simulation.Is3D () || vs.GetViewType () != aa.GetInitViewType ())
 	return;
-    glPushAttrib (GL_ENABLE_BIT);    
+    glPushAttrib (GL_ENABLE_BIT | GL_TEXTURE_BIT);
     glDisable (GL_DEPTH_TEST);
     glBindTexture (GL_TEXTURE_1D, m_colorBarScalarTexture[viewNumber]);
     bool isAverageAroundRotationShown = 
