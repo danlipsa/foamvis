@@ -12,7 +12,7 @@ void main(void)
     x = interval * x;
     float sumSquares = dot (x, x);
     //float peakHeight = 1.0 / (u_sigma * u_sigma * 2.0 * pi);
-    float peakHeight = 1;
+    float peakHeight = 1.0;
     float k = peakHeight * exp (- 0.5 * sumSquares / (u_sigma * u_sigma));
     gl_FragColor = vec4 (k, 0, 0, 0);
 }

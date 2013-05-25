@@ -155,6 +155,8 @@ LIBS += "-lvtkImagingSources-6.0"
 LIBS += "-lvtkRenderingAnnotation-6.0"
 LIBS += "-lvtkRenderingFreeTypeOpenGL-6.0"
 LIBS += "-lvtkRenderingFreeType-6.0"
+LIBS += "-lvtkFiltersGeneral-6.0"
+LIBS += "-lvtkCommonTransforms-6.0"
 
 
 # Qt3D
