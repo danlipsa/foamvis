@@ -146,7 +146,7 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::clear ()
 {
     //__ENABLE_LOGGING__;
-    QwtDoubleInterval interval = GetWidgetGl ().GetInterval (GetAverageType ());
+    QwtDoubleInterval interval = GetInterval (GetAverageType ());
     m_fbos.m_step->bind ();
     ClearColorStencilBuffers (getStepClearColor (), 0);
     m_fbos.m_step->release ();
@@ -183,7 +183,7 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::addStep (size_t timeStep, size_t subStep)
 {
     __ENABLE_LOGGING__;
-    QwtDoubleInterval interval = GetWidgetGl ().GetInterval (GetAverageType ());
+    QwtDoubleInterval interval = GetInterval (GetAverageType ());
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (timeStep, subStep);
     __LOG__ (save 
@@ -212,7 +212,7 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::removeStep (
     size_t timeStep, size_t subStep)
 {
-    QwtDoubleInterval interval = GetWidgetGl ().GetInterval (GetAverageType ());
+    QwtDoubleInterval interval = GetInterval (GetAverageType ());
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (timeStep, subStep);
     __LOG__(save (FbosCountFbos (m_fbos.m_step, m_countFbos.m_step, 
@@ -280,7 +280,8 @@ void ImageBasedAverage<PropertySetter>::currentIsPreviousPlusStep ()
     GetWidgetGl ().ActivateViewShader (GetViewNumber ());
     m_addShaderProgram->release ();
     m_fbos.m_current->release ();
-    WarnOnOpenGLError ("ImageBasedAverage::currentIsPreviousPlusStep:" + m_averageType);
+    WarnOnOpenGLError ("ImageBasedAverage::currentIsPreviousPlusStep:" + 
+                       m_averageType);
 }
 
 template<typename PropertySetter>
@@ -409,8 +410,7 @@ void ImageBasedAverage<PropertySetter>::save (
                   QImage::Format_RGB32);
     ostringstream ostr;
     ostr << "images/data" << components << "-"
-	 << setfill ('0') << setw (4) << GetWidgetGl ().GetTime ()  
-         << ".png";
+	 << setfill ('0') << setw (4) << GetTime ()  << ".png";
     QColor color;
     for (size_t x = 0; x < windowCoord.width (); ++x)
         for (size_t y = 0; y < windowCoord.height (); ++y)
