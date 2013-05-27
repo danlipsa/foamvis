@@ -113,7 +113,7 @@ public:
     void CopyForceRatioFrom (ViewNumber::Enum viewNumber);
 
     QwtDoubleInterval GetInterval (AverageType::Enum averageType, 
-                                 ViewNumber::Enum viewNumber) const;
+                                   ViewNumber::Enum viewNumber) const;
     QwtDoubleInterval GetInterval (AverageType::Enum averageType) const
     {
         return GetInterval (averageType, GetViewNumber ());

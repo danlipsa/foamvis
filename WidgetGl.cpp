@@ -767,19 +767,11 @@ void WidgetGl::SetViewTypeAndCameraDistance (ViewNumber::Enum viewNumber)
 void WidgetGl::displayViews ()
 {
     size_t viewCount = GetViewCount ();
-    switch (viewCount)
-    {
-    case ViewCount::COUNT:
+    if (viewCount == ViewCount::COUNT)
 	RuntimeAssert (false, "Invalid view count:", viewCount);
-	break;
-    case ViewCount::FOUR:
-    case ViewCount::THREE:
-    case ViewCount::TWO:
-    case ViewCount::ONE:
-	ForAllViews (
-	    boost::bind (&WidgetGl::displayView, this, _1));
-	break;
-    }
+    else
+        ForAllViews (
+            boost::bind (&WidgetGl::displayView, this, _1));
 }
 
 void WidgetGl::displayAllViewTransforms (ViewNumber::Enum viewNumber)
@@ -835,8 +827,7 @@ void WidgetGl::displayView (ViewNumber::Enum viewNumber)
 	displayBodyVelocity (currentView);
     }
     displayBodiesNeighbors ();
-    displayStatus ();    
-    
+    displayStatus ();      
     //displayContextMenuPos (viewNumber);
     WarnOnOpenGLError ("displayView");
     //cdbg << "displayView(" <<  viewNumber << "): " 

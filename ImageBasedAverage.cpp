@@ -336,7 +336,7 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
 {    
     glBindTexture (GL_TEXTURE_1D, 
 		   GetWidgetGl ().GetColorMapScalarTexture (GetViewNumber ()));
-    QwtDoubleInterval interval = GetWidgetGl ().GetInterval (GetAverageType ());
+    QwtDoubleInterval interval = GetInterval (GetAverageType ());
     rotateAndDisplay (
 	interval, displayType,
 	FbosCountFbos (m_fbos.m_current, m_countFbos.m_current, m_countIndex), 
