@@ -1,8 +1,7 @@
 /**
  * @file Attribute.h
  * @author Dan R. Lipsa
- * Contains declaration  of classes for all types  of attributes which
- * can be attached to vertices, edges, faces and bodies.
+ * @brief Attributes that can be attached to vertices, edges, faces and bodies.
  */
 #ifndef __ATTRIBUTE_H__
 #define __ATTRIBUTE_H__
@@ -10,7 +9,7 @@
 #include "ParsingEnums.h"
 
 /**
- * Base class for all attributes
+ * @brief Attributes that can be attached to vertices, edges, faces and bodies.
  */
 class Attribute
 {
@@ -47,7 +46,8 @@ public:
     }
 };
 /**
- * An integer attribute
+ * @brief An integer attribute that can be attached to 
+ *        vertices, edges, faces and bodies.
  */
 class IntegerAttribute : public Attribute
 {
@@ -79,8 +79,10 @@ private:
      */
     int m_value;
 };
+
 /**
- * A real attribute
+ * @brief A real attribute that can be attached to 
+ *        vertices, edges, faces and bodies.
  */
 class RealAttribute : public Attribute
 {
@@ -126,7 +128,8 @@ private:
 };
 
 /**
- * A color attribute
+ * @brief A color attribute that can be attached to 
+ *        vertices, edges, faces and bodies.
  */
 class ColorAttribute : public Attribute
 {
@@ -170,7 +173,8 @@ private:
 };
 
 /**
- * An attribute that stores an array of integers
+ * @brief An array of integers attribute that can be attached to 
+ *        vertices, edges, faces and bodies.
  */
 class IntegerArrayAttribute : public Attribute
 {
@@ -217,7 +221,8 @@ private:
 };
 
 /**
- * An attribute that stores an array of reals
+ * @brief An array of reals attribute that can be attached to 
+ *        vertices, edges, faces and bodies.
  */
 class RealArrayAttribute : public Attribute
 {
@@ -247,8 +252,11 @@ private:
 };
 
 /**
- * An attribute that stores an array of attributes (used for
- * multidimensional arrays). The last level stores RealAttributes
+ * @brief An array of attributes that can be attached 
+ *        to vertices, edges, faces and bodies.
+ *
+ * This is used for multidimensional arrays. The last level stores
+ * RealAttributes
  */
 class AttributeArrayAttribute : public Attribute
 {

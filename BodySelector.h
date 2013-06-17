@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date  31 Aug. 2010
  *
- * Functors used to select a body
+ * @brief Functors that specify selected bubbles. 
  */
 #ifndef __BODY_SELECTOR_H__
 #define __BODY_SELECTOR_H__
@@ -13,7 +13,7 @@ class Body;
 
 
 /**
- * Abstract class. Selects a list of bodies based on a criteria.
+ * @brief Specifies selected bubbles
  */
 class BodySelector
 {
@@ -35,6 +35,9 @@ private:
     static const BinRegions ALL_BINS;
 };
 
+/**
+ * @brief Specifies selected bubbles (used in std libraries algorithms)
+ */
 class BodySelectorPredicate
 {
 public:
@@ -50,7 +53,9 @@ private:
     const BodySelector& m_bs;
 };
 
-
+/**
+ * @brief Specifies that all bubbles are selected.
+ */
 class AllBodySelector : public BodySelector
 {
 public:
@@ -78,8 +83,8 @@ private:
 };
 
 /**
- * Selects bodies with a propriety value in an interval from an
- * interval list.
+ * @brief Specifies that bubbles with a scalar value in a specified 
+ *        list of intervals are selected.
  */
 class ValueBodySelector : public BodySelector
 {
@@ -118,7 +123,7 @@ private:
 
 
 /**
- * Selects bodies with specified ids.
+ * @brief Specifies that bubbles with given IDs are selected
  */
 class IdBodySelector : public BodySelector
 {
@@ -156,7 +161,7 @@ private:
 
 
 /**
- * Selects a body based on Id and PropertyValue.
+ * Specifies that bubbles with given IDs and scalar values are selected.
  */
 class CompositeBodySelector : public BodySelector
 {

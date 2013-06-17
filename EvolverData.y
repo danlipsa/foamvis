@@ -1,10 +1,14 @@
 /**
- * @file   foam.y
+ * @file   EvolverData.y
  * @author Dan R. Lipsa
+ * @brief Grammar for parsing a DMP (or FE) file produced by Surface Evolver.
+ * @ingroup parser
  *
- * Grammar  description for  the parser  used to  read in  a  DMP (or a FE) file
- * produced by the Surface Evolver software.
+ * @defgroup parser Parser
+ * Files and classes used to parse Surface Evolver .dmp files and 
+ * build a memory representation of the simulation file.
  */
+/// @cond
 %skeleton "lalr1.cc"                          /*  -*- C++ -*- */
 %require "2.1a"
 %defines
@@ -1703,6 +1707,7 @@ ExpressionTree* uminusTree (ParsingData& parsingData, ExpressionTree* expr)
     const char* uminusId = parsingData.CreateIdentifier ("-");
     return new ExpressionTreeUnaryFunction (parsingData, uminusId, expr);
 }
+/// @endcond
 
 // Local Variables:
 // mode: c++

@@ -12,7 +12,8 @@
  * Mac Os X binary release:
  * http://csgalati.swansea.ac.uk/foam/bin/mac-osx-10.6.8/
  *
- * The folowing section lists the content of README.txt
+ * The folowing section lists the content of README.txt. For the release log
+ * see LOG.txt.
  * \verbinclude README.txt
  *
  * \section sec_torus Processing done for the Torus model
@@ -60,6 +61,9 @@ while (no more items in the queue)
 }
 
 </pre>
+*/
+
+/**
  *
  * \section sec_physical_tesselation Physical and tesselation edges and vertices
  * In 2D we don't have physical edges. A vertex is "physical" if has
@@ -83,7 +87,6 @@ while (no more items in the queue)
  * where x and y are the coordinates of the T1 in object space \n
  * The first time step is 1. \n
  * A T1 labeled with timestep T occurs between T and T+1.\n
- *
  *
  *
  * @todo Look at paths coresponding to bubbles around the circulation

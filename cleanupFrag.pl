@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 # Removes empty lines and spaces before the first nonempty line
-# Adds do not modify warning
+# Adds a "do not modify" warning
 sub cleanupFrag
 {
     my $firstLine = 1;

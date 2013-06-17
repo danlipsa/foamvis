@@ -1,6 +1,6 @@
 #include "VectorTensor.frag"
 /**
- * @file   VectorDisplay.frag
+ * @file VectorDisplay.frag.in
  * @author Dan R. Lipsa
  *
  * Displays a vector field

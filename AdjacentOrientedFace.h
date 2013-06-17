@@ -2,8 +2,8 @@
  * @file   AdjacentOrientedFace.h
  * @author Dan R. Lipsa
  * @date 20 May 2010
+ * @brief Keeps track of all faces an edge is part of.
  * 
- * Declaration of the AdjacentOrientedFace class
  */
 #ifndef __ADJACENT_ORIENTED_FACE_H__
 #define __ADJACENT_ORIENTED_FACE_H__
@@ -15,8 +15,7 @@ class OrientedEdge;
 class OrientedFace;
 
 /**
- * An (oriented) edge in a (oriented) face. Keeps track of all faces
- * an edge is part of.
+ * @brief Keeps track of all faces an edge is part of.
  */
 class AdjacentOrientedFace
 {

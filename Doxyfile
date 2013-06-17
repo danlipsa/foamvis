@@ -25,13 +25,13 @@ DOXYFILE_ENCODING      = UTF-8
 # The PROJECT_NAME tag is a single word (or a sequence of words surrounded 
 # by quotes) that should identify the project.
 
-PROJECT_NAME           = Foam
+PROJECT_NAME           = FoamVis
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. 
 # This could be handy for archiving the generated documentation or 
 # if some version control system is used.
 
-PROJECT_NUMBER = 1.0.2888
+PROJECT_NUMBER         = 1.0.2888
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) 
 # base path where the generated documentation will be put. 
@@ -615,7 +615,12 @@ FILE_PATTERNS          = *.c \
                          *.f90 \
                          *.f \
                          *.vhd \
-                         *.vhdl
+                         *.vhdl \
+                         *.frag \
+                         *.vert \
+                         *.frag.in \
+                         *.y \
+                         *.l
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories 
 # should be searched for input files as well. Possible values are YES and NO. 
@@ -627,16 +632,16 @@ RECURSIVE              = NO
 # excluded from the INPUT source files. This way you can easily exclude a 
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
-EXCLUDE                = stack.hh \
-                         position.hh \
-                         location.hh \
-                         EvolverData_lex.h \
+EXCLUDE                = EvolverData_lex.h \
                          EvolverData_lex.cpp \
-                         EvolverData_yacc.h \
                          EvolverData_yacc.cpp \
-                         ui_Window.h \
-                         moc_GLWidget.cpp \
-                         moc_MainWindow.cpp
+                         .dep.inc \
+                         TensorDisplay.frag \
+                         VectorDisplay.frag \
+                         EvolverData_yacc.h \
+                         stack.hh \
+                         location.hh \
+                         position.hh
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or 
 # directories that are symbolic links (a Unix filesystem feature) are excluded 
@@ -650,7 +655,7 @@ EXCLUDE_SYMLINKS       = NO
 # against the file with absolute path, so to exclude all test directories 
 # for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       = 
+EXCLUDE_PATTERNS       = ui_*.h
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names 
 # (namespaces, classes, functions, etc.) that should be excluded from the 
@@ -1397,7 +1402,7 @@ DOT_FONTNAME           = FreeSans
 # The DOT_FONTSIZE tag can be used to set the size of the font of dot graphs. 
 # The default size is 10pt.
 
-DOT_FONTSIZE           = 10
+DOT_FONTSIZE           = 6
 
 # By default doxygen will tell dot to use the output directory to look for the 
 # FreeSans.ttf font (which doxygen will put there itself). If you specify a 

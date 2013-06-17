@@ -1,6 +1,6 @@
 #include "VectorTensor.frag"
 /**
- * @file   TensorDisplay.frag
+ * @file TensorDisplay.frag.in
  * @author Dan R. Lipsa
  *
  * Displays deformation ellipses

@@ -2,13 +2,18 @@
  * @file   Application.h
  * @author Dan R. Lipsa
  * @date 27 August 2010
- *
- * Declaration of the Application class
+ * @brief Implements the singleton design pattern to access a global 
+ *        application pointer.
+ * 
  */
 
 #ifndef __APPLICATION_H__
 #define __APPLICATION_H__
 
+/**
+ * @brief Implements the singleton design pattern to access a global 
+ *        application pointer.
+ */
 class Application: public QVTKApplication
 {
 public:

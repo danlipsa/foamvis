@@ -1,16 +1,19 @@
 /**
  * @file EvolverData.l
  * @author Dan R. Lipsa
- *
- * Description file for  the lexical analyser used to  read a DMP data
- * file produced by the Surface Evolver software
- *
+ * @brief Lexical analyser for parsing a DMP file produced by Surface Evolver.
+ * @ingroup parser
+ */
+
+/*
  * WARNING. If a character not  described in this file is matched,
  * it is simply  printed to stdout. So, an  important way to check
  * for  parsing  errors,  is  to  make  sure  you  have  no  extra
  * characters to stdout, even if there are no parsing errors.
- *
  */
+
+/** @cond*/
+
 %{
 #include "ParsingData.h"
 #include "EvolverData_yacc.h"
@@ -235,7 +238,7 @@ void ParsingDriver::ScanEnd ()
     fclose ( EvolverDataget_in(m_scanner));
     EvolverDatalex_destroy(m_scanner);
 }
-
+/** @endcond */
 
 
 // Local Variables:

@@ -2,8 +2,7 @@
  * @file   AdjacentBody.h
  * @author Dan R. Lipsa
  * @date 20 May 2010
- *
- * Declaration of AdjacentBody class
+ * @brief Keeps track of all bodies a face is part of.
  */
 #ifndef __ADJACENT_BODY_H__
 #define __ADJACENT_BODY_H__
@@ -12,7 +11,7 @@ class Body;
 class OrientedFace;
 
 /**
- * Keeps track of what bodies a face is part of.
+ * @brief Keeps track of all bodies a face is part of.
  */
 class AdjacentBody
 {

@@ -1,15 +1,18 @@
 /**
- * @file   Edge.h
+ * @file   ApproximationEdge.h
  * @author Dan R. Lipsa
  * @date 28 Apr. 2011
  * 
- * Declaration of the ApproximationEdge class
+ * @brief Curved edge approximated with a sequence of points.
  */
 #ifndef __APPROXIMATION_EDGE_H__
 #define __APPROXIMATION_EDGE_H__
 
 #include "Edge.h"
 
+/**
+ * @brief Curved edge approximated with a sequence of points.
+ */
 class ApproximationEdge : public Edge
 {
 public:
