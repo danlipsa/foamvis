@@ -1,8 +1,8 @@
 /**
  * @file   AttributeCreator.h
  * @author Dan R. Lipsa
- * Classes that know how to create various kinds of attributes which
- * can be attached to vertices, edges, faces and bodies.
+ * @brief Create attributes which can be attached to 
+ *        vertices, edges, faces and bodies.
  * 
  */
 #ifndef __ATTRIBUTE_CREATOR_H__
@@ -15,7 +15,8 @@ class Attribute;
 class IntegerAttribute;
 
 /**
- * Base class for all attribute creators
+ * @brief Create attributes which can be attached to 
+ *        vertices, edges, faces and bodies.
  */
 class AttributeCreator
 {
@@ -32,7 +33,7 @@ public:
 };
 
 /**
- * Functor which creates an integer attribute
+ * @brief Creates an integer attribute.
  */
 class IntegerAttributeCreator : public AttributeCreator
 {
@@ -49,7 +50,7 @@ public:
 };
 
 /**
- * Functor which creates a color attribute
+ * @brief Creates a color attribute.
  */
 class ColorAttributeCreator : public AttributeCreator
 {
@@ -65,7 +66,7 @@ public:
         AttributeType::Enum type) const;
 };
 /**
- * Functor which creates a real attribute
+ * @brief Creates a real attribute.
  */
 class RealAttributeCreator : public AttributeCreator
 {
@@ -81,7 +82,7 @@ public:
         AttributeType::Enum type) const;
 };
 /**
- * Functor which creates an attribute which stores an integer array 
+ * @brief Creates an attribute which stores an integer array 
  */
 class IntegerArrayAttributeCreator : public AttributeCreator
 {
@@ -115,7 +116,8 @@ private:
 
 
 /**
- * Functor that creates an attribute that stores an integer array.
+ * @brief Creates an attribute that stores an integer vector.
+ *
  * Similar with an IntegerArrayAttributeCreator but does not store the
  * size of the array. Used for edge and vertex CONSTRAINTS
  */
@@ -133,7 +135,7 @@ public:
         AttributeType::Enum type) const;
 };
 /**
- * Functor that creates an attribute that stores an array of real values
+ * @brief Creates an attribute that stores an array of real values
  */
 class RealArrayAttributeCreator : public AttributeCreator
 {

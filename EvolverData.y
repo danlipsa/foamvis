@@ -8,7 +8,7 @@
  * Files and classes used to parse Surface Evolver .dmp files and 
  * build a memory representation of the simulation file.
  */
-/// @cond
+/** @cond */
 %skeleton "lalr1.cc"                          /*  -*- C++ -*- */
 %require "2.1a"
 %defines
@@ -1707,7 +1707,7 @@ ExpressionTree* uminusTree (ParsingData& parsingData, ExpressionTree* expr)
     const char* uminusId = parsingData.CreateIdentifier ("-");
     return new ExpressionTreeUnaryFunction (parsingData, uminusId, expr);
 }
-/// @endcond
+/** @endcond */
 
 // Local Variables:
 // mode: c++

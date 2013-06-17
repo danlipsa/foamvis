@@ -2,8 +2,7 @@
  * @file   Average.h
  * @author Dan R. Lipsa
  * @date  9 June 2010
- *
- * Interface for the Average class
+ * @brief Computes an average along time for foam attributes. 
  */
 
 #ifndef __AVERAGE_H__
@@ -20,9 +19,10 @@ class ViewSettings;
 
 
 /**
- * Computes average along time for foam quantities. Includes average
- * for a time window behind the current time step for forward and
- * backward moving time.
+ * @brief Computes an average along time for foam attributes. 
+ * 
+ * Includes average for a time window behind the current time step for
+ * forward and backward moving time.
  */
 class Average : public AverageInterface, public Base
 {

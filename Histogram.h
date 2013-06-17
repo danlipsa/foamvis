@@ -2,8 +2,7 @@
  * @file   Histogram.h
  * @author Dan R. Lipsa
  * @date 22 July 2010
- *
- * Declaration of the Histogram class
+ * @brief A histogram UI that allows selection of bins.
  */
 
 #ifndef __HISTOGRAM_H__
@@ -14,7 +13,7 @@ class HistogramItem;
 class HistogramSettings;
 
 /**
- * Histogram that allows selection of bins.
+ * @brief A histogram UI that allows selection of bins.
  */
 class Histogram : public QwtPlot
 {

@@ -252,7 +252,7 @@ TensorAverage::TensorAverage (ViewNumber::Enum viewNumber,
 
 // Template instantiations
 //======================================================================
-/// @cond
+/** @cond */
 template class TensorAverageTemplate<SetterDeformation>;
 template class TensorAverageTemplate<SetterVelocity>;
-/// @endcond
+/** @endcond */

@@ -1,9 +1,10 @@
 /**
  * @file   AttributeInfo.h
  * @author Dan R. Lipsa
- * Information about attributes for vertices, edges, ... such as
- * their creators and their index in the array of attributes carried by each
- * element.
+ * @brief Information about attributes for vertices, edges, faces, bodies
+ *
+ * Information about the attribute creators, the index in the array of
+ * attributes carried by each element.
  */
 #ifndef __ATTRIBUTE_INFO_H__
 #define __ATTRIBUTE_INFO_H__
@@ -14,7 +15,10 @@
 class AttributeCreator;
 
 /**
- * Information about an attribute attached to a vertex, edge, ...
+ * @brief Information about attributes for vertices, edges, faces and bodies
+ *
+ * Information about the attribute creators, the index in the array of
+ * attributes carried by each element.
  */
 class AttributeInfo
 {

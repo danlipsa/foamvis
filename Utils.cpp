@@ -847,7 +847,7 @@ void StringWidth::AddString (const string& s, float lessWidth)
 // Template instantiations
 //======================================================================
 
-/// @cond
+/** @cond */
 // SetCheckedNoSignals
 template void SetCheckedNoSignals<QCheckBox> (QCheckBox*, bool, bool);
 template void SetCheckedNoSignals<QRadioButton> (QRadioButton*, bool, bool);
@@ -897,4 +897,4 @@ template void CalculateAggregate<std::vector<boost::shared_ptr<Foam>, std::alloc
 
 template G3D::Matrix2 ToMatrix2<G3D::Matrix4>(G3D::Matrix4 const&);
 template G3D::Matrix2 ToMatrix2<G3D::Matrix3>(G3D::Matrix3 const&);
-/// @endcond
+/** @endcond */

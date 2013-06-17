@@ -773,11 +773,11 @@ void Settings::UpdateAverageTimeWindow ()
 
 // Template instantiations
 // ======================================================================
-/// @cond
+/** @cond */
 template
 void Settings::SetOneOrTwoViews<MainWindow> (
     MainWindow* t, void (MainWindow::*f) (ViewNumber::Enum));
 template
 void Settings::SetOneOrTwoViews<WidgetGl> (
     WidgetGl* t, void (WidgetGl::*f) (ViewNumber::Enum));
-/// @endcond
+/** @endcond */

@@ -2,8 +2,7 @@
  * @file   AttributeAverages3D.h
  * @author Dan R. Lipsa
  * @date 7 February 2013
- *
- * Per view average calculation
+ * @brief Average for several attributes in a 3D view.
  */
 #ifndef __ATTRIBUTES_AVERAGE3D_H__
 #define __ATTRIBUTES_AVERAGE3D_H__
@@ -17,6 +16,9 @@ class Settings;
 class SimulationGroup;
 class ViewSettings;
 
+/**
+ * @brief Average for several attributes in a 3D view.
+ */
 class AttributeAverages3D : public AttributeAverages
 {
 public:

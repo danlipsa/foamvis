@@ -461,9 +461,9 @@ void ImageBasedAverage<PropertySetter>::save (
 
 // Template instantiations
 //======================================================================
-/// @cond
+/** @cond */
 template class ImageBasedAverage<SetterVertexAttribute>;
 template class ImageBasedAverage<SetterDeformation>;
 template class ImageBasedAverage<SetterVelocity>;
 template class ImageBasedAverage<SetterNop>;
-/// @endcond
+/** @endcond */

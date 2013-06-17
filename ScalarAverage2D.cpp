@@ -124,7 +124,7 @@ vtkSmartPointer<vtkImageData> ScalarAverage2DTemplate<PropertySetter>::getData (
 
 // Template instantiations
 //======================================================================
-/// @cond
+/** @cond */
 template class ScalarAverage2DTemplate<SetterVertexAttribute>;
 template class ScalarAverage2DTemplate<SetterNop>;
-/// @endcond
+/** @endcond */

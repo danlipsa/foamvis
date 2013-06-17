@@ -12,7 +12,7 @@
  * characters to stdout, even if there are no parsing errors.
  */
 
-/** @cond*/
+/** @cond */
 
 %{
 #include "ParsingData.h"

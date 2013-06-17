@@ -1250,7 +1250,7 @@ ostream& operator<< (ostream& ostr, const Foam& d)
 
 // Template instantiations
 // ======================================================================
-/// @cond
+/** @cond */
 template void Foam::AccumulateProperty<HistogramStatistics> (
     HistogramStatistics* acc, BodyScalar::Enum property) const;
 template void Foam::AccumulateProperty<MinMaxStatistics> (
@@ -1263,4 +1263,4 @@ template void Foam::Accumulate<
     getBodyDeformationEigenValue<0> > (
 	MinMaxStatistics*, getBodyDeformationEigenValue<0>) const;
 
-/// @endcond
+/** @endcond */

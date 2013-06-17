@@ -2,8 +2,7 @@
  * @file   AverageInterface.h
  * @author Dan R. Lipsa
  * @date  9 June 2010
- *
- * Functions all Average classes have to implement.
+ * @brief Interface for computing and displaying averages of datasets.
  */
 
 #ifndef __AVERAGE_INTERFACE_H__
@@ -12,7 +11,7 @@
 #include "Enums.h"
 
 /**
- * Interface for computing and displaying averages of datasets.
+ * @brief Interface for computing and displaying averages of datasets.
  */
 class AverageInterface
 {

@@ -1,9 +1,9 @@
 /**
- * @file   Histogram.h
+ * @file   AttributeHistogram.h
  * @author Dan R. Lipsa
  * @date 13 August 2010
- *
- * Declaration of the AttributeHistogram class
+ * @brief A histogram of a scalar attribute UI for both one time step
+ *        and all time steps.
  */
 
 #ifndef __ATTRIBUTE_HISTOGRAM_H__
@@ -13,7 +13,8 @@
 class ColorBarModel;
 
 /**
- * Histogram of a scalar attribute for both one time step and all time steps.
+ * @brief A UI histogram of a scalar attribute for both one time step
+ *        and all time steps.
  */
 class AttributeHistogram : public Histogram
 {

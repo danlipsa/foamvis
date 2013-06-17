@@ -178,7 +178,7 @@ bool Element::HasAttributes () const
 // Template instantiations
 // ======================================================================
 
-/// @cond
+/** @cond */
 
 template void Element::SetAttribute<RealAttribute, double>(unsigned long, double);
 template void Element::SetAttribute<ColorAttribute, Color::Enum>(unsigned long, Color::Enum);
@@ -188,4 +188,4 @@ template Color::Enum Element::GetAttribute<ColorAttribute, Color::Enum>(unsigned
 template int Element::GetAttribute<IntegerAttribute, int>(unsigned long) const;
 template std::vector<int, std::allocator<int> > const Element::GetAttribute<IntegerArrayAttribute, std::vector<int, std::allocator<int> > const>(unsigned long) const;
 
-/// @endcond
+/** @endcond */
