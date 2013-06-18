@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date  4 March 2010
  *
- * Interface for functors that display an element (body, face, edge or vertex)
+ * @brief Base classes for displaying an element (body, face, edge or vertex)
  */
 
 #ifndef __DISPLAY_ELEMENT_H__
@@ -15,6 +15,9 @@ class Settings;
 class ViewSettings;
 class Foam;
 
+/**
+ * @brief Base class for displaying an element (vertex, edge, ...)
+ */
 class DisplayElement
 {
 public:
@@ -45,7 +48,9 @@ protected:
     double m_zPos;
 };
 
-
+/**
+ * Base class for displaying an element with focus and context
+ */
 class DisplayElementFocus : public DisplayElement
 {
 public:
@@ -77,6 +82,10 @@ protected:
 
 class SetterTextureCoordinate;
 
+/**
+ * @brief Base class for displaying a bubble or bubble property with color
+ *        based on a scalar property
+ */
 template<typename PropertySetter = SetterTextureCoordinate>
 class DisplayElementProperty : public DisplayElement
 {
@@ -100,7 +109,10 @@ protected:
 };
 
 
-
+/**
+ * @brief Base class for displaying a bubble or bubble property with color
+ *        based on a scalar property and focus and context control.
+ */
 template<typename PropertySetter = SetterTextureCoordinate>
 class DisplayElementPropertyFocus : 
     public DisplayElementProperty<PropertySetter>

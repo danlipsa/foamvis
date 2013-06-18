@@ -2,8 +2,7 @@
  * @file   DisplayFaceFunctors.h
  * @author Dan R. Lipsa
  * @date  3 March 2010
- *
- * Functors that display a face
+ * @brief Functors for displaying a face
  */
 
 #ifndef __DISPLAY_FACE_FUNCTORS_H__
@@ -18,7 +17,7 @@ class OrientedFace;
 class DisplayFaceLineStrip;
 
 /**
- * Functor that displays an edge
+ * @brief Displays a face using a triangle fan (for convex faces)
  */
 class DisplayFaceTriangleFan : public DisplayElementFocus
 {
@@ -41,7 +40,7 @@ public:
 
 
 /**
- * Functor that displays a face using a color map highlight color
+ * @brief Displays a face using a color map highlight color
  */
 template <HighlightNumber::Enum color, typename displayEdges, 
 	  typename PropertySetter = SetterTextureCoordinate>
@@ -76,8 +75,9 @@ public:
 
 
 /**
- * Functor that displays a face using the color specified in the DMP file or
- * a color mapped body property value
+ * @brief Displays a face using the color specified in the DMP file or
+ *        a color mapped body property value
+ *
  * @todo: color by the number of edges of a face in 3D
  */
 template<typename PropertySetter = SetterTextureCoordinate>
@@ -107,7 +107,9 @@ private:
 			    bool* useColor);
 };
 
-
+/**
+ * @brief Displays a face colored using highlight 0.
+ */
 template<typename PropertySetter = SetterTextureCoordinate>
 class DisplayFaceH0Color : 
     public DisplayFaceHighlightColor<HighlightNumber::H0, 
@@ -131,8 +133,9 @@ public:
     void operator () (const boost::shared_ptr<Face>& f);
 };
 
-// Display all edges of a face
-// ======================================================================
+/**
+ * @brief Display all edges of a face
+ */
 class DisplayFaceLineStrip : public DisplayElementFocus
 {
 public:
