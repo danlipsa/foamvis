@@ -2,8 +2,8 @@
  * @file   ColorBarModel.h
  * @author Dan R. Lipsa
  * @date 24 August 2010
- *
- * Declaration of the ColorBarModel class
+ * @brief Mapping between scalar values and colors together with appropriate
+ *        highlight colors.
  */
 
 #ifndef __MODEL_H__
@@ -11,6 +11,10 @@
 
 #include "Enums.h"
 
+/**
+ * @brief Mapping between scalar values and colors together with appropriate
+ *        highlight colors.
+ */
 class ColorBarModel
 {
 public:

@@ -2,8 +2,7 @@
  * @file   BrowseSimulations.h
  * @author Dan R. Lipsa
  * @date 18 August 2011
- *
- * Declaration of the BrowseSimulation class
+ * @brief Dialog used for choosing simulations to analyse or compare.
  */
 
 #ifndef __BROWSE_SIMULATION_H__
@@ -12,6 +11,9 @@
 #include "ui_BrowseSimulations.h"
 #include "Labels.h"
 
+/**
+ * @brief Dialog used for choosing simulations to analyse or compare.
+ */
 class BrowseSimulations : 
     public QDialog, private Ui::BrowseSimulations
 {

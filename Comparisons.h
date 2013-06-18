@@ -2,7 +2,7 @@
  * @file   Comparisons.h
  * @author Dan R. Lipsa
  * @date 25 March 2010
- * Comparison functors
+ * @brief Comparison functors
  */
 
 #ifndef __COMPARISONS_H__
@@ -17,7 +17,7 @@ class AdjacentOrientedFace;
 #include "SystemDifferences.h"
 
 /**
- * Binary function that compares two C strings ignoring the case
+ * @brief Compares two C strings ignoring the case
  */
 struct LessThanNoCase : binary_function<const char*, const char*, bool>
 {
@@ -37,7 +37,9 @@ struct LessThanNoCase : binary_function<const char*, const char*, bool>
     }
 };
 
-
+/**
+ * Compares two Vector3int16
+ */
 struct Vector3int16LessThan
 {
     bool operator () (const G3D::Vector3int16& first, 
@@ -51,7 +53,9 @@ struct Vector3int16LessThan
 };
 
 
-
+/**
+ * @brief Compares two vertices based on ID, X, Y, Z coordinates
+ */
 struct VertexPtrLessThan
 {
     bool operator () (const boost::shared_ptr<const Vertex>& first,
@@ -60,7 +64,7 @@ struct VertexPtrLessThan
 
 
 /**
- * Functor that compares two vertices along X, Y or Z axis
+ * @brief Compares two vertices along one of the X, Y or Z axes
  */
 class VertexPtrLessThanAlong
 {
@@ -108,6 +112,9 @@ private:
     G3D::Vector3::Axis m_axis;
 };
 
+/**
+ * @brief Compares two edges based on ID and then first vertex.
+ */
 class EdgeLessThan
 {
 public:
@@ -115,7 +122,9 @@ public:
 		      const boost::shared_ptr<const Edge>& second) const;
 };
 
-
+/**
+ * @brief Compares two faces based on ID and then first edge
+ */
 class FaceLessThan
 {
 public:
@@ -123,7 +132,9 @@ public:
 		      const boost::shared_ptr<const Face>& second) const;
 };
 
-
+/**
+ * @brief Compares two adjacent oriented faces based on ID
+ */
 class OrientedFaceIndexLessThan
 {
 public:
@@ -133,6 +144,9 @@ public:
 };
 
 
+/**
+ * @brief Compares two bounding boxes based on a corner, along an axis.
+ */
 template <typename BBObject>
 class BBObjectLessThanAlong
 {
@@ -182,6 +196,11 @@ private:
     GetAABox m_getAABox;
 };
 
+
+/**
+ * @brief Compares two bounding boxes based on the lower left corner,
+ *        along an axis.
+ */
 template<typename BBObject>
 class BBObjectLessThanAlongLow : public BBObjectLessThanAlong<BBObject>
 {
@@ -194,6 +213,10 @@ public:
     }
 };
 
+/**
+ * @brief Compares two torus boxes based on the lower left corner,
+ *        along an axis.
+ */
 template<typename BBObject>
 class BBObjectLessThanAlongLowTorus : public BBObjectLessThanAlong<BBObject>
 {
@@ -207,6 +230,10 @@ public:
 };
 
 
+/**
+ * @brief Compares two bounding boxes based on the upper right corner,
+ *        along an axis.
+ */
 template<typename BBObject>
 class BBObjectLessThanAlongHigh : public BBObjectLessThanAlong<BBObject>
 {
@@ -219,6 +246,10 @@ public:
     }
 };
 
+/**
+ * @brief Compares two torus boxes based on the upper right corner,
+ *        along an axis.
+ */
 template<typename BBObject>
 class BBObjectLessThanAlongHighTorus : public BBObjectLessThanAlong<BBObject>
 {

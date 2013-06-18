@@ -634,11 +634,11 @@ RECURSIVE              = NO
 
 EXCLUDE                = EvolverData_lex.h \
                          EvolverData_lex.cpp \
+                         EvolverData_yacc.h \
                          EvolverData_yacc.cpp \
                          .dep.inc \
                          TensorDisplay.frag \
                          VectorDisplay.frag \
-                         EvolverData_yacc.h \
                          stack.hh \
                          location.hh \
                          position.hh

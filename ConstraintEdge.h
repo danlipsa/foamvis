@@ -2,8 +2,7 @@
  * @file   ConstraintEdge.h
  * @author Dan R. Lipsa
  * @date 28 Apr. 2011
- * 
- * Declaration of the ConstraintEdge class
+ * @brief Edge on a constraint approximated with a sequence of points.
  */
 #ifndef __CONSTRAINT_EDGE_H__
 #define __CONSTRAINT_EDGE_H__
@@ -13,6 +12,9 @@
 class ExpressionTree;
 class ParsingData;
 
+/**
+ * @brief Edge on a constraint approximated with a sequence of points.
+ */
 class ConstraintEdge : public ApproximationEdge
 {
 public:

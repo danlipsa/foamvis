@@ -2,7 +2,7 @@
  * @file   AttributeAverages2D.h
  * @author Dan R. Lipsa
  * @date 19 July 2012
- * @brief Average for several attributes in a 2D view.
+ * @brief Computes the average for several attributes in a 2D view.
  */
 #ifndef __ATTRIBUTES_AVERAGE2D_H__
 #define __ATTRIBUTES_AVERAGE2D_H__
@@ -18,7 +18,7 @@ class VectorAverage;
 class ViewSettings;
 
 /**
- * @brief Average for several attributes in a 2D view.
+ * @brief Computes the average for several attributes in a 2D view.
  */
 class AttributeAverages2D : public AttributeAverages
 {

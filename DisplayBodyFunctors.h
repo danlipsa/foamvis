@@ -2,8 +2,7 @@
  * @file   DisplayBodyFunctors.h
  * @author Dan R. Lipsa
  * @date  4 March 2010
- *
- * Functors to display a body
+ * @brief Functors to display a bubble (body)
  */
 
 #ifndef __DISPLAY_BODY_FUNCTORS_H__
@@ -25,7 +24,7 @@ class Segment;
 class Simulation;
 
 /**
- * Functor used to display a body
+ * @brief Common functionality for displaying a bubble (focus/context)
  */
 template <typename PropertySetter = SetterTextureCoordinate>
 class DisplayBodyBase : public DisplayElementProperty<PropertySetter>
@@ -58,6 +57,9 @@ private:
 };
 
 
+/**
+ * @brief Displays 2D bubble deformation as an ellipse
+ */
 class DisplayBodyDeformation : public DisplayBodyBase<>
 {
 public:
@@ -74,6 +76,9 @@ private:
 };
 
 
+/**
+ * @brief Displays bubble velocity using a glyph
+ */
 class DisplayBodyVelocity : public DisplayBodyBase<>
 {
 public:
@@ -98,7 +103,7 @@ private:
 };
 
 /**
- * Functor that displays the center of a bubble
+ * @brief Displays the center of a bubble
  */
 class DisplayBodyCenter : public DisplayBodyBase<>
 {
@@ -117,7 +122,8 @@ protected:
 
 
 /**
- * Displays a body going through all its faces
+ * @brief Displays a body by displaying all its faces. The function
+ *        that displays a face is a parameter.
  */
 template<typename displayFace, typename PropertySetter = SetterTextureCoordinate>
 class DisplayBody : public DisplayBodyBase<PropertySetter>
@@ -150,7 +156,7 @@ private:
 
 
 /**
- * Displays the center path for a certain body id
+ * @brief Displays the bubble path for a certain body id
  *
  * @todo Use Simulation::GetBodyScalarValue instead of
  * StripIterator functions

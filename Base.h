@@ -2,7 +2,7 @@
  * @file   Base.h
  * @author Dan R. Lipsa
  * @date 11 Dec 2012
- * 
+ * @brief Simulations and settings for accessing them.
  * 
  */
 
@@ -16,6 +16,9 @@ class Simulation;
 class SimulationGroup;
 class ViewSettings;
 
+/**
+ * @brief Simulations and settings for accessing them.
+ */
 class Base
 {
 public:

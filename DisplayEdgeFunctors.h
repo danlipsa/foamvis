@@ -2,8 +2,7 @@
  * @file   DisplayEdgeFunctors.h
  * @author Dan R. Lipsa
  * @date  4 March 2010
- *
- * Interface for functors that display an edge
+ * @brief Functors that display an edge
  */
 
 #ifndef __DISPLAY_EDGE_FUNCTORS_H__
@@ -25,14 +24,17 @@ void DisplaySegmentArrow2D (G3D::Vector2 v, G3D::Vector2 center,
                             float lineWidth, 
                             float onePixelInObjectSpace, bool clamped);
 /**
- * Display an arrow from 0,1 along X axis, which shaft = 0.03, 
+ * @brief Display an arrow in VTK style.
+ *
+ * Display an arrow from 0,1 along X axis, with shaft = 0.03, 
  * arrowHeadRadius = 0.1, arrowHeadHeight = 0.35.
  * if quadric == 0 it draws a 2D arrow.
  */
 void DisplayVtkArrow (G3D::Vector3 where, G3D::Vector3 v, 
                       GLUquadricObj* quadric = 0);
-
-// Display segments
+/**
+ * @brief Represents a segment used to display bubble paths
+ */
 struct Segment
 {
     Segment () :
@@ -64,7 +66,9 @@ struct Segment
     bool m_context;
 };
 
-
+/**
+ * @brief Displays a segment as a line
+ */
 class DisplaySegmentLine
 {
 public:
@@ -96,6 +100,9 @@ protected:
     double m_contextRadius;
 };
 
+/**
+ * @brief Displays a segment as a tube using a quadric
+ */
 class DisplaySegmentQuadric : public DisplaySegmentLine
 {
 public:
@@ -116,6 +123,10 @@ public:
     }
 };
 
+
+/**
+ * @brief Displays a segment as a tube using OpenGL
+ */
 class DisplaySegmentTube : public DisplaySegmentLine
 {
 public:
@@ -140,6 +151,10 @@ private:
 	const G3D::Vector3& afterP, const G3D::Vector3& origin) const;
 };
 
+
+/**
+ * @brief Displays the first half of a segment using a thick line.
+ */
 class DisplayThickFirstHalf
 {
 public:
@@ -167,6 +182,10 @@ protected:
     ArrowHeadPosition m_position;
 };
 
+
+/**
+ * @brief Displays an arrow head using quadrics
+ */
 class DisplayArrowHeadQuadric : public DisplayThickFirstHalf
 {
 public:
@@ -179,6 +198,9 @@ public:
         const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
+/**
+ * @brief Displays an oriented segment with a thick first half
+ */
 class DisplayOrientedSegmentLine : public DisplayThickFirstHalf
 {
 public:
@@ -192,6 +214,10 @@ public:
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
+
+/**
+ * @brief Displays an arrow using a quadric
+ */
 class DisplayArrowQuadric : public DisplayThickFirstHalf
 {
 public:
@@ -202,9 +228,11 @@ public:
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
-// Display one edge
-// ======================================================================
 
+/**
+ * @brief Displays an oriented edge that intersects the torus domain
+ *        encoding the boundaries intersected using color.
+ */
 template <typename DisplayEdge, 
 	  typename DisplayThickFirstHalf, bool showDuplicates>
 class DisplayEdgeTorus : public DisplayElementFocus
@@ -230,6 +258,9 @@ private:
     DisplayThickFirstHalf m_displayArrow;
 };
 
+/**
+ * @brief Displays an edge colored by its color property
+ */
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay = 
 	  DisplayElement::DISPLAY_TESSELLATION_EDGES>
 class DisplayEdgePropertyColor : public DisplayElementFocus
@@ -247,6 +278,9 @@ public:
 };
 
 
+/**
+ * @brief Displays an edge as a line strip
+ */
 class DisplayEdge : public DisplayElementFocus
 {
 public:
@@ -261,9 +295,6 @@ public:
 private:
     ViewNumber::Enum m_viewNumber;
 };
-
-
-
 
 #endif //__DISPLAY_EDGE_FUNCTORS_H__
 

@@ -365,7 +365,9 @@ private:
     vector<Simulation> m_simulation;
 };
 
-
+/**
+ * @brief Cache of 2D averages for T1KDE and velocity.
+ */
 class AverageCache
 {
 public:

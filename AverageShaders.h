@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date  25 Jul. 2011
  *
- * Interface for the AverageShaders class
+ * @brief Shaders used for computing a pixel-based time-average of attributes.
  */
 
 #ifndef __AVERAGE_SHADERS_H__
@@ -11,6 +11,9 @@
 
 #include "ShaderProgram.h"
 
+/**
+ * @brief Shader used to store attribute values into the graphics card.
+ */
 class StoreShaderProgram : public ShaderProgram
 {
 public:
@@ -24,6 +27,9 @@ private:
 };
 
 
+/**
+ * @brief Shader used for the summation step in computing the average.
+ */
 class AddShaderProgram : public ShaderProgram
 {
 public:

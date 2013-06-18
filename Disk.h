@@ -1,6 +1,7 @@
 /**
  * @file   Disk.h
  * @author Bob Laramee, Dan R. Lipsa
+ * @brief Represents a disk (as an octogon)
  *
  * Class that creates vertices and normals for a circle (aproximated
  * with an octogon) with arbitrary center and radius.
@@ -10,6 +11,8 @@
 #define _DISK_H_
 
 /**
+ * @brief Represents a disk (as an octogon)
+ *
  * Disk is intended to provide methods to perform common operations on 
  * a polygonal disk in 3D space.  Disk creates a polygonal disk without 
  * a hole in the center.  The disk has zero height.  What's great about

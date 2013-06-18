@@ -15,9 +15,9 @@
 /** @cond */
 
 %{
+#include "Debug.h"
 #include "ParsingData.h"
 #include "EvolverData_yacc.h"
-#include "Debug.h"
 using EvolverData::parser;
 #define YY_EXTRA_TYPE ParsingData*
 %}

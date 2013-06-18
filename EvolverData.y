@@ -8,7 +8,7 @@
  * Files and classes used to parse Surface Evolver .dmp files and 
  * build a memory representation of the simulation file.
  */
-/** @cond */
+
 %skeleton "lalr1.cc"                          /*  -*- C++ -*- */
 %require "2.1a"
 %defines
@@ -29,6 +29,8 @@ class ParsingDriver;
     @$.begin.filename = @$.end.filename = &foam->GetParsingData ().GetFile ();
 }
 
+
+/** @cond */
 %{
 #include "ParsingEnums.h"
 class ExpressionTree;
@@ -36,41 +38,42 @@ class NameSemanticValue;
 class AttributeCreator;
 class Attribute;
 %}
+/** @endcond */
 
-/**
+/*
  * Defines the datatypes for semantic values for terminals and non-terminals
  * in the gramar
  */
 %union
 {
     short m_short;
-    /**
+    /*
      * Value for an iteger
      */
     int m_int;
     size_t m_sizet;
-    /**
+    /*
      * Value for a doubleing point
      */
     double m_real;
-    /**
+    /*
      * Value for a list of integers
      */
     std::vector<int>* m_intList;
     std::vector<size_t>* m_sizetList;
-    /**
+    /*
      * Value for a list of real numbers
      */
     std::vector<double>* m_realList;
-    /**
+    /*
      * An identifier
      */
     const char* m_id;
-    /**
+    /*
      * An expression tree
      */
     ExpressionTree* m_node;
-    /**
+    /*
      * Knows how to create an attribute
      */
     AttributeCreator* m_attributeCreator;
@@ -270,6 +273,7 @@ class Attribute;
 %type <m_sizetList> array_dimensions_or_indexes;
 %type <m_sizet> array_dimension_or_index;
 
+/** @cond */
 %{
 #include "Attribute.h"
 #include "Foam.h"
@@ -283,7 +287,7 @@ class Attribute;
 
 int yylex(void);
 void yyerror (char const *);
-/**
+/*
  * Converts an int to an unsigned int and print a message if the int is negative
  * @param i the integer to be converted
  * @param message the message to printed if the integer is negative
@@ -291,9 +295,11 @@ void yyerror (char const *);
  */
 size_t intToUnsigned (int i, const char* message);
 ExpressionTree* uminusTree (ParsingData& parsingData, ExpressionTree* expr);
-
 %}
+/** @endcond */
 
+
+/** @cond */
 %%
 datafile
 : nlstar header

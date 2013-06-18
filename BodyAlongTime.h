@@ -2,8 +2,7 @@
  * @file   BodyAlongTime.h
  * @author Dan R. Lipsa
  * @date 15 May 2010
- *
- * Declaration for bodies along time classes
+ * @brief A bubble path
  */
 
 #ifndef __BODY_ALONG_TIME_H__
@@ -14,6 +13,10 @@
 
 class Body;
 class Simulation;
+
+/**
+ * @brief A bubble path
+ */
 class BodyAlongTime
 {
 public:
@@ -93,6 +96,10 @@ private:
     Translations m_translations;
 };
 
+
+/**
+ * @brief A map between the bubble ID and the bubble path
+ */
 class BodiesAlongTime
 {
 public:

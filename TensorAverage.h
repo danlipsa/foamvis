@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date  25 Jul 2011
  *
- * Interface for the TensorAverage class
+ * @brief Computes a pixel-based time-average of vector and tensor attributes
  */
 
 #ifndef __TENSOR_AVERAGE_H__
@@ -14,7 +14,9 @@
 #include "ShaderProgram.h"
 #include "ViewSettings.h"
 
-
+/**
+ * @brief Shader used to display a 2D tensor as an ellipse
+ */
 class TensorDisplay : public ShaderProgram
 {
 public:
@@ -70,6 +72,9 @@ private:
     int m_glyphShownLocation;
 };
 
+/**
+ * @brief Computes a pixel-based time-average of vector and tensor attributes
+ */
 template<typename Setter>
 class TensorAverageTemplate : public ImageBasedAverage<Setter>
 {
@@ -183,6 +188,10 @@ private:
     ViewSettingsFloatFunction m_lineWidthRatio;
 };
 
+
+/**
+ * @brief Computes a pixel-based time-average of tensor attributes
+ */
 class TensorAverage : public TensorAverageTemplate<SetterDeformation>
 {
 public:

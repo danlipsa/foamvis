@@ -65,7 +65,7 @@ inline ostream& operator<< (ostream& ostr, const AttributeInfo& ai)
 
 
 /**
- * Information about all attributes of an Element
+ * @brief Information about all attributes of an Element (vertex, edge, ...)
  */
 class AttributesInfo
 {
@@ -129,12 +129,9 @@ private:
     bool m_loadAll;
 };
 
-inline ostream& operator<< (ostream& ostr, const AttributesInfo& ai)
-{
-    return ostr << ai.ToString ();
-}
-
-
+/**
+ * @brief Information about all attributes for all elements (vertex, edge, ...)
+ */
 class AttributesInfoElements
 {
 public:
@@ -197,6 +194,11 @@ private:
      */
     boost::array<AttributesInfo, DefineAttribute::COUNT> m_attributesInfo;
 };
+
+inline ostream& operator<< (ostream& ostr, const AttributesInfo& ai)
+{
+    return ostr << ai.ToString ();
+}
 
 
 #endif //__ATTRIBUTE_INFO_H__

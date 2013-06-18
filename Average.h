@@ -2,7 +2,7 @@
  * @file   Average.h
  * @author Dan R. Lipsa
  * @date  9 June 2010
- * @brief Computes an average along time for foam attributes. 
+ * @brief Computes a time-average of foam attributes. 
  */
 
 #ifndef __AVERAGE_H__
@@ -19,7 +19,7 @@ class ViewSettings;
 
 
 /**
- * @brief Computes an average along time for foam attributes. 
+ * @brief Computes a time-average of foam attributes.
  * 
  * Includes average for a time window behind the current time step for
  * forward and backward moving time.

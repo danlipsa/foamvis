@@ -1,8 +1,7 @@
 /**
  * @file   Body.h
  * @author Dan R. Lipsa
- *
- * Declaration of the Body class
+ * @brief A bubble.
  */
 
 #ifndef __BODY_H__
@@ -20,7 +19,9 @@ class OOBox;
 class Vertex;
 
 /**
- * A body is a list of oriented faces
+ * @brief A bubble.
+ *
+ * A body consists of a list of oriented faces
  */
 class Body : public Element
 {

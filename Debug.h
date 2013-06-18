@@ -2,8 +2,7 @@
  * @file   Debug.h
  * @author Dan R. Lipsa
  * @date 15 Feb. 2006
- *
-
+ * @brief Debugging support
  */
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
@@ -135,6 +134,9 @@ const bool __LOGGED__ = false;
 
 
 #ifdef _MSC_VER
+/**
+ * @brief Debugging output stream for the debug console in Visual Studio.
+ */
 class DebugStream
 {
 public:
@@ -171,6 +173,9 @@ extern ostream& cdbg;
 
 #endif  //_MSC_VER
 
+/**
+ * @brief Measures time
+ */
 class MeasureTime
 {
 public:
@@ -185,6 +190,9 @@ private:
     clock_t m_start;
 };
 
+/**
+ * @brief Measures time for VTK routines
+ */
 class MeasureTimeVtk : public vtkCommand
 {
 public:

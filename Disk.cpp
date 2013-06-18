@@ -1,6 +1,6 @@
 /**
  * @file   Disk.cpp
- * @author Dan R. Lipsa
+ * @author Bob Laramee, Dan R. Lipsa
  *
  * Implementation of the Disk class
  */

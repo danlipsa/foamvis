@@ -2,8 +2,7 @@
  * @file   ScalarDisplay.h
  * @author Dan R. Lipsa
  * @date  19 Sep. 2011
- *
- * Interface for the ScalarDisplay class
+ * @brief Shader that displays a scalar field stored in the graphics card
  */
 
 #ifndef __SCALAR_DISPLAY_H__
@@ -15,15 +14,17 @@
 // ScalarDisplay
 // ======================================================================
 /**
- * RGBA : sum, count, min, max
+ * @brief Shader that displays a scalar field stored in the graphics card
+ *
+ * Each texel stores RGBA : sum, count, min, max
  */
 class ScalarDisplay : public ShaderProgram
 {
 public:
     ScalarDisplay (const char* frag);
-    void Bind (GLfloat minValue, GLfloat maxValue,
-	       StatisticsType::Enum displayType, AverageCountType::Enum countType,
-               GLfloat globalCount);
+    void Bind (
+        GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType, 
+        AverageCountType::Enum countType, GLfloat globalCount);
 
     // assume the colorbar is alreay bound on texture unit 0
     GLint GetColorMapTexUnit ()

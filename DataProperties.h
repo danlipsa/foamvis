@@ -1,13 +1,18 @@
 /**
  * @file DataProperties.h
  * @author Dan R. Lipsa
- *
- * Declaration of the DataProperties class
+ * @brief Basic properties of the simulation data such as dimensions
+ *        and if it is quadratic or not.
  */
 #ifndef __DATA_PROPERTIES_H__
 #define __DATA_PROPERTIES_H__
 
 #include "Enums.h"
+
+/**
+ * @brief Basic properties of the simulation data such as dimensions
+ *        and if it is quadratic or not.
+ */
 class DataProperties
 {
 public:

@@ -63,11 +63,11 @@ struct InteractionObject
 };
 
 
+/**
+ * @brief Types of attributes for vertices, edges, faces and bodies
+ */
 struct AttributeType
 {
-    /**
-     * Types of attributes
-     */
     enum Enum
     {
         INT,
@@ -308,6 +308,8 @@ public:
 };
 
 /**
+ * @brief Types of averages (do we use a per voxel or a global count).
+ *
  * We have two type of averages. For the LOCAL type, a count is stored in each
  * voxel. This is used for average of attributes where a voxel is not covered
  * in each time step. For the GLOBAL type, a global count is used, equal with
@@ -322,7 +324,9 @@ struct AverageCountType
     };
 };
 
-
+/**
+ * @brief Transformations we apply to the data before we display it.
+ */
 struct AxisOrderName
 {
     enum Enum
@@ -377,7 +381,7 @@ struct StripPointLocation
 };
 
 /**
- * Specifies which ends of a tube segment are perpendicular on it.
+ * @brief Specifies which ends of a tube segment are perpendicular on it.
  */
 struct SegmentPerpendicularEnd
 {
@@ -645,6 +649,9 @@ public:
     };
 };
 
+/**
+ * @brief What do we average (scalar, vector, tensor, t1kde)
+ */
 struct AverageType
 {
     enum Enum
