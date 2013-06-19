@@ -1,8 +1,8 @@
 /**
  * @file   ExpressionTree.h
  * @author Dan R. Lipsa
- *
- * Nodes used in an expression tree built in the parser
+ * @brief Nodes used in an expression tree built by the parser
+ * @ingroup parser
  */
 #ifndef __EXPRESSION_TREE_H__
 #define __EXPRESSION_TREE_H__
@@ -10,14 +10,10 @@
 #include "ParsingData.h"
 
 /**
- * Base  class for  all  types of  nodes  in an  expression tree.   An
- * expression tree is a tree with operators (or functions) as internal
- * nodes and operands (numbers and variables) as leafs.
+ * @brief Types of nodes in an expression tree
  */
-
-class ExpressionTreeType
+struct ExpressionTreeType
 {
-public:
     enum Enum
     {
 	NUMBER,
@@ -29,6 +25,12 @@ public:
     };
 };
 
+/**
+ * @brief Base  class for  all  types of  nodes  in an  expression tree.
+ * 
+ * An expression tree is a tree with operators (or functions) as
+ * internal nodes and operands (numbers and variables) as leafs.
+ */
 class ExpressionTree
 {
 public:
@@ -72,7 +74,7 @@ protected:
 };
 
 /**
- * A number node  in an expression tree.
+ * @brief A number expression tree node
  */
 class ExpressionTreeNumber : public ExpressionTree
 {
@@ -103,7 +105,7 @@ private:
 };
 
 /**
- * A variable node in an expression tree
+ * @brief A variable expression tree node
  */
 class ExpressionTreeVariable : public ExpressionTree
 {
@@ -136,7 +138,7 @@ private:
 
 
 /**
- * An array element node in an expression tree
+ * @brief An array element expression tree node
  */
 class ExpressionTreeArrayElement : public ExpressionTree
 {
@@ -168,7 +170,7 @@ private:
 
 
 /**
- * An unary function or unary operator expression tree node.
+ * @brief An unary function or unary operator expression tree node.
  */
 class ExpressionTreeUnaryFunction : public ExpressionTree
 {
@@ -213,7 +215,7 @@ private:
 };
 
 /**
- * A binary function or binary operator expression tree node
+ * @brief A binary function or binary operator expression tree node
  */
 class ExpressionTreeBinaryFunction : public ExpressionTree
 {
@@ -262,7 +264,7 @@ private:
 
 
 /**
- * A conditional expression `first ? second : third'
+ * @brief A conditional expression `first ? second : third' expression tree node
  */
 class ExpressionTreeConditional : public ExpressionTree
 {

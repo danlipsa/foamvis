@@ -3,6 +3,10 @@
  * @author Dan R. Lipsa
  * @date  4 March 2010
  * @brief Functors that display a bubble (body)
+ * @ingroup display
+ *
+ * @defgroup display Display
+ * Visualizes data
  */
 
 #ifndef __DISPLAY_BODY_FUNCTORS_H__

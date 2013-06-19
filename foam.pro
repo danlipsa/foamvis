@@ -9,7 +9,7 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	Debug.h \
 	Disk.h ImageBasedAverage.h ForceAverage.h\
 	DisplayBodyFunctors.h DisplayElement.h\
-	DisplayFaceFunctors.h DisplayVertexFunctors.h \
+	DisplayFaceFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h WidgetSave.h\
 	EditColorMap.h Edge.h Element.h ExpressionTree.h \
 	Enums.h Foam.h FoamvisInteractorStyle.h \
@@ -41,8 +41,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	DataProperties.cpp \
 	Debug.cpp Disk.cpp DisplayBodyFunctors.cpp DisplayElement.cpp\
 	ImageBasedAverage.cpp DisplayFaceFunctors.cpp \
-	DisplayEdgeFunctors.cpp	\
-	DisplayVertexFunctors.cpp Edge.cpp \
+	DisplayEdgeFunctors.cpp	Edge.cpp \
 	HistogramStatistics.cpp\
 	EditColorMap.cpp Element.cpp ExpressionTree.cpp \
 	Enums.cpp Foam.cpp FoamvisInteractorStyle.cpp\
@@ -50,7 +49,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	ForceAverage.cpp \
 	WidgetBase.cpp WidgetGl.cpp WidgetHistogram.cpp \
 	WidgetSave.cpp WidgetVtk.cpp \
-	Hashes.cpp Histogram.cpp HistogramItem.cpp \
+	Histogram.cpp HistogramItem.cpp \
 	HistogramSettings.cpp main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
 	OOBox.cpp OpenGLUtils.cpp OrientedElement.cpp Options.cpp\

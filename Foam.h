@@ -1,8 +1,8 @@
 /**
  * @file Foam.h
  * @author Dan R. Lipsa
- *
- * Declaration of the Foam class
+ * @brief Stores information about a time step in a foam simulation.
+ * @ingroup data
  */
 #ifndef __FOAM_H__
 #define __FOAM_H__
@@ -29,9 +29,10 @@ class NameSemanticValue;
 class ParsingData;
 
 /**
- * Stores information about a foam. A foam is composed of bodies,
- * faces, edges and vertices and is read from a DMP file produced by
- * the Surface Evolver software.
+ * @brief Stores information about a time step in a foam simulation.
+ * 
+ * A foam is composed of bodies, faces, edges and vertices and is read
+ * from a DMP file produced by the Surface Evolver software.
  */
 class Foam
 {

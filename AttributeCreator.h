@@ -3,6 +3,7 @@
  * @author Dan R. Lipsa
  * @brief Create attributes which can be attached to 
  *        vertices, edges, faces and bodies.
+ * @ingroup parser
  * 
  */
 #ifndef __ATTRIBUTE_CREATOR_H__

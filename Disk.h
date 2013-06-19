@@ -1,6 +1,7 @@
 /**
  * @file   Disk.h
  * @author Bob Laramee, Dan R. Lipsa
+ * @ingroup display
  * @brief Represents a disk (as an octogon)
  *
  * Class that creates vertices and normals for a circle (aproximated

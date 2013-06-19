@@ -2,6 +2,7 @@
  * @file   Debug.h
  * @author Dan R. Lipsa
  * @date 15 Feb. 2006
+ * @ingroup utils
  * @brief Debugging support
  */
 #ifndef __DEBUG_H__

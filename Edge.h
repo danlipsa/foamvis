@@ -1,8 +1,8 @@
 /**
  * @file   Edge.h
  * @author Dan R. Lipsa
- * 
- * Declaration of the Edge class
+ * @brief Part of a bubble face, stores a begin and end vertex.
+ * @ingroup data
  */
 #ifndef __EDGE_H__
 #define __EDGE_H__
@@ -16,7 +16,7 @@ class OrientedFace;
 class Vertex;
 
 /**
- * An edge is an object that stores a begin and an end vertex
+ * @brief Part of a bubble face, stores a begin and end vertex.
  */
 class Edge : public Element
 {

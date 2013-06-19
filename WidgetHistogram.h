@@ -2,8 +2,8 @@
  * @file   WidgetHistogram.h
  * @author Dan R. Lipsa
  * @date 24 Aug. 2012
- *
- * Widget for displaying histograms
+ * @brief View for displaying histograms of scalar values
+ * @ingroup views
  */
 #ifndef __WIDGET_HISTOGRAM_H__
 #define __WIDGET_HISTOGRAM_H__
@@ -14,7 +14,7 @@ class SimulationGroup;
 class ColorBarModel;
 
 /**
- * Widget for displaying histograms
+ * @brief View that displays histograms of scalar values
  */
 class WidgetHistogram : public QWidget, public WidgetBase
 {

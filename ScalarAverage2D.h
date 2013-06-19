@@ -2,8 +2,8 @@
  * @file   ScalarAverage2D.h
  * @author Dan R. Lipsa
  * @date  25 Jul 2011
- *
- * Interface for the ScalarAverage2D class
+ * @ingroup average
+ * @brief Computes 2D scalar average
  */
 
 #ifndef __SCALAR_AVERAGE_2D_H__
@@ -15,7 +15,9 @@ class ScalarDisplay;
 class AverageCache;
 
 /**
- * Calculate face average, min, max over a time window.
+ * @brief Common functionality for computing a 2D scalar average and T1sKDE.
+ *
+ * Calculates face average, min, max over a time window.
  * It uses three framebuffer objects: step, previous, current.
  * current = (sum,count,min,max) up to and including the current step
  * previous = (sum, count, min, max) up to and including the previous step.
@@ -46,7 +48,9 @@ protected:
     static boost::shared_ptr<ScalarDisplay> m_displayShaderProgram;
     vtkSmartPointer<vtkImageData> getData (AverageType::Enum averageType) const;
 };
-
+/**
+ * @brief Computes 2D scalar average
+ */
 class ScalarAverage2D : public ScalarAverage2DTemplate<SetterVertexAttribute>
 {
 public:

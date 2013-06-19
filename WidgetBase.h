@@ -2,8 +2,11 @@
  * @file   WidgetBase.h
  * @author Dan R. Lipsa
  * @date 23 August 2012
- * 
- * 
+ * @brief Base class for all views: WidgetGl, WidgetVtk, WidgetHistogram
+ * @ingroup views
+ *
+ * @defgroup views Views
+ * Views for displaying data
  */
 
 #ifndef __WIDGET_BASE_H__
@@ -21,7 +24,7 @@ class SimulationGroup;
 class ViewSettings;
 
 /**
- * Widget for displaying foam bubbles
+ * @brief Base class for all views: WidgetGl, WidgetVtk, WidgetHistogram
  */
 class WidgetBase : public Base
 {

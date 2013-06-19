@@ -1,8 +1,8 @@
 /**
  * @file OrientedFace.h
  * @author Dan R. Lipsa
- * 
- * Declaration for the OrientedFace class
+ * @brief An oriented face. Allows using a Face in direct or reversed order.
+ * @ingroup data
  */
 #ifndef __ORIENTED_FACE_H__
 #define __ORIENTED_FACE_H__
@@ -16,6 +16,8 @@ class Vertex;
 class OrientedEdge;
 
 /**
+ * @brief An oriented face. Allows using a Face in direct or reversed order.
+ *
  * An oriented face is a face  (list of edges) that can have its edges
  * read in direct or reversed order. If 0, 1, 2, ..., n-1 are the
  * edges of the face in direct order, n-1, n-2, ..., 1, 0 are the

@@ -2,18 +2,24 @@
  * @file   VectorOperation.h
  * @author Dan R. Lipsa
  * @date  25 Feb. 2013
- *
- * Math operations for vtkImageData
+ * @ingroup average
+ * @brief Math operations for vtkImageData
  */
 
 #ifndef __VECTOR_OPERATION_H__
 #define __VECTOR_OPERATION_H__
 
-
+/**
+ * @brief Math operation for vtkImageData
+ */
 class VectorOperation
 {
 public:
     typedef boost::function<double (double, double)> BinaryOperation;
+    /**
+     * @brief A float array for data and bool array to specify which
+     *        data points are valid.
+     */
     struct DataAndValidFlag
     {
         DataAndValidFlag ()
@@ -44,38 +50,6 @@ public:
 
 private:
     BinaryOperation m_f;
-};
-
-
-
-/*
- * left = left op right
- */
-class VectorOpVector : public VectorOperation
-{
-public:
-    VectorOpVector (BinaryOperation f) : 
-	VectorOperation (f)
-    {
-    }
-    
-    void operator() (DataAndValidFlag left,DataAndValidFlag right);
-    void operator () (G3D::Vector3& left, const G3D::Vector3& right);
-};
-
-/**
- * left = right op scalar
- */
-class VectorOpScalar : public VectorOperation
-{
-public:
-    VectorOpScalar (BinaryOperation f) : 
-        VectorOperation (f)
-    {
-    }
-    
-    void operator() (
-        DataAndValidFlag left, DataAndValidFlag right, double scalar);
 };
 
 void ImageOpImage (

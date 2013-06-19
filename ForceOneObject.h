@@ -2,8 +2,8 @@
  * @file ForceOneObject.h
  * @author Dan R. Lipsa
  * @date 7 June 2011
- *
- * Declaration of the ForceOneObject class
+ * @brief Forces and torque acting on one object
+ * @ingroup data
  */
 #ifndef __FORCE_ONE_OBJECT_H__
 #define __FORCE_ONE_OBJECT_H__
@@ -12,8 +12,8 @@
 
 class Body;
 /**
- * Names of parameters in a DMP file where the network and the pressure forces
- * are stored.
+ * @brief Names of parameters in a DMP file where the network and the
+ *        pressure forces are stored.
  */
 struct ForceNamesOneObject
 {
@@ -25,6 +25,9 @@ struct ForceNamesOneObject
     string m_pressureTorqueName;
 };
 
+/**
+ * @brief Forces and torque acting on one object
+ */
 class ForceOneObject
 {
 public:

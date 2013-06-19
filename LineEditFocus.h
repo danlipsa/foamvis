@@ -2,13 +2,16 @@
  * @file   LineEditFocus.h
  * @author Dan R. Lipsa
  * @date 20 August 2010
- *
- * Declaration of the LineEditFocus class
+ * @brief QLineEdit class that fires a signal when focused in.
+ * @ingroup ui
  */
 
 #ifndef __LINE_EDIT_FOCUS_H__
 #define __LINE_EDIT_FOCUS_H__
 
+/**
+ * @brief QLineEdit class that fires a signal when focused in.
+ */
 class LineEditFocus : public QLineEdit
 {
 public:

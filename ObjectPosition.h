@@ -2,8 +2,8 @@
  * @file ObjectPosition.h
  * @author Dan R. Lipsa
  * @date 17 May 2011
- *
- * Declaration of the ObjectPosition class
+ * @brief Stores an object interacting with foam position and rotation.
+ * @ingroup data
  */
 #ifndef __OBJECT_POSITION_H__
 #define __OBJECT_POSITION_H__
@@ -11,8 +11,9 @@
 #include "Utils.h"
 
 /**
- * Names of parameters in a DMP file where a rotation for a 
- * constraint is stored, and the constraint number.
+ * @brief Names of parameters in a DMP file where a position,
+ *        rotation, and constraint number for an object are stored.
+ *
  * Names for x, y and angle are stored.
  */
 struct DmpObjectInfo
@@ -35,6 +36,9 @@ struct DmpObjectInfo
     string m_angleName;
 };
 
+/**
+ * @brief Stores an object interacting with foam position and rotation.
+ */
 struct ObjectPosition
 {
     ObjectPosition () :

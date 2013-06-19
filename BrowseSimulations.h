@@ -3,6 +3,10 @@
  * @author Dan R. Lipsa
  * @date 18 August 2011
  * @brief Dialog used for choosing simulations to analyse or compare.
+ * @ingroup ui
+ *
+ * @defgroup ui UI and Interaction
+ * User interface and interaction
  */
 
 #ifndef __BROWSE_SIMULATION_H__

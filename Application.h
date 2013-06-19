@@ -2,8 +2,10 @@
  * @file   Application.h
  * @author Dan R. Lipsa
  * @date 27 August 2010
+ * @ingroup controller
  * @brief Implements the singleton design pattern to access a global 
  *        application pointer.
+
  * 
  */
 

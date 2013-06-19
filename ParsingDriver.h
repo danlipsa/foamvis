@@ -1,8 +1,8 @@
 /**
  * @file   ParsingDriver.h
  * @author Dan R. Lipsa
- *
- * Drives parsing and scanning
+ * @brief Drives parsing and scanning
+ * @ingroup parser
  */
 #ifndef __PARSING_DRIVER_H__
 #define __PARSING_DRIVER_H__
@@ -12,7 +12,7 @@
 class Foam;
 
 /**
- * Drives parsing and scanning
+ * @brief Drives parsing and scanning
  */
 class ParsingDriver
 {

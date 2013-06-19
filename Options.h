@@ -2,8 +2,8 @@
  * @file   Options.h
  * @author Dan R. Lipsa
  * @date 3 Oct 2011
- *
- * Declaration of the Options class
+ * @ingroup ui
+ * @brief Command line and ini file options.
  */
 
 #ifndef __OPTIONS_H__
@@ -13,6 +13,9 @@
 #include "ObjectPosition.h"
 #include "ForceOneObject.h"
 
+/**
+ * @brief Command line and ini file options type
+ */
 struct Option
 {
     enum Enum
@@ -46,6 +49,10 @@ struct Option
     static const char* m_name[];
 };
 
+
+/**
+ * @brief Command line options
+ */
 class CommandLineOptions
 {
 public:
@@ -75,6 +82,9 @@ private:
 };
 
 
+/**
+ * @brief Options common to command line and ini file.
+ */
 class CommonOptions
 {
 public:

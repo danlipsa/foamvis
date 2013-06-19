@@ -2,8 +2,8 @@
  * @file   HistogramStatistics.h
  * @author Dan R. Lipsa
  * @date 13 Jan 2011
- *
- * Declaration for HistogramStatistics
+ * @brief Calculates a histogram of a scalar using boost::accumulators::density.
+ * @ingroup utils
  */
 
 #ifndef __HISTOGRAM_STATISTICS_H__
@@ -15,7 +15,7 @@ typedef acc::accumulator_set<
 
 
 /**
- * Calculates a histogram using boost::accumulators::density.
+ * @brief Calculates a histogram of a scalar using boost::accumulators::density.
  *
  * It uses cache_size of 2 and it adds min and max values before it
  * adds all other values.

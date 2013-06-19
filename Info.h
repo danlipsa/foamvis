@@ -2,8 +2,8 @@
  * @file   Info.h
  * @author Dan R. Lipsa
  * @date 18 October 2010
- *
- * Declaration of the Info class
+ * @brief Dialog for displaying information about data and program state.
+ * @ingroup ui
  */
 
 #ifndef __INFO_H__
@@ -11,6 +11,10 @@
 
 #include "ui_Info.h"
 
+
+/**
+ * @brief Dialog for displaying information about data and program state.
+ */
 class Info : 
     public QDialog, private Ui::Info
 {

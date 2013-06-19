@@ -9,7 +9,6 @@
 #include "Debug.h"
 #include "Disk.h"
 #include "DisplayEdgeFunctors.h"
-#include "DisplayVertexFunctors.h"
 #include "Edge.h"
 #include "Face.h"
 #include "Foam.h"

@@ -1,8 +1,9 @@
 /**
  * @file   ParsingData.h
  * @author Dan R. Lipsa
- *
- * Declaration of ParsingData
+ * @brief Stores data used during  the parsing such as identifiers, variables
+ *        and functions.
+ * @ingroup parser
  */
 #ifndef __PARSING_DATA_H__
 #define __PARSING_DATA_H__
@@ -19,8 +20,8 @@ class ExpressionTree;
 class AttributeArrayAttribute;
 
 /**
- * Stores data used during  the parsing such as identifiers, variables
- * and functions.
+ * @brief Stores data used during  the parsing such as identifiers, variables
+ *        and functions.
  */
 class ParsingData : public ParsingDriver
 {

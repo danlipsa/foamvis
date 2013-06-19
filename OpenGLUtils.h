@@ -2,8 +2,8 @@
  * @file   OpenGLUtils.h
  * @author Dan R. Lipsa
  * @date 21 October 2010
- *
- * Declaration of the OpenGLUtils class
+ * @brief General OpenGL functionality
+ * @ingroup utils
  */
 
 #ifndef __OPENGL_UTILS_H__
@@ -71,6 +71,10 @@ void gluProject (InputIterator objectCoordBegin, InputIterator objectCoordEnd,
                  OutputIterator windowCoordBegin);
 G3D::Rect2D gluProject (const G3D::Rect2D& objectCoord);
 
+/**
+ * @brief Operation for the Z component (set to zero or read from the
+ * graphics card)
+ */
 struct GluUnProjectZOperation
 {
     enum Enum

@@ -2,8 +2,8 @@
  * @file   PipelineAverage3D.h
  * @author Dan R. Lipsa
  * @date 4 Sept 2012
- * 
- * VTK pipeline for displaying 3D average
+ * @brief VTK pipeline for displaying 3D averages of attributes
+ * @ingroup display
  * 
  */
 #ifndef __PIPELINE_AVERAGE_3D_H__
@@ -17,6 +17,9 @@ class ForceAverage;
 class RegularGridAverage;
 class ViewSettings;
 
+/**
+ * @brief VTK pipeline for displaying 3D averages of attributes
+ */
 class PipelineAverage3D : public PipelineBase
 {
 public:

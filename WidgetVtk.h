@@ -2,9 +2,8 @@
  * @file   WidgetVtk.h
  * @author Dan R. Lipsa
  * @date 6 June 2012
- * 
- * Widget for displaying foam bubbles using VTK
- * 
+ * @brief View that displays 3D foam visualizations using VTK
+ * @ingroup views
  */
 #ifndef __WIDGETVTK_H__
 #define __WIDGETVTK_H__
@@ -23,6 +22,9 @@ class Foam;
 class PipelineAverage3D;
 class PipelineBase;
 
+/**
+ * @brief View that displays 3D foam visualizations using VTK
+ */
 class WidgetVtk : public QVTKWidget, public WidgetBase
 {
     friend class SendPaintEnd;

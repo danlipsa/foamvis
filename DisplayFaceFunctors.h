@@ -2,6 +2,7 @@
  * @file   DisplayFaceFunctors.h
  * @author Dan R. Lipsa
  * @date  3 March 2010
+ * @ingroup display
  * @brief Functors for displaying a face
  */
 
@@ -134,7 +135,7 @@ public:
 };
 
 /**
- * @brief Display all edges of a face
+ * @brief Display all edges of a face using a line strip
  */
 class DisplayFaceLineStrip : public DisplayElementFocus
 {
@@ -154,7 +155,10 @@ public:
 
 
 
-
+/**
+ * @brief Display all edges of a face using a parameter function that
+ *        displays an edge.
+ */
 template<typename displayEdge>
 class DisplayFaceEdges : public DisplayElementFocus
 {

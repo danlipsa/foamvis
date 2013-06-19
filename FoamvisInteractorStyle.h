@@ -2,9 +2,8 @@
  * @file   FoamvisInteractorStyle.h
  * @author modified from vtkInteractorStyleTrackballCamera by Dan Lipsa
  * @date 3 Sept. 2012
- * 
- * Interactor for WidgetVtk
- * 
+ * @brief Interactor that enables FoamVis style interaction in a VTK view.
+ * @ingroup ui
  */
 
 #ifndef __FOAMVIS_INTRACTOR_STYLE_H
@@ -14,7 +13,9 @@
 #include "Enums.h"
 class Settings;
 
-
+/**
+ * @brief Interactor that enables FoamVis style interaction in a VTK view.
+ */
 class VTKINTERACTIONSTYLE_EXPORT FoamvisInteractorStyle : 
     public vtkInteractorStyleTrackballCamera
 {

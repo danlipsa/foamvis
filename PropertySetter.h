@@ -2,8 +2,8 @@
  * @file   PropertySetter.h
  * @author Dan R. Lipsa
  * @date  30 October 2010
- *
- * Sends a property value to the graphics card
+ * @ingroup average
+ * @brief Sends a property value to the graphics card
  */
 
 #ifndef __PROPERTY_SETTER_H__
@@ -11,6 +11,11 @@
 
 class Settings;
 class Body;
+
+/** 
+ * @brief Sends the texture coordinate associated with the current
+ *        scalar property for a bubble to the graphics card.
+ */
 class SetterTextureCoordinate
 {
 public:
@@ -42,6 +47,10 @@ protected:
     const bool m_is2D;
 };
 
+/** 
+ * @brief Sends the current scalar property for a bubble to the
+ *        graphics card (as a vertex attribute)
+ */
 class SetterVertexAttribute : public SetterTextureCoordinate
 {
 public:
@@ -62,6 +71,10 @@ protected:
     int m_attributeLocation;
 };
 
+/** 
+ * @brief Sends bubble deformation to the graphics card (as a vertex
+ *        attribute)
+ */
 class SetterDeformation : public SetterVertexAttribute
 {
 public:
@@ -78,6 +91,11 @@ public:
     void operator () (const boost::shared_ptr<Body>& body);
 };
 
+
+/** 
+ * @brief Sends bubble velocity to the graphics card (as a vertex
+ *        attribute)
+ */
 class SetterVelocity : public SetterVertexAttribute
 {
 public:
@@ -96,7 +114,9 @@ public:
 };
 
 
-
+/**
+ * @brief No operation property setter.
+ */
 class SetterNop : public SetterVertexAttribute
 {
 public:

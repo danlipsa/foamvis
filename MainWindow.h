@@ -1,8 +1,12 @@
 /**
  * @file   MainWindow.h
  * @author Dan R. Lipsa
+ * @brief Stores the OpenGL, Vtk, Histogram and  UI widgets.
+ * @ingroup controller
  *
- * Contains the all the user interface
+ * @defgroup controller Controller
+ * Manages the interaction between a user and the views that show foam
+ * simulation data.
  */
 #ifndef __MAIN_WINDOW_H__
 #define __MAIN_WINDOW_H__
@@ -20,7 +24,7 @@ class SimulationGroup;
 class AverageCache;
 
 /**
- * Class that stores the OpenGL, Vtk, Histogram and  UI widgets.
+ * @brief Stores the OpenGL, Vtk, Histogram and  UI widgets.
  */
 class MainWindow : public QMainWindow, public Base, private Ui::MainWindow
 {

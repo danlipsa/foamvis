@@ -1,8 +1,8 @@
 /**
  * @file   Vertex.h
  * @author Dan R. Lipsa
- * 
- * Vertex represented in a DMP file. Is part of edges, faces and bodies.
+ * @brief Vertex represented in a DMP file. Is part of edges, faces and bodies.
+ * @ingroup data
  */
 #ifndef __VERTEX_H__
 #define __VERTEX_H__
@@ -16,7 +16,7 @@ class Edge;
 class OOBox;
 
 /**
- * Vertex represented in a DMP file. Is part of edges, faces and bodies.
+ * @brief Vertex represented in a DMP file. Is part of edges, faces and bodies.
  */
 class Vertex : public Element
 {

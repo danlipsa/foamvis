@@ -1,9 +1,9 @@
 /**
- * @file   Histogram.h
+ * @file   TransferFunctionHistogram.h
  * @author Dan R. Lipsa
  * @date 13 August 2010
- *
- * Declaration of the TransferFunctionHistogram class
+ * @ingroup ui
+ * @brief A Histogram that allows clamping low and high.
  */
 
 #ifndef __TRANSFER_FUNCTION_HISTOGRAM_H__
@@ -13,7 +13,7 @@
 
 
 /**
- * Histogram that allows clamping low and high.
+ * @brief A Histogram that allows clamping low and high.
  */
 class TransferFunctionHistogram : public Histogram
 {

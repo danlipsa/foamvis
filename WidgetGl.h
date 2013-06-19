@@ -1,19 +1,19 @@
 /**
  * @file   WidgetGl.h
  * @author Dan R. Lipsa
- *
- * Widget for displaying foam bubbles using OpenGL
+ * @brief View that displays 2D (and some 3D) foam visualizations using OpenGL.
+ * @ingroup views
  */
 #ifndef __WIDGETGL_H__
 #define __WIDGETGL_H__
 
-#include "Hashes.h"
 #include "Enums.h"
 #include "WidgetBase.h"
 
 class Body;
 class BodyAlongTime;
 class BodiesAlongTime;
+class Face;
 class Foam;
 class Edge;
 class EditColorMap;
@@ -33,7 +33,7 @@ class IdBodySelector;
 class AllBodySelector;
 
 /**
- * Widget for displaying foam bubbles using OpenGL
+ * @brief View that displays 2D (and some 3D) foam visualizations using OpenGL.
  */
 class WidgetGl : public QGLWidget, public QGLFunctions, public WidgetBase
 {

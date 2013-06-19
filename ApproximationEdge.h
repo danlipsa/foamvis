@@ -2,7 +2,7 @@
  * @file   ApproximationEdge.h
  * @author Dan R. Lipsa
  * @date 28 Apr. 2011
- * 
+ * @ingroup data
  * @brief Curved edge approximated with a sequence of points.
  */
 #ifndef __APPROXIMATION_EDGE_H__

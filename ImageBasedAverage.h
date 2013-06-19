@@ -2,8 +2,8 @@
  * @file   ImageBasedAverage.h
  * @author Dan R. Lipsa
  * @date  24 Oct. 2010
- *
- * Interface for the ImageBasedAverage class
+ * @brief Calculates a pixel-based time-average of 2D foam using shaders.
+ * @ingroup average
  */
 
 #ifndef __IMAGE_BASED_AVERAGE_H__
@@ -22,6 +22,10 @@ class AddShaderProgram;
 class StoreShaderProgram;
 
 
+/**
+ * @brief Framebuffer objects used in computing an average using
+ *        ImageBasedAverage
+ */
 struct FramebufferObjects
 {
     /**
@@ -44,7 +48,8 @@ struct FramebufferObjects
 
 
 /**
- * Calculate the average of 2D foam over a time window.
+ * @brief Calculates a pixel-based time-average of 2D foam using shaders.
+ *
  * It uses three framebuffer objects: step, previous, current.
  * Average is implemented by first calculating the sum and then dividing by
  * the number of elements in the sum. The sum is calculated in 3 steps:
@@ -84,6 +89,9 @@ public:
     G3D::Rect2D GetWindowCoord () const;
 
 protected:
+    /**
+     * @brief The frame buffer object and the count frame buffer object
+     */
     struct FbosCountFbos
     {
         FbosCountFbos (

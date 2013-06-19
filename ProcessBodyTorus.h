@@ -2,8 +2,8 @@
  * @file   ProcessBodyTorus.h
  * @author Dan R. Lipsa
  * @date 16 March 2010
- *
- * Declaration of the ProcessBodyTorus.h
+ * @brief Processing done to "unwrap" bodies in torus model.
+ * @ingroup data
  */
 
 #ifndef __PROCESS_BODY_TORUS_H__
@@ -14,6 +14,9 @@ class Body;
 class Foam;
 class OrientedFace;
 
+/**
+ * @brief Processing done to "unwrap" bodies in torus model.
+ */
 class ProcessBodyTorus
 {
 public:

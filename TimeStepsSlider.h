@@ -2,14 +2,17 @@
  * @file TimeStepsSlider.h
  * @author Dan R. Lipsa
  * @date 1 Sept. 2010
- *
- * Declaration of TimeStepSlider object
+ * @brief A time step slider that allows only certain time steps to be enabled
+ * @ingroup ui
  */
 #ifndef __TIME_STEP_SLIDER_H__
 #define __TIME_STEP_SLIDER_H__
 
 #include "RestrictedRangeSlider.h"
 
+/**
+ * @brief A time step slider that allows only certain time steps to be enabled
+ */
 class TimeStepsSlider : public RestrictedRangeSlider
 {
 public:

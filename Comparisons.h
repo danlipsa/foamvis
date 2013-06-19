@@ -3,6 +3,7 @@
  * @author Dan R. Lipsa
  * @date 25 March 2010
  * @brief Comparison functors
+ * @ingroup utils
  */
 
 #ifndef __COMPARISONS_H__
@@ -38,7 +39,7 @@ struct LessThanNoCase : binary_function<const char*, const char*, bool>
 };
 
 /**
- * Compares two Vector3int16
+ * @brief Compares two Vector3int16
  */
 struct Vector3int16LessThan
 {

@@ -1,9 +1,10 @@
 /**
  * @file   SystemDifferences.h
  * @author Dan R. Lipsa
- *
- * Differences between different OSes
+ * @ingroup utils
+ * @brief Differences between Unix and Windows
  */
+
 #ifndef __SYSTEM_DIFFERENCES_H__
 #define __SYSTEM_DIFFERENCES_H__
 

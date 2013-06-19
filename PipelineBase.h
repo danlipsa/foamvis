@@ -2,9 +2,9 @@
  * @file   PipelineBase.h
  * @author Dan R. Lipsa
  * @date 24 Sept 2012
- * 
- * VTK pipeline
- * 
+ * @brief Pipeline that provides basic functionality for a VTK view such as color
+ *        bars, title and focus rect.
+ * @ingroup display
  */
 #ifndef __PIPELINE_BASE_H__
 #define __PIPELINE_BASE_H__
@@ -15,7 +15,8 @@ class ViewSettings;
 class Foam;
 
 /**
- * Provides basic functionality for a view display
+ * @brief Pipeline that provides basic functionality for a VTK view such as color
+ *        bars, title and focus rect.
  */
 class PipelineBase
 {

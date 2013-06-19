@@ -2,8 +2,8 @@
  * @file   DisplayElement.h
  * @author Dan R. Lipsa
  * @date  4 March 2010
- *
- * @brief Base classes for displaying an element (body, face, edge or vertex)
+ * @ingroup display
+ * @brief %Base classes for displaying an element (body, face, edge or vertex)
  */
 
 #ifndef __DISPLAY_ELEMENT_H__
@@ -16,7 +16,7 @@ class ViewSettings;
 class Foam;
 
 /**
- * @brief Base class for displaying an element (vertex, edge, ...)
+ * @brief %Base class for displaying an element (vertex, edge, ...)
  */
 class DisplayElement
 {
@@ -49,7 +49,7 @@ protected:
 };
 
 /**
- * Base class for displaying an element with focus and context
+ * @brief Base class for displaying an element with focus and context
  */
 class DisplayElementFocus : public DisplayElement
 {

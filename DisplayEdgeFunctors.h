@@ -2,6 +2,7 @@
  * @file   DisplayEdgeFunctors.h
  * @author Dan R. Lipsa
  * @date  4 March 2010
+ * @ingroup display
  * @brief Functors that display an edge
  */
 

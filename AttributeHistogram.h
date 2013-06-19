@@ -2,6 +2,7 @@
  * @file   AttributeHistogram.h
  * @author Dan R. Lipsa
  * @date 13 August 2010
+ * @ingroup view
  * @brief A histogram of a scalar attribute UI for both one time step
  *        and all time steps.
  */

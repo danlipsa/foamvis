@@ -2,8 +2,8 @@
  * @file   VectorAverage.h
  * @author Dan R. Lipsa
  * @date  25 Jul 2011
- *
- * Interface for the VectorAverage class
+ * @ingroup average
+ * @brief Computes a pixel-based time-average of vector attributes
  */
 
 #ifndef __VECTOR_AVERAGE_H__
@@ -17,6 +17,9 @@ class ScalarAverage2D;
 class VectorDisplay;
 class AverageCache;
 
+/**
+ * @brief Computes a pixel-based time-average of vector attributes
+ */
 class VectorAverage : public TensorAverageTemplate<SetterVelocity>
 {
 public:

@@ -1,8 +1,9 @@
 /**
  * @file   Face.h
  * @author Dan R. Lipsa
- *
- * Declaration of Face class
+ * @brief A bubble represented as a list of faces, a face is a
+ *        oriented list of edges.
+ * @ingroup data
  */
 #ifndef __FACE_H__
 #define __FACE_H__
@@ -20,7 +21,8 @@ class OrientedEdge;
 class OOBox;
 
 /**
- * A Face is a oriented list of edges.
+ * @brief A bubble represented as a list of faces, a face is a
+ *        oriented list of edges.
  */
 class Face : public Element
 {

@@ -2,12 +2,16 @@
  * @file   OOBox.h
  * @author Dan R. Lipsa
  * @date 7 May 2010
- * 
- * Declaration of the OOBox class
+ * @brief An oblique bounding box used for storing a torus original domain.
+ * @ingroup data
  */
 #ifndef __OOBOX_H__
 #define __OOBOX_H__
 
+
+/**
+ * @brief An oblique bounding box used for storing a torus original domain.
+ */
 class OOBox
 {
 public:

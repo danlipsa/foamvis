@@ -2,14 +2,15 @@
  * @file Enums.h
  * @author Dan R. Lipsa
  * @date 1 May 2010
- * Enums used in the program.
+ * @brief Enums used in the program.
+ * @ingroup utils
  */
 
 #ifndef __ENUMS_H__
 #define __ENUMS_H__
 
 /**
- * Status of vertices, edges, faces and bodies.
+ * @brief Specifies if this is an element stored in the dmp file or a duplicate
  * 
  */
 struct ElementStatus
@@ -17,11 +18,11 @@ struct ElementStatus
     enum Enum
     {
 	/**
-	 * Is in the data file, no duplicate was made
+	 * Stored in the dmp file, no duplicate was made
 	 */
 	ORIGINAL,
 	/**
-	 * Not in the data file, a duplicate of an element in the data file
+	 * Not in the dmp file, a duplicate of an element in the dmp file
 	 */
 	DUPLICATE
     };
@@ -31,7 +32,7 @@ struct ElementStatus
 
 
 /**
- * Ways to interact with the interface
+ * @brief Ways to interact with the data (navigation operations)
  */
 class InteractionMode
 {
@@ -52,6 +53,9 @@ public:
     };
 };
 
+/**
+ * @brief Object the user interacts with (focus, context, light, grid)
+ */
 struct InteractionObject
 {
     enum Enum {
@@ -89,7 +93,7 @@ struct AttributeType
 
 
 /**
- * Body scalars.
+ * @brief Body scalars.
  */
 class BodyScalar
 {
@@ -119,6 +123,10 @@ private:
     static boost::array<const char*, COUNT> NAME;
 };
 
+/**
+ * @brief Vector and tensor attributes (enum values starts after the
+ *        last BodyScalar value)
+ */
 struct BodyAttribute
 {
     enum NumberOfComponents
@@ -179,7 +187,10 @@ private:
     static boost::array<DependsOnInfo, COUNT> DEPENDS_ON_INFO;
 };
 
-
+/**
+ * @brief Other way to display a body (DMP_COLOR) or compute an
+ *        average (T1_KDE) that is conveniently stored as a body attribute.
+ */
 class OtherScalar
 {
 public:
@@ -195,7 +206,9 @@ public:
     static Enum FromSizeT (size_t i);
 };
 
-
+/**
+ * @brief Options for displaying a Histogram
+ */
 class HistogramType
 {
 public:
@@ -209,7 +222,9 @@ public:
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS (HistogramType::Options);
 
-
+/**
+ * @brief Types of palettes for color maps
+ */
 class PaletteType
 {
 public:
@@ -221,6 +236,9 @@ public:
     static const char* ToString (PaletteType::Enum type);
 };
 
+/**
+ * @brief Types of sequencial palettes for color maps
+ */
 struct PaletteSequential
 {
     enum Enum
@@ -233,6 +251,9 @@ struct PaletteSequential
     static const char* ToString (PaletteSequential::Enum name);
 };
 
+/**
+ * @brief Types of diverging palettes for color maps
+ */
 struct PaletteDiverging
 {
     enum Enum
@@ -247,6 +268,9 @@ struct PaletteDiverging
     static const char* ToString (PaletteDiverging::Enum name);
 };
 
+/**
+ * @brief A palette (sequential or diverging) for color maps
+ */
 struct Palette
 {
     Palette ();
@@ -265,12 +289,12 @@ inline ostream& operator<< (ostream& ostr, const Palette& b)
 }
 
 
+/**
+ * @brief Type of visualization used.
+ */
 class ViewType
 {
 public:
-    /**
-     * WHAT kind of objects do we display
-     */
     enum Enum {
         EDGES,
         FACES,
@@ -284,6 +308,23 @@ public:
     static const char* ToString (ViewType::Enum viewType);
 };
 
+/**
+ * @brief Type of vector visualizations
+ */
+struct VectorVis
+{
+    enum Enum
+    {
+        GLYPH,
+        STREAMLINE,
+        PATHLINE,
+        COUNT
+    };
+};
+
+/**
+ * @brief Type of edge visualization used
+ */
 class EdgeVis
 {
 public:
@@ -295,6 +336,9 @@ public:
     };
 };
 
+/**
+ * @brief Type of statistics visualization used (average, min or max)
+ */
 class StatisticsType
 {
 public:
@@ -341,6 +385,9 @@ struct AxisOrderName
     };
 };
 
+/**
+ * @brief Light number
+ */
 struct LightNumber
 {
     enum Enum
@@ -354,6 +401,9 @@ struct LightNumber
     static Enum FromSizeT (size_t i);
 };
 
+/**
+ * @brief Body selector type
+ */
 class BodySelectorType
 {
 public:
@@ -367,7 +417,7 @@ public:
 };
 
 /**
- * Location of a point in a strip of segments.
+ * @brief Location of a point in a strip of segments.
  */
 struct StripPointLocation
 {
@@ -395,6 +445,9 @@ struct SegmentPerpendicularEnd
     };
 };
 
+/**
+ * @brief Number of views displayed
+ */
 struct ViewCount
 {
     enum Enum
@@ -408,6 +461,9 @@ struct ViewCount
     static ViewCount::Enum FromSizeT (size_t count);
 };
 
+/**
+ * @brief Are views laid out horizontally or vertically
+ */
 struct ViewLayout
 {
     enum Enum
@@ -417,6 +473,9 @@ struct ViewLayout
     };
 };
 
+/**
+ * @brief View number
+ */
 struct ViewNumber
 {
     enum Enum
@@ -431,6 +490,10 @@ struct ViewNumber
     static const char* ToString (ViewNumber::Enum viewNumber);
 };
 
+/**
+ * @brief Highlight color number. Each palette has its own highlight
+ *        colors that can be used with the colors used in the palette.
+ */
 struct HighlightNumber
 {
     enum Enum
@@ -442,6 +505,9 @@ struct HighlightNumber
     };
 };
 
+/**
+ * @brief Light type (ambient, diffuse, specular)
+ */
 struct LightType
 {
     enum Enum
@@ -454,6 +520,9 @@ struct LightType
     static GLenum ToOpenGL (LightType::Enum lightType);
 };
 
+/**
+ * @brief Color (red, green or blue)
+ */
 struct ColorNumber
 {
     enum Enum
@@ -464,6 +533,10 @@ struct ColorNumber
     };
 };
 
+/**
+ * @brief Window size. We can set either the window or the view to be
+ *        720x480 pixels. Used for producing movies.
+ */
 struct WindowSize
 {
     enum Enum
@@ -473,7 +546,9 @@ struct WindowSize
     };
 };
 
-
+/**
+ * @brief Body attributes index for attributes present in the DMP file.
+ */
 struct BodyAttributeIndex
 {
     enum Enum
@@ -485,6 +560,9 @@ struct BodyAttributeIndex
     };
 };
 
+/**
+ * @brief Face attributes index for attributes present in the DMP file.
+ */
 struct FaceAttributeIndex
 {
     enum Enum
@@ -495,6 +573,9 @@ struct FaceAttributeIndex
     };
 };
 
+/**
+ * @brief Edge attributes index for attributes present in the DMP file.
+ */
 struct EdgeAttributeIndex
 {
     enum Enum
@@ -504,6 +585,9 @@ struct EdgeAttributeIndex
     };
 };
 
+/**
+ * @brief Vertex attributes index for attributes present in the DMP file.
+ */
 struct VertexAttributeIndex
 {
     enum Enum
@@ -512,7 +596,10 @@ struct VertexAttributeIndex
     };
 };
 
-
+/**
+ * @brief If the viewing volume encloses a rotation of the data
+ *        bounding box or not.
+ */
 struct ViewingVolumeOperation
 {
     enum Enum
@@ -522,6 +609,9 @@ struct ViewingVolumeOperation
     };
 };
 
+/**
+ * @brief Types of color maps for scalar time-step or average visualizations.
+ */
 struct ColorMapScalarType
 {
     enum Enum
@@ -533,6 +623,9 @@ struct ColorMapScalarType
     };
 };
 
+/**
+ * @brief Time linkage
+ */
 struct TimeLinkage
 {
     enum Enum
@@ -542,6 +635,10 @@ struct TimeLinkage
     };
 };
 
+
+/**
+ * @brief Where do we duplicate the original domain
+ */
 struct DuplicateDomain
 {
     enum Enum
@@ -554,6 +651,9 @@ struct DuplicateDomain
     };
 };
 
+/**
+ * @brief VTK pipeline type (only average 3d for now)
+ */
 struct PipelineType
 {
     enum Enum
@@ -563,19 +663,8 @@ struct PipelineType
     };
 };
 
-struct VectorVis
-{
-    enum Enum
-    {
-        GLYPH,
-        STREAMLINE,
-        PATHLINE,
-        COUNT
-    };
-};
-
 /**
- * Force and torque
+ * @brief Types of force and torque displayed
  */
 struct ForceType
 {
@@ -593,6 +682,9 @@ struct ForceType
 // a region is all bins i such that first <= i < second
 typedef vector<pair<size_t, size_t> > BinRegions;
 
+/**
+ * @brief Type of topological changes
+ */
 struct T1Type
 {
     /**
@@ -619,6 +711,9 @@ private:
 };
 
 
+/**
+ * @brief Data dimension
+ */
 class Dimension
 {
 public:
@@ -629,6 +724,9 @@ public:
     };
 };
 
+/**
+ * @brief What is part of context (everything or unselected objects)
+ */
 class Context
 {
 public:
@@ -639,6 +737,9 @@ public:
     };
 };
 
+/**
+ * @brief If the context is invisible or not
+ */
 class ContextInvisible
 {
 public:

@@ -3,6 +3,7 @@
  * @author Dan R. Lipsa
  * @date  19 Sep. 2011
  * @brief Shader that displays a scalar field stored in the graphics card
+ * @ingroup display
  */
 
 #ifndef __SCALAR_DISPLAY_H__

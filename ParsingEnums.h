@@ -2,14 +2,15 @@
  * @file ParsingEnums.h
  * @author Dan R. Lipsa
  * @date 21 Jan 2011
- * Enums used for parsing
+ * @brief Enums used for parsing
+ * @ingroup parser
  */
 
 #ifndef __PARSING_ENUMS_H__
 #define __PARSING_ENUMS_H__
 
 /**
- * Colors of faces or edges
+ * @brief Colors of faces or edges
  */
 class Color
 {
@@ -53,8 +54,8 @@ private:
 };
 
 /**
- * Types of  attributes defined in a  Surface Evolver DMP  file. Use a
- * struct to enclose the enum.
+ * @brief Types of attributes defined in a Surface Evolver DMP
+ *        file.
  */
 struct DefineAttribute
 {

@@ -1,8 +1,11 @@
 /**
  * @file Simulation.h
  * @author Dan R. Lipsa
+ * @brief Data for all time-steps in a foam simulations
+ * @ingroup data
  *
- * Declaration of Simulation object
+ * @defgroup data Data
+ * Foam simulation data
  */
 #ifndef __SIMULATION_H__
 #define __SIMULATION_H__
@@ -21,7 +24,7 @@ class OOBox;
 class Settings;
 
 /**
- * Stores information about a list of DMP files
+ * @brief Data for all time-steps in a foam simulations
  */
 class Simulation
 {
@@ -319,6 +322,9 @@ private:
     boost::array<size_t, T1Type::COUNT> m_t1TypeCount;
 };
 
+/**
+ * @brief A list of foam simulations
+ */
 class SimulationGroup
 {
 public:

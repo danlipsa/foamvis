@@ -15,7 +15,6 @@
 #include "DisplayBodyFunctors.h"
 #include "DisplayEdgeFunctors.h"
 #include "DisplayFaceFunctors.h"
-#include "DisplayVertexFunctors.h"
 #include "Edge.h"
 #include "Face.h"
 #include "Foam.h"

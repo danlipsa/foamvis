@@ -3,6 +3,7 @@
  * @author Dan R. Lipsa
  * @date 7 February 2013
  * @brief Computes the average for several attributes in a 3D view.
+ * @ingroup average
  */
 #ifndef __ATTRIBUTES_AVERAGE3D_H__
 #define __ATTRIBUTES_AVERAGE3D_H__

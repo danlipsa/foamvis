@@ -1,8 +1,8 @@
 /**
  * @file   OrientedEdge.h
  * @author Dan R. Lipsa
- *
- * Declaration of the OrientedEdge object
+ * @brief An oriented edge. Allows using an Edge in direct or reversed order.
+ * @ingroup data
  */
 #ifndef __ORIENTED_EDGE_H__
 #define __ORIENTED_EDGE_H__
@@ -14,8 +14,7 @@ class OrientedFace;
 class Vertex;
 
 /**
- * An oriented  edge is  an edge  that can have  its vertices  read in
- * direct and reverse order
+ * @brief An oriented edge. Allows using an Edge in direct or reversed order.
  */
 class OrientedEdge : public OrientedElement
 {

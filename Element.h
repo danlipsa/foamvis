@@ -1,8 +1,9 @@
 /**
  * @file Element.h
  * @author Dan R. Lipsa
- * 
- * Base class for Vertex, Edge, Face and Body.
+ * @brief Base class for  Vertex, Edge, Face and Body.  Stores a vector
+ * of attributes.
+ * @ingroup data
  */
 #ifndef __ELEMENT_H__
 #define __ELEMENT_H__
@@ -13,7 +14,7 @@ class AttributesInfo;
 class NameSemanticValue;
 
 /**
- * Base class for  Vertex, Edge, Face and Body.  Encapsulates a vector
+ * @brief Base class for  Vertex, Edge, Face and Body.  Stores a vector
  * of attributes.
  */
 class Element

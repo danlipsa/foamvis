@@ -2,8 +2,8 @@
  * @file   RegularGridAverage.h
  * @author Dan R. Lipsa
  * @date  8 June 2010
- *
- * Interface for the RegularGridAverage class
+ * @ingroup average
+ * @brief Time-average for a 3D regular grid
  */
 
 #ifndef __REGULAR_GRID_AVERAGE_H__
@@ -15,7 +15,7 @@ class Settings;
 class SimulationGroup;
 
 /**
- * Average along time for a 3D regular grid
+ * @brief Time-average for a 3D regular grid
  */
 class RegularGridAverage : public Average
 {

@@ -2,6 +2,7 @@
  * @file   ColorBarModel.h
  * @author Dan R. Lipsa
  * @date 24 August 2010
+ * @ingroup display
  * @brief Mapping between scalar values and colors together with appropriate
  *        highlight colors.
  */

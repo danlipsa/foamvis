@@ -1,4 +1,12 @@
-/* -*- mode: C++ ; c-file-style: "stroustrup" -*- *****************************
+/**
+ * @file   HistogramItem.h
+ * @author Josef Wilgen, Uwe Rathmann, Dan R. Lipsa
+ * @date 20 August 2010
+ * @brief Implementation of a histogram UI, modified from Qwt
+ * @ingroup views
+ */
+
+/* 
  * Qwt Widget Library
  * Copyright (C) 1997   Josef Wilgen
  * Copyright (C) 2002   Uwe Rathmann
@@ -14,6 +22,9 @@
 class QwtIntervalData;
 class QString;
 
+/**
+ * @brief Implementation of a histogram UI, modified from Qwt
+ */
 class HistogramItem: public QwtPlotItem
 {
 public:
@@ -106,3 +117,7 @@ private:
 };
 
 #endif
+
+// Local Variables:
+// mode: c++
+// End:

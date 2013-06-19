@@ -2,14 +2,14 @@
  * @file   WidgetSave.h
  * @author Dan R. Lipsa
  * @date 02 August 2010 
- *
- * Declarations for the WidgetSave class
+ * @ingroup views
+ * @brief Widget that knows how to save its display as a JPG file.
  */
 #ifndef __WIDGET_SAVE_H__
 #define __WIDGET_SAVE_H__
 
 /**
- * This window is saved as JPGs as the user interacts with the program.
+ * @brief Widget that knows how to save its display as a JPG file.
  */
 class WidgetSave : public QWidget
 {

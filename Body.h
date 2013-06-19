@@ -2,6 +2,7 @@
  * @file   Body.h
  * @author Dan R. Lipsa
  * @brief A bubble.
+ * @ingroup data
  */
 
 #ifndef __BODY_H__
@@ -28,9 +29,9 @@ class Body : public Element
 public:
     typedef vector<boost::shared_ptr<OrientedFace> > OrientedFaces;
     /**
-     * Store the neighbor m_body and an eventual translation for the periodic
-     * domain (m_translation) or 
-     * a point obtained by reflecting against a wall or object m_centerReflection
+     * @brief Store the neighbor (m_body) and an eventual translation
+     * for the periodic domain (m_translation) or a point obtained by
+     * reflecting against a wall or object m_centerReflection
      */
     class Neighbor {
     public:
@@ -307,7 +308,9 @@ private:
     bool m_object;
 };
 
-
+/**
+ * @brief Functor for getting the deformation eigen value for a body.
+ */
 template <int index>
 class getBodyDeformationEigenValue
 {

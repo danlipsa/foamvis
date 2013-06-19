@@ -2,8 +2,8 @@
  * @file   EditColorMap.h
  * @author Dan R. Lipsa
  * @date 23 August 2010
- *
- * Declaration of the EditColorMap class
+ * @brief Dialog to choose and clamp a color map.
+ * @ingroup ui
  */
 
 #ifndef __EDIT_COLOR_MAP_H__
@@ -12,6 +12,9 @@
 #include "ui_EditColorMap.h"
 #include "ColorBarModel.h"
 
+/**
+ * @brief Dialog to choose and clamp a color map.
+ */
 class EditColorMap : 
     public QDialog, private Ui::EditColorMap
 {

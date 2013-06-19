@@ -2,7 +2,7 @@
  * @file   ShaderProgram.h
  * @author Dan R. Lipsa
  * @date  25 Jul. 2011
- *
+ * @ingroup utils
  * @brief A vertex and a fragment shader.
  */
 

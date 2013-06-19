@@ -2,7 +2,7 @@
  * @file   TensorAverage.h
  * @author Dan R. Lipsa
  * @date  25 Jul 2011
- *
+ * @ingroup average
  * @brief Computes a pixel-based time-average of vector and tensor attributes
  */
 

@@ -3,6 +3,10 @@
  * @author Dan R. Lipsa
  * @date  9 June 2010
  * @brief Interface for computing and displaying averages of datasets.
+ * @ingroup average
+ *
+ * @defgroup average Average
+ * Computes a time-average of simulation attributes
  */
 
 #ifndef __AVERAGE_INTERFACE_H__

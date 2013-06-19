@@ -2,8 +2,8 @@
  * @file   T1KDE2D.h
  * @author Dan R. Lipsa
  * @date  31 Aug. 2011
- *
- * Interface for the T1KDE2D class
+ * @ingroup average
+ * @brief Calculates T1s KDE, over a time window.
  */
 
 #ifndef __T1_KDE_2D_H__
@@ -15,7 +15,8 @@ class GaussianInitShaderProgram;
 class GaussianStoreShaderProgram;
 
 /**
- * Calculate T1s average, over a time window.
+ * @brief Calculates T1s KDE, over a time window.
+ *
  * It uses three framebuffer objects: step, previous, current.
  * current = (sum,count,min,max) up to and including the current step
  * previous = (sum, count, min, max) up to and including the previous step.

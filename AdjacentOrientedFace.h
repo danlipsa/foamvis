@@ -3,6 +3,7 @@
  * @author Dan R. Lipsa
  * @date 20 May 2010
  * @brief Keeps track of all faces an edge is part of.
+ * @ingroup data
  * 
  */
 #ifndef __ADJACENT_ORIENTED_FACE_H__

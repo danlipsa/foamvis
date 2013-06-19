@@ -1,10 +1,8 @@
 /**
  * @file   AttributeInfo.h
  * @author Dan R. Lipsa
+ * @ingroup parser
  * @brief Information about attributes for vertices, edges, faces, bodies
- *
- * Information about the attribute creators, the index in the array of
- * attributes carried by each element.
  */
 #ifndef __ATTRIBUTE_INFO_H__
 #define __ATTRIBUTE_INFO_H__
@@ -16,7 +14,7 @@ class AttributeCreator;
 
 /**
  * @brief Information about attributes for vertices, edges, faces and bodies
- *
+
  * Information about the attribute creators, the index in the array of
  * attributes carried by each element.
  */

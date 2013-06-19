@@ -2,8 +2,8 @@
  * @file   ForceAverage.h
  * @author Dan R. Lipsa
  * @date  8 June 2010
- *
- * Interface for the ForceAverage class
+ * @brief Time-average for forces acting on objects interacting with foam.
+ * @ingroup average
  */
 
 #ifndef __FORCE_AVERAGE_H__
@@ -19,7 +19,7 @@ class Foam;
 class WidgetGl;
 
 /**
- * Average along time for forces acting on objects interacting with foam.
+ * @brief Time-average for forces acting on objects interacting with foam.
  */
 class ForceAverage : public Average
 {

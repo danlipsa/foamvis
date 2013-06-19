@@ -2,8 +2,9 @@
  * @file OrientedElement.h
  * @author Dan R. Lipsa
  * @date 21 May 2010
- * 
- * Declaration for the OrientedElement class
+ * @ingroup data
+ * @brief Base class for OrientedFace and OrientedEdge. Allows using a
+ *        Face or Edge in direct or reversed order.
  */
 #ifndef __ORIENTED_ELEMENT_H__
 #define __ORIENTED_ELEMENT_H__
@@ -12,7 +13,8 @@
 class Element;
 
 /**
- * Base class for OrientedFace and OrientedEdge
+ * @brief Base class for OrientedFace and OrientedEdge. Allows using a
+ *        Face or Edge in direct or reversed order.
  */
 class OrientedElement
 {

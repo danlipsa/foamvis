@@ -2,7 +2,7 @@
  * @file   AverageShaders.h
  * @author Dan R. Lipsa
  * @date  25 Jul. 2011
- *
+ * @ingroup average
  * @brief Shaders used for computing a pixel-based time-average of attributes.
  */
 

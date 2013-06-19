@@ -1,14 +1,17 @@
 /**
  * @file RestrictedRangeSlider.h
  * @author Dan R. Lipsa
- *
- * Declaration of RestrictedRangeSlider object
+ * @brief Slider UI that allows multiple selection intervals.
+ * @ingroup ui
  */
 #ifndef __RESTRICTED_RANGE_SLIDER_H__
 #define __RESTRICTED_RANGE_SLIDER_H__
 
 #include "ui_RestrictedRangeSlider.h"
 
+/**
+ * @brief Slider UI that allows multiple selection intervals.
+ */
 class RestrictedRangeSlider : public QWidget, 
 			      private Ui::RestrictedRangeSlider
 {

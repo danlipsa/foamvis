@@ -2,7 +2,7 @@
  * @file   BodySelector.h
  * @author Dan R. Lipsa
  * @date  31 Aug. 2010
- *
+ * @ingroup ui
  * @brief Functors that specify selected bubbles. 
  */
 #ifndef __BODY_SELECTOR_H__
@@ -161,7 +161,7 @@ private:
 
 
 /**
- * Specifies that bubbles with given IDs and scalar values are selected.
+ * @brief Specifies that bubbles with given IDs and scalar values are selected.
  */
 class CompositeBodySelector : public BodySelector
 {

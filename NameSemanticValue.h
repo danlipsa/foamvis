@@ -1,8 +1,8 @@
 /**
  * @file   NameSemanticValue.h
  * @author Dan R. Lipsa
- *
- * Tupple (name, type, value) used for attributes
+ * @brief Tupple (name, type, value) used for Element attributes
+ * @ingroup parser
  */
 #ifndef __NAME_SEMANTIC_VALUE_H__
 #define __NAME_SEMANTIC_VALUE_H__
@@ -12,7 +12,7 @@
 
 
 /**
- * Tupple (name, type, value) used for attributes
+ * @brief Tupple (name, type, value) used for Element attributes
  */
 class NameSemanticValue
 {

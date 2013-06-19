@@ -2,6 +2,8 @@
  * @file   Settings.h
  * @author Dan R. Lipsa
  * @date 17 July 2012
+ * @ingroup controller
+ * @brief %Settings that apply to all the views
  *
  */
 #ifndef __SETTINGS_H__
@@ -15,7 +17,7 @@ class Simulation;
 class SimulationGroup;
 
 /**
- * Settings that apply to all the views
+ * @brief Settings that apply to all the views
  */
 class Settings : public QObject
 {

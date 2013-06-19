@@ -2,6 +2,7 @@
  * @file   Base.h
  * @author Dan R. Lipsa
  * @date 11 Dec 2012
+ * @ingroup controller
  * @brief Simulations and settings for accessing them.
  * 
  */

@@ -2,7 +2,8 @@
  * @file T1.h
  * @author Dan R. Lipsa
  * @date 7 May 2013
- * A topological change
+ * @ingroup data
+ * @brief A topological change
  */
 
 #ifndef __T1_H__
@@ -10,7 +11,9 @@
 
 #include "Enums.h"
 
-
+/**
+ * @brief A topological change
+ */
 struct T1
 {
 public:

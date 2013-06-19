@@ -1,6 +1,7 @@
 /**
  * @file DataProperties.h
  * @author Dan R. Lipsa
+ * @ingroup data
  * @brief Basic properties of the simulation data such as dimensions
  *        and if it is quadratic or not.
  */

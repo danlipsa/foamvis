@@ -2,8 +2,8 @@
  * @file   SelectBodiesById.h
  * @author Dan R. Lipsa
  * @date 4 Dec. 2010
- *
- * Declaration of the SelectBodiesById
+ * @brief Dialog for selecting a list of bubbles using their ID.
+ * @ingroup ui
  */
 
 #ifndef __SELECT_BODIES_BY_ID_H__
@@ -11,6 +11,9 @@
 
 #include "ui_SelectBodiesById.h"
 
+/**
+ * @brief Dialog for selecting a list of bubbles using their ID.
+ */
 class SelectBodiesById : 
     public QDialog, private Ui::SelectBodiesById
 {

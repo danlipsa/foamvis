@@ -1,8 +1,8 @@
 /**
  * @file stable.h
  * @author Dan R. Lipsa
- * 
- * Precompiled header
+ * @ingroup utils
+ * @brief Precompiled header
  */
 // Add C includes here
 #ifdef _MSC_VER

@@ -5,8 +5,8 @@
  * @ingroup parser
  *
  * @defgroup parser Parser
- * Files and classes used to parse Surface Evolver .dmp files and 
- * build a memory representation of the simulation file.
+ * Parse Surface Evolver .dmp files and build a memory 
+ * representation of the simulation file.
  */
 
 %skeleton "lalr1.cc"                          /*  -*- C++ -*- */

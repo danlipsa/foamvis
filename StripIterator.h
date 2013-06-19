@@ -1,9 +1,9 @@
 /**
- * @file   BodyAlongTime.h
+ * @file   StripIterator.h
  * @author Dan R. Lipsa
  * @date 16 July 2010
- *
- * StripIterator declaration
+ * @brief Iterates over line segments for bubble paths
+ * @ingroup display
  */
 
 #ifndef __STRIP_ITERATOR_H__
@@ -14,6 +14,10 @@ class Body;
 class BodyAlongTime;
 class Simulation;
 
+/**
+ * @brief An intersection of line segments that form bubble
+ *        paths. Used for StripIterator.
+ */
 struct StripIteratorPoint
 {
     StripIteratorPoint () :
@@ -46,7 +50,8 @@ struct StripIteratorPoint
 
 
 /**
- * Iterates over line segments for centers of bubbles along time
+ * @brief Iterates over line segments for bubble paths
+ *
  * @todo Consider using a Boost.Iterator Library
  * @see BodyAlongTime
  */

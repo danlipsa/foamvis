@@ -2,8 +2,8 @@
  * @file   HistogramSettings.h
  * @author Dan R. Lipsa
  * @date 19 August 2010
- *
- * Declaration of the HistogramSettings class
+ * @brief Dialog for modifying Histogram settings
+ * @ingroup ui
  */
 
 #ifndef __HISTOGRAM_SETTINGS_H__
@@ -11,6 +11,9 @@
 
 #include "ui_HistogramSettings.h"
 
+/**
+ * @brief Dialog for modifying Histogram settings
+ */
 class HistogramSettings : 
     public QDialog, private Ui::HistogramSettings
 {

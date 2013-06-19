@@ -1,14 +1,17 @@
 /**
- * @file   Edge.h
+ * @file   QuadraticEdge.h
  * @author Dan R. Lipsa
- * 
- * Declaration of the QuadraticEdge class
+ * @ingroup data
+ * @brief Quadratic edge approximated with a sequence of points.
  */
 #ifndef __QUADRATIC_EDGE_H__
 #define __QUADRATIC_EDGE_H__
 
 #include "ApproximationEdge.h"
 
+/**
+ * @brief Quadratic edge approximated with a sequence of points.
+ */
 class QuadraticEdge : public ApproximationEdge
 {
 public:

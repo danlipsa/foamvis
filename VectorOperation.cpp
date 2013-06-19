@@ -13,6 +13,38 @@
 
 // Private Classes/Functions
 // ======================================================================
+/*
+ * @brief Math operation between two vtkImageData. left = left op right
+ */
+class VectorOpVector : public VectorOperation
+{
+public:
+    VectorOpVector (BinaryOperation f) : 
+	VectorOperation (f)
+    {
+    }
+    
+    void operator() (DataAndValidFlag left,DataAndValidFlag right);
+    void operator () (G3D::Vector3& left, const G3D::Vector3& right);
+};
+
+/**
+ * @brief Math operation between a vtkImageData and a scalar. left =
+ * right op scalar
+ */
+class VectorOpScalar : public VectorOperation
+{
+public:
+    VectorOpScalar (BinaryOperation f) : 
+        VectorOperation (f)
+    {
+    }
+    
+    void operator() (
+        DataAndValidFlag left, DataAndValidFlag right, double scalar);
+};
+
+
 void logValidPoints (vtkSmartPointer<vtkImageData> data)
 {
     vtkSmartPointer<vtkCharArray> validPoints = 

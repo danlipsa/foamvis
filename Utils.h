@@ -1,8 +1,11 @@
 /**
  * @file Utils.h
  * @author Dan R. Lipsa
- * 
- * Utility functions
+ * @ingroup utils
+ * @brief General functionality
+ *
+ * @defgroup utils Utils
+ * General functionality
  */
 #ifndef __UTILS_H__
 #define __UTILS_H__
@@ -84,8 +87,9 @@ G3D::Matrix2 mult (const G3D::Matrix2& first, const G3D::Matrix2& second);
 G3D::Rect2D toRect2D (G3D::AABox aabox);
 G3D::Rect2D TexRectFromInsideRect (G3D::Rect2D insideRect);
 G3D::Vector2 TexCoord (G3D::Rect2D enclosingRect, G3D::Vector2 v);
+
 /**
- * Eigen things calculations
+ * @brief Eigen things calculations
  */
 class SymmetricMatrixEigen
 {
@@ -155,6 +159,10 @@ QStringList ToQStringList (const vector<string>& v);
 /**
  * @{
  * @name Container helpers
+ */
+
+/**
+ * @brief Computes min or max along all X,Y and Z directions.
  */
 template<typename Container, typename ContainerIterator, 
 	 typename ElementComparatorAlong>
@@ -245,7 +253,9 @@ double* InterpolateAttribute (
     vtkSmartPointer<vtkImageData> data, double point[3], 
     const char* name, vector<double>* attribute);
 
-
+/**
+ * @brief Maximum width and height for a given font and many strings
+ */
 class StringWidth
 {
 public:
