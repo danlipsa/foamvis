@@ -176,14 +176,12 @@ Command lines for various datasets:
 -----------------------------------
 See simulations.ini.
 
-
 Generate a movie
 ======================================================================
 Check 'Save movie' check box.
 Interact with the program
 ./movie.sh
 This will generate a file called 'foamMovie.mp4'
-
 
 Debug - Profile (gprof)
 ======================================================================
