@@ -521,7 +521,9 @@ void Body::calculateNeighbors3D (const OOBox& originalDomain)
 	// wall faces do not create neighbors (have only this as adjacent body)
 	if (of->HasConstraints ())
 	{
-	    // @todo reflect for 3D faces with constraints?
+	    /** 
+             * @todo Reflect for 3D faces with constraints?
+             */
 	}
 	else if (of->GetAdjacentBodySize () == 2)
 	{
@@ -554,7 +556,9 @@ void Body::calculateNeighbors3D (const OOBox& originalDomain)
 	    // pressure of the outside is 0
 	    m_growthRate += GetScalarValue (BodyScalar::PRESSURE) * 
 		of->GetArea ();
-	    // @todo reflect for free faces as well?
+            /**
+             * @todo Reflect for free faces as well?
+             */
 	}
 	++i;
     }
@@ -616,7 +620,9 @@ void Body::calculateNeighbors2D (const OOBox& originalDomain)
 	    m_hasFreeFace = true;
 	    m_growthRate += GetScalarValue (BodyScalar::PRESSURE) * 
 		oe.GetLength ();
-	    // @todo reflect for free faces as well?
+	    /**
+             * @todo Reflect for free faces as well?
+             */
 	}
     }
     m_neighbors.resize (j);

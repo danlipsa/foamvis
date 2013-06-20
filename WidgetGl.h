@@ -539,7 +539,6 @@ private:
      * Displays   the   contour   of   faces.   Used   together   with
      * displayFacesOffet   and  with  GL_POLYGON_OFFSET_FILL   to  get
      * continuous contours  for polygons.
-     * @param bodies displays all the faces in these bodies
      */
     void displayFacesContour (
 	const vector< boost::shared_ptr<Body> >& bodies, 

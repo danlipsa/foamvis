@@ -377,8 +377,6 @@ private:
     /**
      * Calculates the AABOX for the the foam and the 8 corners of the 
      * original domain.
-     * @params low low point of the aabox for the Foam (input/output)
-     * @params high high point of the aabox for the foam (input/output)
      */
     void calculateBoundingBoxTorus (G3D::Vector3* low, G3D::Vector3* high);
     void calculateMinMaxStatistics (BodyScalar::Enum property);

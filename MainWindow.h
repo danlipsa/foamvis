@@ -209,7 +209,6 @@ private:
     void enableEnd (bool enable);
     /**
      * Enables/Disables the Play button
-     * @param enable true to enable and false to disable the button
      */
     void enablePlayForward ();
     void enablePlayReverse ();

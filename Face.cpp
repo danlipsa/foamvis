@@ -254,9 +254,11 @@ size_t Face::largestEdgeIndex () const
     return largestIndex;
 }
 
-// @todo: deal with ctrctndumps_725v_0.1480_0.2400_9.0000_rupt_v1/
-// dump_0.1480_0.2400_9.0000_0171.dmp, face 300, which is a bubble 
-// with two round edges.
+/**
+ * @todo Deal with ctrctndumps_725v_0.1480_0.2400_9.0000_rupt_v1/
+ *       dump_0.1480_0.2400_9.0000_0171.dmp, face 300, which is a bubble 
+ *       with two round edges.
+ */
 G3D::Plane Face::GetPlane () const
 {
     // faces at corners for ctrctn have 2 edges before edges on the constraint

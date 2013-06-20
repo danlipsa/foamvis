@@ -145,9 +145,6 @@ void Foam::SetBody (size_t i, vector<int>& faces,
     m_bodies[i] = body;
 }
 
-// @todo Use array indexes instead of pointers for faces part of a
-// body, and vertices part of a face.
-// This works better with VTK and with OpenGL vertex arrays.
 void Foam::compact (void)
 {
     ::compact (GetParsingData ().GetVertices ());
@@ -411,11 +408,11 @@ size_t Foam::GetLastBodyId () const
 
 
 /**
- * @todo: 1. Use face area to decide if the constraint is convex or concave.
- *        2. For a piece wise defined constraint, use the intersection between
- *           different pieces as points you know they are on the constraint.
- *        3. use angled lines instead of lines perpendicular on the constraint
- *           edge.
+ * @todo 1. Use face area to decide if the constraint is convex or concave.
+ *       2. For a piece wise defined constraint, use the intersection between
+ *          different pieces as points you know they are on the constraint.
+ *       3. use angled lines instead of lines perpendicular on the constraint
+ *          edge.
  */
 void Foam::addConstraintEdges ()
 {

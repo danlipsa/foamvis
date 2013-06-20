@@ -79,7 +79,7 @@ public:
  * @brief Displays a face using the color specified in the DMP file or
  *        a color mapped body property value
  *
- * @todo: color by the number of edges of a face in 3D
+ * @todo %Color by the number of edges of a face in 3D
  */
 template<typename PropertySetter = SetterTextureCoordinate>
 class DisplayFaceBodyScalarColor : 

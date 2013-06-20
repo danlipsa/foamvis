@@ -1,11 +1,11 @@
 /**
  * @file   MainWindow.h
  * @author Dan R. Lipsa
+ * @todo Store the palette per BodyScalar instead of storing it per view 
+ *       and simulation index.
  *
  * Contains definitions for the MainWindow
  */
-// @todo Store the palette per BodyScalar instead of storing it per view 
-//       and simulation index.
 #include "Application.h"
 #include "AttributeHistogram.h"
 #include "BodySelector.h"

@@ -244,7 +244,7 @@ public:
      * @pre {Face::CalculateCentroidAndArea}
      * /home/dlipsa/data/foam/wetfoam_100_0002.dmp stores all 200 liquid channels
      * in a body.
-     * @todo: handle this correctly
+     * @todo Handle this correctly.
      */
     void CalculateNeighborsAndGrowthRate (
         const OOBox& originalDomain, bool is2D);

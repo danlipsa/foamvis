@@ -4,7 +4,7 @@
  *
  * Member definitions  for nodes used  in an expression tree  built in
  * the parser
- * @todo cache an iterator to avoid looking up a name for every access of a 
+ * @todo Cache an iterator to avoid looking up a name for every access of a 
  *       variable, array, function and so on.
  */
 #include "Debug.h"

@@ -610,9 +610,10 @@ size_t Simulation::GetT1CountAllTimeSteps () const
     }
     return size;
 }
-
-// @todo: return the real value here. It would work if clamping would not
-// reduce the number of colors that are displayed. Until then use 1 instead.
+/**
+ * @todo Return the real value here. It would work if clamping would not
+ * reduce the number of colors that are displayed. Until then use 1 instead.
+ */
 size_t Simulation::GetMaxT1CountPerTimeStep () const
 {
     return 1;

@@ -52,7 +52,7 @@ struct StripIteratorPoint
 /**
  * @brief Iterates over line segments for bubble paths
  *
- * @todo Consider using a Boost.Iterator Library
+ * @todo Consider using a Boost.Iterator Library.
  * @see BodyAlongTime
  */
 class StripIterator

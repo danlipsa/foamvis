@@ -567,7 +567,7 @@ G3D::Vector3 WidgetGl::getEyeTransform (ViewNumber::Enum viewNumber) const
 
 
 /**
- * @todo: make sure context view works for 3D
+ * @todo Make sure context view works for 3D.
  */
 void WidgetGl::translateAndScale (
     ViewNumber::Enum viewNumber, double scaleRatio,
@@ -1475,7 +1475,7 @@ void WidgetGl::displayTorusDomain (ViewNumber::Enum viewNumber) const
 }
 
 /**
- * @todo display a pyramid frustum for angle of view > 0.
+ * @todo Display a pyramid frustum for angle of view > 0.
  */
 void WidgetGl::displayFocusBox (ViewNumber::Enum viewNumber) const
 {
@@ -4289,7 +4289,9 @@ void WidgetGl::CurrentIndexChangedAxisOrder (int index)
     CompileUpdate ();
 }
 
-// @todo add a color bar model for BodyScalar::None
+/**
+ * @todo Add a color bar model for BodyScalar::None.
+ */
 void WidgetGl::SetBodyOrFaceScalar (
     ViewNumber::Enum viewNumber,
     boost::shared_ptr<ColorBarModel> colorBarModel,

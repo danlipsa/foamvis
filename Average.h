@@ -45,7 +45,9 @@ public:
 
 
 protected:
-    //@todo write and add/remove in one operations instead of two.
+    /**
+     * @todo Write and add/remove in one operations instead of two.
+     */
     virtual void addStep (size_t timeStep, size_t subStep) = 0;
     virtual void removeStep (size_t timeStep, size_t subStep) = 0;
     /**

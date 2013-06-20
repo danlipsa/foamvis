@@ -163,7 +163,7 @@ private:
  * @brief Displays the bubble path for a certain body id
  *
  * @todo Use Simulation::GetBodyScalarValue instead of
- * StripIterator functions
+ *       StripIterator functions
  */
 template<typename PropertySetter = SetterTextureCoordinate,
 	 typename DisplayEdge = DisplaySegmentLine>
