@@ -360,11 +360,17 @@ public:
     string ToString () const;
 
 private:
+    /**
+     * @brief Name and function pointer for a binary function
+     */
     struct BinaryFunctionInformation
     {
 	const char* m_name;
 	BinaryFunction m_function;
     };
+    /**
+     * @brief Name and function pointer for a unary function
+     */
     struct UnaryFunctionInformation
     {
 	const char* m_name;

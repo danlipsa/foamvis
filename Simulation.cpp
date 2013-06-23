@@ -2,7 +2,6 @@
  * @file Simulation.cpp
  * @author Dan R. Lipsa
  *
- * Method implementation for a list of Foam objects
  */
 
 #include "Body.h"

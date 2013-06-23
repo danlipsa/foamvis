@@ -184,7 +184,6 @@ public:
         const QSlider& slider,
         const Simulation& simulation) const;
     void CurrentIndexChangedSimulation (int index);
-    void ShowMessageBox (const char* message);
     void ButtonClickedViewType (ViewType::Enum oldViewType);
     void ToggledVelocitySameSize (bool checked);
 

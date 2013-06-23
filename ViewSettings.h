@@ -267,10 +267,11 @@ public:
     void CopyColorMapVelocity (const ViewSettings& from);
     void CopyColorMapVelocityFromScalar ();
     ColorMapScalarType::Enum GetColorMapType () const;    
+    // @}
     static ColorMapScalarType::Enum GetColorMapType (
         ViewType::Enum viewType, size_t property,
         StatisticsType::Enum statisticsType);
-    // @}
+
 
     /**
      * @{
@@ -590,8 +591,6 @@ public:
     {
 	m_selectedLight = i;
     }
-    static G3D::Vector3 GetInitialLightPosition (
-	G3D::AABox centeredViewingVolume, LightNumber::Enum lightNumber);
     double GetLightPositionRatio (LightNumber::Enum lightNumber) const
     {
 	return m_lightPositionRatio [lightNumber];
@@ -610,6 +609,9 @@ public:
 	m_rotationLight[i] = rl;
     }
     // @}
+    static G3D::Vector3 GetInitialLightPosition (
+	G3D::AABox centeredViewingVolume, LightNumber::Enum lightNumber);
+
 
 
     /**
@@ -880,22 +882,13 @@ public:
         m_torusDomainShown = shown;
     }
     void SetDimension (Dimension::Enum dimension);
-    //@}
+    /// @}
 
     /**
-     * @{
      * @name Arrow display
-     */
-    /**
-     * These afect the bubble paths as well.
+     * @{
      */
     void SetArrowParameters (float onePixelInObjectSpace);
-    static void SetArrowParameters (
-        float onePixelInObjectSpace,
-        float* edgeRadius, float* arrowHeadRadius, float* arrowHeadHeight, 
-        float edgeRadiusRatio = 0,
-        float* edgeWidth = 0);
-
     float GetEdgeWidth () const 
     {
 	return m_edgeWidth;
@@ -921,10 +914,16 @@ public:
 	return m_arrowHeadHeight;
     }
     // @}
+    static void SetArrowParameters (
+        float onePixelInObjectSpace,
+        float* edgeRadius, float* arrowHeadRadius, float* arrowHeadHeight, 
+        float edgeRadiusRatio = 0,
+        float* edgeWidth = 0);
+
 
     /**
-     * @{
      * @name Bubble paths
+     * @{
      */
     /**
      * Switches between line and tube/quadric

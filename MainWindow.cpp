@@ -973,10 +973,6 @@ void MainWindow::setStackedWidgetVelocity (VectorVis::Enum vectorVis)
     stackedWidgetVelocity->setCurrentWidget (pages[vectorVis]);
 }
 
-void MainWindow::ShowMessageBox (const char* message)
-{
-    ::ShowMessageBox (this, message);
-}
 
 
 // Slots and methods called by the UI
@@ -1567,7 +1563,7 @@ void MainWindow::ButtonClickedForce (int t)
         (! vs.IsAverageAround () ||
          vs.GetAverageAroundSecondBodyId () == INVALID_INDEX))
     {
-	ShowMessageBox ("This feature works only when "
+	ShowMessageBox (this, "This feature works only when "
                         "averaging around two objects.");
 	SetCheckedNoSignals (checkBoxForceDifference, false, true);
 	return;
@@ -1652,7 +1648,7 @@ void MainWindow::ButtonClickedTimeLinkage (int id)
     if (timeLinkage == TimeLinkage::LINKED && ! 
         GetSettings ().HasEqualNumberOfEvents ())
     {
-        ShowMessageBox ("You have to have an equal number of events "
+        ShowMessageBox (this, "You have to have an equal number of events "
                         "in boths views");
         radioButtonTimeIndependent->setChecked (true);
         return;
@@ -1771,7 +1767,7 @@ void MainWindow::ToggledTwoHalvesView (bool reflectedHalfView)
 	(GetViewCount () != ViewCount::TWO || 
 	 GetSettings ().GetViewLayout () != ViewLayout::VERTICAL))
     {
-	ShowMessageBox ("This feature works only with two views "
+	ShowMessageBox (this, "This feature works only with two views "
                         "in vertical layout");
 	SetCheckedNoSignals (checkBoxTwoHalvesView, false, true);
 	return;

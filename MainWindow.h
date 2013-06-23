@@ -48,7 +48,6 @@ public:
      * @param event object describing the key
      */
     void keyPressEvent (QKeyEvent* event);
-    void ShowMessageBox (const char* message);
 
 Q_SIGNALS:
     void BodyOrFaceScalarChanged (

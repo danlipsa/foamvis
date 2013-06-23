@@ -3333,11 +3333,6 @@ void WidgetGl::enableTorusDomainClipPlanes (ViewNumber::Enum viewNumber)
     } 
 }
 
-void WidgetGl::ShowMessageBox (const char* message)
-{
-    ::ShowMessageBox (this, message);
-}
-
 
 // Slots and methods called by the UI
 // ==================================
@@ -3396,7 +3391,7 @@ void WidgetGl::SetAverageAroundBody ()
 	CompileUpdate ();
     }
     else
-        ShowMessageBox ("No body selected");
+        ShowMessageBox (this, "No body selected");
 }
 
 void WidgetGl::SetAverageAroundSecondBody ()
@@ -3431,7 +3426,7 @@ void WidgetGl::SetAverageAroundSecondBody ()
     }
     else
 	message = "No body selected";
-    ShowMessageBox (message.c_str ());
+    ShowMessageBox (this, message.c_str ());
 }
 
 
@@ -3480,7 +3475,7 @@ void WidgetGl::InfoPoint ()
     ostr << "Point" << endl
          << "object: " << m_contextMenuPosObject << endl
          << "window: " << QtToOpenGl (m_contextMenuPosWindow, height ());
-    ShowMessageBox (ostr.str ().c_str ());
+    ShowMessageBox (this, ostr.str ().c_str ());
 }
 
 void WidgetGl::InfoEdge ()
@@ -3606,7 +3601,7 @@ void WidgetGl::AddLinkedTimeEvent ()
     }
     catch (exception& e)        
     {
-        ShowMessageBox (e.what ());
+        ShowMessageBox (this, e.what ());
     }
 }
 
@@ -3619,7 +3614,7 @@ void WidgetGl::ResetLinkedTimeEvents ()
     }
     catch (exception& e)        
     {
-        ShowMessageBox (e.what ());
+        ShowMessageBox (this, e.what ());
     }    
 }
 

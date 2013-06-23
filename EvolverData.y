@@ -7,6 +7,14 @@
  * @defgroup parser Parser
  * Parse Surface Evolver .dmp files and build a memory 
  * representation of the simulation file.
+ *
+ * @section sec_space Significant space
+ * For matrices of expressions and for vertex components
+ * x, y, z.
+ *
+ * @section sec_new_line Significant new line
+ * For arrays (2d versus 3d)
+ *
  */
 
 %skeleton "lalr1.cc"                          /*  -*- C++ -*- */

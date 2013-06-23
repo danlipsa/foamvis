@@ -1,4 +1,4 @@
-Requirements
+Hardware requirements
 ======================================================================
 A graphics card with:
   OpenGL version >= 2.1
@@ -153,12 +153,13 @@ cp $VTK_BINARY_DIR/bin/libQVTKWidgetPlugin.so $QTDIR/plugins/designer
 
 Mac OS X Snow Leopard
 ---------------------
-Install XCode 3.2.6 (search for 'Xcode snow leopard')
+Install XCode 3.2.6 (search for 'Xcode snow leopard') and then follow
+the same instructions as for Linux.
 
 
-Windows - not up to date.
--------------------------
-Install cygwin, making sure you select openssh, subversion, perl, bison, flex
+Windows - The latest version of foamvis has not been ported to Windows
+----------------------------------------
+Install cygwin, making sure you install openssh, subversion, perl, bison, flex
 
 Run
 ======================================================================
@@ -272,8 +273,6 @@ doxywizard Doxyfile
 
 // To generate the documentation run:
 doxygen
-
-
 
 
 Release

@@ -47,81 +47,10 @@
  * href="modules.html">Modules</a>.
  *
  * @section download Download
- * Source files and libraries:
- * http://csgalati.swansea.ac.uk/foam/build
- *
- * Mac Os X binary release:
- * http://csgalati.swansea.ac.uk/foam/bin/mac-osx-10.6.8/
- *
- * @section sec_torus Processing done for the Torus model
- * @subsection sec_onedge Executed when creating an edge (may create duplicate vertices)
- *
- <pre>
-The begin vertex (and the middle vertex in quadratic mode) of an edge is 
-always defined in the data file (it's not a duplicate).
-  if (edge is marked with a *)
-    the end vertex is defined in the data file (no DUPLICATE needed)
-  else if (edge is marked with a + or -) {
-    create a DUPLICATE of the end vertex by translating it
-      one domain up for a + and one domain down for a - along each of 
-      the three axes. The translation is done relative to the domain where the 
-      ORIGINAL end vertex is defined in the data file. This means that
-      (* * *) is the domain where the begin vertex is defined in the data file
-      NOT the original domain.
-  }
- </pre>
+ * - <a href="http://csgalati.swansea.ac.uk/foam/build">Sources</a> for
+ * FoamVis and required libraries.
+ * - Mac Os X <a href="http://csgalati.swansea.ac.uk/foam/bin/mac-osx-10.6.8/">Snow Leopard</a> binary release (not the latest version)
  * 
- * @subsection sec_onface Executed when creating a face (may create duplicate edges)
- *
-<pre>
-  first vertex of the face is defined in the data file (not a DUPLICATE).
-  set beginVertex to be the first vertex of the face
-  foreach (currentEdge, edges in the face) {
-    if (the beginVertex does not match the begin vertex of the currentEdge) {
-      create a DUPLICATE of currentEdge starting at beginVertex
-      set currentEdge to point to the DUPLICATE
-    }
-    set beginVertex  to be the end vertex of currentEdge
-  }
-</pre>
- * 
- * @subsection sec_onbody Executed when creating a body (may create duplicate faces)
- *
-<pre>
-Add all adjacent faces of face 0 to a queue.
-while (no more items in the queue)
-{
-   remove a adjacent face, translate it if needed and mark it visited.
-   if several faces fit, choose the face with smallest angle between its 
-   normal and the original face normal.
-}
-
-</pre>
- *
- *
- * @section sec_physical_tesselation Physical and tesselation edges and vertices
- * In 2D we don't have physical edges. A vertex is "physical" if has
- * >= 3 edges adjacent to it.
- *
- * In 3D, an edge is physical if it has 6 AdjacentOrientedFace is part of. (is
- * adjacent with 3 faces)
- * An vertex is physical if it has 4 physical edges adjacent to it.
- *
- *
- * @section sec_space Significant space
- * For matrices of expressions and for vertex components
- * x, y, z.
- *
- * @section sec_new_line Significant new line
- * For arrays (2d versus 3d)
- *
- * @section sec_t1s Format of additional text file containing T1s
- * A line that starts with a # is a comment line @n
- * Each line contains three entries separated by space: time_step, x, y
- * where x and y are the coordinates of the T1 in object space @n
- * The first time step is 1. @n
- * A T1 labeled with timestep T occurs between T and T+1.@n
- *
  */
 
 // ----------------------------------------------------------------------
