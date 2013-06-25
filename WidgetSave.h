@@ -2,7 +2,7 @@
  * @file   WidgetSave.h
  * @author Dan R. Lipsa
  * @date 02 August 2010 
- * @ingroup views
+ * @ingroup view
  * @brief Widget that knows how to save its display as a JPG file.
  */
 #ifndef __WIDGET_SAVE_H__

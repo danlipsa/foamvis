@@ -2,7 +2,7 @@
  * @file   ViewSettings.h
  * @author Dan R. Lipsa
  * @date 10 March 2011
- * @ingroup controller
+ * @ingroup settings model
  * @brief %Settings that apply to one view
  */
 #ifndef __VIEW_SETTINGS_H__

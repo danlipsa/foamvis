@@ -2,7 +2,7 @@
  * @file   Body.h
  * @author Dan R. Lipsa
  * @brief A bubble.
- * @ingroup data
+ * @ingroup data model
  */
 
 #ifndef __BODY_H__

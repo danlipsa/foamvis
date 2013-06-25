@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date 16 March 2010
  * @brief Processing done to "unwrap" bodies in torus model.
- * @ingroup data
+ * @ingroup data model
  */
 
 #ifndef __PROCESS_BODY_TORUS_H__

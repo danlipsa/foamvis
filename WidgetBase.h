@@ -3,9 +3,9 @@
  * @author Dan R. Lipsa
  * @date 23 August 2012
  * @brief Base class for all views: WidgetGl, WidgetVtk, WidgetHistogram
- * @ingroup views
+ * @ingroup view
  *
- * @defgroup views Views
+ * @defgroup view View
  * Views for displaying data
  */
 

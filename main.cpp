@@ -1,9 +1,12 @@
 /**
  * @file main.cpp
  * @author Dan R. Lipsa
- *
- * Parses an Evolver DMP file and displays the data from the file.
- *
+ * @ingroup parser
+ * @brief Drives parsing of SE .dmp files
+ */
+
+// ----------------------------------------------------------------------
+/*
  * @todo Look at paths coresponding to bubbles around the circulation
  *       shown by average: Simon's email 21 Sep. 2012
  * @todo Add vorticity: Simon's email 21 Sep. 2012

@@ -2,7 +2,7 @@
  * @file   ConstraintEdge.h
  * @author Dan R. Lipsa
  * @date 28 Apr. 2011
- * @ingroup data
+ * @ingroup data model
  * @brief Edge on a constraint approximated with a sequence of points.
  */
 #ifndef __CONSTRAINT_EDGE_H__

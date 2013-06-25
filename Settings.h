@@ -2,9 +2,11 @@
  * @file   Settings.h
  * @author Dan R. Lipsa
  * @date 17 July 2012
- * @ingroup controller
+ * @ingroup settings model
  * @brief %Settings that apply to all the views
  *
+ * @defgroup settings Settings
+ * Program state
  */
 #ifndef __SETTINGS_H__
 #define __SETTINGS_H__

@@ -2,7 +2,7 @@
  * @file   BodySelector.h
  * @author Dan R. Lipsa
  * @date  31 Aug. 2010
- * @ingroup ui
+ * @ingroup settings model
  * @brief Functors that specify selected bubbles. 
  */
 #ifndef __BODY_SELECTOR_H__

@@ -2,7 +2,7 @@
  * @file OrientedElement.h
  * @author Dan R. Lipsa
  * @date 21 May 2010
- * @ingroup data
+ * @ingroup data model
  * @brief Base class for OrientedFace and OrientedEdge. Allows using a
  *        Face or Edge in direct or reversed order.
  */

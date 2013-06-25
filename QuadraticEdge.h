@@ -1,7 +1,7 @@
 /**
  * @file   QuadraticEdge.h
  * @author Dan R. Lipsa
- * @ingroup data
+ * @ingroup data model
  * @brief Quadratic edge approximated with a sequence of points.
  */
 #ifndef __QUADRATIC_EDGE_H__

@@ -2,7 +2,7 @@
  * @file Simulation.h
  * @author Dan R. Lipsa
  * @brief Data for all time-steps in a foam simulations
- * @ingroup data
+ * @ingroup data model
  *
  * @defgroup data Data
  * Foam simulation data

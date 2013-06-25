@@ -3,7 +3,7 @@
  * @author modified from vtkInteractorStyleTrackballCamera by Dan Lipsa
  * @date 3 Sept. 2012
  * @brief Interactor that enables FoamVis style interaction in a VTK view.
- * @ingroup ui
+ * @ingroup view
  */
 
 #ifndef __FOAMVIS_INTRACTOR_STYLE_H

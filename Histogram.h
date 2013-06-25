@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date 22 July 2010
  * @brief A histogram UI that allows selection of bins.
- * @ingroup views
+ * @ingroup view
  */
 
 #ifndef __HISTOGRAM_H__

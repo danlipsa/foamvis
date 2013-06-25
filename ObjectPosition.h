@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date 17 May 2011
  * @brief Stores an object interacting with foam position and rotation.
- * @ingroup data
+ * @ingroup data model
  */
 #ifndef __OBJECT_POSITION_H__
 #define __OBJECT_POSITION_H__

@@ -3,7 +3,7 @@
  * @author Josef Wilgen, Uwe Rathmann, Dan R. Lipsa
  * @date 20 August 2010
  * @brief Implementation of a histogram UI, modified from Qwt
- * @ingroup views
+ * @ingroup view
  */
 
 /* 

@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @brief Base class for  Vertex, Edge, Face and Body.  Stores a vector
  * of attributes.
- * @ingroup data
+ * @ingroup data model
  */
 #ifndef __ELEMENT_H__
 #define __ELEMENT_H__

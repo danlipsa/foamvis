@@ -2,7 +2,7 @@
  * @file   Vertex.h
  * @author Dan R. Lipsa
  * @brief Vertex represented in a DMP file. Is part of edges, faces and bodies.
- * @ingroup data
+ * @ingroup data model
  */
 #ifndef __VERTEX_H__
 #define __VERTEX_H__

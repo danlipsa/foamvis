@@ -2,7 +2,7 @@
  * @file Attribute.h
  * @author Dan R. Lipsa
  * @brief Attributes that can be attached to vertices, edges, faces and bodies.
- * @ingroup data
+ * @ingroup data model
  */
 #ifndef __ATTRIBUTE_H__
 #define __ATTRIBUTE_H__

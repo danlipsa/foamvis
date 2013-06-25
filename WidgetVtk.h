@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date 6 June 2012
  * @brief View that displays 3D foam visualizations using VTK
- * @ingroup views
+ * @ingroup view
  */
 #ifndef __WIDGETVTK_H__
 #define __WIDGETVTK_H__

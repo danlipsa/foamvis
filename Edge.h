@@ -2,7 +2,7 @@
  * @file   Edge.h
  * @author Dan R. Lipsa
  * @brief Part of a bubble face, stores a begin and end vertex.
- * @ingroup data
+ * @ingroup data model
  */
 #ifndef __EDGE_H__
 #define __EDGE_H__

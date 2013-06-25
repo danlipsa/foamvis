@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date 24 Aug. 2012
  * @brief View for displaying histograms of scalar values
- * @ingroup views
+ * @ingroup view
  */
 #ifndef __WIDGET_HISTOGRAM_H__
 #define __WIDGET_HISTOGRAM_H__

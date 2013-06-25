@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @brief A bubble represented as a list of faces, a face is a
  *        oriented list of edges.
- * @ingroup data
+ * @ingroup data model
  */
 #ifndef __FACE_H__
 #define __FACE_H__

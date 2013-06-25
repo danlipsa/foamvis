@@ -2,7 +2,7 @@
  * @file OrientedFace.h
  * @author Dan R. Lipsa
  * @brief An oriented face. Allows using a Face in direct or reversed order.
- * @ingroup data
+ * @ingroup data model
  */
 #ifndef __ORIENTED_FACE_H__
 #define __ORIENTED_FACE_H__

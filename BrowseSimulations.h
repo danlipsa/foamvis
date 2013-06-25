@@ -5,7 +5,7 @@
  * @brief Dialog used for choosing simulations to analyse or compare.
  * @ingroup ui
  *
- * @defgroup ui UI and Interaction
+ * @defgroup ui UI
  * User interface and interaction
  */
 

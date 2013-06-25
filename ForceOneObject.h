@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date 7 June 2011
  * @brief Forces and torque acting on one object
- * @ingroup data
+ * @ingroup data model
  */
 #ifndef __FORCE_ONE_OBJECT_H__
 #define __FORCE_ONE_OBJECT_H__

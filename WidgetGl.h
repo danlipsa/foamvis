@@ -2,7 +2,7 @@
  * @file   WidgetGl.h
  * @author Dan R. Lipsa
  * @brief View that displays 2D (and some 3D) foam visualizations using OpenGL.
- * @ingroup views
+ * @ingroup view
  */
 #ifndef __WIDGETGL_H__
 #define __WIDGETGL_H__

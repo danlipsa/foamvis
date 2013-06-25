@@ -2,7 +2,7 @@
  * @file   OrientedEdge.h
  * @author Dan R. Lipsa
  * @brief An oriented edge. Allows using an Edge in direct or reversed order.
- * @ingroup data
+ * @ingroup data model
  */
 #ifndef __ORIENTED_EDGE_H__
 #define __ORIENTED_EDGE_H__

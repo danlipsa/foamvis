@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date 20 May 2010
  * @brief Keeps track of all bodies a face is part of.
- * @ingroup data
+ * @ingroup data model
  */
 #ifndef __ADJACENT_BODY_H__
 #define __ADJACENT_BODY_H__

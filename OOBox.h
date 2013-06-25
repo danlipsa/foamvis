@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date 7 May 2010
  * @brief An oblique bounding box used for storing a torus original domain.
- * @ingroup data
+ * @ingroup data model
  */
 #ifndef __OOBOX_H__
 #define __OOBOX_H__

@@ -2,7 +2,7 @@
  * @file Foam.h
  * @author Dan R. Lipsa
  * @brief Stores information about a time step in a foam simulation.
- * @ingroup data
+ * @ingroup data model
  */
 #ifndef __FOAM_H__
 #define __FOAM_H__

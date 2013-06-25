@@ -2,7 +2,7 @@
  * @file T1.h
  * @author Dan R. Lipsa
  * @date 7 May 2013
- * @ingroup data
+ * @ingroup data model
  * @brief A topological change
  */
 

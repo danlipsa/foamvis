@@ -2,7 +2,7 @@
  * @file   BodyAlongTime.h
  * @author Dan R. Lipsa
  * @date 15 May 2010
- * @ingroup data
+ * @ingroup data model
  * @brief A bubble path
  */
 

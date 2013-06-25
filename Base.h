@@ -2,9 +2,12 @@
  * @file   Base.h
  * @author Dan R. Lipsa
  * @date 11 Dec 2012
- * @ingroup controller
+ * @ingroup model
  * @brief Simulations and settings for accessing them.
  * 
+ *
+ * @defgroup model Model
+ * Data and program status
  */
 
 #ifndef __BASE_H__
