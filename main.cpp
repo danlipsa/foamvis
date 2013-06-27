@@ -2,7 +2,7 @@
  * @file main.cpp
  * @author Dan R. Lipsa
  * @ingroup parser
- * @brief Drives parsing of SE .dmp files
+ * @brief Drives parsing of SE .dmp files and creates FoamVis main objects.
  */
 
 // ----------------------------------------------------------------------

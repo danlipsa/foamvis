@@ -5,8 +5,8 @@
  * @ingroup controller
  *
  * @defgroup controller Controller
- * Manages the interaction between a user and the views that show foam
- * simulation data.
+ * Manages the interaction between a user, the Model (that stores data
+ * and program state) and the views that show foam simulation data.
  */
 #ifndef __MAIN_WINDOW_H__
 #define __MAIN_WINDOW_H__
