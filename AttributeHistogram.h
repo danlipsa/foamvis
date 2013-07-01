@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date 13 August 2010
  * @ingroup view
- * @brief A histogram of a scalar attribute UI for both one time step
+ * @brief A GUI histogram of a scalar attribute useful for one time step
  *        and all time steps.
  */
 
@@ -14,7 +14,7 @@
 class ColorBarModel;
 
 /**
- * @brief A UI histogram of a scalar attribute for both one time step
+ * @brief A GUI histogram of a scalar attribute useful for one time step
  *        and all time steps.
  */
 class AttributeHistogram : public Histogram

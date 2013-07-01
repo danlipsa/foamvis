@@ -10,7 +10,7 @@
 #include "BodySelector.h"
 #include "ColorBarModel.h"
 #include "Debug.h"
-#include "ScalarAverage2D.h"
+#include "ScalarAverage.h"
 #include "ForceAverage.h"
 #include "DisplayBodyFunctors.h"
 #include "DisplayEdgeFunctors.h"
@@ -712,7 +712,7 @@ void WidgetGl::initializeGL()
         if (GetSimulationGroup ().GetIndex2DSimulation () != INVALID_INDEX)
         {
             cdbg << "Compiling shaders..." << endl;
-            ScalarAverage2D::InitShaders ();
+            ScalarAverage::InitShaders ();
             TensorAverage::InitShaders ();
             VectorAverage::InitShaders ();
             T1KDE2D::InitShaders ();
@@ -2377,7 +2377,7 @@ void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
         if (vs.IsBubblePathsTubeUsed ())
 	    for_each (
 		bats.begin (), bats.end (),
-		DisplayBubblePaths<
+		DisplayBubblePath<
 		SetterTextureCoordinate, DisplaySegmentTube> (
 		    GetSettings (), viewNumber, simulation.Is2D (),
                     bodySelector, GetQuadric (), simulation,
@@ -2386,7 +2386,7 @@ void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
 	else
 	    for_each (
 		bats.begin (), bats.end (),
-		DisplayBubblePaths<
+		DisplayBubblePath<
 		SetterTextureCoordinate, DisplaySegmentQuadric> (
 		    GetSettings (), viewNumber, simulation.Is2D (),
                     bodySelector, GetQuadric (), simulation,
@@ -2397,7 +2397,7 @@ void WidgetGl::compileBubblePaths (ViewNumber::Enum viewNumber) const
     {
         WarnOnOpenGLError ("compileBubblePaths begin");
 	for_each (bats.begin (), bats.end (),
-		  DisplayBubblePaths<SetterTextureCoordinate, 
+		  DisplayBubblePath<SetterTextureCoordinate, 
 		  DisplaySegmentLine> (
 		      GetSettings (), viewNumber, simulation.Is2D (),
                       bodySelector, GetQuadric (), simulation,

@@ -24,7 +24,9 @@ class SimulationGroup;
 class AverageCache;
 
 /**
- * @brief Stores the OpenGL, Vtk, Histogram and  UI widgets.
+ * @brief Stores the OpenGL, Vtk and, Histogram widgets, implements
+ * the Interface and manages the interaction between a user, the Model
+ * and the views.
  */
 class MainWindow : public QMainWindow, public Base, private Ui::MainWindow
 {

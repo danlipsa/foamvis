@@ -2,7 +2,8 @@
  * @file   Average.h
  * @author Dan R. Lipsa
  * @date  9 June 2010
- * @brief Computes a time-average of a foam attribute. 
+ * @brief Computes a time-average of a foam attribute. %Base
+  class for 2D and 3D time-average computation classes. 
  * @ingroup average
  */
 
@@ -20,10 +21,11 @@ class ViewSettings;
 
 
 /**
- * @brief Computes a time-average of a foam attribute.
+ * @brief Computes a time-average of a foam attribute. %Base class for
+  2D and 3D time-average computation classes.
  * 
- * Includes average for a time window behind the current time step for
- * forward and backward moving time.
+ * Computes an average for a time window behind the current time step
+ * for forward and backward moving time.
  */
 class Average : public AverageInterface, public Base
 {

@@ -192,12 +192,6 @@ void Foam::CalculateBoundingBox ()
     m_boundingBoxTorus.set (low, high);
 }
 
-void Foam::CalculateDeformationSimple ()
-{
-    for_each (m_bodies.begin (), m_bodies.end (),
-	      boost::bind (&Body::CalculateDeformationSimple, _1));
-}
-
 void Foam::calculateBoundingBoxTorus (G3D::Vector3* low, G3D::Vector3* high)
 {
     using boost::array;
@@ -376,8 +370,14 @@ void Foam::StoreConstraintFaces ()
     }
 }
 
+void Foam::CalculateDeformationSimple ()
+{
+    for_each (m_bodies.begin (), m_bodies.end (),
+	      boost::bind (&Body::CalculateDeformationSimple, _1));
+}
 
-void Foam::CalculateBodyDeformationTensor ()
+
+void Foam::CalculateDeformationTensor ()
 {
     //MeasureTime t;
     // this prevents a unique body to be set as an object.

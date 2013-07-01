@@ -16,7 +16,7 @@ class OrientedFace;
 class Vertex;
 
 /**
- * @brief Part of a bubble face, stores a begin and end vertex.
+ * @brief Part of a bubble face, stores a begin and an end vertex.
  */
 class Edge : public Element
 {

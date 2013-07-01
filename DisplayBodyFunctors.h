@@ -167,13 +167,13 @@ private:
  */
 template<typename PropertySetter = SetterTextureCoordinate,
 	 typename DisplayEdge = DisplaySegmentLine>
-class DisplayBubblePaths : public DisplayBodyBase<PropertySetter>
+class DisplayBubblePath : public DisplayBodyBase<PropertySetter>
 {
 public:
     /**
      * Constructor
      */
-    DisplayBubblePaths (
+    DisplayBubblePath (
 	const Settings& settings, ViewNumber::Enum view, bool is2D,
 	const BodySelector& bodySelector, GLUquadricObj* quadric, 
 	const Simulation& simulation, size_t begin, size_t end,

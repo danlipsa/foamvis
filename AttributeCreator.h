@@ -2,7 +2,7 @@
  * @file   AttributeCreator.h
  * @author Dan R. Lipsa
  * @brief Create attributes which can be attached to 
- *        vertices, edges, faces and bodies.
+ *        vertices, edges, faces, and bodies.
  * @ingroup parser
  * 
  */

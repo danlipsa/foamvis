@@ -3,10 +3,10 @@
  * @author Dan R. Lipsa
  * @date 17 July 2012
  * @ingroup settings model
- * @brief %Settings that apply to all the views
+ * @brief %Settings that apply to all views.
  *
  * @defgroup settings Settings
- * Program state
+ * Stores and provides access to program state.
  */
 #ifndef __SETTINGS_H__
 #define __SETTINGS_H__
@@ -19,7 +19,7 @@ class Simulation;
 class SimulationGroup;
 
 /**
- * @brief Settings that apply to all the views
+ * @brief Settings that apply to all views.
  */
 class Settings : public QObject
 {

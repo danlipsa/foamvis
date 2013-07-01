@@ -1,12 +1,13 @@
 /**
  * @file   EvolverData.y
  * @author Dan R. Lipsa
- * @brief Grammar for parsing a DMP (or FE) file produced by Surface Evolver.
+ * @brief Grammar for parsing a .dmp file produced by Surface Evolver.
  * @ingroup parser
  *
  * @defgroup parser Parser
- * Parse Surface Evolver .dmp files and build a memory 
- * representation of the simulation file.
+ *
+ * Parses Surface Evolver .dmp files and invoques the Data module to
+ * build a memory representation of the simulation data.
  *
  * @section sec_space Significant space
  * For matrices of expressions and for vertex components

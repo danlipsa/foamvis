@@ -2,7 +2,7 @@
  * @file   Histogram.h
  * @author Dan R. Lipsa
  * @date 22 July 2010
- * @brief A histogram UI that allows selection of bins.
+ * @brief A histogram GUI that allows selection of bins.
  * @ingroup view
  */
 
@@ -14,7 +14,7 @@ class HistogramItem;
 class HistogramSettings;
 
 /**
- * @brief A histogram UI that allows selection of bins.
+ * @brief A histogram GUI that allows selection of bins.
  */
 class Histogram : public QwtPlot
 {

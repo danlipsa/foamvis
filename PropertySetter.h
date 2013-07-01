@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date  30 October 2010
  * @ingroup average
- * @brief Sends a property value to the graphics card
+ * @brief Sends a attribute value to the graphics card
  */
 
 #ifndef __PROPERTY_SETTER_H__

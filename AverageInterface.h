@@ -2,7 +2,7 @@
  * @file   AverageInterface.h
  * @author Dan R. Lipsa
  * @date  9 June 2010
- * @brief Interface for computing and displaying averages of datasets.
+ * @brief Interface for computing a time-average of a simulation attribute.
  * @ingroup average
  *
  * @defgroup average Average
@@ -15,7 +15,7 @@
 #include "Enums.h"
 
 /**
- * @brief Interface for computing and displaying averages of datasets.
+ * @brief Interface for computing a time-average of a simulation attribute.
  */
 class AverageInterface
 {

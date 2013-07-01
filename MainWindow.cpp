@@ -10,7 +10,7 @@
 #include "AttributeHistogram.h"
 #include "BodySelector.h"
 #include "ColorBarModel.h"
-#include "ScalarAverage2D.h"
+#include "ScalarAverage.h"
 #include "Debug.h"
 #include "EditColorMap.h"
 #include "Foam.h"

@@ -35,6 +35,9 @@
  * @todo Use array indexes instead of pointers for faces part of a
  *       body, and vertices part of a face.
  *       This works better with VTK and with OpenGL vertex arrays.
+ * @todo Separate data from display in ForceAverage::DisplayOneTimeStep.
+ * @todo Separate data from display in AverageInterface::AverageRotateAndDisplay
+ *
  */
 
 // ----------------------------------------------------------------------

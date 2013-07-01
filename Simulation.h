@@ -1,11 +1,11 @@
 /**
  * @file Simulation.h
  * @author Dan R. Lipsa
- * @brief Data for all time-steps in a foam simulations
+ * @brief A time-dependent foam simulations
  * @ingroup data model
  *
  * @defgroup data Data
- * Foam simulation data
+ * Creates, processes and stores foam simulation data.
  *
  * @section sec_torus Processing done for the Torus model
  * @subsection sec_onedge Executed when creating an edge (may create duplicate vertices)
@@ -61,13 +61,23 @@ while (no more items in the queue)
  * adjacent with 3 faces)
  * An vertex is physical if it has 4 physical edges adjacent to it.
  *
- * @section sec_t1s Format of additional text file containing T1s
- * A line that starts with a # is a comment line @n
+ * @section sec_t1s T1s storage format
+ * T1s can be stored either in an external file or in varibles inside
+ * the file for a simulation time step.
+ * @subsection sec_t1s_file Format of additional text file containing T1s
+ * A line that starts with a # is a comment line \n
  * Each line contains three entries separated by space: time_step, x, y
- * where x and y are the coordinates of the T1 in object space @n
- * The first time step is 1. @n
- * A T1 labeled with timestep T occurs between T and T+1.@n
+ * where x and y are the coordinates of the T1 in object space \n
+ * The first time step is 1. \n
+ * A T1 labeled with timestep T occurs between T and T+1.\n
+
+ * @subsection sec_t1s_variables Format of variables inside .dmp containing T1s
+ * T1s are stored in two variables \c t1positions and \c num_pops_step. 
+ * \c num_pops_step stores the number of T1s that happened before this time 
+ * step. \c t1positions[0..3][i] stores the x, y, z, and the type of %T1 
+ * for topological change \c i.
  */
+
 #ifndef __SIMULATION_H__
 #define __SIMULATION_H__
 
@@ -311,7 +321,8 @@ public:
     size_t GetMaxT1CountPerTimeStep () const;
     size_t GetT1TimeSteps () const;
     /**
-     * Parse topological changes from the file.
+     * @brief Parse topological changes from a file.
+     *
      * in the file: first time step is 1 and topological changes occur 
      * before timeStep
      * in memory: first time step is 0 and topological changes occur 

@@ -1,8 +1,10 @@
 /**
  * @file   Vertex.h
  * @author Dan R. Lipsa
- * @brief Vertex represented in a DMP file. Is part of edges, faces and bodies.
  * @ingroup data model
+ * @brief Element used to specify edges. An edge has at least two
+ *        vertices, begin and end. A quadratic edge has a middle vertex as
+ *        well.
  */
 #ifndef __VERTEX_H__
 #define __VERTEX_H__
@@ -16,7 +18,9 @@ class Edge;
 class OOBox;
 
 /**
- * @brief Vertex represented in a DMP file. Is part of edges, faces and bodies.
+ * @brief Element used to specify edges. An edge has at least two
+ * vertices, begin and end. A quadratic edge has a middle vertex as
+ * well.
  */
 class Vertex : public Element
 {

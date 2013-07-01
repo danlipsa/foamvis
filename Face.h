@@ -1,7 +1,7 @@
 /**
  * @file   Face.h
  * @author Dan R. Lipsa
- * @brief A bubble represented as a list of faces, a face is a
+ * @brief A bubble is represented as a list of faces, a face is a
  *        oriented list of edges.
  * @ingroup data model
  */
@@ -21,7 +21,7 @@ class OrientedEdge;
 class OOBox;
 
 /**
- * @brief A bubble represented as a list of faces, a face is a
+ * @brief A bubble is represented as a list of faces, a face is a
  *        oriented list of edges.
  */
 class Face : public Element

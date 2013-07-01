@@ -1,7 +1,7 @@
 /**
  * @file EvolverData.l
  * @author Dan R. Lipsa
- * @brief Lexical analyser for parsing a DMP file produced by Surface Evolver.
+ * @brief Lexical analyser for parsing a .dmp file produced by Surface Evolver.
  * @ingroup parser
  */
 

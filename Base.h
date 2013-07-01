@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date 11 Dec 2012
  * @ingroup model
- * @brief Simulations and settings for accessing them.
+ * @brief Simulation data and program status.
  * 
  *
  * @defgroup model Model
@@ -21,7 +21,7 @@ class SimulationGroup;
 class ViewSettings;
 
 /**
- * @brief Simulations and settings for accessing them.
+ * @brief Simulation data and program status.
  */
 class Base
 {

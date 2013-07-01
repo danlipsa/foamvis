@@ -2,7 +2,7 @@
  * @file   HistogramItem.h
  * @author Josef Wilgen, Uwe Rathmann, Dan R. Lipsa
  * @date 20 August 2010
- * @brief Implementation of a histogram UI, modified from Qwt
+ * @brief Implementation of a GUI histogram, modified from Qwt
  * @ingroup view
  */
 
@@ -23,7 +23,7 @@ class QwtIntervalData;
 class QString;
 
 /**
- * @brief Implementation of a histogram UI, modified from Qwt
+ * @brief Implementation of a GUI histogram, modified from Qwt
  */
 class HistogramItem: public QwtPlotItem
 {

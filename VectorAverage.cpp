@@ -1,9 +1,9 @@
 /**
- * @file   ScalarAverage2D.h
+ * @file   ScalarAverage.h
  * @author Dan R. Lipsa
  * @date  25 Jul. 2011
  *
- * Implementation for the ScalarAverage2D class 
+ * Implementation for the ScalarAverage class 
  *
  */
 

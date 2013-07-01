@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date 10 March 2011
  * @ingroup settings model
- * @brief %Settings that apply to one view
+ * @brief %Settings that apply to one view.
  */
 #ifndef __VIEW_SETTINGS_H__
 #define __VIEW_SETTINGS_H__
@@ -21,7 +21,7 @@ class ValueBodySelector;
 class Simulation;
 
 /**
- * @brief Settings that apply to one view
+ * @brief Settings that apply to one view.
  */
 class ViewSettings : public QObject
 {

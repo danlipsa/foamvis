@@ -1,7 +1,8 @@
 /**
  * @file   NameSemanticValue.h
  * @author Dan R. Lipsa
- * @brief Tuple (name, type, value) used for Element attributes
+ * @brief Tupple (name, type, value) used for a vertex, edge, face, and
+ * body attribute.
  * @ingroup parser
  */
 #ifndef __NAME_SEMANTIC_VALUE_H__
@@ -12,7 +13,8 @@
 
 
 /**
- * @brief Tupple (name, type, value) used for Element attributes
+ * @brief Tupple (name, type, value) used for a vertex, edge, face, and
+ * body attribute.
  */
 class NameSemanticValue
 {

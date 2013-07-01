@@ -1,5 +1,5 @@
 /**
- * @file   ScalarAverage2D.h
+ * @file   ScalarAverage.h
  * @author Dan R. Lipsa
  * @date  25 Jul 2011
  * @ingroup average
@@ -26,12 +26,12 @@ class AverageCache;
  * value for that pixel.
  */
 template<typename PropertySetter>
-class ScalarAverage2DTemplate : public ImageBasedAverage<PropertySetter>
+class ScalarAverageTemplate : public ImageBasedAverage<PropertySetter>
 {
 public:
     static void InitShaders ();
 
-    ScalarAverage2DTemplate (ViewNumber::Enum viewNumber, 
+    ScalarAverageTemplate (ViewNumber::Enum viewNumber, 
                              const WidgetGl& widgetGl, AverageType::Enum type, 
                              QColor stepClearColor);
 
@@ -51,11 +51,11 @@ protected:
 /**
  * @brief Computes 2D scalar average
  */
-class ScalarAverage2D : public ScalarAverage2DTemplate<SetterVertexAttribute>
+class ScalarAverage : public ScalarAverageTemplate<SetterVertexAttribute>
 {
 public:
-    ScalarAverage2D (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
-	ScalarAverage2DTemplate<SetterVertexAttribute> (
+    ScalarAverage (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
+	ScalarAverageTemplate<SetterVertexAttribute> (
 	    viewNumber, widgetGl, AverageType::SCALAR, QColor (0, 0, 0, 0))
     {
     }

@@ -2,7 +2,7 @@
  * @file   WidgetBase.h
  * @author Dan R. Lipsa
  * @date 23 August 2012
- * @brief Base class for all views: WidgetGl, WidgetVtk, WidgetHistogram
+ * @brief %Base class for all views: WidgetGl, WidgetVtk, WidgetHistogram
  * @ingroup view
  *
  * @defgroup view View
@@ -24,7 +24,7 @@ class SimulationGroup;
 class ViewSettings;
 
 /**
- * @brief Base class for all views: WidgetGl, WidgetVtk, WidgetHistogram
+ * @brief %Base class for all views: WidgetGl, WidgetVtk, WidgetHistogram
  */
 class WidgetBase : public Base
 {

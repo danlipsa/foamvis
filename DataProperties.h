@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @ingroup data model
  * @brief Basic properties of the simulation data such as dimensions
- *        and if it is quadratic or not.
+ *        and if edges are quadratic or not.
  */
 #ifndef __DATA_PROPERTIES_H__
 #define __DATA_PROPERTIES_H__

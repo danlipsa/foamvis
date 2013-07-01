@@ -233,7 +233,7 @@ void Simulation::Preprocess ()
 	    boost::bind (&Foam::CalculateBoundingBox, _1),
 	    boost::bind (&Foam::CalculateDeformationSimple, _1),
 	    boost::bind (&Foam::CalculateBodyNeighborsAndGrowthRate, _1),
-	    boost::bind (&Foam::CalculateBodyDeformationTensor, _1),
+	    boost::bind (&Foam::CalculateDeformationTensor, _1),
 	    boost::bind (&Foam::StoreObjects, _1),
 	    boost::bind (&Foam::StoreConstraintFaces, _1)
     }};

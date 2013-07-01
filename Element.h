@@ -14,7 +14,7 @@ class AttributesInfo;
 class NameSemanticValue;
 
 /**
- * @brief Base class for  Vertex, Edge, Face and Body.  Stores a vector
+ * @brief %Base class for  Vertex, Edge, Face and Body.  Stores a vector
  * of attributes.
  */
 class Element

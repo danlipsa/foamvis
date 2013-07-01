@@ -21,7 +21,7 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	OOBox.h Info.h ObjectPosition.h OpenGLUtils.h OrientedElement.h\
 	OrientedEdge.h OrientedFace.h Options.h \
 	ParsingData.h ParsingDriver.h \
-	Settings.h SelectBodiesById.h ScalarAverage2D.h ShaderProgram.h\
+	Settings.h SelectBodiesById.h ScalarAverage.h ShaderProgram.h\
 	ParsingEnums.h PipelineBase.h \
 	ProcessBodyTorus.h PropertySetter.h \
 	QuadraticEdge.h RegularGridAverage.h\
@@ -54,7 +54,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	NameSemanticValue.cpp \
 	OOBox.cpp OpenGLUtils.cpp OrientedElement.cpp Options.cpp\
 	OrientedEdge.cpp OrientedFace.cpp AdjacentOrientedFace.cpp\
-	ScalarAverage2D.cpp Settings.cpp SelectBodiesById.cpp \
+	ScalarAverage.cpp Settings.cpp SelectBodiesById.cpp \
 	ParsingData.cpp PipelineBase.cpp ParsingDriver.cpp \
 	ParsingEnums.cpp ProcessBodyTorus.cpp \
 	PropertySetter.cpp ShaderProgram.cpp\

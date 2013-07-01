@@ -99,7 +99,7 @@ void T1KDE2D::InitShaders ()
 const float s_kernelSigmaInBubbleDiameters = 3;
 
 T1KDE2D::T1KDE2D (ViewNumber::Enum viewNumber, const WidgetGl& widgetGl) :
-    ScalarAverage2DTemplate<SetterNop> (
+    ScalarAverageTemplate<SetterNop> (
         viewNumber, widgetGl, AverageType::T1KDE, QColor (0, 255, 0, 0))
 {
     this->m_countType = AverageCountType::GLOBAL;
@@ -125,7 +125,7 @@ size_t T1KDE2D::GetKernelTextureSize () const
 void T1KDE2D::AverageInit ()
 {
     WarnOnOpenGLError ("a - T1KDE2D::AverageInit");
-    ScalarAverage2DTemplate<SetterNop>::AverageInit ();
+    ScalarAverageTemplate<SetterNop>::AverageInit ();
     InitKernel ();
     WarnOnOpenGLError ("b - T1KDE2D::AverageInit");
 }

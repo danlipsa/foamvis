@@ -283,7 +283,7 @@ public:
      */
     void CalculateBodyNeighborsAndGrowthRate ();
     void StoreObjects ();
-    void CalculateBodyDeformationTensor ();
+    void CalculateDeformationTensor ();
     void CreateObjectBody (size_t constraint);
     Dimension::Enum GetDimension () const;
     bool Is2D () const;

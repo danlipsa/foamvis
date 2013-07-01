@@ -20,7 +20,7 @@
 #include "OpenGLUtils.h"
 #include "PropertySetter.h"
 #include "ShaderProgram.h"
-#include "ScalarAverage2D.h"
+#include "ScalarAverage.h"
 #include "ViewSettings.h"
 
 

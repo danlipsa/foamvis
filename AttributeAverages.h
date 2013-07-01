@@ -2,7 +2,8 @@
  * @file   AttributeAverages.h
  * @author Dan R. Lipsa
  * @date 11 February 2013
- * @brief Computes the average for several attributes in a view.
+ * @brief Computes the average for several attributes in a view. Base
+ *        class for AttributeAverages2D and AttributeAverages3D.
  * @ingroup average
  */
 #ifndef __ATTRIBUTE_AVERAGES_H__
@@ -20,7 +21,9 @@ class SimulationGroup;
 class ViewSettings;
 
 /**
- * @brief Computes the average for several attributes in a view.
+ *
+ * @brief Computes the average for several attributes in a view. Base
+ *        class for AttributeAverages2D and AttributeAverages3D.
  */
 class AttributeAverages : public AverageInterface
 {

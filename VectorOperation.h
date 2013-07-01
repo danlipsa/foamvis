@@ -3,7 +3,8 @@
  * @author Dan R. Lipsa
  * @date  25 Feb. 2013
  * @ingroup average
- * @brief Math operations for vtkImageData
+ *
+ * @brief Math operations for vtkImageData, used for 3D average computation.
  */
 
 #ifndef __VECTOR_OPERATION_H__
