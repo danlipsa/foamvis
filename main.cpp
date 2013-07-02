@@ -55,7 +55,7 @@
  * @section download Download
  * - <a href="http://csgalati.swansea.ac.uk/foam/build">Sources</a> for
  * FoamVis and required libraries.
- * - Mac Os X <a href="http://csgalati.swansea.ac.uk/foam/bin/mac-osx-10.6.8/">Snow Leopard</a> binary release (not the latest version)
+ * - Binary release for Mac Os X <a href="http://csgalati.swansea.ac.uk/foam/bin/mac-osx-10.6.8/">Snow Leopard</a> (not the latest version)
  * 
  */
 
