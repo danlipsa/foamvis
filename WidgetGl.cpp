@@ -253,11 +253,11 @@ void WidgetGl::createActions ()
     connect(m_actionDeselectAll.get (), SIGNAL(triggered()),
 	    this, SLOT(DeselectAll ()));
 
-    m_actionSelectBodiesByIdList = boost::make_shared<QAction> (
+    m_actionSelectBodiesByIds = boost::make_shared<QAction> (
 	tr("&Bodies by id"), this);
-    m_actionSelectBodiesByIdList->setStatusTip(tr("Select bodies by id"));
-    connect(m_actionSelectBodiesByIdList.get (), SIGNAL(triggered()),
-	    this, SLOT(SelectBodiesByIdList ()));
+    m_actionSelectBodiesByIds->setStatusTip(tr("Select bodies by id"));
+    connect(m_actionSelectBodiesByIds.get (), SIGNAL(triggered()),
+	    this, SLOT(SelectBodiesByIds ()));
 
     m_actionSelectThisBodyOnly = boost::make_shared<QAction> (
 	tr("&This body only"), this);
@@ -2498,7 +2498,7 @@ void WidgetGl::contextMenuEventView (QMenu* menu) const
 	QMenu* menuSelect = menu->addMenu ("Select");
 	menuSelect->addAction (m_actionSelectAll.get ());
 	menuSelect->addAction (m_actionDeselectAll.get ());
-	menuSelect->addAction (m_actionSelectBodiesByIdList.get ());
+	menuSelect->addAction (m_actionSelectBodiesByIds.get ());
 	menuSelect->addAction (m_actionSelectThisBodyOnly.get ());
     }
     {
@@ -3635,7 +3635,7 @@ void WidgetGl::DeselectAll ()
     CompileUpdate ();
 }
 
-void WidgetGl::SelectBodiesByIdList ()
+void WidgetGl::SelectBodiesByIds ()
 {
     makeCurrent ();
     if (m_selectBodiesByIdList->exec () == QDialog::Accepted)

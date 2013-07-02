@@ -286,7 +286,7 @@ public Q_SLOTS:
     void ResetLinkedTimeEvents ();
     void SelectAll ();
     void DeselectAll ();
-    void SelectBodiesByIdList ();
+    void SelectBodiesByIds ();
     void SelectThisBodyOnly ();
     void SetAverageAroundBody ();
     void SetAverageAroundSecondBody ();
@@ -653,7 +653,7 @@ private:
 
     boost::shared_ptr<QAction> m_actionSelectAll;
     boost::shared_ptr<QAction> m_actionDeselectAll;
-    boost::shared_ptr<QAction> m_actionSelectBodiesByIdList;
+    boost::shared_ptr<QAction> m_actionSelectBodiesByIds;
     boost::shared_ptr<QAction> m_actionSelectThisBodyOnly;
 
     boost::shared_ptr<QAction> m_actionResetTransformContext;

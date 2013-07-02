@@ -9,7 +9,6 @@
 #define __VIEW_SETTINGS_H__
 
 #include "DataProperties.h"
-#include "Enums.h"
 #include "ObjectPosition.h"
 class AllBodySelector;
 class BodySelector;
@@ -21,7 +20,7 @@ class ValueBodySelector;
 class Simulation;
 
 /**
- * @brief Settings that apply to one view.
+ * @brief %Settings that apply to one view.
  */
 class ViewSettings : public QObject
 {
