@@ -980,8 +980,15 @@ void MainWindow::setStackedWidgetVelocity (VectorVis::Enum vectorVis)
 
 void MainWindow::SelectionChangedFromSettings (ViewNumber::Enum viewNumber)
 {
-    widgetHistogram->UpdateSelection (viewNumber);
-    SelectionChangedFromHistogram (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    boost::shared_ptr<BodySelector> bs = vs.GetBodySelector ();
+    if (bs->GetType () == BodySelectorType::PROPERTY_VALUE &&
+        boost::static_pointer_cast<ValueBodySelector> (bs)->GetScalar () == 
+        BodyScalar::Enum (vs.GetBodyOrOtherScalar ()))
+    {
+        widgetHistogram->UpdateSelection (viewNumber);
+        SelectionChangedFromHistogram (viewNumber);
+    }
 }
 
 void MainWindow::SelectionChangedFromHistogram (int vn)
@@ -1761,9 +1768,9 @@ void MainWindow::ToggledBubblePathsLineUsed (bool checked)
 }
 
 
-void MainWindow::ToggledTwoHalvesView (bool reflectedHalfView)
+void MainWindow::ToggledTwoHalvesView (bool twoHalvesView)
 {
-    if (reflectedHalfView &&
+    if (twoHalvesView &&
 	(GetViewCount () != ViewCount::TWO || 
 	 GetSettings ().GetViewLayout () != ViewLayout::VERTICAL))
     {
@@ -1774,7 +1781,7 @@ void MainWindow::ToggledTwoHalvesView (bool reflectedHalfView)
     }
     checkBoxTitleShown->setChecked (false);
     GetSettingsPtr ()->SetTwoHalvesView (
-        reflectedHalfView, GetSimulation (), 
+        twoHalvesView, GetSimulationGroup (), 
         widgetGl->width (), widgetGl->height ());
     widgetGl->CompileUpdate ();
 }

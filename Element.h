@@ -1,7 +1,7 @@
 /**
  * @file Element.h
  * @author Dan R. Lipsa
- * @brief Base class for  Vertex, Edge, Face and Body.  Stores a vector
+ * @brief %Base class for  Vertex, Edge, Face and Body.  Stores a vector
  * of attributes.
  * @ingroup data model
  */

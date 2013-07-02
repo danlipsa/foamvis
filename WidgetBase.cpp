@@ -265,10 +265,7 @@ bool WidgetBase::IsSelectionCopyCompatible (
     ViewSettings& vs = GetViewSettings (vn);
     ViewSettings& otherVs = GetViewSettings (otherVn);
     return otherVn != vn && 
-        vs.GetSimulationIndex () == otherVs.GetSimulationIndex () &&
-        (vs.GetBodyOrOtherScalar () == otherVs.GetBodyOrOtherScalar () ||
-         otherVs.GetBodySelector ()->GetType () == BodySelectorType::ID || 
-         otherVs.GetBodySelector ()->GetType () == BodySelectorType::ALL);
+        vs.GetSimulationIndex () == otherVs.GetSimulationIndex ();
 }
 
 

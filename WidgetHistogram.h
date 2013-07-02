@@ -49,9 +49,9 @@ public:
     void SetHeight (int h);
     void SetGridShown (bool shown);
     void SetDefaultFont ();
-    AttributeHistogram& GetHistogram (size_t i)
+    AttributeHistogram& GetHistogram (ViewNumber::Enum viewNumber)
     {
-	return *m_histogram[i];
+	return *m_histogram[viewNumber];
     }
 
 Q_SIGNALS:

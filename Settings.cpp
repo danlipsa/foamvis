@@ -83,7 +83,7 @@ Settings::Settings (
     m_missingPressureShown (true),
     m_missingVolumeShown (true),
     m_objectVelocityShown (false),
-    m_splitHalfView (false),
+    m_twoHalvesView (false),
     m_titleShown (true),
     m_viewFocusShown (true),
     m_barLarge (false),
@@ -514,7 +514,7 @@ G3D::Rect2D Settings::getBarRectWithLabels (
 vector<ViewNumber::Enum> Settings::GetTwoHalvesViewNumbers (
     ViewNumber::Enum viewNumber) const
 {
-    if (m_splitHalfView)
+    if (m_twoHalvesView)
     {
 	vector<ViewNumber::Enum> vn(2);
 	vn[0] = ViewNumber::VIEW0;
@@ -529,12 +529,13 @@ vector<ViewNumber::Enum> Settings::GetTwoHalvesViewNumbers (
     }
 }
 
-void Settings::SetTwoHalvesView (bool reflectedHalfView, 
-				 const Simulation& simulation, float w, float h)
+void Settings::SetTwoHalvesView (
+    bool twoHalvesView, 
+    const SimulationGroup& sg, float w, float h)
 {
-    m_splitHalfView = reflectedHalfView;
-    setScaleCenter (ViewNumber::VIEW0, simulation, w, h);
-    setScaleCenter (ViewNumber::VIEW1, simulation, w, h);
+    m_twoHalvesView = twoHalvesView;
+    setScaleCenter (ViewNumber::VIEW0, sg.GetSimulation (0), w, h);
+    setScaleCenter (ViewNumber::VIEW1, sg.GetSimulation (1), w, h);
 }
 
 void Settings::setScaleCenter (

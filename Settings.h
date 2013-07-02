@@ -47,10 +47,11 @@ public:
     }
     bool IsTwoHalvesView () const
     {
-	return m_splitHalfView;
+	return m_twoHalvesView;
     }
-    void SetTwoHalvesView (bool splitHalfView,
-			   const Simulation& simulation, float w, float h);
+    void SetTwoHalvesView (bool twoHalvesView,
+			   const SimulationGroup& simulationGroup, 
+                           float w, float h);
     G3D::Vector2 CalculateScaleCenter (
 	ViewNumber::Enum viewNumber, const G3D::Rect2D& rect) const;
     ViewType::Enum SetTwoHalvesViewType (ViewType::Enum viewType);
@@ -102,6 +103,11 @@ public:
      * @{
      * @name Time and LinkedTime
      */
+    void SetTimeLinkage (TimeLinkage::Enum timeLinkage);
+    TimeLinkage::Enum GetTimeLinkage () const
+    {
+	return m_timeLinkage;
+    }
     size_t GetViewTime (ViewNumber::Enum viewNumber) const;
     size_t GetViewTime () const
     {
@@ -111,28 +117,19 @@ public:
     {
 	return m_linkedTime;
     }
-    void SetTime (
-	size_t time, 
-	boost::array<int, ViewNumber::COUNT>* direction = 0, 
-	bool setLastStep = false);
+    void SetTime (size_t time, 
+                  boost::array<int, ViewNumber::COUNT>* direction = 0, 
+                  bool setLastStep = false);
     size_t GetTimeSteps (ViewNumber::Enum viewNumber) const;
-
-
     void AddLinkedTimeEvent ();
     void ResetLinkedTimeEvents ();
-    void SetTimeLinkage (TimeLinkage::Enum timeLinkage);
-    TimeLinkage::Enum GetTimeLinkage () const
-    {
-	return m_timeLinkage;
-    }
     float GetLinkedTimeStretch (ViewNumber::Enum viewNumber, 
                                 size_t eventIndex) const;
     pair<size_t, ViewNumber::Enum> GetLinkedTimeMaxInterval (
         size_t eventIndex) const;
     size_t GetLinkedTimeEventTime (size_t eventIndex) const;
     const vector<size_t>& GetLinkedTimeEvents (
-        ViewNumber::Enum viewNumber) const;
-    
+        ViewNumber::Enum viewNumber) const;    
     vector<ViewNumber::Enum> GetLinkedTimeViewNumbers (
 	ViewNumber::Enum viewNumber) const;
     vector<ViewNumber::Enum> GetLinkedTimeViewNumbers () const
@@ -153,7 +150,6 @@ public:
     }
     size_t CalculateViewTimeWindow (
         ViewNumber::Enum viewNumber, size_t timeStep) const;
-
     // @}
 
 
@@ -404,7 +400,7 @@ private:
     bool m_missingPressureShown;
     bool m_missingVolumeShown;
     bool m_objectVelocityShown;
-    bool m_splitHalfView;
+    bool m_twoHalvesView;
     bool m_titleShown;
     bool m_viewFocusShown;
     bool m_barLarge;

@@ -89,7 +89,7 @@ private:
 class ValueBodySelector : public BodySelector
 {
 public:
-    ValueBodySelector (BodyScalar::Enum property, bool is2D,
+    ValueBodySelector (BodyScalar::Enum scalar, bool is2D,
                        const ValueIntervals& valueIntervals,
                        const BinRegions& bins);
     virtual ~ValueBodySelector ()
@@ -110,9 +110,13 @@ public:
     {
         return m_bins;
     }
+    BodyScalar::Enum GetScalar () const
+    {
+        return m_scalar;
+    }
 
 private:
-    BodyScalar::Enum m_property;
+    BodyScalar::Enum m_scalar;
     const bool m_is2D;
     ValueIntervals m_valueIntervals;
     /**

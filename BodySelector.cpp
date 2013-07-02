@@ -71,10 +71,10 @@ boost::shared_ptr<AllBodySelector> AllBodySelector::SELECTOR =
 // ======================================================================
 
 ValueBodySelector::ValueBodySelector (
-    BodyScalar::Enum property, bool is2D, const ValueIntervals& valueIntervals,
+    BodyScalar::Enum scalar, bool is2D, const ValueIntervals& valueIntervals,
     const BinRegions& bins) :
 
-    m_property (property),
+    m_scalar (scalar),
     m_is2D (is2D),
     m_valueIntervals (valueIntervals),
     m_bins (bins)
@@ -87,9 +87,9 @@ bool ValueBodySelector::operator () (
 {
     if (body->IsObject ())
 	return true;
-    if (body->HasScalarValue (m_property))
+    if (body->HasScalarValue (m_scalar))
     {
-	double value = body->GetScalarValue (m_property);
+	double value = body->GetScalarValue (m_scalar);
 	ValueIntervals::const_iterator it = find_if (
 	    m_valueIntervals.begin (), m_valueIntervals.end (),
 	    boost::bind (&QwtDoubleInterval::contains, _1, value));
@@ -102,7 +102,7 @@ bool ValueBodySelector::operator () (
 string ValueBodySelector::ToUserString () const
 {
     ostringstream ostr;
-    ostr << "Selection on " << BodyScalar::ToString (m_property) << endl
+    ostr << "Selection on " << BodyScalar::ToString (m_scalar) << endl
 	 << "Intervals: ";
     ostream_iterator<QwtDoubleInterval> ido (ostr, " ");
     copy (m_valueIntervals.begin (), m_valueIntervals.end (), ido);
@@ -113,7 +113,7 @@ boost::shared_ptr<ValueBodySelector> ValueBodySelector::Clone (
     ) const
 {
     boost::shared_ptr<ValueBodySelector> p (
-	new ValueBodySelector (m_property, m_is2D, m_valueIntervals, m_bins));
+	new ValueBodySelector (m_scalar, m_is2D, m_valueIntervals, m_bins));
     return p;
 }
 

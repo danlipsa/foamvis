@@ -1,7 +1,7 @@
 /**
  * @file Simulation.h
  * @author Dan R. Lipsa
- * @brief A time-dependent foam simulations
+ * @brief A time-dependent foam simulation
  * @ingroup data model
  *
  * @defgroup data Data
@@ -95,7 +95,7 @@ class OOBox;
 class Settings;
 
 /**
- * @brief Data for all time-steps in a foam simulations
+ * @brief Data for all time-steps in a foam simulation.
  */
 class Simulation
 {
