@@ -561,14 +561,14 @@ G3D::Vector2 Settings::CalculateScaleCenter (
 	return (rect.x0y1 () + rect.x1y1 ()) / 2;
 }
 
-ColorMapScalarType::Enum Settings::GetColorMapType () const
+ColorMapScalarType::Enum Settings::GetColorMapScalarType () const
 {
-    return GetColorMapType (GetViewNumber ());
+    return GetColorMapScalarType (GetViewNumber ());
 }
 
-ColorMapScalarType::Enum Settings::GetColorMapType (ViewNumber::Enum viewNumber) const
+ColorMapScalarType::Enum Settings::GetColorMapScalarType (ViewNumber::Enum viewNumber) const
 {
-    return GetViewSettings (viewNumber).GetColorMapType ();
+    return GetViewSettings (viewNumber).GetColorMapScalarType ();
 }
 
 template<typename T>

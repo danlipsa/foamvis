@@ -298,7 +298,7 @@ public:
     enum Enum {
         EDGES,
         FACES,
-	CENTER_PATHS,
+	BUBBLE_PATHS,
 	AVERAGE,
 	T1_KDE,
         COUNT

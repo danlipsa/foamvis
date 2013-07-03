@@ -245,13 +245,13 @@ bool WidgetBase::IsColorMapScalarCopyCompatible (
     ViewNumber::Enum vn, ViewNumber::Enum otherVn) const
 {
     ColorMapScalarType::Enum currentColorBarType = 
-        GetSettings ().GetColorMapType (vn);
+        GetSettings ().GetColorMapScalarType (vn);
     const ViewSettings& vs = GetViewSettings (vn);
     const ViewSettings& otherVs = GetViewSettings (otherVn);
     size_t currentProperty = vs.GetBodyOrOtherScalar ();
     return otherVn != vn &&
         
-        currentColorBarType == GetSettings ().GetColorMapType (otherVn) &&
+        currentColorBarType == GetSettings ().GetColorMapScalarType (otherVn) &&
         
         ((currentColorBarType == ColorMapScalarType::T1_KDE) 
          ||

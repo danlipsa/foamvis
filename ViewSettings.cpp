@@ -101,7 +101,7 @@ ViewSettings::ViewSettings () :
     m_timeDisplacement (0.0),
     m_bubblePathsTimeBegin (0),
     m_bubblePathsTimeEnd (0),
-    m_kdeValue (0),
+    m_kdeSeedingValue (0),
     m_kdeMultiplier (3),
     m_T1KDEKernelBoxShown (false),
     m_T1KDESigmaInBubbleDiameter (1),
@@ -706,15 +706,15 @@ string ViewSettings::GetTitle (ViewNumber::Enum viewNumber) const
     return ostr.str ();
 }
 
-ColorMapScalarType::Enum ViewSettings::GetColorMapType () const
+ColorMapScalarType::Enum ViewSettings::GetColorMapScalarType () const
 {
     ViewType::Enum viewType = GetViewType ();
     size_t property = GetBodyOrOtherScalar ();
     StatisticsType::Enum statisticsType = GetStatisticsType ();
-    return GetColorMapType (viewType, property, statisticsType);
+    return GetColorMapScalarType (viewType, property, statisticsType);
 }
 
-ColorMapScalarType::Enum ViewSettings::GetColorMapType (
+ColorMapScalarType::Enum ViewSettings::GetColorMapScalarType (
     ViewType::Enum viewType, size_t property,
     StatisticsType::Enum statisticsType)
 {
@@ -733,7 +733,7 @@ ColorMapScalarType::Enum ViewSettings::GetColorMapType (
 	    return ColorMapScalarType::NONE;
         return ColorMapScalarType::PROPERTY;
 
-    case ViewType::CENTER_PATHS:
+    case ViewType::BUBBLE_PATHS:
 	return ColorMapScalarType::PROPERTY;
     default:
 	return ColorMapScalarType::NONE;

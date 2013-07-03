@@ -141,10 +141,10 @@ void MainWindow::configureInterface ()
     CurrentIndexChangedWindowLayout (ViewLayout::HORIZONTAL);
     doubleSpinBoxKernelSigma->setToolTip (
         "Standard deviation in bubble diameters.");
-    doubleSpinBoxKDEValue->setToolTip (
+    doubleSpinBoxKDESeedValue->setToolTip (
         "Oversample streamlines for grid cells where the "
         "center's KDE value is greater than the entered KDE value.");
-    spinBoxKDEMultiplier->setToolTip (
+    spinBoxKDESeedMultiplier->setToolTip (
         "Oversample streamlines. A grid square will "
         "contain (2*m + 1)^2 seeds where m is the KDE multiplier.");
     doubleSpinBoxForceRatio->setToolTip (
@@ -369,7 +369,7 @@ void MainWindow::setupButtonGroups ()
 
     buttonGroupViewType->setId (radioButtonEdge, ViewType::EDGES);
     buttonGroupViewType->setId (radioButtonScalar, ViewType::FACES);
-    buttonGroupViewType->setId (radioButtonBubblePaths, ViewType::CENTER_PATHS);
+    buttonGroupViewType->setId (radioButtonBubblePaths, ViewType::BUBBLE_PATHS);
     buttonGroupViewType->setId (radioButtonAverage, 
 				ViewType::AVERAGE);
     buttonGroupViewType->setId (radioButtonT1sKDE, ViewType::T1_KDE);
@@ -892,7 +892,7 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorMapScalar (
     ViewType::Enum viewType, size_t property, 
     StatisticsType::Enum statisticsType) const
 {
-    ColorMapScalarType::Enum colorMapType = ViewSettings::GetColorMapType (
+    ColorMapScalarType::Enum colorMapType = ViewSettings::GetColorMapScalarType (
 	viewType, property, statisticsType);
     switch (colorMapType)
     {
@@ -1626,7 +1626,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 		BodyScalar::ToString (BodyScalar::FromSizeT (property)));
 	    break;
             
-	case ViewType::CENTER_PATHS:
+	case ViewType::BUBBLE_PATHS:
 	    labelBubblePathsColor->setText (
 		BodyScalar::ToString (BodyScalar::FromSizeT (property)));
 	    break;
@@ -1893,7 +1893,7 @@ void MainWindow::EditColorMapVelocity ()
 void MainWindow::EditColorMapScalar ()
 {
     HistogramInfo p = getHistogramInfo (
-	GetSettings ().GetColorMapType (), widgetGl->GetBodyOrOtherScalar ());
+	GetSettings ().GetColorMapScalarType (), widgetGl->GetBodyOrOtherScalar ());
     m_editColorMap->SetData (
 	p.first, p.second, *getColorMapScalar (),
 	checkBoxHistogramGridShown->isChecked ());

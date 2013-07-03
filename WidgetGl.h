@@ -244,8 +244,8 @@ public Q_SLOTS:
     void CurrentIndexChangedSelectedLight (int selectedLight);
 
 
-    void ValueChangedKDEMultiplier (int multiplier);
-    void ValueChangedKDEValue (double value);
+    void ValueChangedKDESeedMultiplier (int multiplier);
+    void ValueChangedKDESeedValue (double value);
     void ValueChangedBubblePathsTimeBegin (int time);
     void ValueChangedBubblePathsTimeEnd (int time);
     void ValueChangedStreamlineStepLength (double steps);

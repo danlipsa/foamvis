@@ -209,8 +209,8 @@ public:
     {
         m_barLabelsShown = shown;
     }
-    ColorMapScalarType::Enum GetColorMapType (ViewNumber::Enum viewNumber) const;
-    ColorMapScalarType::Enum GetColorMapType () const;
+    ColorMapScalarType::Enum GetColorMapScalarType (ViewNumber::Enum viewNumber) const;
+    ColorMapScalarType::Enum GetColorMapScalarType () const;
     G3D::Rect2D GetColorMapScalarRect (const G3D::Rect2D& viewRect) const;
     G3D::Rect2D GetT1LegendRect (const G3D::Rect2D& viewRect) const;
     G3D::Rect2D GetColorMapScalarRectWithLabels (

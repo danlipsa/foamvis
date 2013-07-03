@@ -363,7 +363,7 @@ private:
     /**
      * Calculate centers for all bodies.
      */
-    void calculateBodiesCenters ();
+    void calculateBodyCenters ();
     /**
      * Calculate faces part of a body, edges part of a face, ...
      */

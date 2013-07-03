@@ -329,7 +329,7 @@ bool ViewType::IsTimeDependent (ViewType::Enum t)
 {
     switch (t)
     {
-    case CENTER_PATHS:
+    case BUBBLE_PATHS:
     case AVERAGE:
     case T1_KDE:
 	return true;
@@ -346,7 +346,7 @@ const char* ViewType::ToString (ViewType::Enum t)
 	return "Edges";
     case FACES:
 	return "Faces";	
-    case CENTER_PATHS:
+    case BUBBLE_PATHS:
 	return "Center paths";
     case AVERAGE:
 	return "Average";

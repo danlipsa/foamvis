@@ -2181,7 +2181,7 @@
                   </widget>
                  </item>
                  <item row="5" column="1">
-                  <widget class="QSpinBox" name="spinBoxKDEMultiplier">
+                  <widget class="QSpinBox" name="spinBoxKDESeedMultiplier">
                    <property name="minimum">
                     <number>1</number>
                    </property>
@@ -2201,7 +2201,7 @@
                   </widget>
                  </item>
                  <item row="4" column="1">
-                  <widget class="QDoubleSpinBox" name="doubleSpinBoxKDEValue"/>
+                  <widget class="QDoubleSpinBox" name="doubleSpinBoxKDESeedValue"/>
                  </item>
                  <item row="6" column="1">
                   <widget class="QCheckBox" name="checkBoxVelocityFieldSaved">
@@ -2732,8 +2732,8 @@
     <slot>ValueChangedBubblePathsTimeEnd(int)</slot>
     <slot>ToggledSeedsShown(bool)</slot>
     <slot>ToggledKDESeeds(bool)</slot>
-    <slot>ValueChangedKDEValue(double)</slot>
-    <slot>ValueChangedKDEMultiplier(int)</slot>
+    <slot>ValueChangedKDESeedValue(double)</slot>
+    <slot>ValueChangedKDESeedMultiplier(int)</slot>
     <slot>ToggledBarLabelsShown(bool)</slot>
     <slot>ToggledVelocityFieldSaved(bool)</slot>
     <slot>ToggledSeedShown(bool)</slot>

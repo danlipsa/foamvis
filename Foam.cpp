@@ -217,7 +217,7 @@ void Foam::calculateBoundingBoxTorus (G3D::Vector3* low, G3D::Vector3* high)
 	VertexPtrLessThanAlong>() (max_element, v, high);
 }
 
-void Foam::calculateBodiesCenters ()
+void Foam::calculateBodyCenters ()
 {
     for_each (m_bodies.begin (), m_bodies.end (), 
 	      boost::bind(&Body::CalculateCenter, _1));
@@ -308,7 +308,7 @@ void Foam::Preprocess ()
 	BOOST_FOREACH (const boost::shared_ptr<Face>& f, faceSet)
 	    f->SetNormal ();
     }
-    calculateBodiesCenters ();
+    calculateBodyCenters ();
     if (IsTorus ())
 	bodiesInsideOriginalDomain (&vertexSet, &edgeSet, &faceSet);
     sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);

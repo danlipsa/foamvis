@@ -1985,7 +1985,7 @@ void WidgetGl::displayBodyCenters (
 	size_t currentTime = GetTime (viewNumber);
 	const Simulation& simulation = GetSimulation (viewNumber);
 	const BodySelector& bodySelector = *vs.GetBodySelector ();
-	double zPos = (vs.GetViewType () == ViewType::CENTER_PATHS) ?
+	double zPos = (vs.GetViewType () == ViewType::BUBBLE_PATHS) ?
 	    currentTime * vs.GetTimeDisplacement () : 0;
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
@@ -2548,7 +2548,7 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
     glDisable (GL_DEPTH_TEST);
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     float xTranslateBar = 0;
-    if (settings.GetColorMapType (viewNumber) != ColorMapScalarType::NONE &&
+    if (settings.GetColorMapScalarType (viewNumber) != ColorMapScalarType::NONE &&
         vs.IsScalarShown () && ! vs.IsScalarContext ())
     {
 	G3D::Rect2D viewColorBarRect = settings.GetColorMapScalarRect (viewRect);
@@ -2935,10 +2935,10 @@ void WidgetGl::updateKDESeeds (
     double kdeValue = *InterpolateAttribute (
         GetAverageCache (viewNumber)->GetT1KDE (),
         p, AverageType::ToString (aa.GetT1KDE ().GetAverageType ()), &v);
-    if (kdeValue > vs.GetKDEValue ())
+    if (kdeValue > vs.GetKDESeedValue ())
     {
         VTK_CREATE (vtkIdList, cell);
-        size_t pointsPerSide = 2 * vs.GetKDEMultiplier () + 1;
+        size_t pointsPerSide = 2 * vs.GetKDESeedMultiplier () + 1;
         size_t numberOfPoints = pointsPerSide * pointsPerSide;
         vtkIdType currentId = points->GetNumberOfPoints ();
         cell->SetNumberOfIds (numberOfPoints);
@@ -3345,7 +3345,7 @@ void WidgetGl::Compile (ViewNumber::Enum viewNumber)
     const ViewSettings& vs = GetViewSettings (viewNumber);
     switch (vs.GetViewType ())
     {
-    case ViewType::CENTER_PATHS:
+    case ViewType::BUBBLE_PATHS:
 	compileBubblePaths (viewNumber);
 	break;
     case ViewType::FACES:
@@ -4301,7 +4301,7 @@ void WidgetGl::SetBodyOrFaceScalar (
 	setTexture (colorBarModel, m_colorBarScalarTexture[viewNumber]);
     }
     else
-	vs.ResetColorBarModel ();
+	vs.ResetColorMapScalar ();
     CompileUpdate (viewNumber);
 }
 
@@ -4326,22 +4326,22 @@ void WidgetGl::SetColorMapVelocity (
     CompileUpdate ();
 }
 
-void WidgetGl::ValueChangedKDEValue (double value)
+void WidgetGl::ValueChangedKDESeedValue (double value)
 {
     makeCurrent ();
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    vs.SetKDEValue (value);
+    vs.SetKDESeedValue (value);
     CacheUpdateSeedsCalculateStreamline (viewNumber);
     CompileUpdate ();
 }
 
-void WidgetGl::ValueChangedKDEMultiplier (int multiplier)
+void WidgetGl::ValueChangedKDESeedMultiplier (int multiplier)
 {
     makeCurrent ();
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    vs.SetKDEMultiplier (multiplier);
+    vs.SetKDESeedMultiplier (multiplier);
     CacheUpdateSeedsCalculateStreamline (viewNumber);
     CompileUpdate ();    
 }

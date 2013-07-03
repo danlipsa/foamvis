@@ -44,7 +44,8 @@ public:
 
     /**
      * @{
-     * @name Type
+     * @name View Type
+     * Contains information on the type of visualization displayed.
      */
     ViewType::Enum GetViewType () const
     {
@@ -86,32 +87,56 @@ public:
     // @}
 
     /**
+     *
      * @{
-     * @name KDE
+     * @name T1s
+     * 
+     * %Settings for T1s such as if shown, size, if shown for one time
+     * step or for all
      */
-    // Streamlines seeded based on KDE
-    float GetKDEValue () const
+    bool IsT1Shown () const
     {
-        return m_kdeValue;
+        return m_t1Shown;
     }
-    void SetKDEValue (float value)
+    void SetT1Shown (bool shown)
     {
-        m_kdeValue = value;
+        m_t1Shown = shown;
     }
+    bool T1sShiftLower () const
+    {
+	return m_t1ShiftLower;
+    }
+    void SetT1sShiftLower (bool t1sShiftLower)
+    {
+	m_t1ShiftLower = t1sShiftLower;
+    }
+    float GetT1Size () const
+    {
+        return m_t1Size;
+    }
+    void SetT1Size (float size)
+    {
+        m_t1Size = size;
+    }
+    bool IsT1AllTimeSteps () const
+    {
+        return m_t1AllTimeSteps;
+    }
+    void SetT1AllTimeSteps (bool all)
+    {
+        m_t1AllTimeSteps = all;
+    }
+    // @}
+
+
+
     /**
-     * Streamlines seeded based on T1s KDE have higher resolution
-     * in grid squares with high KDE value.
-     * The number of seeds of a KDE grid square is 
-     * (2*m + 1)^2 where m is the kde multiplier
+     * @{
+     * @name T1s KDE
+     * 
+     * %Settings for T1s KDE such KDE kernel box shown or not, KDE
+     * sigma and KDE isosurface value.
      */
-    int GetKDEMultiplier () const
-    {
-        return m_kdeMultiplier;
-    }
-    void SetKDEMultiplier (int multiplier)
-    {
-        m_kdeMultiplier = multiplier;
-    }
     bool IsT1KDEKernelBoxShown () const
     {
 	return m_T1KDEKernelBoxShown;
@@ -136,11 +161,23 @@ public:
     {
         m_t1KDEIsosurfaceValue = value;
     }
+    float GetT1KDEIsosurfaceAlpha () const
+    {
+        return m_t1KDEIsosurfaceAlpha;
+    }
+    void SetT1KDEIsosurfaceAlpha (float alpha)
+    {
+        m_t1KDEIsosurfaceAlpha = alpha;
+    }
     // @}
 
     /**
      * @{
-     * @name Scalar
+     * @name Scalar3D
+     *
+     * %Settings for 3D visualization of scalars such as if shown at
+     *  all or shown as context or if a contour for the maximum value
+     *  selected is displayed.
      */
     bool IsScalarShown () const
     {
@@ -171,7 +208,9 @@ public:
 
     /**
      * @{
-     * @name Force     
+     * @name Force
+     * %Settings for visualization of forces acting on object interacting with
+     * foam such as if the force is shown and scaling for forces and torques.
      */
     void SetForceShown (ForceType::Enum type, bool value)
     {
@@ -214,6 +253,9 @@ public:
     /**
      * @{
      * @name Deformation
+     *
+     * %Settings for visualization of deformation using ellipse glyphs
+     * (shown or not, glyph size and line width).
      */
     void SetDeformationTensorShown (bool deformationTensorShown)
     {
@@ -244,7 +286,11 @@ public:
 
     /**
      * @{
-     * @name ColorBar
+     * @name ColorMaps
+     *
+     * %Settings and operations for color-mapping. Stores color maps
+     * for scalars and velocity magnitude and provides copy operations
+     * for them.
      */
     boost::shared_ptr<ColorBarModel> GetColorMapScalar () const
     {
@@ -258,23 +304,25 @@ public:
 	const boost::shared_ptr<ColorBarModel>& colorBarModel);
     void SetColorMapVelocity (
 	const boost::shared_ptr<ColorBarModel>& colorBarModel);
-    void ResetColorBarModel ()
+    void ResetColorMapScalar ()
     {
 	m_colorMapScalar.reset ();
     }
     void CopyColorMapScalar (const ViewSettings& from);
     void CopyColorMapVelocity (const ViewSettings& from);
     void CopyColorMapVelocityFromScalar ();
-    ColorMapScalarType::Enum GetColorMapType () const;    
+    ColorMapScalarType::Enum GetColorMapScalarType () const;    
     // @}
-    static ColorMapScalarType::Enum GetColorMapType (
+    static ColorMapScalarType::Enum GetColorMapScalarType (
         ViewType::Enum viewType, size_t property,
         StatisticsType::Enum statisticsType);
 
 
     /**
      * @{
-     * @name Transforms focus
+     * @name Transforms
+     *
+     * Transformations applied to data and related settings and computations.
      */
     // rotation
     const G3D::Matrix3& GetRotation () const
@@ -377,6 +425,8 @@ public:
     /**
      * @{
      * @name Velocity
+     *
+     * %Settings for velocity (glyphs and streamlines) visualizations.
      */
     void SetVelocityShown (bool velocityShown)
     {
@@ -440,8 +490,43 @@ public:
 
     /**
      * @{
-     * @name Seeds for glyphs and streamlines
+     * @name Seeds
+     *
+     * %Settings for seeds (for glyphs or streamlines) such as scale
+     * and translation of the seeding grid, value for KDE based
+     * seeding and, count for 3D random seeding.
      */
+    bool IsKDESeedEnabled () const
+    {
+        return m_kdeSeedEnabled;
+    }
+    void SetKDESeedEnabled (bool enabled)
+    {
+        m_kdeSeedEnabled = enabled;
+    }
+    // Streamlines seeded based on KDE
+    float GetKDESeedValue () const
+    {
+        return m_kdeSeedingValue;
+    }
+    void SetKDESeedValue (float value)
+    {
+        m_kdeSeedingValue = value;
+    }
+    /**
+     * Streamlines seeded based on T1s KDE have higher resolution
+     * in grid squares with high KDE value.
+     * The number of seeds of a KDE grid square is 
+     * (2*m + 1)^2 where m is the kde multiplier
+     */
+    int GetKDESeedMultiplier () const
+    {
+        return m_kdeMultiplier;
+    }
+    void SetKDESeedMultiplier (int multiplier)
+    {
+        m_kdeMultiplier = multiplier;
+    }
     bool IsSeedShown () const
     {
         return m_seedShown;
@@ -457,14 +542,6 @@ public:
     void SetGlyphSeedsCount (size_t count)
     {
         m_glyphSeedsCount = count;
-    }
-    bool IsKDESeedEnabled () const
-    {
-        return m_kdeSeedEnabled;
-    }
-    void SetKDESeedEnabled (bool enabled)
-    {
-        m_kdeSeedEnabled = enabled;
     }
     float GetSeedScaleRatio () const
     {
@@ -486,7 +563,9 @@ public:
 
     /**
      * @{
-     * @name Context view
+     * @name Context
+     * 
+     * %Settings for context visualization such as context view and alpha values.
      */
     void SetContextView (bool contextView)
     {
@@ -527,19 +606,22 @@ public:
     {
 	m_objectAlpha = alpha;
     }
-    float GetT1KDEIsosurfaceAlpha () const
+    float GetContextAlpha () const
     {
-        return m_t1KDEIsosurfaceAlpha;
+	return m_contextAlpha;
     }
-    void SetT1KDEIsosurfaceAlpha (float alpha)
+    void SetContextAlpha (float contextAlpha)
     {
-        m_t1KDEIsosurfaceAlpha = alpha;
+	m_contextAlpha = contextAlpha;
     }
     // @}
 
     /**
      * @{
-     * @name Lights
+     * @name Light
+     *
+     * %Settings for lights such as if enabled, and number and
+     * parameters of lights.
      */
     bool IsLightingEnabled () const
     {
@@ -616,6 +698,11 @@ public:
     /**
      * @{
      * @name Average
+     *
+     * %Settings for computing a time-average of simulation
+     * attributes.  Specifies if we average around one or two dynamic
+     * objects, their IDs, if rotation is shown and positions of the
+     * dynamic object in the simulation.
      */
     bool IsAverageAround () const
     {
@@ -672,7 +759,9 @@ public:
     
     /**
      * @{
-     * @name Body selection
+     * @name Bubble selection
+     *
+     * Bubble selection, operations and related %settings.
      */
     boost::shared_ptr<BodySelector> GetBodySelector () const
     {
@@ -701,6 +790,8 @@ public:
     /**
      * @{
      * @name Histogram
+     *
+     * %Histogram %settings
      */
     bool IsHistogramShown () const
     {
@@ -718,6 +809,10 @@ public:
     /**
      * @{
      * @name Bubble path
+     *
+     * Bubble path %settings such as context color, partial path
+     * hidden, begin and end of shown paths and, using line or tube
+     * for paths,
      */
     QColor GetBubblePathsContextColor () const;
     bool IsPartialPathHidden () const
@@ -744,12 +839,38 @@ public:
     {
         m_bubblePathsTimeEnd = time;
     }
+    /**
+     * Switches between line and tube/quadric
+     */
+    bool IsBubblePathsLineUsed () const
+    {
+	return m_centerPathLineUsed;
+    }
+    void SetBubblePathsLineUsed (bool used)
+    {
+	m_centerPathLineUsed = used;
+    }
+    /**
+     * Switches between tube and quadric
+     */
+    bool IsBubblePathsTubeUsed () const
+    {
+	return m_centerPathTubeUsed;
+    }
+    void SetBubblePathsTubeUsed (bool used)
+    {
+	m_centerPathTubeUsed = used;
+    }
     // @}
 
 
     /**
      * @{
      * @name Time and LinkedTime
+     *
+     * %Settings for time and linked time such as current time, the
+     * time window for average, number of time steps in the
+     * simulation, time displacement for 3D bubble paths.
      */
     size_t GetTime () const
     {
@@ -797,44 +918,14 @@ public:
     /**
      * @{
      * @name Various
+     *
+     * Various settings such as if shown axes, bounding boxes and, title
      */
     size_t GetSimulationIndex () const
     {
 	return m_simulationIndex;
     }
 
-    bool T1sShiftLower () const
-    {
-	return m_t1ShiftLower;
-    }
-    void SetT1sShiftLower (bool t1sShiftLower)
-    {
-	m_t1ShiftLower = t1sShiftLower;
-    }
-    float GetT1Size () const
-    {
-        return m_t1Size;
-    }
-    void SetT1Size (float size)
-    {
-        m_t1Size = size;
-    }
-    bool IsT1Shown () const
-    {
-        return m_t1Shown;
-    }
-    void SetT1Shown (bool shown)
-    {
-        m_t1Shown = shown;
-    }
-    bool IsT1AllTimeSteps () const
-    {
-        return m_t1AllTimeSteps;
-    }
-    void SetT1AllTimeSteps (bool all)
-    {
-        m_t1AllTimeSteps = all;
-    }
     float AngleDisplay (float angle) const;
 
     void SetSimulation (int i, const Simulation& simulation,
@@ -847,14 +938,6 @@ public:
     void SetDomainClipped (bool clipped)
     {
         m_domainClipped = clipped;
-    }
-    float GetContextAlpha () const
-    {
-	return m_contextAlpha;
-    }
-    void SetContextAlpha (float contextAlpha)
-    {
-	m_contextAlpha = contextAlpha;
     }
     bool AxesShown () const
     {
@@ -884,8 +967,10 @@ public:
     /// @}
 
     /**
-     * @name Arrow display
      * @{
+     * @name Arrow display
+     *
+     * %Settings for displaying arrows.
      */
     void SetArrowParameters (float onePixelInObjectSpace);
     float GetEdgeWidth () const 
@@ -918,37 +1003,6 @@ public:
         float* edgeRadius, float* arrowHeadRadius, float* arrowHeadHeight, 
         float edgeRadiusRatio = 0,
         float* edgeWidth = 0);
-
-
-    /**
-     * @name Bubble paths
-     * @{
-     */
-    /**
-     * Switches between line and tube/quadric
-     */
-    bool IsBubblePathsLineUsed () const
-    {
-	return m_centerPathLineUsed;
-    }
-    void SetBubblePathsLineUsed (bool used)
-    {
-	m_centerPathLineUsed = used;
-    }
-    /**
-     * Switches between tube and quadric
-     */
-    bool IsBubblePathsTubeUsed () const
-    {
-	return m_centerPathTubeUsed;
-    }
-    void SetBubblePathsTubeUsed (bool used)
-    {
-	m_centerPathTubeUsed = used;
-    }
-    // @}
-
-
 
 public:
     static const double STREAMLINE_LENGTH;
@@ -1070,7 +1124,7 @@ private:
     float m_timeDisplacement;
     size_t m_bubblePathsTimeBegin;
     size_t m_bubblePathsTimeEnd;
-    float m_kdeValue;
+    float m_kdeSeedingValue;
     int m_kdeMultiplier;
     bool m_T1KDEKernelBoxShown;
     float m_T1KDESigmaInBubbleDiameter;

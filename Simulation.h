@@ -7,7 +7,7 @@
  * @defgroup data Data
  * Creates, processes and stores foam simulation data.
  *
- * @section sec_torus Processing done for the Torus model
+ * @section sec_torus Unwrapping of edges, faces and bodies for the Torus model
  * @subsection sec_onedge Executed when creating an edge (may create duplicate vertices)
  *
  <pre>
@@ -15,7 +15,8 @@ The begin vertex (and the middle vertex in quadratic mode) of an edge is
 always defined in the data file (it's not a duplicate).
   if (edge is marked with a *)
     the end vertex is defined in the data file (no DUPLICATE needed)
-  else if (edge is marked with a + or -) {
+  else if (edge is marked with a + or -)
+  {
     create a DUPLICATE of the end vertex by translating it
       one domain up for a + and one domain down for a - along each of 
       the three axes. The translation is done relative to the domain where the 
@@ -29,8 +30,9 @@ always defined in the data file (it's not a duplicate).
  *
 <pre>
   first vertex of the face is defined in the data file (not a DUPLICATE).
-  set beginVertex to be the first vertex of the face
-  foreach (currentEdge, edges in the face) {
+  beginVertex = first vertex of the face
+  foreach (currentEdge, edges in the face)
+  {
     if (the beginVertex does not match the begin vertex of the currentEdge) {
       create a DUPLICATE of currentEdge starting at beginVertex
       set currentEdge to point to the DUPLICATE
@@ -42,10 +44,12 @@ always defined in the data file (it's not a duplicate).
  * @subsection sec_onbody Executed when creating a body (may create duplicate faces)
  *
 <pre>
-Add all adjacent faces of face 0 to a queue.
+
+add the first face to a queue
 while (no more items in the queue)
 {
-   remove a adjacent face, translate it if needed and mark it visited.
+   remove a face from the queue, translate it if needed and mark it visited.
+   Add all adjacent faces of the face to the queue.
    if several faces fit, choose the face with smallest angle between its 
    normal and the original face normal.
 }
