@@ -72,7 +72,7 @@ public:
     QSize sizeHint() ;
     void Init (boost::shared_ptr<Settings> settings,
 	       boost::shared_ptr<const SimulationGroup> simulationGroup, 
-               AverageCaches* averageCache);
+               boost::shared_ptr<DerivedData>* dd);
 
     size_t GetHighlightLineWidth () const
     {

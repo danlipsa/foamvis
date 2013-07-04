@@ -13,6 +13,7 @@
 #include "AverageInterface.h"
 #include "Base.h"
 
+class DerivedData;
 class Foam;
 class Settings;
 class Simulation;
@@ -32,7 +33,8 @@ class Average : public AverageInterface, public Base
 public:
     Average (ViewNumber::Enum viewNumber, 
 	     boost::shared_ptr<Settings> settings, 
-             boost::shared_ptr<const SimulationGroup> simulationGroup);
+             boost::shared_ptr<const SimulationGroup> simulationGroup,
+             boost::shared_ptr<DerivedData>* dd);
     void AverageStep (int timeDifference, size_t timeWindow);
     size_t GetCurrentTimeWindow () const
     {

@@ -148,7 +148,8 @@ void WidgetVtk::Init (boost::shared_ptr<Settings> settings,
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	m_average[i].reset (new AttributeAverages3D (
-				viewNumber, settings, simulationGroup));
+				viewNumber, settings, simulationGroup,
+                                GetDerivedDataAllPtr ()));
     }
 }
 

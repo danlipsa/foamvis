@@ -28,7 +28,8 @@ public:
     AttributeAverages3D (
         ViewNumber::Enum viewNumber,
         boost::shared_ptr<Settings> settings, 
-        boost::shared_ptr<const SimulationGroup> simulationGroup);
+        boost::shared_ptr<const SimulationGroup> simulationGroup,
+        boost::shared_ptr<DerivedData>* dd);
     
     void ComputeAverage ();
 

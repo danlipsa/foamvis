@@ -26,8 +26,9 @@ class ForceAverage : public Average
 public:
     ForceAverage (ViewNumber::Enum viewNumber,
                   boost::shared_ptr<Settings> settings, 
-		  boost::shared_ptr<const SimulationGroup> simulationGroup) :
-	Average (viewNumber, settings, simulationGroup)
+		  boost::shared_ptr<const SimulationGroup> simulationGroup,
+                  boost::shared_ptr<DerivedData>* dd) :
+	Average (viewNumber, settings, simulationGroup, dd)
     {
     }
     void DisplayOneTimeStep (WidgetGl* widgetGl) const;

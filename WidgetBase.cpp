@@ -24,7 +24,6 @@
 WidgetBase::WidgetBase (QWidget* widget,
                         IsViewType isView,
                         GetViewCountType getViewCount) :
-    m_averageCache (0),
     m_widget (widget), 
     m_isView (isView),
     m_getViewCount (getViewCount)
@@ -82,11 +81,11 @@ QString WidgetBase::tr (const char * sourceText,
 void WidgetBase::Init (
     boost::shared_ptr<Settings> settings,
     boost::shared_ptr<const SimulationGroup> simulationGroup, 
-    AverageCaches* averageCache)
+    boost::shared_ptr<DerivedData>* dd)
 {
     SetSettings (settings);
     SetSimulationGroup (simulationGroup);
-    m_averageCache = averageCache;
+    SetDerivedData (dd);
 }
 
 void WidgetBase::ForAllViews (boost::function <void (ViewNumber::Enum)> f)

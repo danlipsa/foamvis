@@ -10,22 +10,24 @@
 #include "Base.h"
 #include "Body.h"
 #include "Debug.h"
+#include "DerivedData.h"
 #include "Foam.h"
 #include "Settings.h"
 #include "Simulation.h"
 #include "ViewSettings.h"
 
-Base::Base ()
+Base::Base () :
+    m_derivedData (0)
 {
 }
 
 
 Base::Base (boost::shared_ptr<Settings> settings, 
             boost::shared_ptr<const SimulationGroup> simulationGroup,
-            boost::shared_ptr<ObjectPositions> op) :
+            boost::shared_ptr<DerivedData>* dd) :
     m_settings (settings), 
     m_simulationGroup (simulationGroup),
-    m_objectPositions (op)
+    m_derivedData (dd)
 {
 }
 
@@ -248,3 +250,16 @@ QwtDoubleInterval Base::GetIntervalT1KDE (ViewNumber::Enum viewNumber) const
     const Simulation& simulation = GetSimulation (viewNumber);
     return QwtDoubleInterval (0.0, simulation.GetMaxT1CountPerTimeStep ());
 }
+
+boost::shared_ptr<AverageCacheT1KDEVelocity> Base::GetAverageCache (
+        ViewNumber::Enum viewNumber) const
+{
+    return m_derivedData[viewNumber]->m_averageCache;
+}
+
+boost::shared_ptr<ObjectPositions> Base::GetObjectPositions (
+    ViewNumber::Enum viewNumber) const
+{
+    return m_derivedData[viewNumber]->m_objectPositions;
+}
+

@@ -19,6 +19,8 @@ class Settings;
 class Simulation;
 class SimulationGroup;
 class ViewSettings;
+class DerivedData;
+class AverageCacheT1KDEVelocity;
 class ObjectPositions;
 
 /**
@@ -37,7 +39,7 @@ public:
     Base ();
     Base (boost::shared_ptr<Settings> settings, 
           boost::shared_ptr<const SimulationGroup> simulationGroup,
-          boost::shared_ptr<ObjectPositions> op);
+          boost::shared_ptr<DerivedData>* dd);
     const Settings& GetSettings () const
     {
 	return *m_settings;
@@ -75,13 +77,25 @@ public:
     {
         m_simulationGroup = sg;
     }
-    ObjectPositions& GetObjectPositions () const
+    DerivedData& GetDerivedData (ViewNumber::Enum viewNumber) const
     {
-        return *m_objectPositions;
+        return *m_derivedData[viewNumber];
+    }    
+    DerivedData& GetDerivedData () const
+    {
+        return *m_derivedData[GetViewNumber ()];
     }
-    void SetObjectPositions (boost::shared_ptr<ObjectPositions> op)
+    boost::shared_ptr<DerivedData>* GetDerivedDataAllPtr () const
     {
-        m_objectPositions = op;
+        return m_derivedData;
+    }
+    boost::shared_ptr<AverageCacheT1KDEVelocity> GetAverageCache (
+        ViewNumber::Enum viewNumber) const;
+    boost::shared_ptr<ObjectPositions> GetObjectPositions (
+        ViewNumber::Enum viewNumber) const;
+    void SetDerivedData (boost::shared_ptr<DerivedData>* op)
+    {
+        m_derivedData = op;
     }
     const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
     const Simulation& GetSimulation (size_t index) const;
@@ -158,7 +172,7 @@ private:
 private:
     boost::shared_ptr<Settings> m_settings;
     boost::shared_ptr<const SimulationGroup> m_simulationGroup;
-    boost::shared_ptr<ObjectPositions> m_objectPositions;
+    boost::shared_ptr<DerivedData>* m_derivedData;
 };
 
 

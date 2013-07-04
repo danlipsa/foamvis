@@ -15,7 +15,6 @@
 
 #include "Enums.h"
 #include "Base.h"
-class AverageCacheT1KDEVelocity;
 class ColorBarModel;
 class Foam;
 class Settings;
@@ -29,8 +28,6 @@ class ViewSettings;
 class WidgetBase : public Base
 {
 public:
-    typedef boost::array<boost::shared_ptr<AverageCacheT1KDEVelocity>, 
-                         ViewNumber::COUNT> AverageCaches;
     typedef boost::shared_ptr<QAction> (WidgetBase::*GetActionType) () const;
         
 public:
@@ -42,7 +39,7 @@ public:
                 const char * disambiguation = 0, int n = -1);
     void Init (boost::shared_ptr<Settings> settings,
 	       boost::shared_ptr<const SimulationGroup> simulationGroup, 
-               AverageCaches* averageCache);
+               boost::shared_ptr<DerivedData>* dd);
 
     void ForAllViews (boost::function <void (ViewNumber::Enum)> f);
     void ForAllHiddenViews (boost::function <void (ViewNumber::Enum)> f);
@@ -54,12 +51,6 @@ public:
     G3D::Rect2D GetViewRect () const
     {
 	return GetViewRect (GetViewNumber ());
-    }
-
-    boost::shared_ptr<AverageCacheT1KDEVelocity> GetAverageCache (
-        ViewNumber::Enum viewNumber) const
-    {
-        return (*m_averageCache)[viewNumber];
     }
     
     G3D::Matrix3 GetRotationForAxisOrder (ViewNumber::Enum viewNumber, 
@@ -189,7 +180,6 @@ protected:
     boost::shared_ptr<QAction> m_actionInfoSimulation;
 
 private:
-    AverageCaches* m_averageCache;
     QWidget* m_widget;
     IsViewType m_isView;
     GetViewCountType m_getViewCount;

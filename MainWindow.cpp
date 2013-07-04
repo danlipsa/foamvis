@@ -8,10 +8,12 @@
  */
 #include "Application.h"
 #include "AttributeHistogram.h"
+#include "AverageCacheT1KDEVelocity.h"
 #include "BodySelector.h"
 #include "ColorBarModel.h"
 #include "ScalarAverage.h"
 #include "Debug.h"
+#include "DerivedData.h"
 #include "EditColorMap.h"
 #include "Foam.h"
 #include "Simulation.h"
@@ -67,7 +69,13 @@ MainWindow::MainWindow (
 {
     SetSimulationGroup (simulationGroup);
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
-        m_averageCache[i].reset (new AverageCacheT1KDEVelocity ());
+    {
+        boost::shared_ptr<AverageCacheT1KDEVelocity> ac (
+            new AverageCacheT1KDEVelocity ());
+        boost::shared_ptr<ObjectPositions> op (
+            new ObjectPositions ());
+        m_derivedData[i].reset (new DerivedData (ac, op));
+    }
     // for anti-aliased lines
     QGLFormat format = QGLFormat::defaultFormat ();
     format.setSampleBuffers (true);
@@ -78,8 +86,6 @@ MainWindow::MainWindow (
     SetSettings(boost::shared_ptr<Settings> (
                     new Settings (simulationGroup, 
                                   widgetGl->width (), widgetGl->height ())));
-    SetObjectPositions (boost::shared_ptr<ObjectPositions>
-                        new ObjectPositions ());
     connect (GetSettingsPtr ().get (),
              SIGNAL (SelectionChanged (ViewNumber::Enum)),
              this,
@@ -95,7 +101,7 @@ MainWindow::MainWindow (
     setupButtonGroups ();
 
 
-    widgetGl->Init (GetSettingsPtr (), simulationGroup, &m_averageCache);
+    widgetGl->Init (GetSettingsPtr (), simulationGroup, &m_derivedData[0]);
     widgetGl->SetStatus (labelStatusBar);
 
     widgetVtk->Init (GetSettingsPtr (), simulationGroup);

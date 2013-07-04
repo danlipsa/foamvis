@@ -17,21 +17,22 @@
 AttributeAverages3D::AttributeAverages3D (
     ViewNumber::Enum viewNumber,
     boost::shared_ptr<Settings> settings, 
-    boost::shared_ptr<const SimulationGroup> simulationGroup) :
+    boost::shared_ptr<const SimulationGroup> simulationGroup,
+    boost::shared_ptr<DerivedData>* dd) :
 
-    AttributeAverages (viewNumber, settings, simulationGroup)
+    AttributeAverages (viewNumber, settings, simulationGroup, dd)
 {
     m_scalarAverage.reset (
-        new RegularGridAverage (viewNumber, settings, simulationGroup));
+        new RegularGridAverage (viewNumber, settings, simulationGroup, dd));
     boost::shared_ptr<RegularGridAverage> average;
 
     average.reset (
-        new RegularGridAverage (viewNumber, settings, simulationGroup));
+        new RegularGridAverage (viewNumber, settings, simulationGroup, dd));
     average->SetBodyAttribute (BodyAttribute::VELOCITY);
     m_velocityAverage = average;
 
     average.reset (
-        new RegularGridAverage (viewNumber, settings, simulationGroup));
+        new RegularGridAverage (viewNumber, settings, simulationGroup, dd));
     average->SetBodyAttribute (OtherScalar::T1_KDE);
     m_t1KDE = average;
 
@@ -43,7 +44,7 @@ AttributeAverages3D::AttributeAverages3D (
 */
 
     m_forceAverage.reset (
-        new ForceAverage (viewNumber, settings, simulationGroup));
+        new ForceAverage (viewNumber, settings, simulationGroup, dd));
 }
 
 void AttributeAverages3D::ComputeAverage ()

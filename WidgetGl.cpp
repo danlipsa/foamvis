@@ -5,11 +5,13 @@
  * Definitions for the widget for displaying foam bubbles using OpenGL
  */
 
+#include "AverageCacheT1KDEVelocity.h"
 #include "Body.h"
 #include "BodyAlongTime.h"
 #include "BodySelector.h"
 #include "ColorBarModel.h"
 #include "Debug.h"
+#include "DerivedData.h"
 #include "ScalarAverage.h"
 #include "ForceAverage.h"
 #include "DisplayBodyFunctors.h"
@@ -417,9 +419,9 @@ void WidgetGl::initDisplayView ()
 void WidgetGl::Init (
     boost::shared_ptr<Settings> settings, 
     boost::shared_ptr<const SimulationGroup> simulationGroup,
-    AverageCaches* averageCache)
+    boost::shared_ptr<DerivedData>* dd)
 {
-    WidgetBase::Init (settings, simulationGroup, averageCache);
+    WidgetBase::Init (settings, simulationGroup, dd);
     Foam::Bodies bodies = GetSimulation ().GetFoam (0).GetBodies ();
     if (! bodies.empty ())
         m_selectBodiesByIdList->Init (bodies[0]->GetId (),
@@ -623,8 +625,8 @@ void WidgetGl::modelViewTransform (
         glMultMatrix (GetRotationForAxisOrder (viewNumber, timeStep));
     glTranslate (- center);
     if (vs.IsAverageAround ())
-	RotateAndTranslateAverageAround (GetObjectPositions (),
-                                         timeStep, 1, TRANSLATE);
+	RotateAndTranslateAverageAround (
+            *GetObjectPositions (viewNumber), timeStep, 1, TRANSLATE);
 }
 
 
@@ -1179,7 +1181,8 @@ void WidgetGl::displayAverageAroundBodies (
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
 	    RotateAndTranslateAverageAround (
-                GetObjectPositions (), vs.GetTime (), -1, DONT_TRANSLATE);
+                *GetDerivedData (viewNumber).m_objectPositions, 
+                vs.GetTime (), -1, DONT_TRANSLATE);
 	}
 	glDisable (GL_DEPTH_TEST);
         displayAverageAroundBodyOne (viewNumber);
@@ -1256,7 +1259,8 @@ void WidgetGl::displayContextBox (
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
 	    RotateAndTranslateAverageAround (
-                GetObjectPositions (), vs.GetTime (), -1, DONT_TRANSLATE);
+                *GetDerivedData (viewNumber).m_objectPositions,
+                vs.GetTime (), -1, DONT_TRANSLATE);
 	}
 	DisplayBox (GetSimulation (viewNumber), 
 		    GetSettings ().GetHighlightColor (
@@ -1273,7 +1277,7 @@ string WidgetGl::getAverageAroundLabel ()
 {
     ostringstream ostr;
     const ViewSettings& vs = GetViewSettings ();
-    const ObjectPositions& op = GetObjectPositions ();
+    const ObjectPositions& op = *GetObjectPositions (GetViewNumber ());
     if (vs.IsAverageAround ())
     {
 	ostr << "Average around";
@@ -2077,7 +2081,7 @@ void WidgetGl::calculateRotationParams (
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
-    const ObjectPositions& op = GetObjectPositions ();
+    const ObjectPositions& op = *GetDerivedData (viewNumber).m_objectPositions;
     if (vs.IsAverageAround ())
     {
         bool isAverageAroundRotationShown = vs.IsAverageAroundRotationShown ();
@@ -3174,10 +3178,11 @@ void WidgetGl::rotateAverageAroundStreamlines (
         if (isAverageAroundRotationShown)
         {
             RotateAndTranslateAverageAround (
-                GetObjectPositions (), vs.GetTime (), -1, DONT_TRANSLATE);
+                *GetObjectPositions (viewNumber), vs.GetTime (), -1, 
+                DONT_TRANSLATE);
         }
         RotateAndTranslateAverageAround (
-            GetObjectPositions (), vs.GetTime (), -1, TRANSLATE);
+            *GetObjectPositions (viewNumber), vs.GetTime (), -1, TRANSLATE);
     }
 
     const Simulation& simulation = GetSimulation (viewNumber);
@@ -3405,7 +3410,7 @@ void WidgetGl::SetAverageAroundBody ()
     makeCurrent ();
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    ObjectPositions& op = GetObjectPositions ();
+    ObjectPositions& op = *GetObjectPositions (viewNumber);
     vector< boost::shared_ptr<Body> > bodies;
     brushedBodies (m_contextMenuPosWindow, &bodies);
     if (! bodies.empty ())
@@ -3430,8 +3435,9 @@ void WidgetGl::SetAverageAroundBody ()
 void WidgetGl::SetAverageAroundSecondBody ()
 {
     makeCurrent ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings ();
-    ObjectPositions& op = GetObjectPositions ();
+    ObjectPositions& op = *GetObjectPositions (viewNumber);
     vector< boost::shared_ptr<Body> > bodies;
     brushedBodies (m_contextMenuPosWindow, &bodies);
     string message;

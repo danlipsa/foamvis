@@ -21,7 +21,7 @@ class ProcessBodyTorus;
 class QTimer;
 class Settings;
 class SimulationGroup;
-class AverageCacheT1KDEVelocity;
+class DerivedData;
 
 /**
  * @brief Stores the OpenGL, Vtk and, Histogram widgets, implements
@@ -330,8 +330,8 @@ private:
      */
     bool m_playForward;
     bool m_playReverse;
-    boost::array<boost::shared_ptr<AverageCacheT1KDEVelocity>, 
-                 ViewNumber::COUNT> m_averageCache;
+    boost::array<boost::shared_ptr<DerivedData>, 
+                 ViewNumber::COUNT> m_derivedData;
 };
 
 

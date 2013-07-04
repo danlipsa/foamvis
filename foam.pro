@@ -6,7 +6,7 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	Base.h Body.h BrowseSimulations.h\
 	BodyAlongTime.h AdjacentBody.h BodySelector.h \
 	ConstraintEdge.h ColorBarModel.h Comparisons.h\
-	Debug.h \
+	Debug.h DerivedData.h \
 	Disk.h ImageBasedAverage.h ForceAverage.h\
 	DisplayBodyFunctors.h DisplayElement.h\
 	DisplayFaceFunctors.h \

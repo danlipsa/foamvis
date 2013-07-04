@@ -7,6 +7,7 @@
  */
 
 #include "AverageShaders.h"
+#include "AverageCacheT1KDEVelocity.h"
 #include "Debug.h"
 #include "Simulation.h"
 #include "WidgetGl.h"

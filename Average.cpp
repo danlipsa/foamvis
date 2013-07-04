@@ -9,6 +9,7 @@
 
 #include "Average.h"
 #include "Debug.h"
+#include "DerivedData.h"
 #include "ObjectPosition.h"
 #include "OpenGLUtils.h"
 #include "Settings.h"
@@ -18,8 +19,9 @@
 
 Average::Average (
     ViewNumber::Enum viewNumber, boost::shared_ptr<Settings> settings, 
-    boost::shared_ptr<const SimulationGroup> simulationGroup) :
-    AverageInterface (viewNumber), Base (settings, simulationGroup),
+    boost::shared_ptr<const SimulationGroup> simulationGroup, 
+    boost::shared_ptr<DerivedData>* dd) :
+    AverageInterface (viewNumber), Base (settings, simulationGroup, dd),
     m_currentTimeWindow (0)
 {
 }
@@ -98,7 +100,8 @@ G3D::Vector3 Average::GetTranslation (size_t timeStep) const
     G3D::AABox bb = simulation.GetBoundingBox ();
     G3D::Vector3 center = bb.center ();
     const ObjectPosition current = 
-        GetObjectPositions ().GetAverageAroundPosition (timeStep);
+        GetDerivedData ().m_objectPositions->GetAverageAroundPosition (
+            timeStep);
     G3D::Vector3 t = center - current.m_rotationCenter;
     return t;
 }

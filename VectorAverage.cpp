@@ -7,6 +7,7 @@
  *
  */
 
+#include "AverageCacheT1KDEVelocity.h"
 #include "AverageShaders.h"
 #include "Debug.h"
 #include "OpenGLUtils.h"

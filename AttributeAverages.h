@@ -13,6 +13,7 @@
 #include "Enums.h"
 
 class Average;
+class DerivedData;
 class Foam;
 class ForceAverage;
 class Settings;
@@ -31,7 +32,8 @@ public:
     AttributeAverages (
         ViewNumber::Enum viewNumber,
         boost::shared_ptr<Settings> settings, 
-        boost::shared_ptr<const SimulationGroup> simulationGroup);
+        boost::shared_ptr<const SimulationGroup> simulationGroup,
+        boost::shared_ptr<DerivedData>* dd);
 
     boost::shared_ptr<ForceAverage> GetForceAverage ()
     {

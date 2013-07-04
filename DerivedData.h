@@ -17,8 +17,9 @@ class ObjectPositions;
  */
 struct DerivedData
 {
-    DerivedData (boost::shared_ptr<AverageCacheT1KDEVelocity> ac,
-                 boost::shared_ptr<ObjectPositions> op) :
+    DerivedData (
+        boost::shared_ptr<AverageCacheT1KDEVelocity> ac, 
+        boost::shared_ptr<ObjectPositions> op) :
         m_averageCache (ac), m_objectPositions (op)
     {
     }

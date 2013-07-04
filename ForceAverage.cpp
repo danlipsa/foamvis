@@ -10,6 +10,7 @@
 #include "ObjectPosition.h"
 #include "Body.h"
 #include "Debug.h"
+#include "DerivedData.h"
 #include "DisplayEdgeFunctors.h"
 #include "Foam.h"
 #include "ForceAverage.h"
@@ -100,7 +101,7 @@ void ForceAverage::displayForceAllObjects (
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
 	    widgetGl->RotateAndTranslateAverageAround (
-                GetObjectPositions (),
+                *GetDerivedData ().m_objectPositions,
                 vs.GetTime (), -1, WidgetGl::DONT_TRANSLATE);
 	}
         if (simulation.Is2D ())
