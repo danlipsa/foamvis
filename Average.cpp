@@ -9,9 +9,10 @@
 
 #include "Average.h"
 #include "Debug.h"
+#include "ObjectPosition.h"
+#include "OpenGLUtils.h"
 #include "Settings.h"
 #include "Simulation.h"
-#include "OpenGLUtils.h"
 #include "ViewSettings.h"
 
 
@@ -93,11 +94,11 @@ void Average::AverageStep (int timeDifference, size_t timeWindow)
 
 G3D::Vector3 Average::GetTranslation (size_t timeStep) const
 {
-    const ViewSettings& vs = GetViewSettings ();
     const Simulation& simulation = GetSimulation ();
     G3D::AABox bb = simulation.GetBoundingBox ();
     G3D::Vector3 center = bb.center ();
-    const ObjectPosition current = vs.GetAverageAroundPosition (timeStep);
+    const ObjectPosition current = 
+        GetObjectPositions ().GetAverageAroundPosition (timeStep);
     G3D::Vector3 t = center - current.m_rotationCenter;
     return t;
 }

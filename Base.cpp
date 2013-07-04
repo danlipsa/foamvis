@@ -15,6 +15,19 @@
 #include "Simulation.h"
 #include "ViewSettings.h"
 
+Base::Base ()
+{
+}
+
+
+Base::Base (boost::shared_ptr<Settings> settings, 
+            boost::shared_ptr<const SimulationGroup> simulationGroup,
+            boost::shared_ptr<ObjectPositions> op) :
+    m_settings (settings), 
+    m_simulationGroup (simulationGroup),
+    m_objectPositions (op)
+{
+}
 
 ViewNumber::Enum Base::GetViewNumber () const
 {

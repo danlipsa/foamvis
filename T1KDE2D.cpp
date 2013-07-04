@@ -186,7 +186,7 @@ size_t T1KDE2D::getStepSize (size_t timeStep) const
 				    vs.T1sShiftLower ()).size ();
 }
 
-void T1KDE2D::CacheData (boost::shared_ptr<AverageCache> averageCache) const
+void T1KDE2D::CacheData (boost::shared_ptr<AverageCacheT1KDEVelocity> averageCache) const
 {
     vtkSmartPointer<vtkImageData> data = getData (GetAverageType ());
     averageCache->SetT1KDE (data);

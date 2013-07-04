@@ -8,6 +8,7 @@
 
 #include "AttributeAverages.h"
 #include "ForceAverage.h"
+#include "Utils.h"
 #include "ViewSettings.h"
 
 // Private Functions

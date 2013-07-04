@@ -12,7 +12,7 @@
 #include "ImageBasedAverage.h"
 #include "PropertySetter.h"
 class ScalarDisplay;
-class AverageCache;
+class AverageCacheT1KDEVelocity;
 
 /**
  * @brief Common functionality for computing a 2D scalar average and T1sKDE.

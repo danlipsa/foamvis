@@ -7,6 +7,7 @@
  *
  */
 
+#include "ObjectPosition.h"
 #include "Body.h"
 #include "Debug.h"
 #include "DisplayEdgeFunctors.h"
@@ -98,8 +99,9 @@ void ForceAverage::displayForceAllObjects (
 	{
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
-	    vs.RotateAndTranslateAverageAround (
-                vs.GetTime (), -1, ViewSettings::DONT_TRANSLATE);
+	    widgetGl->RotateAndTranslateAverageAround (
+                GetObjectPositions (),
+                vs.GetTime (), -1, WidgetGl::DONT_TRANSLATE);
 	}
         if (simulation.Is2D ())
             glDisable (GL_DEPTH_TEST);

@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date 11 Dec 2012
  * @ingroup model
- * @brief Simulation data and program status.
+ * @brief %Simulation data, derived data, and program status.
  * 
  *
  * @defgroup model Model
@@ -19,9 +19,10 @@ class Settings;
 class Simulation;
 class SimulationGroup;
 class ViewSettings;
+class ObjectPositions;
 
 /**
- * @brief Simulation data and program status.
+ * @brief %Simulation data, derived data, and program status.
  */
 class Base
 {
@@ -33,14 +34,10 @@ public:
 
 
 public:
-    Base ()
-    {}
+    Base ();
     Base (boost::shared_ptr<Settings> settings, 
-          boost::shared_ptr<const SimulationGroup> simulationGroup) :
-        m_settings (settings), 
-        m_simulationGroup (simulationGroup)
-    {
-    }
+          boost::shared_ptr<const SimulationGroup> simulationGroup,
+          boost::shared_ptr<ObjectPositions> op);
     const Settings& GetSettings () const
     {
 	return *m_settings;
@@ -77,6 +74,14 @@ public:
     void SetSimulationGroup (boost::shared_ptr<const SimulationGroup> sg)
     {
         m_simulationGroup = sg;
+    }
+    ObjectPositions& GetObjectPositions () const
+    {
+        return *m_objectPositions;
+    }
+    void SetObjectPositions (boost::shared_ptr<ObjectPositions> op)
+    {
+        m_objectPositions = op;
     }
     const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
     const Simulation& GetSimulation (size_t index) const;
@@ -153,6 +158,7 @@ private:
 private:
     boost::shared_ptr<Settings> m_settings;
     boost::shared_ptr<const SimulationGroup> m_simulationGroup;
+    boost::shared_ptr<ObjectPositions> m_objectPositions;
 };
 
 

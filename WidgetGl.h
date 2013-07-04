@@ -19,7 +19,7 @@ class Edge;
 class EditColorMap;
 class Simulation;
 class SimulationGroup;
-class AverageCache;
+class AverageCacheT1KDEVelocity;
 class ForceOneObject;
 class OrientedFace;
 class OrientedEdge;
@@ -31,6 +31,7 @@ class AttributeAverages2D;
 class ValueBodySelector;
 class IdBodySelector;
 class AllBodySelector;
+class ObjectPositions;
 
 /**
  * @brief View that displays 2D (and some 3D) foam visualizations using OpenGL.
@@ -43,6 +44,13 @@ public:
         ROTATE_FOR_AXIS_ORDER,
         DONT_ROTATE_FOR_AXIS_ORDER
     };
+
+    enum RotateAndTranslateOperation
+    {
+        TRANSLATE,
+        DONT_TRANSLATE
+    };
+
 
 public:
     /**
@@ -186,6 +194,10 @@ public:
     void CurrentIndexChangedSimulation (int index);
     void ButtonClickedViewType (ViewType::Enum oldViewType);
     void ToggledVelocitySameSize (bool checked);
+    void RotateAndTranslateAverageAround (
+        const ObjectPositions& positions,
+        size_t timeStep, int direction, RotateAndTranslateOperation op) const;
+
 
     
 Q_SIGNALS:

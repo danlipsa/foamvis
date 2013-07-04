@@ -447,37 +447,6 @@ private:
     vector<Simulation> m_simulation;
 };
 
-/**
- * @brief Cache of 2D averages for T1KDE and velocity.
- */
-class AverageCache
-{
-public:
-    void SetT1KDE (vtkSmartPointer<vtkImageData> average)
-    {
-        m_t1KDE = average;
-    }
-    vtkSmartPointer<vtkImageData> GetT1KDE () const
-    {
-        return m_t1KDE;
-    }
-
-    void SetVelocity (vtkSmartPointer<vtkImageData> average)
-    {
-        m_velocityAverage = average;
-    }
-
-    vtkSmartPointer<vtkImageData> GetVelocity () const
-    {
-        return m_velocityAverage;
-    }
-    
-private:
-    vtkSmartPointer<vtkImageData> m_t1KDE;
-    vtkSmartPointer<vtkImageData> m_velocityAverage;
-};
-
-
 
 /**
  * Pretty print a Simulation

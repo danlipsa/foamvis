@@ -67,7 +67,7 @@ MainWindow::MainWindow (
 {
     SetSimulationGroup (simulationGroup);
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
-        m_averageCache[i].reset (new AverageCache ());
+        m_averageCache[i].reset (new AverageCacheT1KDEVelocity ());
     // for anti-aliased lines
     QGLFormat format = QGLFormat::defaultFormat ();
     format.setSampleBuffers (true);
@@ -78,6 +78,8 @@ MainWindow::MainWindow (
     SetSettings(boost::shared_ptr<Settings> (
                     new Settings (simulationGroup, 
                                   widgetGl->width (), widgetGl->height ())));
+    SetObjectPositions (boost::shared_ptr<ObjectPositions>
+                        new ObjectPositions ());
     connect (GetSettingsPtr ().get (),
              SIGNAL (SelectionChanged (ViewNumber::Enum)),
              this,

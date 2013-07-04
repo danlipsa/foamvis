@@ -9,7 +9,6 @@
 #define __VIEW_SETTINGS_H__
 
 #include "DataProperties.h"
-#include "ObjectPosition.h"
 class AllBodySelector;
 class BodySelector;
 class ColorBarModel;
@@ -29,12 +28,6 @@ public:
     {
 	ROTATION_CENTER_FOAM,
 	ROTATION_CENTER_BODY
-    };
-
-    enum RotateAndTranslateOperation
-    {
-        TRANSLATE,
-        DONT_TRANSLATE
     };
 
 
@@ -701,8 +694,7 @@ public:
      *
      * %Settings for computing a time-average of simulation
      * attributes.  Specifies if we average around one or two dynamic
-     * objects, their IDs, if rotation is shown and positions of the
-     * dynamic object in the simulation.
+     * objects, their IDs and if rotation is shown.
      */
     bool IsAverageAround () const
     {
@@ -744,16 +736,6 @@ public:
     {
 	m_averageAroundRotationShown = shown;
     }
-    ObjectPosition GetAverageAroundPosition (size_t timeStep) const
-    {
-	return m_averageAroundPositions[timeStep];
-    }
-    void SetAverageAroundPositions (const Simulation& simulation);
-    void SetAverageAroundPositions (const Simulation& simulation, size_t bodyId);
-    void SetAverageAroundPositions (const Simulation& simulation,
-				    size_t bodyId, size_t secondBodyId);
-    void RotateAndTranslateAverageAround (
-        size_t timeStep, int direction, RotateAndTranslateOperation op) const;
     // @}
 
     
@@ -1080,7 +1062,6 @@ private:
     bool m_averageAround;
     boost::array<size_t, 2> m_averageAroundBodyId;
     bool m_averageAroundRotationShown;
-    vector<ObjectPosition> m_averageAroundPositions;
     size_t m_differenceBodyId;
     // Context view
     bool m_contextView;

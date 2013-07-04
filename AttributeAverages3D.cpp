@@ -6,10 +6,11 @@
  * Definitions for the view average
  */
 
+#include "AttributeAverages3D.h"
 #include "ForceAverage.h"
 #include "RegularGridAverage.h"
 #include "Settings.h"
-#include "AttributeAverages3D.h"
+#include "Utils.h"
 #include "ViewSettings.h"
 
 

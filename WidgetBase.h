@@ -15,7 +15,7 @@
 
 #include "Enums.h"
 #include "Base.h"
-class AverageCache;
+class AverageCacheT1KDEVelocity;
 class ColorBarModel;
 class Foam;
 class Settings;
@@ -29,7 +29,7 @@ class ViewSettings;
 class WidgetBase : public Base
 {
 public:
-    typedef boost::array<boost::shared_ptr<AverageCache>, 
+    typedef boost::array<boost::shared_ptr<AverageCacheT1KDEVelocity>, 
                          ViewNumber::COUNT> AverageCaches;
     typedef boost::shared_ptr<QAction> (WidgetBase::*GetActionType) () const;
         
@@ -56,7 +56,7 @@ public:
 	return GetViewRect (GetViewNumber ());
     }
 
-    boost::shared_ptr<AverageCache> GetAverageCache (
+    boost::shared_ptr<AverageCacheT1KDEVelocity> GetAverageCache (
         ViewNumber::Enum viewNumber) const
     {
         return (*m_averageCache)[viewNumber];

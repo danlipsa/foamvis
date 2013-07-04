@@ -11,7 +11,6 @@
 #include "ColorBarModel.h"
 #include "Debug.h"
 #include "Foam.h"
-#include "OpenGLUtils.h"
 #include "Simulation.h"
 #include "Utils.h"
 #include "ViewSettings.h"
@@ -589,50 +588,6 @@ int ViewSettings::SetTime (size_t time)
     return direction;
 }
 
-void ViewSettings::SetAverageAroundPositions (const Simulation& simulation)
-{
-    m_averageAroundPositions.resize (simulation.GetTimeSteps ());
-    for (size_t i = 0; i < m_averageAroundPositions.size (); ++i)
-	m_averageAroundPositions[i] = 
-	    simulation.GetFoam (i).GetDmpObjectPosition ();
-}
-
-void ViewSettings::SetAverageAroundPositions (
-    const Simulation& simulation, size_t bodyId)
-{
-    m_averageAroundPositions.resize (simulation.GetTimeSteps ());
-    for (size_t i = 0; i < m_averageAroundPositions.size (); ++i)
-    {
-	ObjectPosition& objectPosition = m_averageAroundPositions[i];
-	const Foam& foam = simulation.GetFoam (i);
-	objectPosition.m_angleRadians = 0;
-	objectPosition.m_rotationCenter = 
-	    (*foam.FindBody (bodyId))->GetCenter ();
-    }
-}
-
-void ViewSettings::SetAverageAroundPositions (
-    const Simulation& simulation,
-    size_t bodyId, size_t secondBodyId)
-{
-    G3D::Vector2 beginAxis = 
-	simulation.GetFoam (0).GetAverageAroundAxis (bodyId, secondBodyId);
-    // the angle for i = 0 is already set to 0. Trying to calculate will results 
-    // in acosValue slightly greater than 1, a Nan and then an error 
-    // in gluUnProject.
-    for (size_t i = 1; i < m_averageAroundPositions.size (); ++i)
-    {
-	ObjectPosition& objectPosition = m_averageAroundPositions[i];
-	const Foam& foam = simulation.GetFoam (i);
-
-	G3D::Vector2 currentAxis = 
-	    foam.GetAverageAroundAxis (bodyId, secondBodyId);
-	float acosValue = currentAxis.direction ().dot (beginAxis.direction ());
-	float angleRadians = acos (acosValue);
-	objectPosition.m_angleRadians = - angleRadians;
-    }
-}
-
 void ViewSettings::SetSimulation (int i, const Simulation& simulation, 
 				  G3D::Vector3 viewingVolumeCenter)
 {
@@ -650,33 +605,6 @@ void ViewSettings::SetSimulation (int i, const Simulation& simulation,
     SetRotationCenter (viewingVolumeCenter);
     setTimeSteps (simulation.GetTimeSteps ());
     SetBubblePathsTimeEnd (simulation.GetTimeSteps ());
-}
-
-void ViewSettings::RotateAndTranslateAverageAround (
-    size_t timeStep, int direction, RotateAndTranslateOperation op) const
-{
-    const ObjectPosition posBegin = GetAverageAroundPosition (0);
-    const ObjectPosition posCurrent = GetAverageAroundPosition (timeStep);
-    float angleRadians = posCurrent.m_angleRadians - posBegin.m_angleRadians;
-    G3D::Vector3 translation;
-    if (op == TRANSLATE)
-    {
-	translation = posBegin.m_rotationCenter - posCurrent.m_rotationCenter;
-        if (direction > 0)
-            glTranslate (translation);
-    }
-    if (angleRadians != 0)
-    {
-	G3D::Vector3 rotationCenter = posCurrent.m_rotationCenter;
-	glTranslate (rotationCenter);
-	float angleDegrees =  G3D::toDegrees (angleRadians);
-	//cdbg << "angle degrees = " << angleDegrees << endl;
-	angleDegrees = direction > 0 ? angleDegrees : - angleDegrees;
-	glRotatef (angleDegrees, 0, 0, 1);
-	glTranslate (-rotationCenter);
-    }
-    if (op == TRANSLATE && direction < 0)
-        glTranslate (-translation);
 }
 
 bool ViewSettings::HasHistogramOption (HistogramType::Option option) const

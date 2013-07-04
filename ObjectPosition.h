@@ -9,6 +9,7 @@
 #define __OBJECT_POSITION_H__
 
 #include "Utils.h"
+class Simulation;
 
 /**
  * @brief Names of parameters in a DMP file where a position,
@@ -48,6 +49,27 @@ struct ObjectPosition
     G3D::Vector3 m_rotationCenter;
     float m_angleRadians;
 };
+
+/**
+ * @brief Stores position and rotation along time for an object (or
+ * system of objects) interacting with foam.
+ */
+class ObjectPositions
+{
+public:
+    ObjectPosition GetAverageAroundPosition (size_t timeStep) const
+    {
+	return m_averageAroundPositions[timeStep];
+    }
+    void SetAverageAroundPositions (const Simulation& simulation);
+    void SetAverageAroundPositions (const Simulation& simulation, size_t bodyId);
+    void SetAverageAroundPositions (const Simulation& simulation,
+				    size_t bodyId, size_t secondBodyId);
+
+private:
+    vector<ObjectPosition> m_averageAroundPositions;    
+};
+
 
 #endif //__OBJECT_POSITION_H__
 

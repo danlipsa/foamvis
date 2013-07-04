@@ -2,7 +2,7 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	Attribute.h AttributeAverages.h AttributeCreator.h AttributeInfo.h \
 	AttributeAverages2D.h AttributeAverages3D.h \
 	AttributeHistogram.h Average.h AverageInterface.h\
-	AverageShaders.h PipelineAverage3D.h \
+	AverageShaders.h AverageCacheT1KDEVelocity.h PipelineAverage3D.h \
 	Base.h Body.h BrowseSimulations.h\
 	BodyAlongTime.h AdjacentBody.h BodySelector.h \
 	ConstraintEdge.h ColorBarModel.h Comparisons.h\
@@ -52,7 +52,8 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	Histogram.cpp HistogramItem.cpp \
 	HistogramSettings.cpp main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
-	OOBox.cpp OpenGLUtils.cpp OrientedElement.cpp Options.cpp\
+	OOBox.cpp ObjectPosition.cpp OpenGLUtils.cpp \
+	OrientedElement.cpp Options.cpp \
 	OrientedEdge.cpp OrientedFace.cpp AdjacentOrientedFace.cpp\
 	ScalarAverage.cpp Settings.cpp SelectBodiesById.cpp \
 	ParsingData.cpp PipelineBase.cpp ParsingDriver.cpp \

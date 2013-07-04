@@ -623,8 +623,8 @@ void WidgetGl::modelViewTransform (
         glMultMatrix (GetRotationForAxisOrder (viewNumber, timeStep));
     glTranslate (- center);
     if (vs.IsAverageAround ())
-	vs.RotateAndTranslateAverageAround (timeStep, 1, 
-                                            ViewSettings::TRANSLATE);
+	RotateAndTranslateAverageAround (GetObjectPositions (),
+                                         timeStep, 1, TRANSLATE);
 }
 
 
@@ -1178,8 +1178,8 @@ void WidgetGl::displayAverageAroundBodies (
 	{
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
-	    vs.RotateAndTranslateAverageAround (
-                vs.GetTime (), -1, ViewSettings::DONT_TRANSLATE);
+	    RotateAndTranslateAverageAround (
+                GetObjectPositions (), vs.GetTime (), -1, DONT_TRANSLATE);
 	}
 	glDisable (GL_DEPTH_TEST);
         displayAverageAroundBodyOne (viewNumber);
@@ -1255,8 +1255,8 @@ void WidgetGl::displayContextBox (
 	{
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
-	    vs.RotateAndTranslateAverageAround (
-                vs.GetTime (), -1, ViewSettings::DONT_TRANSLATE);
+	    RotateAndTranslateAverageAround (
+                GetObjectPositions (), vs.GetTime (), -1, DONT_TRANSLATE);
 	}
 	DisplayBox (GetSimulation (viewNumber), 
 		    GetSettings ().GetHighlightColor (
@@ -1273,6 +1273,7 @@ string WidgetGl::getAverageAroundLabel ()
 {
     ostringstream ostr;
     const ViewSettings& vs = GetViewSettings ();
+    const ObjectPositions& op = GetObjectPositions ();
     if (vs.IsAverageAround ())
     {
 	ostr << "Average around";
@@ -1281,9 +1282,9 @@ string WidgetGl::getAverageAroundLabel ()
 	else
 	    ostr << " (2)";
 	
-	const ObjectPosition rotationBegin = vs.GetAverageAroundPosition (0);
+	const ObjectPosition rotationBegin = op.GetAverageAroundPosition (0);
 	const ObjectPosition rotationCurrent = 
-	    vs.GetAverageAroundPosition (GetTime ());
+	    op.GetAverageAroundPosition (GetTime ());
 	float angleRadians = 
 	    rotationCurrent.m_angleRadians - rotationBegin.m_angleRadians;
 	float angleDegrees =  G3D::toDegrees (angleRadians);
@@ -2076,12 +2077,13 @@ void WidgetGl::calculateRotationParams (
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
+    const ObjectPositions& op = GetObjectPositions ();
     if (vs.IsAverageAround ())
     {
         bool isAverageAroundRotationShown = vs.IsAverageAroundRotationShown ();
-	const ObjectPosition rotationBegin = vs.GetAverageAroundPosition (0);
+	const ObjectPosition rotationBegin = op.GetAverageAroundPosition (0);
 	const ObjectPosition rotationCurrent = 
-            vs.GetAverageAroundPosition (timeStep);
+            op.GetAverageAroundPosition (timeStep);
 	*rotationCenter = rotationCurrent.m_rotationCenter;
 	*angleDegrees =
 	    isAverageAroundRotationShown ? 
@@ -3171,11 +3173,11 @@ void WidgetGl::rotateAverageAroundStreamlines (
 
         if (isAverageAroundRotationShown)
         {
-            vs.RotateAndTranslateAverageAround (
-                vs.GetTime (), -1, ViewSettings::DONT_TRANSLATE);
+            RotateAndTranslateAverageAround (
+                GetObjectPositions (), vs.GetTime (), -1, DONT_TRANSLATE);
         }
-        vs.RotateAndTranslateAverageAround (
-            vs.GetTime (), -1, ViewSettings::TRANSLATE);
+        RotateAndTranslateAverageAround (
+            GetObjectPositions (), vs.GetTime (), -1, TRANSLATE);
     }
 
     const Simulation& simulation = GetSimulation (viewNumber);
@@ -3334,6 +3336,36 @@ void WidgetGl::enableTorusDomainClipPlanes (ViewNumber::Enum viewNumber)
 }
 
 
+void WidgetGl::RotateAndTranslateAverageAround (
+    const ObjectPositions& positions,
+    size_t timeStep, int direction, RotateAndTranslateOperation op) const
+{
+    const ObjectPosition posBegin = positions.GetAverageAroundPosition (0);
+    const ObjectPosition posCurrent = 
+        positions.GetAverageAroundPosition (timeStep);
+    float angleRadians = posCurrent.m_angleRadians - posBegin.m_angleRadians;
+    G3D::Vector3 translation;
+    if (op == TRANSLATE)
+    {
+	translation = posBegin.m_rotationCenter - posCurrent.m_rotationCenter;
+        if (direction > 0)
+            glTranslate (translation);
+    }
+    if (angleRadians != 0)
+    {
+	G3D::Vector3 rotationCenter = posCurrent.m_rotationCenter;
+	glTranslate (rotationCenter);
+	float angleDegrees =  G3D::toDegrees (angleRadians);
+	//cdbg << "angle degrees = " << angleDegrees << endl;
+	angleDegrees = direction > 0 ? angleDegrees : - angleDegrees;
+	glRotatef (angleDegrees, 0, 0, 1);
+	glTranslate (-rotationCenter);
+    }
+    if (op == TRANSLATE && direction < 0)
+        glTranslate (-translation);
+}
+
+
 // Slots and methods called by the UI
 // ==================================
 
@@ -3373,6 +3405,7 @@ void WidgetGl::SetAverageAroundBody ()
     makeCurrent ();
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
+    ObjectPositions& op = GetObjectPositions ();
     vector< boost::shared_ptr<Body> > bodies;
     brushedBodies (m_contextMenuPosWindow, &bodies);
     if (! bodies.empty ())
@@ -3384,9 +3417,9 @@ void WidgetGl::SetAverageAroundBody ()
 	vs.SetAverageAroundSecondBodyId (INVALID_INDEX);
 	vs.SetAverageAround (true);
 	if (body->IsObject () && simulation.GetDmpObjectInfo ().RotationUsed ())
-	    vs.SetAverageAroundPositions (simulation);
+	    op.SetAverageAroundPositions (simulation);
 	else
-	    vs.SetAverageAroundPositions (simulation, bodyId);
+	    op.SetAverageAroundPositions (simulation, bodyId);
         CacheUpdateSeedsCalculateStreamline (viewNumber);
 	CompileUpdate ();
     }
@@ -3398,6 +3431,7 @@ void WidgetGl::SetAverageAroundSecondBody ()
 {
     makeCurrent ();
     ViewSettings& vs = GetViewSettings ();
+    ObjectPositions& op = GetObjectPositions ();
     vector< boost::shared_ptr<Body> > bodies;
     brushedBodies (m_contextMenuPosWindow, &bodies);
     string message;
@@ -3415,7 +3449,7 @@ void WidgetGl::SetAverageAroundSecondBody ()
 	    {
 		vs.SetAverageAroundSecondBodyId (secondBodyId);
 		vs.SetAverageAround (true);
-		vs.SetAverageAroundPositions (simulation, bodyId, secondBodyId);
+		op.SetAverageAroundPositions (simulation, bodyId, secondBodyId);
 		vs.SetDifferenceBodyId (secondBodyId);
 		CompileUpdate ();
 		return;
