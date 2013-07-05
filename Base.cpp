@@ -198,7 +198,7 @@ void Base::CopyForceRatioFrom (ViewNumber::Enum viewNumber)
 
 
 QwtDoubleInterval Base::GetInterval (AverageType::Enum averageType, 
-                                  ViewNumber::Enum viewNumber) const
+                                     ViewNumber::Enum viewNumber) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
     ViewSettings& vs = GetViewSettings (viewNumber);

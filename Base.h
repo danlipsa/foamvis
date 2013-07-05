@@ -40,6 +40,14 @@ public:
     Base (boost::shared_ptr<Settings> settings, 
           boost::shared_ptr<const SimulationGroup> simulationGroup,
           boost::shared_ptr<DerivedData>* dd);
+
+
+    /**
+     * @{
+     * @name Settings
+     *
+     * Program status
+     */
     const Settings& GetSettings () const
     {
 	return *m_settings;
@@ -52,7 +60,6 @@ public:
     {
         m_settings = s;
     }
-
     ViewSettings& GetViewSettings (ViewNumber::Enum viewNumber) const;
     size_t GetTime (ViewNumber::Enum viewNumber) const;
     size_t GetViewCount () const;
@@ -65,6 +72,16 @@ public:
     {
 	return GetTime (GetViewNumber ());
     }
+    void CopyTransformFrom (ViewNumber::Enum viewNumber);
+    void CopyForceRatioFrom (ViewNumber::Enum viewNumber);
+
+    virtual ViewNumber::Enum GetViewNumber () const;
+    // @}
+
+    /**
+     * @{
+     * @name Data
+     */
     const SimulationGroup& GetSimulationGroup () const
     {
 	return *m_simulationGroup;
@@ -77,6 +94,20 @@ public:
     {
         m_simulationGroup = sg;
     }
+    const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
+    const Simulation& GetSimulation (size_t index) const;
+    const Simulation& GetSimulation () const
+    {
+        return GetSimulation (GetViewNumber ());
+    }
+    // current viewNumber, different time steps
+    const Foam& GetFoam (size_t timeStep) const;
+    // current viewNumber, current time step
+    const Foam& GetFoam () const;
+    // different view number, current time step
+    const Foam& GetFoam (ViewNumber::Enum viewNumber) const;
+    // @}
+
     /**
      * @{
      * @name DerivedData
@@ -99,31 +130,19 @@ public:
     }
     //@}
 
-    const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
-    const Simulation& GetSimulation (size_t index) const;
-    const Simulation& GetSimulation () const
-    {
-        return GetSimulation (GetViewNumber ());
-    }
-    // current viewNumber, different time steps
-    const Foam& GetFoam (size_t timeStep) const;
-    // current viewNumber, current time step
-    const Foam& GetFoam () const;
-    // different view number, current time step
-    const Foam& GetFoam (ViewNumber::Enum viewNumber) const;
-
 
     /**
      * @{
      * @name Gl, Vtk, and Histogram views
+     *
+     * Answers on Gl, Vtk and %Histogram views.
      */
     bool IsVtkView (ViewNumber::Enum viewNumber) const;
     bool IsGlView (ViewNumber::Enum viewNumber) const;
     bool IsGlView () const
     {
         return IsGlView (GetViewNumber ());
-    }
-    
+    }    
     bool IsHistogramShown (ViewNumber::Enum viewNumber) const;
     ViewCount::Enum GetVtkCount (vector<ViewNumber::Enum>* mapping = 0) const;
     ViewCount::Enum GetGlCount (vector<ViewNumber::Enum>* mapping = 0) const;
@@ -131,14 +150,18 @@ public:
 	vector<ViewNumber::Enum>* mapping = 0) const;
     // @}
 
+
+    /**
+     * @{
+     * @name Data and settings
+     *
+     * Computation using both data and program status
+     */
     float GetBubbleDiameter (ViewNumber::Enum viewNumber) const;
     float GetBubbleDiameter () const
     {
         return GetBubbleDiameter (GetViewNumber ());
     }
-
-    void CopyTransformFrom (ViewNumber::Enum viewNumber);
-    void CopyForceRatioFrom (ViewNumber::Enum viewNumber);
 
     QwtDoubleInterval GetInterval (AverageType::Enum averageType, 
                                    ViewNumber::Enum viewNumber) const;
@@ -160,11 +183,7 @@ public:
     {
 	return GetIntervalT1KDE (GetViewNumber ());
     }
-
-
-    virtual ViewNumber::Enum GetViewNumber () const;
-
-
+    // @}
 
 private:
     ViewCount::Enum getViewCount (

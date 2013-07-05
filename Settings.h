@@ -37,7 +37,9 @@ public:
 
     /**
      * @{
-     * @name TwoHalves view
+     * @name TwoHalves
+     *
+     * %Settings and computation for the two halves view.
      */
     vector<ViewNumber::Enum> GetTwoHalvesViewNumbers (
 	ViewNumber::Enum viewNumber) const;
@@ -55,14 +57,16 @@ public:
     G3D::Vector2 CalculateScaleCenter (
 	ViewNumber::Enum viewNumber, const G3D::Rect2D& rect) const;
     ViewType::Enum SetTwoHalvesViewType (ViewType::Enum viewType);
-    template<typename T>
-    void SetOneOrTwoViews (T* t,void (T::*f) (ViewNumber::Enum));
+    template<typename T> void SetOneOrTwoViews (T* t,void (T::*f) (
+                                                    ViewNumber::Enum));
     //@}
 
 
     /**
      * @{
      * @name Views
+     *
+     * Set the current view, number of displayed views and, view layout.
      */
     size_t GetViewCount () const
     {
@@ -85,10 +89,6 @@ public:
     {
 	return GetViewSettings (GetViewNumber ());
     }
-    size_t GetViewSettingsSize () const
-    {
-	return m_viewSettings.size ();
-    }
     ViewLayout::Enum GetViewLayout () const
     {
 	return m_viewLayout;
@@ -102,6 +102,10 @@ public:
     /**
      * @{
      * @name Time and LinkedTime
+     * 
+     * Set independent or linked time, set time, add linked time
+     * events, get view time or linked time, set linked time window,
+     * get linked time or view time window.
      */
     void SetTimeLinkage (TimeLinkage::Enum timeLinkage);
     TimeLinkage::Enum GetTimeLinkage () const
@@ -173,6 +177,9 @@ public:
     /**
      * @{
      * @name Attributes
+     *
+     * If missing bubble volume or pressure are shown or object
+     * velocity is shown.
      */
     bool IsMissingPropertyShown (BodyScalar::Enum bodyProperty) const;
     void SetMissingPressureShown (bool shown)
@@ -192,6 +199,7 @@ public:
     /**
      * @{
      * @name Color maps
+     * %Settings and computation for color maps
      */
     bool IsBarLarge () const
     {
@@ -209,7 +217,8 @@ public:
     {
         m_barLabelsShown = shown;
     }
-    ColorMapScalarType::Enum GetColorMapScalarType (ViewNumber::Enum viewNumber) const;
+    ColorMapScalarType::Enum GetColorMapScalarType (
+        ViewNumber::Enum viewNumber) const;
     ColorMapScalarType::Enum GetColorMapScalarType () const;
     G3D::Rect2D GetColorMapScalarRect (const G3D::Rect2D& viewRect) const;
     G3D::Rect2D GetT1LegendRect (const G3D::Rect2D& viewRect) const;
@@ -227,6 +236,9 @@ public:
     /**
      * @{
      * @name Interaction
+     *
+     * What interaction (rotation, scale, translation) and what object
+     * (focus, context, light) is applied to.
      */
     InteractionMode::Enum GetInteractionMode () const
     {
@@ -251,6 +263,9 @@ public:
     /**
      * @{
      * @name Various
+     *
+     * Various settings such as if title shown, constraint points
+     * shown, edge tesselation shown, etc.
      */
     const QColor& GetEndTranslationColor (const G3D::Vector3int16& di) const;
     bool EdgesTessellationShown () const
@@ -302,6 +317,8 @@ public:
     /**
      * @{
      * @name Computation
+     *
+     * Computation that uses the %settings.
      */
     G3D::AABox CalculateViewingVolume (
 	ViewNumber::Enum viewNumber, ViewCount::Enum viewCount, 

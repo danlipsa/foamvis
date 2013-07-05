@@ -797,7 +797,7 @@ void MainWindow::setupColorBarModels (size_t simulationIndex,
 
 void MainWindow::setupViews ()
 {
-    for (size_t i = 0; i < GetSettings ().GetViewSettingsSize (); ++i)
+    for (size_t i = 0; i < ViewNumber::COUNT; ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
         const ViewSettings& vs = GetViewSettings (viewNumber);
