@@ -201,8 +201,6 @@ void ViewSettings::SetLight (
     const boost::array<GLfloat,4>& color)
 {
     m_light[lightNumber][lightType] = color;
-    glLightfv (GL_LIGHT0 + lightNumber, LightType::ToOpenGL (lightType), 
-               &m_light[lightNumber][lightType][0]);
 }
 
 void ViewSettings::CalculateCameraDistance (
