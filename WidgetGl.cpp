@@ -464,7 +464,7 @@ void WidgetGl::displayLightDirection (
 	glTranslatef (0, 0, - vs.GetCameraDistance ());
 	glMultMatrix (vs.GetRotationLight (i));
 	G3D::Vector3 initialLightPosition = 
-	    vs.GetInitialLightPosition (
+	    getInitialLightPosition (
 		CalculateCenteredViewingVolume (viewNumber), i);
 	G3D::Vector3 lp =  initialLightPosition / sqrt3;
 	::glColor (QColor (vs.IsLightEnabled (i) ? Qt::red : Qt::gray));
@@ -527,6 +527,7 @@ void WidgetGl::initializeLighting ()
     glEnable(GL_RESCALE_NORMAL);
     glShadeModel (GL_SMOOTH);
     glEnable (GL_COLOR_MATERIAL);
+    lightToOpenGl ();
 }
 
 G3D::Vector3 WidgetGl::calculateViewingVolumeScaledExtent (
@@ -803,12 +804,79 @@ void WidgetGl::displayAllViewTransforms (ViewNumber::Enum viewNumber)
     enableTorusDomainClipPlanes (viewNumber);
 }
 
+void WidgetGl::setGlLightParameters (ViewNumber::Enum viewNumber)    
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    if (vs.IsLightingEnabled ())
+	glEnable (GL_LIGHTING);
+    else
+	glDisable (GL_LIGHTING);
+    for (size_t i = 0; i < LightNumber::COUNT; ++i)
+	setGlLightParameters (viewNumber, LightNumber::Enum (i));
+}
+
+G3D::Vector3 WidgetGl::getInitialLightPosition (
+    G3D::AABox centeredViewingVolume, LightNumber::Enum lightNumber)
+{    
+    G3D::Vector3 high = centeredViewingVolume.high (), 
+	low = centeredViewingVolume.low ();
+    G3D::Vector3 nearRectangle[] = {
+	G3D::Vector3 (high.x, high.y, high.z),
+	G3D::Vector3 (low.x, high.y, high.z),
+	G3D::Vector3 (low.x, low.y, high.z),
+	G3D::Vector3 (high.x, low.y, high.z),
+    };
+    return nearRectangle[lightNumber];
+}
+
+
+void WidgetGl::setGlLightParameters (
+    ViewNumber::Enum viewNumber, LightNumber::Enum lightNumber)
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    G3D::AABox cvv = CalculateCenteredViewingVolume (viewNumber);
+    if (vs.IsLightEnabled (lightNumber))
+    {
+	glEnable(GL_LIGHT0 + lightNumber);
+	G3D::Vector3 initialLightPosition = getInitialLightPosition (
+	    cvv, lightNumber);
+	G3D::Vector3 lp = initialLightPosition * 
+            vs.GetLightPositionRatio (lightNumber);
+	if (vs.IsDirectionalLightEnabled (lightNumber))
+	{
+	    glPushMatrix ();
+	    glLoadIdentity ();
+	    glMultMatrix (vs.GetRotationLight (lightNumber));
+	    glLightf(GL_LIGHT0 + lightNumber, GL_SPOT_CUTOFF, 180);
+	    boost::array<GLfloat, 4> lightPosition = {{lp.x, lp.y, lp.z, 0}};
+	    glLightfv(GL_LIGHT0 + lightNumber, GL_POSITION, &lightPosition[0]);
+	    glPopMatrix ();
+	}
+	else
+	{
+	    glLightf(GL_LIGHT0 + lightNumber, GL_SPOT_CUTOFF, 15);
+	    glPushMatrix ();
+	    glLoadIdentity ();	    
+	    glTranslated (0, 0, - vs.GetCameraDistance ());
+	    glMultMatrix (vs.GetRotationLight (lightNumber));
+	    boost::array<GLfloat, 3> lightDirection = {{-lp.x, -lp.y, -lp.z}};
+	    glLightfv(GL_LIGHT0 + lightNumber, 
+		      GL_SPOT_DIRECTION, &lightDirection[0]);
+	    GLfloat lightPosition[] = {lp.x, lp.y, lp.z, 1};
+	    glLightfv(GL_LIGHT0 + lightNumber, GL_POSITION, lightPosition);
+	    glPopMatrix ();
+	}
+	
+    }
+    else
+	glDisable (GL_LIGHT0 + lightNumber);
+}
+
 
 void WidgetGl::displayView (ViewNumber::Enum viewNumber)
 {
     //QTime t;t.start ();
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    vs.SetGlLightParameters (CalculateCenteredViewingVolume (viewNumber));
+    setGlLightParameters (viewNumber);
     allTransform (viewNumber);
     setTorusDomainClipPlanes (viewNumber);
     displayAllViewTransforms (viewNumber);
@@ -2423,7 +2491,22 @@ void WidgetGl::setLight (int sliderValue, int maximumValue,
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     vs.SetLight (selectedLight, lightType, colorNumber,  
 		 double(sliderValue) / maximumValue);
+    lightToOpenGl (lightType);
     update ();
+}
+
+void WidgetGl::lightToOpenGl ()
+{
+    for (size_t i = 0; i < LightType::COUNT; ++i)
+        lightToOpenGl (LightType::Enum (i));
+}
+
+void WidgetGl::lightToOpenGl (LightType::Enum lightType)
+{
+    const ViewSettings& vs = GetViewSettings ();
+    LightNumber::Enum sl = vs.GetSelectedLight ();
+    glLightfv (GL_LIGHT0 + sl, 
+               LightType::ToOpenGL (lightType), &vs.GetLight (sl, lightType)[0]);
 }
 
 size_t WidgetGl::GetTimeSteps (ViewNumber::Enum viewNumber) const

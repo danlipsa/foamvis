@@ -189,72 +189,20 @@ void ViewSettings::SetInitialLightParameters (LightNumber::Enum i)
     m_rotationLight[i] = G3D::Matrix3::identity ();
 }
 
-G3D::Vector3 ViewSettings::GetInitialLightPosition (
-    G3D::AABox centeredViewingVolume,
-    LightNumber::Enum lightNumber)
-{    
-    G3D::Vector3 high = centeredViewingVolume.high (), 
-	low = centeredViewingVolume.low ();
-    G3D::Vector3 nearRectangle[] = {
-	G3D::Vector3 (high.x, high.y, high.z),
-	G3D::Vector3 (low.x, high.y, high.z),
-	G3D::Vector3 (low.x, low.y, high.z),
-	G3D::Vector3 (high.x, low.y, high.z),
-    };
-    return nearRectangle[lightNumber];
+void ViewSettings::SetLight (
+    LightNumber::Enum lightNumber, LightType::Enum lightType, 
+    size_t colorIndex, GLfloat color)
+{
+    m_light[lightNumber][lightType][colorIndex] = color;
 }
 
-
-void ViewSettings::SetGlLightParameters (
-    G3D::AABox centeredViewingVolume) const
+void ViewSettings::SetLight (
+    LightNumber::Enum lightNumber, LightType::Enum lightType, 
+    const boost::array<GLfloat,4>& color)
 {
-    if (m_lightingEnabled)
-	glEnable (GL_LIGHTING);
-    else
-	glDisable (GL_LIGHTING);
-    for (size_t i = 0; i < LightNumber::COUNT; ++i)
-	SetGlLightParameters (LightNumber::Enum (i), centeredViewingVolume);
-}
-
-void ViewSettings::SetGlLightParameters (
-    LightNumber::Enum lightNumber, 
-    G3D::AABox centeredViewingVolume) const
-{
-    if (IsLightEnabled (lightNumber))
-    {
-	glEnable(GL_LIGHT0 + lightNumber);
-	G3D::Vector3 initialLightPosition = GetInitialLightPosition (
-	    centeredViewingVolume, lightNumber);
-	G3D::Vector3 lp = initialLightPosition * 
-	    GetLightPositionRatio (lightNumber);
-	if (IsDirectionalLightEnabled (lightNumber))
-	{
-	    glPushMatrix ();
-	    glLoadIdentity ();
-	    glMultMatrix (GetRotationLight (lightNumber));
-	    glLightf(GL_LIGHT0 + lightNumber, GL_SPOT_CUTOFF, 180);
-	    boost::array<GLfloat, 4> lightPosition = {{lp.x, lp.y, lp.z, 0}};
-	    glLightfv(GL_LIGHT0 + lightNumber, GL_POSITION, &lightPosition[0]);
-	    glPopMatrix ();
-	}
-	else
-	{
-	    glLightf(GL_LIGHT0 + lightNumber, GL_SPOT_CUTOFF, 15);
-	    glPushMatrix ();
-	    glLoadIdentity ();	    
-	    glTranslated (0, 0, - m_cameraDistance);
-	    glMultMatrix (GetRotationLight (lightNumber));
-	    boost::array<GLfloat, 3> lightDirection = {{-lp.x, -lp.y, -lp.z}};
-	    glLightfv(GL_LIGHT0 + lightNumber, 
-		      GL_SPOT_DIRECTION, &lightDirection[0]);
-	    GLfloat lightPosition[] = {lp.x, lp.y, lp.z, 1};
-	    glLightfv(GL_LIGHT0 + lightNumber, GL_POSITION, lightPosition);
-	    glPopMatrix ();
-	}
-	
-    }
-    else
-	glDisable (GL_LIGHT0 + lightNumber);
+    m_light[lightNumber][lightType] = color;
+    glLightfv (GL_LIGHT0 + lightNumber, LightType::ToOpenGL (lightType), 
+               &m_light[lightNumber][lightType][0]);
 }
 
 void ViewSettings::CalculateCameraDistance (
@@ -271,25 +219,6 @@ void ViewSettings::CalculateCameraDistance (
 	    tan (GetAngleOfView () * M_PI / 360) + diagonal.z / 2;
     }    
 }
-
-void ViewSettings::SetLight (
-    LightNumber::Enum lightNumber, LightType::Enum lightType, 
-    size_t colorIndex, GLfloat color)
-{
-    m_light[lightNumber][lightType][colorIndex] = color;
-    glLightfv (GL_LIGHT0 + lightNumber, LightType::ToOpenGL (lightType), 
-	       &m_light[lightNumber][lightType][0]);
-}
-
-void ViewSettings::SetLight (
-    LightNumber::Enum lightNumber, LightType::Enum lightType, 
-    const boost::array<GLfloat,4>& color)
-{
-    m_light[lightNumber][lightType] = color;
-    glLightfv (GL_LIGHT0 + lightNumber, LightType::ToOpenGL (lightType), 
-	       &m_light[lightNumber][lightType][0]);
-}
-
 
 
 bool ViewSettings::IsContextDisplayBody (size_t bodyId) const

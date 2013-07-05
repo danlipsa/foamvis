@@ -642,9 +642,6 @@ public:
     {
 	m_lightPositionShown[i] = shown;
     }
-    void SetGlLightParameters (LightNumber::Enum i, 
-			       G3D::AABox centeredViewingVolume) const;
-    void SetGlLightParameters (G3D::AABox centeredViewingVolume) const;
     void SetInitialLightParameters (LightNumber::Enum i);
     const boost::array<GLfloat, 4> GetLight (
 	LightNumber::Enum lightNumber, LightType::Enum lightType) const
@@ -683,9 +680,6 @@ public:
 	m_rotationLight[i] = rl;
     }
     // @}
-    static G3D::Vector3 GetInitialLightPosition (
-	G3D::AABox centeredViewingVolume, LightNumber::Enum lightNumber);
-
 
 
     /**

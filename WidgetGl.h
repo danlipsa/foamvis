@@ -385,6 +385,9 @@ private:
     typedef void (WidgetGl::*ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    void setGlLightParameters (
+        ViewNumber::Enum viewNumber, LightNumber::Enum i);
+    void setGlLightParameters (ViewNumber::Enum viewNumber);
     void saveVelocity (ViewNumber::Enum viewNumber,
                        vtkSmartPointer<vtkImageData> velocity) const;
     float timeDisplacementMultiplier (
@@ -624,6 +627,8 @@ private:
     void initList (boost::array<GLuint, ViewNumber::COUNT>* list);
     void initTexture ();
     void initTexture (boost::array<GLuint, ViewNumber::COUNT>* texture);
+    void lightToOpenGl (LightType::Enum lightType);
+    void lightToOpenGl ();
 
     /**
      * Setup lighting for displaying faces edges and vertices
@@ -631,6 +636,9 @@ private:
     static void quadricErrorCallback (GLenum errorCode);
     static void setTexture (
 	boost::shared_ptr<ColorBarModel> colorBarModel, GLuint texture);
+    static G3D::Vector3 getInitialLightPosition (
+	G3D::AABox centeredViewingVolume, LightNumber::Enum lightNumber);
+
 
     
 private:
