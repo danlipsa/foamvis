@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date 4 July 2011
  * @ingroup model
- * @brief Data derived from simulation data.
+ * @brief Data derived from simulation data such as caches and averages.
  */
 #ifndef __DERIVED_DATA_H__
 #define __DERIVED_DATA_H__
@@ -13,7 +13,7 @@ class ObjectPositions;
 
 
 /**
- * @brief Data derived from simulation data.
+ * @brief Data derived from simulation data such as caches and averages.
  */
 struct DerivedData
 {

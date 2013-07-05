@@ -11,6 +11,7 @@
 #include "Enums.h"
 #include "WidgetBase.h"
 
+class DerivedData;
 class Foam;
 class RegularGridAverage;
 class SendPaintEnd;
@@ -37,7 +38,8 @@ public:
      * @name Common for all pipelines
      */
     void Init (boost::shared_ptr<Settings> settings,
-               boost::shared_ptr<const SimulationGroup> simulationGroup);
+               boost::shared_ptr<const SimulationGroup> simulationGroup,
+               boost::shared_ptr<DerivedData>* dd);
     void UpdateFocus ();
     void FromViewTransform (ViewNumber::Enum viewNumber);
     void FromViewTransform ()

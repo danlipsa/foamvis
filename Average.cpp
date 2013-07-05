@@ -100,8 +100,7 @@ G3D::Vector3 Average::GetTranslation (size_t timeStep) const
     G3D::AABox bb = simulation.GetBoundingBox ();
     G3D::Vector3 center = bb.center ();
     const ObjectPosition current = 
-        GetDerivedData ().m_objectPositions->GetAverageAroundPosition (
-            timeStep);
+        GetObjectPositions ()->GetAverageAroundPosition (timeStep);
     G3D::Vector3 t = center - current.m_rotationCenter;
     return t;
 }

@@ -134,9 +134,10 @@ void WidgetVtk::SendPaintEnd ()
 }
 
 void WidgetVtk::Init (boost::shared_ptr<Settings> settings,
-                      boost::shared_ptr<const SimulationGroup> simulationGroup)
+                      boost::shared_ptr<const SimulationGroup> simulationGroup,
+                      boost::shared_ptr<DerivedData>* dd)
 {
-    WidgetBase::Init (settings, simulationGroup, 0);
+    WidgetBase::Init (settings, simulationGroup, dd);
     // interactor style
     VTK_CREATE (FoamvisInteractorStyle, interactorStyle);
     interactorStyle->SetSettings (GetSettingsPtr ());

@@ -1249,8 +1249,8 @@ void WidgetGl::displayAverageAroundBodies (
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
 	    RotateAndTranslateAverageAround (
-                *GetDerivedData (viewNumber).m_objectPositions, 
-                vs.GetTime (), -1, DONT_TRANSLATE);
+                *GetObjectPositions (viewNumber), vs.GetTime (), 
+                -1, DONT_TRANSLATE);
 	}
 	glDisable (GL_DEPTH_TEST);
         displayAverageAroundBodyOne (viewNumber);
@@ -1327,7 +1327,7 @@ void WidgetGl::displayContextBox (
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
 	    RotateAndTranslateAverageAround (
-                *GetDerivedData (viewNumber).m_objectPositions,
+                *GetObjectPositions (viewNumber),
                 vs.GetTime (), -1, DONT_TRANSLATE);
 	}
 	DisplayBox (GetSimulation (viewNumber), 
@@ -2149,7 +2149,7 @@ void WidgetGl::calculateRotationParams (
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
-    const ObjectPositions& op = *GetDerivedData (viewNumber).m_objectPositions;
+    const ObjectPositions& op = *GetObjectPositions (viewNumber);
     if (vs.IsAverageAround ())
     {
         bool isAverageAroundRotationShown = vs.IsAverageAroundRotationShown ();

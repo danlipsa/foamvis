@@ -68,14 +68,7 @@ MainWindow::MainWindow (
     m_playReverse (false)
 {
     SetSimulationGroup (simulationGroup);
-    for (size_t i = 0; i < ViewNumber::COUNT; ++i)
-    {
-        boost::shared_ptr<AverageCacheT1KDEVelocity> ac (
-            new AverageCacheT1KDEVelocity ());
-        boost::shared_ptr<ObjectPositions> op (
-            new ObjectPositions ());
-        m_derivedData[i].reset (new DerivedData (ac, op));
-    }
+    initDerivedData ();
     // for anti-aliased lines
     QGLFormat format = QGLFormat::defaultFormat ();
     format.setSampleBuffers (true);
@@ -104,7 +97,7 @@ MainWindow::MainWindow (
     widgetGl->Init (GetSettingsPtr (), simulationGroup, &m_derivedData[0]);
     widgetGl->SetStatus (labelStatusBar);
 
-    widgetVtk->Init (GetSettingsPtr (), simulationGroup);
+    widgetVtk->Init (GetSettingsPtr (), simulationGroup, &m_derivedData[0]);
     size_t index3DSimulation = simulationGroup->GetIndex3DSimulation ();
     if (index3DSimulation != INVALID_INDEX)
     {
@@ -228,6 +221,17 @@ void MainWindow::configureInterfaceDataDependent (
     initColorMapVelocity ();
 }
 
+void MainWindow::initDerivedData ()
+{
+    for (size_t i = 0; i < ViewNumber::COUNT; ++i)
+    {
+        boost::shared_ptr<AverageCacheT1KDEVelocity> ac (
+            new AverageCacheT1KDEVelocity ());
+        boost::shared_ptr<ObjectPositions> op (
+            new ObjectPositions ());
+        m_derivedData[i].reset (new DerivedData (ac, op));
+    }
+}
 
 void MainWindow::initComboBoxSimulation (const SimulationGroup& simulationGroup)
 {

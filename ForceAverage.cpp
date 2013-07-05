@@ -101,7 +101,7 @@ void ForceAverage::displayForceAllObjects (
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
 	    widgetGl->RotateAndTranslateAverageAround (
-                *GetDerivedData ().m_objectPositions,
+                *GetObjectPositions (),
                 vs.GetTime (), -1, WidgetGl::DONT_TRANSLATE);
 	}
         if (simulation.Is2D ())

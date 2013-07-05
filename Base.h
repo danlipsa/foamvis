@@ -77,13 +77,13 @@ public:
     {
         m_simulationGroup = sg;
     }
-    DerivedData& GetDerivedData (ViewNumber::Enum viewNumber) const
+    /**
+     * @{
+     * @name DerivedData
+     */
+    void SetDerivedData (boost::shared_ptr<DerivedData>* op)
     {
-        return *m_derivedData[viewNumber];
-    }    
-    DerivedData& GetDerivedData () const
-    {
-        return *m_derivedData[GetViewNumber ()];
+        m_derivedData = op;
     }
     boost::shared_ptr<DerivedData>* GetDerivedDataAllPtr () const
     {
@@ -93,10 +93,12 @@ public:
         ViewNumber::Enum viewNumber) const;
     boost::shared_ptr<ObjectPositions> GetObjectPositions (
         ViewNumber::Enum viewNumber) const;
-    void SetDerivedData (boost::shared_ptr<DerivedData>* op)
+    boost::shared_ptr<ObjectPositions> GetObjectPositions () const
     {
-        m_derivedData = op;
+        return GetObjectPositions (GetViewNumber ());
     }
+    //@}
+
     const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
     const Simulation& GetSimulation (size_t index) const;
     const Simulation& GetSimulation () const
