@@ -533,18 +533,6 @@ struct ColorNumber
     };
 };
 
-/**
- * @brief Window size. We can set either the window or the view to be
- *        720x480 pixels. Used for producing movies.
- */
-struct WindowSize
-{
-    enum Enum
-    {
-	WINDOW_720x480,
-	GL_720x480
-    };
-};
 
 /**
  * @brief Body attributes index for attributes present in the DMP file.

@@ -131,8 +131,6 @@ MainWindow::MainWindow (
     configureInterfaceDataDependent (*simulationGroup);    
     ValueChangedSliderTimeSteps (0);
     ButtonClickedViewType (ViewType::FACES);
-    widgetSave->resize (720, 480);
-    widgetSave->updateGeometry ();
 }
 
 void MainWindow::configureInterface ()
@@ -278,12 +276,10 @@ void MainWindow::connectSignals ()
 	     this, SLOT (TimeoutTimer ()));
     
     connect (widgetGl, SIGNAL (PaintEnd ()),
-	     widgetSave, SLOT (SaveFrame ()), 
-	     Qt::QueuedConnection);
+	     widgetSave, SLOT (SaveFrame ()));
 
     connect (widgetVtk, SIGNAL (PaintEnd ()),
-	     widgetSave, SLOT (SaveFrame ()), 
-	     Qt::QueuedConnection);
+	     widgetSave, SLOT (SaveFrame ()));
 
     connect (tableWidgetEvents, SIGNAL (cellClicked (int, int)),
              this, SLOT (CellClickedLinkedTimeEvents (int, int)));
@@ -1325,6 +1321,11 @@ void MainWindow::CellClickedLinkedTimeEvents (int row, int column)
             GetSettings ().GetLinkedTimeEvents (GetViewNumber ())[row]);
 }
 
+void MainWindow::ButtonClicked720x480 (bool)
+{
+    widgetSave->setFixedSize (720, 480);
+}
+
 void MainWindow::ButtonClickedInteractionObject (int index)
 {
     GetSettingsPtr ()->SetInteractionObject (InteractionObject::Enum (index));
@@ -1362,7 +1363,10 @@ void MainWindow::TimeoutTimer ()
     if (m_playForward)
     {
 	if (value < sliderTimeSteps->maximum ())
+        {
 	    sliderTimeSteps->setValue (value + 1);
+            cdbg << "TimeoutTimer: " << (value + 1) << endl;
+        }
 	else
 	    clickedPlay (PLAY_FORWARD);
     }
@@ -1479,6 +1483,7 @@ void MainWindow::ValueChangedT1KDEIsosurfaceValue (double value)
 
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
+    cdbg << "ValueChangedSliderTimeSteps: " << timeStep << endl;
     vector<ViewNumber::Enum> vn = GetSettings ().GetLinkedTimeViewNumbers ();
     boost::array<int, ViewNumber::COUNT> direction;
 

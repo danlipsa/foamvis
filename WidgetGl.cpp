@@ -434,17 +434,6 @@ void WidgetGl::Init (
     update ();
 }
 
-QSize WidgetGl::minimumSizeHint()
-{
-    return QSize(50, 50);
-}
-
-QSize WidgetGl::sizeHint()
-{
-    return QSize(512, 512);
-}
-
-
 void WidgetGl::displayLightDirection (ViewNumber::Enum viewNumber) const
 {
     for (size_t i = 0; i < LightNumber::COUNT; ++i)

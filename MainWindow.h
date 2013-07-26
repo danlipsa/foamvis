@@ -89,6 +89,7 @@ public Q_SLOTS:
      */
     void ButtonClickedPlay ();
     void ButtonClickedPlayReverse ();
+    void ButtonClicked720x480 (bool);
 
 
     void CellClickedLinkedTimeEvents (int row, int column);

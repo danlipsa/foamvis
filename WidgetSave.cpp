@@ -44,19 +44,16 @@ void WidgetSave::ToggledSaveMovie (bool checked)
 {
     m_saveMovie = checked;
     if (checked)
-    {
 	m_currentFrame = 0;
-    }
-    SaveFrame ();
     update ();
 }
 
 QSize WidgetSave::sizeHint () const
 {
-    return QSize (360, 240);
+    return QSize (720, 480);
 }
 
 QSize WidgetSave::minimumSizeHint () const
 {
-    return sizeHint ();
+    return QSize (360, 240);
 }

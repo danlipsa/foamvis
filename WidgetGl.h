@@ -62,14 +62,6 @@ public:
      * Destructor
      */
     ~WidgetGl();
-    /**
-     * Gets the minimum size of the WidgetGl
-     */
-    QSize minimumSizeHint() ;
-    /**
-     * Gets the prefered size
-     */
-    QSize sizeHint() ;
     void Init (boost::shared_ptr<Settings> settings,
 	       boost::shared_ptr<const SimulationGroup> simulationGroup, 
                boost::shared_ptr<DerivedData>* dd);
