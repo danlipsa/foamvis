@@ -3395,7 +3395,11 @@ void WidgetGl::setTorusDomainClipPlanes (ViewNumber::Enum viewNumber)
     if (simulation.IsTorus ())
     {
         OOBox domain = GetFoam ().GetTorusDomain ();
-        G3D::Vector3 x = domain.GetX (), y = domain.GetY (), z = domain.GetZ ();
+        G3D::Vector3
+            x = domain.GetX (), 
+            y = domain.GetY (), 
+            z = domain.GetZ ();
+        cdbg << x << ", " << y << ", " << z << endl;
         G3D::Vector3 zero = G3D::Vector3::zero ();
         boost::array<boost::array<G3D::Vector3, 3>, PLANE_COUNT> plane = {{
                 {{zero, y, z}},         // left
