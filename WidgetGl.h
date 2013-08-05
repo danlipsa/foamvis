@@ -395,6 +395,7 @@ private:
                              RotateForAxisOrder rotateForAxisOrder) const;
     void setTorusDomainClipPlanes (ViewNumber::Enum viewNumber);
     void enableTorusDomainClipPlanes (ViewNumber::Enum viewNumber);
+    void displayClipPlane (ViewNumber::Enum viewNumber) const;
     void setSimulation (int i, ViewNumber::Enum viewNumber);
     void initTransformViewport ();
     void cleanupTransformViewport ();

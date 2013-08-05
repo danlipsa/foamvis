@@ -940,6 +940,22 @@ public:
         m_torusDomainShown = shown;
     }
     void SetDimension (Dimension::Enum dimension);
+    void SetClipPlaneShown (bool shown)
+    {
+        m_clipPlaneShown = shown;
+    }
+    bool IsClipPlaneShown () const
+    {
+        return m_clipPlaneShown;
+    }
+    void SetClipPlaneNormal (const G3D::Vector3& normal)
+    {
+        m_clipPlaneNormal = normal;
+    }
+    const G3D::Vector3& GetClipPlaneNormal () const
+    {
+        return m_clipPlaneNormal;
+    }
     /// @}
 
     /**
@@ -1121,6 +1137,11 @@ private:
     bool m_centerPathTubeUsed;
     bool m_centerPathLineUsed;
     EdgeVis::Enum m_edgeVis;
+    bool m_clipPlaneShown;
+    /**
+     * the clip plane contains the center of simulation box
+     */
+    G3D::Vector3 m_clipPlaneNormal;
 };
 
 

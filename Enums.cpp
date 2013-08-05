@@ -116,9 +116,14 @@ const char* BodyScalar::ToString (BodyScalar::Enum property)
     return NAME[property];
 }
 
+bool BodyScalar::IsValid (size_t i)
+{
+    return i < COUNT;
+}
+
 BodyScalar::Enum BodyScalar::FromSizeT (size_t i)
 {
-    RuntimeAssert (i < COUNT, "Value outside of BodyScalar::Enum: ", i);
+    RuntimeAssert (IsValid (i), "Value outside of BodyScalar::Enum: ", i);
     return BodyScalar::Enum (i);
 }
 

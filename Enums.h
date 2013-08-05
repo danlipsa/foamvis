@@ -118,6 +118,7 @@ public:
 public:
     static const char* ToString (BodyScalar::Enum property);
     static Enum FromSizeT (size_t i);
+    static bool IsValid (size_t i);
 
 private:
     static boost::array<const char*, COUNT> NAME;

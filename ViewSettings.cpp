@@ -121,7 +121,9 @@ ViewSettings::ViewSettings () :
     m_arrowHeadHeight (0),
     m_centerPathTubeUsed (true),
     m_centerPathLineUsed (false),
-    m_edgeVis (EdgeVis::EDGE_NORMAL)
+    m_edgeVis (EdgeVis::EDGE_NORMAL),
+    m_clipPlaneShown (false),
+    m_clipPlaneNormal (0, 0, -1)
 {
     setInitialLightParameters ();
     for (size_t i = 0; i < m_averageAroundBodyId.size (); ++i)

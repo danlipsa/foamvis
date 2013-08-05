@@ -696,6 +696,7 @@ void WidgetGl::initializeGL()
     try {
 	initializeGLFunctions ();
 	glClearColor (Qt::white);
+        glCullFace (GL_BACK);
 	glEnable(GL_DEPTH_TEST);
 	glEnable (GL_MULTISAMPLE);
         glEnable (GL_LINE_SMOOTH);
@@ -868,6 +869,7 @@ void WidgetGl::displayView (ViewNumber::Enum viewNumber)
     setGlLightParameters (viewNumber);
     allTransform (viewNumber);
     setTorusDomainClipPlanes (viewNumber);
+    displayClipPlane (viewNumber);
     displayAllViewTransforms (viewNumber);
     displayViewDecorations (viewNumber);
     displayAxes (viewNumber);
@@ -1526,7 +1528,6 @@ void WidgetGl::mouseMoveScale (QMouseEvent *event, ViewNumber::Enum viewNumber)
 	break;
     }
 }
-
 
 void WidgetGl::displayTorusDomain (ViewNumber::Enum viewNumber) const
 {
@@ -3371,6 +3372,22 @@ void WidgetGl::setTexture (
 		      0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
     }
 }
+
+void WidgetGl::displayClipPlane (ViewNumber::Enum viewNumber) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
+    double eq[4];
+    G3D::Plane pl (vs.GetClipPlaneNormal (), 
+                   simulation.GetBoundingBox ().center ());
+    pl.getEquation (*eq, *(eq + 1), *(eq + 2), *(eq + 3));
+    glClipPlane (GL_CLIP_PLANE0, eq);
+    if (vs.IsClipPlaneShown ())
+        glEnable (GL_CLIP_PLANE0);
+    else
+        glDisable (GL_CLIP_PLANE0);
+}
+
 
 void WidgetGl::setTorusDomainClipPlanes (ViewNumber::Enum viewNumber)
 {

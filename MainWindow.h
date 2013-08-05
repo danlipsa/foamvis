@@ -141,6 +141,7 @@ public Q_SLOTS:
     void ToggledHistogramAllTimeSteps (bool checked);
     void ToggledVelocitySameSize (bool checked);
     void ToggledTwoHalvesView (bool checked);
+    void ToggledClipPlaneShown (bool shown);
 
     void SelectionChangedFromHistogram (int viewNumber);
     void SelectionChangedFromSettings (ViewNumber::Enum viewNumber);

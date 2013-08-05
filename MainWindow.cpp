@@ -173,7 +173,7 @@ void MainWindow::configureInterfaceDataDependent (
     if (! simulation.IsTorus ())
     {
 	checkBoxTorusDomainShown->setDisabled (true);
-	checkBoxDomainClipped->setDisabled (true);
+	checkBoxClipTorus->setDisabled (true);
         checkBoxDomainTop->setDisabled (true);
         checkBoxDomainBottom->setDisabled (true);
         checkBoxDomainLeft->setDisabled (true);
@@ -1499,7 +1499,8 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
         ViewSettings& vs = GetViewSettings (viewNumber);
         const Simulation& simulation = GetSimulation (viewNumber);
         ViewType::Enum viewType = vs.GetViewType ();
-        if (viewType != ViewType::T1_KDE)
+        size_t property = vs.GetBodyOrOtherScalar ();
+        if (BodyScalar::IsValid (property))
         {
             widgetHistogram->UpdateColorMap (
                 viewNumber, getColorMapScalar (viewNumber));
@@ -1714,8 +1715,8 @@ void MainWindow::currentIndexChangedOtherScalar (
 {
     int value = static_cast<QComboBox*> (sender ())->currentIndex ();
     const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
-    boost::array<QWidget*, 3> a = {{
-            radioButtonAverage, radioButtonBubblePaths, radioButtonT1sKDE}};
+    boost::array<QWidget*, 2> a = {{
+            radioButtonAverage, radioButtonBubblePaths}};
     vector<QWidget*> widgetsEnabled = getHistogramWidgets ();
     BOOST_FOREACH (QWidget* widget, a)
         widgetsEnabled.push_back (widget);
@@ -1784,6 +1785,10 @@ void MainWindow::ToggledBubblePathsLineUsed (bool checked)
     checkBoxBubblePathsTubeUsed->setEnabled (! checked);        
 }
 
+void MainWindow::ToggledClipPlaneShown (bool shown)
+{
+    GetViewSettings ().SetClipPlaneShown (shown);
+}
 
 void MainWindow::ToggledTwoHalvesView (bool twoHalvesView)
 {
@@ -2264,7 +2269,7 @@ void MainWindow::timeViewToUI (ViewNumber::Enum viewNumber)
 void MainWindow::settingsViewToUI (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    SetCheckedNoSignals (checkBoxDomainClipped, vs.DomainClipped ());
+    SetCheckedNoSignals (checkBoxClipTorus, vs.DomainClipped ());
     SetCheckedNoSignals (checkBoxAxes, vs.AxesShown ());
     SetCheckedNoSignals (
         checkBoxBoundingBoxSimulation, vs.IsBoundingBoxSimulationShown ());
@@ -2325,7 +2330,9 @@ void MainWindow::ViewToUI (ViewNumber::Enum prevViewNumber)
     SetCheckedNoSignals (buttonGroupViewType, viewType, true);    
     setStackedWidgetVisualization (viewType);
 
-    SetCurrentIndexNoSignals (comboBoxScalar, property);
+    SetCurrentIndexNoSignals (
+        comboBoxScalar, 
+        property == OtherScalar::DMP_COLOR ? BodyScalar::COUNT : property);
     SetCurrentIndexNoSignals (comboBoxSimulation, simulationIndex);
     SetCurrentIndexNoSignals (comboBoxStatisticsType, vs.GetStatisticsType ());
 

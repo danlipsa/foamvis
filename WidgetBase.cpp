@@ -156,13 +156,13 @@ void WidgetBase::contextMenuEvent (QContextMenuEvent *event)
     QMenu menu (m_widget);
     ViewNumber::Enum viewNumber = GetViewNumber ();
     const ViewSettings& vs = GetViewSettings (viewNumber);
+    size_t property = vs.GetBodyOrOtherScalar ();
     QPoint contextMenuPosWindow = event->pos ();
-    G3D::Rect2D scalarBarRect = 
+    if (vs.IsScalarShown () && property != OtherScalar::DMP_COLOR && 
+        ! vs.IsScalarContext () && 
         GetSettings ().GetColorMapScalarRectWithLabels (
-            viewNumber, GetViewRect ());
-    if (vs.IsScalarShown () && ! vs.IsScalarContext () && 
-        scalarBarRect.contains (
-            QtToOpenGl (contextMenuPosWindow, m_widget->height ())))
+            viewNumber, GetViewRect ()).contains (
+                QtToOpenGl (contextMenuPosWindow, m_widget->height ())))
 	contextMenuEventColorMapScalar (&menu);
     else if (vs.IsVelocityShown () &&
              GetSettings ().GetColorMapVelocityRectWithLabels (
