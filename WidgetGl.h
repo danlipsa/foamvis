@@ -393,8 +393,8 @@ private:
     void modelViewTransform (ViewNumber::Enum viewNumber, 
 			     size_t timeStep,
                              RotateForAxisOrder rotateForAxisOrder) const;
-    void setTorusDomainClipPlanes (ViewNumber::Enum viewNumber);
-    void enableTorusDomainClipPlanes (ViewNumber::Enum viewNumber);
+    void setTorusClipPlanes (ViewNumber::Enum viewNumber);
+    void enableTorusClipPlanes (ViewNumber::Enum viewNumber);
     void displayClipPlane (ViewNumber::Enum viewNumber) const;
     void setSimulation (int i, ViewNumber::Enum viewNumber);
     void initTransformViewport ();

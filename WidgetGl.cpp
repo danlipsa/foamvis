@@ -779,7 +779,7 @@ void WidgetGl::displayAllViewTransforms (ViewNumber::Enum viewNumber)
         }};
 
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    enableTorusDomainClipPlanes (viewNumber);    
+    enableTorusClipPlanes (viewNumber);    
     (this->*(m_display[vs.GetViewType ()])) (viewNumber);
     for (size_t i = 0; i < m_duplicateDomain.size (); ++i)
     {
@@ -791,7 +791,7 @@ void WidgetGl::displayAllViewTransforms (ViewNumber::Enum viewNumber)
             glPopMatrix ();
         }
     }
-    enableTorusDomainClipPlanes (viewNumber);
+    enableTorusClipPlanes (viewNumber);
 }
 
 void WidgetGl::setGlLightParameters (ViewNumber::Enum viewNumber)    
@@ -868,7 +868,7 @@ void WidgetGl::displayView (ViewNumber::Enum viewNumber)
     //QTime t;t.start ();
     setGlLightParameters (viewNumber);
     allTransform (viewNumber);
-    setTorusDomainClipPlanes (viewNumber);
+    setTorusClipPlanes (viewNumber);
     displayClipPlane (viewNumber);
     displayAllViewTransforms (viewNumber);
     displayViewDecorations (viewNumber);
@@ -3389,8 +3389,9 @@ void WidgetGl::displayClipPlane (ViewNumber::Enum viewNumber) const
 }
 
 
-void WidgetGl::setTorusDomainClipPlanes (ViewNumber::Enum viewNumber)
+void WidgetGl::setTorusClipPlanes (ViewNumber::Enum viewNumber)
 {
+    cdbg << G3D::getOpenGLState (false) << endl;
     const Simulation& simulation = GetSimulation (viewNumber);
     if (simulation.IsTorus ())
     {
@@ -3413,14 +3414,14 @@ void WidgetGl::setTorusDomainClipPlanes (ViewNumber::Enum viewNumber)
         for (size_t i = 0; i < pc; ++i)
         {
             GLdouble eq[4];
-            G3D::Plane (plane[i][0], plane[i][1], plane[i][2]).getEquation (
-                eq[0], eq[1], eq[2], eq[3]);
+            G3D::Plane p(plane[i][0], plane[i][1], plane[i][2]);
+            p.getEquation (eq[0], eq[1], eq[2], eq[3]);
             glClipPlane (CLIP_PLANE_NUMBER[i], eq);
         }
     }
 }
 
-void WidgetGl::enableTorusDomainClipPlanes (ViewNumber::Enum viewNumber)
+void WidgetGl::enableTorusClipPlanes (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);

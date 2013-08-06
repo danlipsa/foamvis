@@ -1782,7 +1782,7 @@ void MainWindow::CurrentIndexChangedStatisticsType (int value)
 
 void MainWindow::ToggledBubblePathsLineUsed (bool checked)
 {
-    checkBoxBubblePathsTubeUsed->setEnabled (! checked);        
+    checkBoxBubblePathsTubeUsed->setEnabled (! checked);
 }
 
 void MainWindow::ToggledClipPlaneShown (bool shown)

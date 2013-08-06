@@ -181,7 +181,7 @@ LIBS += -L/usr/local/Trolltech/Qt-4.7.0/lib
 
 # G3D
 LIBS += "-lGLG3D"
-LIBS += "-lG3D"
+LIBS += "-lG3Dd"
 
 LIBS += "-lzip"
 LIBS += "-lSDL"
