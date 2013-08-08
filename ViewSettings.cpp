@@ -94,7 +94,7 @@ ViewSettings::ViewSettings () :
     m_torqueDistance (1),
     m_histogramShown (false),
     m_histogramOptions (HistogramType::UNICOLOR_TIME_STEP),
-    m_domainClipped (false),
+    m_torusDomainClipped (false),
     m_streamlineLength (STREAMLINE_LENGTH),
     m_streamlineStepLength (STREAMLINE_STEP_LENGTH),
     m_timeDisplacement (0.0),
@@ -122,8 +122,8 @@ ViewSettings::ViewSettings () :
     m_centerPathTubeUsed (true),
     m_centerPathLineUsed (false),
     m_edgeVis (EdgeVis::EDGE_NORMAL),
-    m_clipPlaneShown (false),
-    m_clipPlaneNormal (0, 0, -1)
+    m_dataClipped (false),
+    m_clipPlaneNormal (1, 0, 0)
 {
     setInitialLightParameters ();
     for (size_t i = 0; i < m_averageAroundBodyId.size (); ++i)

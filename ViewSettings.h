@@ -907,13 +907,21 @@ public:
     void SetSimulation (int i, const Simulation& simulation,
 			G3D::Vector3 viewingVolumeCenter);
     string GetTitle (ViewNumber::Enum viewNumber) const;
-    bool DomainClipped () const
+    bool IsTorusDomainClipped () const
     {
-        return m_domainClipped;
+        return m_torusDomainClipped;
     }
-    void SetDomainClipped (bool clipped)
+    void SetTorusDomainClipped (bool clipped)
     {
-        m_domainClipped = clipped;
+        m_torusDomainClipped = clipped;
+    }
+    void SetDataClipped (bool clipped)
+    {
+        m_dataClipped = clipped;
+    }
+    bool IsDataClipped () const
+    {
+        return m_dataClipped;
     }
     bool AxesShown () const
     {
@@ -940,14 +948,6 @@ public:
         m_torusDomainShown = shown;
     }
     void SetDimension (Dimension::Enum dimension);
-    void SetClipPlaneShown (bool shown)
-    {
-        m_clipPlaneShown = shown;
-    }
-    bool IsClipPlaneShown () const
-    {
-        return m_clipPlaneShown;
-    }
     void SetClipPlaneNormal (const G3D::Vector3& normal)
     {
         m_clipPlaneNormal = normal;
@@ -1109,7 +1109,7 @@ private:
     G3D::Vector2 m_scaleCenter;
     bool m_histogramShown;
     HistogramType::Options m_histogramOptions;
-    bool m_domainClipped;
+    bool m_torusDomainClipped;
     double m_streamlineLength;
     double m_streamlineStepLength;
     float m_timeDisplacement;
@@ -1137,7 +1137,7 @@ private:
     bool m_centerPathTubeUsed;
     bool m_centerPathLineUsed;
     EdgeVis::Enum m_edgeVis;
-    bool m_clipPlaneShown;
+    bool m_dataClipped;
     /**
      * the clip plane contains the center of simulation box
      */

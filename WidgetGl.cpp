@@ -779,7 +779,6 @@ void WidgetGl::displayAllViewTransforms (ViewNumber::Enum viewNumber)
         }};
 
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    enableTorusClipPlanes (viewNumber);    
     (this->*(m_display[vs.GetViewType ()])) (viewNumber);
     for (size_t i = 0; i < m_duplicateDomain.size (); ++i)
     {
@@ -791,7 +790,6 @@ void WidgetGl::displayAllViewTransforms (ViewNumber::Enum viewNumber)
             glPopMatrix ();
         }
     }
-    enableTorusClipPlanes (viewNumber);
 }
 
 void WidgetGl::setGlLightParameters (ViewNumber::Enum viewNumber)    
@@ -866,10 +864,13 @@ void WidgetGl::setGlLightParameters (
 void WidgetGl::displayView (ViewNumber::Enum viewNumber)
 {
     //QTime t;t.start ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
     setGlLightParameters (viewNumber);
     allTransform (viewNumber);
     setTorusClipPlanes (viewNumber);
-    displayClipPlane (viewNumber);
+    enableTorusClipPlanes (viewNumber, vs.IsTorusDomainClipped ());
+    setDataClipPlane (viewNumber);
+    enableDataClipPlane (vs.IsDataClipped ());
     displayAllViewTransforms (viewNumber);
     displayViewDecorations (viewNumber);
     displayAxes (viewNumber);
@@ -3298,7 +3299,8 @@ void WidgetGl::displayVelocityStreamline (
 
 
 
-void WidgetGl::displayVelocityStreamlineSeeds (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayVelocityStreamlineSeeds (
+    ViewNumber::Enum viewNumber) const
 {
     //__ENABLE_LOGGING__;
     glColor (Qt::black);
@@ -3373,21 +3375,29 @@ void WidgetGl::setTexture (
     }
 }
 
-void WidgetGl::displayClipPlane (ViewNumber::Enum viewNumber) const
+void WidgetGl::setDataClipPlane (ViewNumber::Enum viewNumber) const
 {
-    const ViewSettings& vs = GetViewSettings (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
+    G3D::AABox box = simulation.GetBoundingBox ();
+    G3D::Vector3 low = box.low (), high = box.high ();
+    G3D::Vector3 x ((high - low).x, 0, 0), y (0, (high - low).y, 0), 
+        z (0, 0, (high - low).z);
+    G3D::Vector3 halfX = x / 2;
     double eq[4];
-    G3D::Plane pl (vs.GetClipPlaneNormal (), 
-                   simulation.GetBoundingBox ().center ());
-    pl.getEquation (*eq, *(eq + 1), *(eq + 2), *(eq + 3));
+    G3D::Plane p (halfX, halfX + z, halfX + y);
+    vs.SetClipPlaneNormal (p.normal ());
+    p.getEquation (*eq, *(eq + 1), *(eq + 2), *(eq + 3));
     glClipPlane (GL_CLIP_PLANE0, eq);
-    if (vs.IsClipPlaneShown ())
+}
+
+void WidgetGl::enableDataClipPlane (bool enable) const
+{
+    if (enable)
         glEnable (GL_CLIP_PLANE0);
     else
         glDisable (GL_CLIP_PLANE0);
 }
-
 
 void WidgetGl::setTorusClipPlanes (ViewNumber::Enum viewNumber)
 {
@@ -3403,29 +3413,28 @@ void WidgetGl::setTorusClipPlanes (ViewNumber::Enum viewNumber)
         cdbg << x << ", " << y << ", " << z << endl;
         G3D::Vector3 zero = G3D::Vector3::zero ();
         boost::array<boost::array<G3D::Vector3, 3>, PLANE_COUNT> plane = {{
-                {{zero, y, z}},         // left
-                {{x, z + x, y + x}},    // right 
-                {{y, x + y, z + y}},    // top               
-                {{zero, z, x}},         // bottom
-                {{z, y + z, x + z}},    // near
-                {{zero, x, y}}          // far
+                {{zero, y, z}},         // x-low
+                {{x, x + z, x + y}},    // x-high 
+                {{y, y + x, y + z}},    // y-high               
+                {{zero, z, x}},         // y-low
+                {{z, z + y, z + x}},    // z-high
+                {{zero, x, y}}          // z-low
             }};
         size_t pc = simulation.Is2D () ? PLANE_COUNT_2D : PLANE_COUNT;
         for (size_t i = 0; i < pc; ++i)
         {
             GLdouble eq[4];
             G3D::Plane p(plane[i][0], plane[i][1], plane[i][2]);
+            cdbg << p << endl;
             p.getEquation (eq[0], eq[1], eq[2], eq[3]);
             glClipPlane (CLIP_PLANE_NUMBER[i], eq);
         }
     }
 }
 
-void WidgetGl::enableTorusClipPlanes (ViewNumber::Enum viewNumber)
+void WidgetGl::enableTorusClipPlanes (ViewNumber::Enum viewNumber, bool enable)
 {
-    const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
-    bool enable = vs.DomainClipped ();
     size_t pc = simulation.Is2D () ? PLANE_COUNT_2D : PLANE_COUNT;
     for (size_t i = 0; i < pc; ++i)
     {
@@ -4331,12 +4340,22 @@ void WidgetGl::ToggledBubblePathsLineUsed (bool checked)
 }
 
 
-void WidgetGl::ToggledTorusDomainClipped (bool checked)
+void WidgetGl::ToggledTorusDomainClipped (bool clipped)
 {
-    makeCurrent ();
-    GetSettingsPtr ()->GetViewSettings ().SetDomainClipped (checked);
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    vs.SetTorusDomainClipped (clipped);
     update ();
 }
+
+void WidgetGl::ToggledDataClipped (bool clipped)
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    vs.SetDataClipped (clipped);
+    update ();
+}
+
 
 void WidgetGl::ToggledT1sShiftLower (bool checked)
 {

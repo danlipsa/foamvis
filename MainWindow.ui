@@ -2610,8 +2610,6 @@
     <slot>ToggledEdgesTessellationShown(bool)</slot>
     <slot>ToggledEdgesTorusTubes(bool)</slot>
     <slot>ToggledFacesTorusTubes(bool)</slot>
-    <slot>ToggledTorusOriginalDomainDisplay(bool)</slot>
-    <slot>ToggledTorusOriginalDomainClipped(bool)</slot>
     <slot>ToggledBoundingBox(bool)</slot>
     <slot>ValueChangedAngleOfView(int)</slot>
     <slot>ToggledShowBoundingBox(bool)</slot>
@@ -2742,7 +2740,7 @@
     <slot>ToggledBoundingBoxSimulation(bool)</slot>
     <slot>ToggledBoundingBoxBody(bool)</slot>
     <slot>ToggledBoundingBoxFoam(bool)</slot>
-    <slot>ToggledDomainClipped(bool)</slot>
+    <slot>ToggledTorusClipped(bool)</slot>
     <slot>ToggledTorusDomainClipped(bool)</slot>
     <slot>ToggledTorusDomainTop(bool)</slot>
     <slot>ToggledTorusDomainBotton(bool)</slot>
@@ -2777,6 +2775,7 @@
     <slot>ToggledSeedShown(bool)</slot>
     <slot>ToggledKDESeed(bool)</slot>
     <slot>CurrentIndexChangedOtherScalar(int)</slot>
+    <slot>ToggledDataClipped(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -4340,6 +4339,22 @@
    </hints>
   </connection>
   <connection>
+   <sender>checkBoxClipPlane</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledDataClipped(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>766</x>
+     <y>503</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>682</x>
+     <y>667</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>doubleSpinBoxKernelSigma</sender>
    <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
@@ -4547,22 +4562,6 @@
     </hint>
    </hints>
   </connection>
-  <connection>
-   <sender>checkBoxClipPlane</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledClipPlaneShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>766</x>
-     <y>503</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>682</x>
-     <y>667</y>
-    </hint>
-   </hints>
-  </connection>
  </connections>
  <slots>
   <slot>ToggledColorBarShown(bool)</slot>
@@ -4618,7 +4617,6 @@
   <slot>ValueChangedTorqueDistanceRatio(double)</slot>
   <slot>ValueChangedT1KDEIsosurfaceAlpha(int)</slot>
   <slot>ButtonClicked720x480(bool)</slot>
-  <slot>ToggledClipPlaneShown(bool)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupEdgeVis"/>

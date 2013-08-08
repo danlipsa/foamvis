@@ -1785,11 +1785,6 @@ void MainWindow::ToggledBubblePathsLineUsed (bool checked)
     checkBoxBubblePathsTubeUsed->setEnabled (! checked);
 }
 
-void MainWindow::ToggledClipPlaneShown (bool shown)
-{
-    GetViewSettings ().SetClipPlaneShown (shown);
-}
-
 void MainWindow::ToggledTwoHalvesView (bool twoHalvesView)
 {
     if (twoHalvesView &&
@@ -2269,7 +2264,7 @@ void MainWindow::timeViewToUI (ViewNumber::Enum viewNumber)
 void MainWindow::settingsViewToUI (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    SetCheckedNoSignals (checkBoxClipTorus, vs.DomainClipped ());
+    SetCheckedNoSignals (checkBoxClipTorus, vs.IsTorusDomainClipped ());
     SetCheckedNoSignals (checkBoxAxes, vs.AxesShown ());
     SetCheckedNoSignals (
         checkBoxBoundingBoxSimulation, vs.IsBoundingBoxSimulationShown ());

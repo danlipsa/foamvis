@@ -221,6 +221,7 @@ public Q_SLOTS:
     void ToggledSelectionContextShown (bool checked);
     void ToggledPartialPathHidden (bool checked);
     void ToggledTorusDomainClipped (bool checked);
+    void ToggledDataClipped (bool shown);
     void ToggledT1sShiftLower (bool checked);
     void ToggledMissingPressureShown (bool checked);
     void ToggledMissingVolumeShown (bool checked);
@@ -394,7 +395,9 @@ private:
 			     size_t timeStep,
                              RotateForAxisOrder rotateForAxisOrder) const;
     void setTorusClipPlanes (ViewNumber::Enum viewNumber);
-    void enableTorusClipPlanes (ViewNumber::Enum viewNumber);
+    void enableTorusClipPlanes (ViewNumber::Enum viewNumber, bool enable);
+    void setDataClipPlane (ViewNumber::Enum viewNumber) const;
+    void enableDataClipPlane (bool enable) const;
     void displayClipPlane (ViewNumber::Enum viewNumber) const;
     void setSimulation (int i, ViewNumber::Enum viewNumber);
     void initTransformViewport ();
