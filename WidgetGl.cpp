@@ -867,11 +867,11 @@ void WidgetGl::displayView (ViewNumber::Enum viewNumber)
     ViewSettings& vs = GetViewSettings (viewNumber);
     setGlLightParameters (viewNumber);
     allTransform (viewNumber);
-    setTorusClipPlanes (viewNumber);
-    enableTorusClipPlanes (viewNumber, vs.IsTorusDomainClipped ());
-    setDataClipPlane (viewNumber);
-    enableDataClipPlane (vs.IsDataClipped ());
+    displayTorusClipPlanes (viewNumber, vs.IsTorusDomainClipped ());
+    displayDataClipPlane (viewNumber, vs.IsDataClipped ());
     displayAllViewTransforms (viewNumber);
+    enableTorusClipPlanes (viewNumber, false);
+    enableDataClipPlane (false);
     displayViewDecorations (viewNumber);
     displayAxes (viewNumber);
     displayBoundingBox (viewNumber);
@@ -3399,7 +3399,15 @@ void WidgetGl::enableDataClipPlane (bool enable) const
         glDisable (GL_CLIP_PLANE0);
 }
 
-void WidgetGl::setTorusClipPlanes (ViewNumber::Enum viewNumber)
+void WidgetGl::displayDataClipPlane (ViewNumber::Enum viewNumber, 
+                                     bool enable) const
+{
+    if (enable)
+        setDataClipPlane (viewNumber);
+    enableDataClipPlane (enable);
+}
+
+void WidgetGl::setTorusClipPlanes (ViewNumber::Enum viewNumber) const
 {
     cdbg << G3D::getOpenGLState (false) << endl;
     const Simulation& simulation = GetSimulation (viewNumber);
@@ -3432,7 +3440,8 @@ void WidgetGl::setTorusClipPlanes (ViewNumber::Enum viewNumber)
     }
 }
 
-void WidgetGl::enableTorusClipPlanes (ViewNumber::Enum viewNumber, bool enable)
+void WidgetGl::enableTorusClipPlanes (ViewNumber::Enum viewNumber, 
+                                      bool enable) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
     size_t pc = simulation.Is2D () ? PLANE_COUNT_2D : PLANE_COUNT;
@@ -3441,6 +3450,14 @@ void WidgetGl::enableTorusClipPlanes (ViewNumber::Enum viewNumber, bool enable)
         enable ? glEnable (CLIP_PLANE_NUMBER[i]) : 
             glDisable (CLIP_PLANE_NUMBER[i]);
     } 
+}
+
+void WidgetGl::displayTorusClipPlanes (
+    ViewNumber::Enum viewNumber, bool enable) const
+{
+    if (enable)
+        setTorusClipPlanes (viewNumber);
+    enableTorusClipPlanes (viewNumber, enable);
 }
 
 

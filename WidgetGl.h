@@ -394,8 +394,11 @@ private:
     void modelViewTransform (ViewNumber::Enum viewNumber, 
 			     size_t timeStep,
                              RotateForAxisOrder rotateForAxisOrder) const;
-    void setTorusClipPlanes (ViewNumber::Enum viewNumber);
-    void enableTorusClipPlanes (ViewNumber::Enum viewNumber, bool enable);
+    void displayTorusClipPlanes (ViewNumber::Enum viewNumber, 
+                                 bool enable) const;
+    void setTorusClipPlanes (ViewNumber::Enum viewNumber) const;
+    void enableTorusClipPlanes (ViewNumber::Enum viewNumber, bool enable) const;
+    void displayDataClipPlane (ViewNumber::Enum viewNumber, bool enable) const;
     void setDataClipPlane (ViewNumber::Enum viewNumber) const;
     void enableDataClipPlane (bool enable) const;
     void displayClipPlane (ViewNumber::Enum viewNumber) const;
