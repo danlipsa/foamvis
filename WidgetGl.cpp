@@ -669,7 +669,7 @@ string WidgetGl::infoSelectedBodies ()
     {
 	Foam::Bodies::const_iterator it = 
 	    GetSimulation ().GetFoam (0).FindBody (ids[0]);
-	ostr << *it;
+	ostr << ids[0] << endl;
     }
     else
     {
@@ -4420,18 +4420,19 @@ void WidgetGl::ButtonClickedViewType (ViewType::Enum oldViewType)
 	    {
 		ViewSettings& vs = GetViewSettings (viewNumber);
 		ViewType::Enum newViewType = vs.GetViewType ();
-		if ((newViewType != ViewType::AVERAGE &&
-                     newViewType != ViewType::T1_KDE) ||
-                    oldViewType == newViewType)
-		    continue;
-		GetAttributeAverages2D (viewNumber).AverageRelease ();
-                averageInitStep (viewNumber);
+                if (oldViewType == newViewType)
+                    continue;
+		if (newViewType == ViewType::AVERAGE ||
+                    newViewType == ViewType::T1_KDE)
+                {
+                    GetAttributeAverages2D (viewNumber).AverageRelease ();
+                    averageInitStep (viewNumber);
+                }
 		CompileUpdate (viewNumber);
 	    }
 	}
     	setVisible (true);
     }
-    update ();
 }
 
 void WidgetGl::ButtonClickedDuplicateDomain (int index)
