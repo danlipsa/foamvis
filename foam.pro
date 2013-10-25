@@ -1,72 +1,72 @@
 HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
-	Attribute.h AttributeAverages.h AttributeCreator.h AttributeInfo.h \
-	AttributeAverages2D.h AttributeAverages3D.h \
-	AttributeHistogram.h Average.h AverageInterface.h\
-	AverageShaders.h AverageCacheT1KDEVelocity.h PipelineAverage3D.h \
-	Base.h Body.h BrowseSimulations.h\
-	BodyAlongTime.h AdjacentBody.h BodySelector.h \
-	ConstraintEdge.h ColorBarModel.h Comparisons.h\
-	Debug.h DerivedData.h \
-	Disk.h ImageBasedAverage.h ForceAverage.h\
-	DisplayBodyFunctors.h DisplayElement.h\
-	DisplayFaceFunctors.h \
-	DisplayEdgeFunctors.h DisplayElement.h WidgetSave.h\
-	EditColorMap.h Edge.h Element.h ExpressionTree.h \
-	Enums.h Foam.h FoamvisInteractorStyle.h \
-	DataProperties.h Face.h ForceOneObject.h\
-	WidgetBase.h WidgetGl.h WidgetHistogram.h WidgetVtk.h \
-	Hashes.h Histogram.h HistogramItem.h HistogramSettings.h\
-	HistogramStatistics.h Labels.h ListViewSignal.h\
-	LineEditFocus.h MainWindow.h NameSemanticValue.h \
-	OOBox.h Info.h ObjectPosition.h OpenGLUtils.h OrientedElement.h\
-	OrientedEdge.h OrientedFace.h Options.h \
-	ParsingData.h ParsingDriver.h \
-	Settings.h SelectBodiesById.h ScalarAverage.h ShaderProgram.h\
-	ParsingEnums.h PipelineBase.h \
-	ProcessBodyTorus.h PropertySetter.h \
-	QuadraticEdge.h RegularGridAverage.h\
-	RestrictedRangeSlider.h Simulation.h\
-	stable.h StripIterator.h SystemDifferences.h ScalarDisplay.h \
-	T1KDE2D.h T1.h TensorAverage.h TransferFunctionHistogram.h \
-	TimeStepsSlider.h Utils.h VectorAverage.h \
-	Vertex.h  VectorOperation.h ViewSettings.h
+        Attribute.h AttributeAverages.h AttributeCreator.h AttributeInfo.h \
+        AttributeAverages2D.h AttributeAverages3D.h \
+        AttributeHistogram.h Average.h AverageInterface.h\
+        AverageShaders.h AverageCacheT1KDEVelocity.h PipelineAverage3D.h \
+        Base.h Body.h BrowseSimulations.h\
+        BodyAlongTime.h AdjacentBody.h BodySelector.h \
+        ConstraintEdge.h ColorBarModel.h Comparisons.h\
+        Debug.h DerivedData.h \
+        Disk.h ImageBasedAverage.h ForceAverage.h\
+        DisplayBodyFunctors.h DisplayElement.h\
+        DisplayFaceFunctors.h \
+        DisplayEdgeFunctors.h DisplayElement.h WidgetSave.h\
+        EditColorMap.h Edge.h Element.h ExpressionTree.h \
+        Enums.h Foam.h FoamvisInteractorStyle.h \
+        DataProperties.h Face.h ForceOneObject.h\
+        WidgetBase.h WidgetGl.h WidgetHistogram.h WidgetVtk.h \
+        Hashes.h Histogram.h HistogramItem.h HistogramSettings.h\
+        HistogramStatistics.h Labels.h ListViewSignal.h\
+        LineEditFocus.h MainWindow.h NameSemanticValue.h \
+        OOBox.h Info.h ObjectPosition.h OpenGLUtils.h OrientedElement.h\
+        OrientedEdge.h OrientedFace.h Options.h \
+        ParsingData.h ParsingDriver.h \
+        Settings.h SelectBodiesById.h ScalarAverage.h ShaderProgram.h\
+        ParsingEnums.h PipelineBase.h \
+        ProcessBodyTorus.h PropertySetter.h \
+        QuadraticEdge.h RegularGridAverage.h\
+        RestrictedRangeSlider.h Simulation.h\
+        stable.h StripIterator.h SystemDifferences.h ScalarDisplay.h \
+        T1KDE2D.h T1.h TensorAverage.h TransferFunctionHistogram.h \
+        TimeStepsSlider.h Utils.h VectorAverage.h \
+        Vertex.h  VectorOperation.h ViewSettings.h
 SOURCES += Application.cpp ApproximationEdge.cpp\
-	Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
-	AttributeAverages.cpp AttributeAverages2D.cpp AttributeAverages3D.cpp \
-	AttributeHistogram.cpp Average.cpp AverageShaders.cpp \
-	AdjacentBody.cpp PipelineAverage3D.cpp \
-	Base.cpp Body.cpp BodyAlongTime.cpp \
-	BodySelector.cpp BrowseSimulations.cpp \
-	ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
-	DataProperties.cpp \
-	Debug.cpp Disk.cpp DisplayBodyFunctors.cpp DisplayElement.cpp\
-	ImageBasedAverage.cpp DisplayFaceFunctors.cpp \
-	DisplayEdgeFunctors.cpp	Edge.cpp \
-	HistogramStatistics.cpp\
-	EditColorMap.cpp Element.cpp ExpressionTree.cpp \
-	Enums.cpp Foam.cpp FoamvisInteractorStyle.cpp\
-	Face.cpp ForceOneObject.cpp\
-	ForceAverage.cpp \
-	WidgetBase.cpp WidgetGl.cpp WidgetHistogram.cpp \
-	WidgetSave.cpp WidgetVtk.cpp \
-	Histogram.cpp HistogramItem.cpp \
-	HistogramSettings.cpp main.cpp MainWindow.cpp  \
-	NameSemanticValue.cpp \
-	OOBox.cpp ObjectPosition.cpp OpenGLUtils.cpp \
-	OrientedElement.cpp Options.cpp \
-	OrientedEdge.cpp OrientedFace.cpp AdjacentOrientedFace.cpp\
-	ScalarAverage.cpp Settings.cpp SelectBodiesById.cpp \
-	ParsingData.cpp PipelineBase.cpp ParsingDriver.cpp \
-	ParsingEnums.cpp ProcessBodyTorus.cpp \
-	PropertySetter.cpp ShaderProgram.cpp\
-	QuadraticEdge.cpp RegularGridAverage.cpp\
-	RestrictedRangeSlider.cpp Simulation.cpp\
-	StripIterator.cpp ScalarDisplay.cpp T1KDE2D.cpp TimeStepsSlider.cpp \
-	T1.cpp TransferFunctionHistogram.cpp TensorAverage.cpp \
-	Utils.cpp VectorAverage.cpp Vertex.cpp \
-	ViewSettings.cpp VectorOperation.cpp
+        Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
+        AttributeAverages.cpp AttributeAverages2D.cpp AttributeAverages3D.cpp \
+        AttributeHistogram.cpp Average.cpp AverageShaders.cpp \
+        AdjacentBody.cpp PipelineAverage3D.cpp \
+        Base.cpp Body.cpp BodyAlongTime.cpp \
+        BodySelector.cpp BrowseSimulations.cpp \
+        ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
+        DataProperties.cpp \
+        Debug.cpp Disk.cpp DisplayBodyFunctors.cpp DisplayElement.cpp\
+        ImageBasedAverage.cpp DisplayFaceFunctors.cpp \
+        DisplayEdgeFunctors.cpp Edge.cpp \
+        HistogramStatistics.cpp\
+        EditColorMap.cpp Element.cpp ExpressionTree.cpp \
+        Enums.cpp Foam.cpp FoamvisInteractorStyle.cpp\
+        Face.cpp ForceOneObject.cpp\
+        ForceAverage.cpp \
+        WidgetBase.cpp WidgetGl.cpp WidgetHistogram.cpp \
+        WidgetSave.cpp WidgetVtk.cpp \
+        Histogram.cpp HistogramItem.cpp \
+        HistogramSettings.cpp main.cpp MainWindow.cpp  \
+        NameSemanticValue.cpp \
+        OOBox.cpp ObjectPosition.cpp OpenGLUtils.cpp \
+        OrientedElement.cpp Options.cpp \
+        OrientedEdge.cpp OrientedFace.cpp AdjacentOrientedFace.cpp\
+        ScalarAverage.cpp Settings.cpp SelectBodiesById.cpp \
+        ParsingData.cpp PipelineBase.cpp ParsingDriver.cpp \
+        ParsingEnums.cpp ProcessBodyTorus.cpp \
+        PropertySetter.cpp ShaderProgram.cpp\
+        QuadraticEdge.cpp RegularGridAverage.cpp\
+        RestrictedRangeSlider.cpp Simulation.cpp\
+        StripIterator.cpp ScalarDisplay.cpp T1KDE2D.cpp TimeStepsSlider.cpp \
+        T1.cpp TransferFunctionHistogram.cpp TensorAverage.cpp \
+        Utils.cpp VectorAverage.cpp Vertex.cpp \
+        ViewSettings.cpp VectorOperation.cpp
 FORMS += BrowseSimulations.ui SelectBodiesById.ui EditColorMap.ui \
-	 HistogramSettings.ui RestrictedRangeSlider.ui MainWindow.ui Info.ui
+         HistogramSettings.ui RestrictedRangeSlider.ui MainWindow.ui Info.ui
 LEXSOURCES        += EvolverData.l
 YACCSOURCES       += EvolverData.y
 RESOURCES          = foam.qrc
@@ -75,17 +75,17 @@ QMAKE_LEX          = .\\/flex.pl
 TARGET             = foam
 QT                += opengl
 PRECOMPILED_HEADER = stable.h
-CPP                = /usr/bin/cpp
-SED                = /usr/bin/sed
+CPP                = cpp
+SED                = sed
 
 GLSL_PREPROCESS_FILES = TensorDisplay.frag.in VectorDisplay.frag.in
 glsl_preprocess.input = GLSL_PREPROCESS_FILES
 glsl_preprocess.output = ${QMAKE_FILE_BASE}
 glsl_preprocess.depend_command = $${CPP} -E -M ${QMAKE_FILE_IN} |\
-	 $${SED} \'s,^.*: ,,\'
+         $${SED} \'s,^.*: ,,\'
 glsl_preprocess.commands = \
-	cat ${QMAKE_FILE_IN} | cpp -C -P - - | \
-	.\\/cleanupFrag.pl > ${QMAKE_FILE_BASE}
+        cat ${QMAKE_FILE_IN} | cpp -C -P - - | \
+        .\\/cleanupFrag.pl > ${QMAKE_FILE_BASE}
 glsl_preprocess.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += glsl_preprocess
 PRE_TARGETDEPS += VectorDisplay.frag TensorDisplay.frag
@@ -95,7 +95,7 @@ system (touch -t 0001010000 $$PRE_TARGETDEPS)
 
 CONFIG            += qt precompile_header no_keywords debug_and_release
 CONFIG(debug, debug|release) {
-	TARGET = $$join(TARGET,,,_debug)
+        TARGET = $$join(TARGET,,,_debug)
 # Profile
 # QMAKE_CXXFLAGS += -pg
 # QMAKE_LFLAGS += -pg
@@ -104,12 +104,12 @@ DEFINES += vtkRenderingCore_AUTOINIT=\"4(vtkInteractionStyle,vtkRenderingFreeTyp
 
 win32 {
 INCLUDEPATH += "C:\G3D-7.00-vc8\include"
-LIBS += "C:\G3D-7.00-vc8\lib\zlib.lib" 
-LIBS += "C:\G3D-7.00-vc8\lib\png.lib" 
-LIBS += "C:\G3D-7.00-vc8\lib\jpeg.lib" 
-LIBS += "C:\G3D-7.00-vc8\lib\zip.lib" 
-LIBS += "C:\G3D-7.00-vc8\lib\G3Dd.lib" 
-LIBS += "C:\G3D-7.00-vc8\lib\GLG3Dd.lib" 
+LIBS += "C:\G3D-7.00-vc8\lib\zlib.lib"
+LIBS += "C:\G3D-7.00-vc8\lib\png.lib"
+LIBS += "C:\G3D-7.00-vc8\lib\jpeg.lib"
+LIBS += "C:\G3D-7.00-vc8\lib\zip.lib"
+LIBS += "C:\G3D-7.00-vc8\lib\G3Dd.lib"
+LIBS += "C:\G3D-7.00-vc8\lib\GLG3Dd.lib"
 }
 else:macx {
 INCLUDEPATH += /usr/local/include
@@ -121,8 +121,8 @@ LIBS += -L/usr/local/lib
 LIBS += -L/usr/local/qwt-5.2.1/lib
 
 # G3D
-LIBS += "-lGLG3D" 
-LIBS += "-lG3D" 
+LIBS += "-lGLG3D"
+LIBS += "-lG3D"
 
 LIBS += "-ljpeg"
 LIBS += "-lz"
