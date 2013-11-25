@@ -1,0 +1,8 @@
+*_lex.*
+*_yacc.*
+moc_*.*
+ui_*.*
+location.hh
+position.hh
+stack.hh
+*.o
