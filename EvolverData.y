@@ -25,10 +25,10 @@
 %error-verbose
 %expect 3 // state 84, 89, 297
 %locations
-%{
+%code requires {
 class Foam;
 class ParsingDriver;
-%}
+}
 %parse-param { Foam* foam }
 %parse-param { void* scanner }
 %lex-param   { void* scanner }
@@ -40,13 +40,13 @@ class ParsingDriver;
 
 
 /** @cond */
-%{
+%code requires {
 #include "ParsingEnums.h"
 class ExpressionTree;
 class NameSemanticValue;
 class AttributeCreator;
 class Attribute;
-%}
+}
 /** @endcond */
 
 /*

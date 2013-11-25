@@ -78,9 +78,9 @@
 #include <QtOpenGL/QtOpenGL>
 #include <QtCore/QtConcurrentMap>
 #include <QtCore/QtDebug>
+#include <qglfunctions.h>
 
 // Qt3D headers
-#include <Qt3D/qglfunctions.h>
 #include <Qt3D/qbox3d.h>
 #include <Qt3D/qray3d.h>
 

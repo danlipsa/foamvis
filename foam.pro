@@ -115,7 +115,7 @@ else:macx {
 INCLUDEPATH += /usr/local/include
 INCLUDEPATH += /usr/local/qwt-5.2.1/include
 INCLUDEPATH += /usr/local/include/vtk-6.0
-INCLUDEPATH += /usr/local/Trolltech/Qt-4.7.0/include
+INCLUDEPATH += /usr/local/Trolltech/Qt-4.8.5/include
 
 LIBS += -L/usr/local/lib
 LIBS += -L/usr/local/qwt-5.2.1/lib
@@ -136,27 +136,27 @@ LIBS += "-framework Carbon"
 LIBS += "-lqwtd"
 
 # VTK
-LIBS += "-lvtkGUISupportQt-6.0"
-LIBS += "-lvtkIOXML-6.0"
-LIBS += "-lvtkFiltersFlowPaths-6.0"
-LIBS += "-lvtkInteractionWidgets-6.0"
-LIBS += "-lvtkRenderingOpenGL-6.0"
-LIBS += "-lvtkRenderingCore-6.0"
-LIBS += "-lvtkCommonMath-6.0"
-LIBS += "-lvtkCommonCore-6.0"
-LIBS += "-lvtkCommonDataModel-6.0"
-LIBS += "-lvtkCommonMisc-6.0"
-LIBS += "-lvtkCommonExecutionModel-6.0"
-LIBS += "-lvtkInteractionStyle-6.0"
-LIBS += "-lvtkFiltersCore-6.0"
-LIBS += "-lvtkFiltersSources-6.0"
-LIBS += "-lvtkFiltersModeling-6.0"
-LIBS += "-lvtkImagingSources-6.0"
-LIBS += "-lvtkRenderingAnnotation-6.0"
-LIBS += "-lvtkRenderingFreeTypeOpenGL-6.0"
-LIBS += "-lvtkRenderingFreeType-6.0"
-LIBS += "-lvtkFiltersGeneral-6.0"
-LIBS += "-lvtkCommonTransforms-6.0"
+LIBS += "-lvtkGUISupportQt-6.1"
+LIBS += "-lvtkIOXML-6.1"
+LIBS += "-lvtkFiltersFlowPaths-6.1"
+LIBS += "-lvtkInteractionWidgets-6.1"
+LIBS += "-lvtkRenderingOpenGL-6.1"
+LIBS += "-lvtkRenderingCore-6.1"
+LIBS += "-lvtkCommonMath-6.1"
+LIBS += "-lvtkCommonCore-6.1"
+LIBS += "-lvtkCommonDataModel-6.1"
+LIBS += "-lvtkCommonMisc-6.1"
+LIBS += "-lvtkCommonExecutionModel-6.1"
+LIBS += "-lvtkInteractionStyle-6.1"
+LIBS += "-lvtkFiltersCore-6.1"
+LIBS += "-lvtkFiltersSources-6.1"
+LIBS += "-lvtkFiltersModeling-6.1"
+LIBS += "-lvtkImagingSources-6.1"
+LIBS += "-lvtkRenderingAnnotation-6.1"
+LIBS += "-lvtkRenderingFreeTypeOpenGL-6.1"
+LIBS += "-lvtkRenderingFreeType-6.1"
+LIBS += "-lvtkFiltersGeneral-6.1"
+LIBS += "-lvtkCommonTransforms-6.1"
 
 
 # Qt3D
@@ -166,18 +166,19 @@ LIBS += "-lQt3D"
 LIBS += "-lgslcblas"
 LIBS += "-lgsl"
 
+
 # Boost
 LIBS += "-lboost_program_options"
 }
 else:unix {
 INCLUDEPATH += /usr/local/include
-INCLUDEPATH += /usr/local/include/vtk-6.0
+INCLUDEPATH += /usr/local/include/vtk-6.1
 INCLUDEPATH += /usr/local/qwt-5.2.1/include
-INCLUDEPATH += /usr/local/Trolltech/Qt-4.7.0/include
+INCLUDEPATH += /usr/local/Trolltech/Qt-4.8.5/include
 
 LIBS += -L/usr/local/lib
 LIBS += -L/usr/local/qwt-5.2.1/lib
-LIBS += -L/usr/local/Trolltech/Qt-4.7.0/lib
+LIBS += -L/usr/local/Trolltech/Qt-4.8.6/lib
 
 # G3D
 LIBS += "-lGLG3D"
@@ -198,24 +199,41 @@ LIBS += "-lX11"
 LIBS += "-lqwtd"
 
 # VTK
-LIBS += "-lvtkGUISupportQt-6.0"
-LIBS += "-lvtkIOXML-6.0"
-LIBS += "-lvtkFiltersFlowPaths-6.0"
-LIBS += "-lvtkInteractionWidgets-6.0"
-LIBS += "-lvtkRenderingOpenGL-6.0"
-LIBS += "-lvtkRenderingFreeTypeOpenGL-6.0"
-LIBS += "-lvtkRenderingCore-6.0"
+LIBS += "-lvtkCommonCore-6.1"
+LIBS += "-lvtkCommonDataModel-6.1"
+LIBS += "-lvtkCommonExecutionModel-6.1"
+LIBS += "-lvtkCommonMath-6.1"
+LIBS += "-lvtkCommonMisc-6.1"
+LIBS += "-lvtkCommonTransforms-6.1"
+LIBS += "-lvtkFiltersCore-6.1"
+LIBS += "-lvtkFiltersGeneral-6.1"
+LIBS += "-lvtkFiltersFlowPaths-6.1"
+LIBS += "-lvtkFiltersModeling-6.1"
+LIBS += "-lvtkFiltersSources-6.1"
+LIBS += "-lvtkGUISupportQt-6.1"
+LIBS += "-lvtkInteractionWidgets-6.1"
+LIBS += "-lvtkInteractionStyle-6.1"
+LIBS += "-lvtkImagingSources-6.1"
+LIBS += "-lvtkIOXML-6.1"
+LIBS += "-lvtkRenderingAnnotation-6.1"
+LIBS += "-lvtkRenderingFreeType-6.1"
+LIBS += "-lvtkRenderingFreeTypeOpenGL-6.1"
+LIBS += "-lvtkRenderingOpenGL-6.1"
+LIBS += "-lvtkRenderingCore-6.1"
 
 
 # Qt3D
 LIBS += "-lQt3D"
 
 # Gsl
-LIBS += "-lgslcblas"
 LIBS += "-lgsl"
+LIBS += "-lgslcblas"
 
 # Boost
 LIBS += "-lboost_program_options"
+
+# GLU
+LIBS += "-lGLU"
 }
 
 # Local Variables:

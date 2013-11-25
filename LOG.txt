@@ -1,6 +1,11 @@
 Release log
 ===========
 1.0.
+        - upgraded to vtk-6.1
+        - upgraded to bison-2.5 and flex-2.5.35
+        - upgraded repository to git
+        - upgraded to Qt 4.8.5
+        - upgraded to Q3D from qit repository, qt4 branch, 20130102
         - fixed bug where the color map from velocity was interfering with color
           map from T1KDE
         - fixed 2D T1KDE bug where the average is computed by dividing by the

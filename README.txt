@@ -6,7 +6,7 @@ A graphics card with:
   GL_ARB_texture_float
 
 On Linux, run:
-'glxinfo' to check capabilities of the drivers and
+'glxinfo | less' to check capabilities of the drivers and
 'lspci | grep VGA' to see the what graphics card you have in your system
 
 Compile
@@ -26,37 +26,41 @@ su <password>
 ./bjam install --prefix=/usr/local
 
 ----------------------------------------------------------------------
-Copy http://csgalati.swansea.ac.uk/foam/build/qt-everywhere-opensource-src-4.7.0.tar.gz to ~
+Copy http://csgalati.swansea.ac.uk/foam/build/qt-everywhere-opensource-src-4.8.5.tar.gz to ~
 cd ~
-tar xzf qt-everywhere-opensource-src-4.7.0.tar.gz
-cd qt-everywhere-opensource-src-4.7.0
-./configure
+tar xzf qt-everywhere-opensource-src-4.8.5.tar.gz
+cd qt-everywhere-opensource-src-4.8.5
+./configure -developer-build -qt-libpng -qt-libjpeg -prefix /usr/local/Trolltech/Qt-4.8.5
+make -j <number_of_processors>
+
+See also:
+qt-everywhere-opensource-src-4.8.5/doc/html/install-x11.html
+----------------------------------------------------------------------
+cd ~
+git clone git://gitorious.org/qt/qt3d.git qt3d
+cd qt3d
+git checkout --track -b qt4 origin/qt4
+~/qt-everywhere-opensource-src-4.8.5/bin/qmake
 make -j <number_of_processors>
 su <password>
 make install
-## Needed by qt3d ##
-cd /usr/local/Trolltech/Qt-4.7.0; mv include include_
-ln -s ~/qt-everywhere-opensource-src-4.7.0/include include
-Make sure you type the path correctly: ls include
-should list a bunch of files. If it does not: 'rm include' and start again.
 
+Note that qt3d installs itself into Qt build directory during compile.
+See also
+http://doc-snapshot.qt-project.org/qt3d-1.0/qt3d-building.html
+
+
+cd ~/qt-everywhere-opensource-src-4.8.5
+make install
+
+----------------------------------------------------------------------
 Add the following line at the end of ~/.bash_profile
-PATH=/usr/local/Trolltech/Qt-4.7.0/bin:$PATH;export PATH
-QTDIR=/usr/local/Trolltech/Qt-4.7.0;export QTDIR
+QTDIR=/usr/local/Trolltech/Qt-4.8.5;export QTDIR
+PATH=${QTDIR}/bin:$PATH;export PATH
 Execute '. .bash_profile'.
 Make sure the variables are set correctly: 'echo $PATH;echo $QTDIR'
 Make sure that the newly compiled qmake is
      called by using 'which qmake' to see the path qmake is called from.
-
-----------------------------------------------------------------------
-Copy http://csgalati.swansea.ac.uk/foam/build/qt3d-20101008.tgz to ~
-cd ~
-tar xzf qt3d-20101008.tgz
-cd qt3d
-qmake
-make -j <number_of_processors>
-su <password>
-make install
 
 ----------------------------------------------------------------------
 Copy http://csgalati.swansea.ac.uk/foam/build/qwt-5.2.1.tgz to ~

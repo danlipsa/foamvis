@@ -6,3 +6,11 @@ location.hh
 position.hh
 stack.hh
 *.o
+EvolverData.output
+Makefile
+Makefile.Debug
+Makefile.Release
+TensorDisplay.frag
+VectorDisplay.frag
+debug
+foam_debug
